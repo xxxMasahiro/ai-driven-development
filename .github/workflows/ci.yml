@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lesson-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Shell syntax
+        run: |
+          bash -n .githooks/pre-commit
+          bash -n tools/lib/lesson_common.sh
+          bash -n tools/check_lesson_structure.sh
+          bash -n tools/check_repository_boundary.sh
+          bash -n tools/lesson
+          bash -n tools/learn
+
+      - name: Lesson structure
+        run: ./tools/check_lesson_structure.sh
+
+      - name: Repository boundary
+        run: ./tools/check_repository_boundary.sh
+
+      - name: Lesson commands
+        run: |
+          ./tools/lesson 現在地
+          ./tools/lesson 一覧
+          ./tools/learn 現在地
+
+      - name: Regression checks
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d)"
+          cp -a . "$work/lesson"
+
+          cd "$work/lesson"
+          ./tools/lesson 通過 day1.mode "future step" >/tmp/future.out 2>&1 && exit 1 || true
+          ./tools/lesson 通過 setup.index >/tmp/empty-pass.out 2>&1 && exit 1 || true
+          ./tools/lesson 通過 setup.index "設定から体験開発へ進む順番を確認した"
+          ./tools/lesson 現在地 | grep 'setup.github-login'
+          ./tools/lesson 通過 setup.github-login "github-loginでGitHub接続を確認した"
+          ./tools/lesson 現在地 | grep 'day1.mode'
+
+          cd "$work/lesson"
+          mkdir "$(awk -F '\t' '$1 == "product_repo_name" { print $2 }' lesson/LESSON_CONFIG.tsv)"
+          ./tools/check_lesson_structure.sh >/tmp/nested.out 2>&1 && exit 1 || true

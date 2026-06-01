@@ -20,6 +20,8 @@
 | `index.md` | レッスン全体の入口と進行順を示す |
 | `github-login-setup-guide.md` | GitHub接続設定を行う |
 | `ai-driven-task-tracker-scenario.md` | タスク管理表を題材にAI駆動開発を体験する |
+| `README.md` | 公開リポジトリ向けの概要と導入手順 |
+| `LICENSE` | MITライセンス |
 | `guides/LESSON_GUIDE.md` | 学習者向けの短い案内 |
 | `playbooks/AGENT_PLAYBOOK.md` | エージェント向けの進行台本 |
 | `prompts/PROMPTS.md` | コピペ用プロンプト集 |
