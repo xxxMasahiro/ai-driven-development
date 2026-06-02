@@ -99,21 +99,21 @@ Implemented scope:
 - Expand dashboard readiness output for menu items 1 through 6.
 - Add tests for the renamed menu label, absence of the old learner-facing label, missing-prerequisite failure paths, unchanged existing 7-day/14-day behavior, and preservation of existing Free Development, Team Development, external-integration, dashboard, and product-gate checks.
 
-Next planned scope:
+Current implemented docs-map scope:
 
-- Add `guides/DOCUMENT_MAP.md` so learners can understand the repository's document system before document-heavy work.
+- Added `guides/DOCUMENT_MAP.md` so learners can understand the repository's document system before document-heavy work.
 - Explain `AGENTS.MD` invariant rules, document root, routing table, and repo-local skills in non-engineer-friendly terms.
 - Distinguish lesson-side `AGENTS.MD` from product-side `AGENT.md`.
 - Explain `docs/as-built/`, `docs/workflow/`, and `docs/memory/` by role.
 - Explain `docs/memory/DEVELOPER_MEMORY.md` and product-side `FAILURE_MEMORY.md` or failure-recovery records without claiming a lesson-side failure-memory file exists.
-- Add `tools/docs-tour status|rules|design|workflow|memory|skills|all` with learning-mode-aware A/B/C explanation depth.
-- Add `./tools/dashboard docs` and include it in `./tools/dashboard all`.
-- Add copy-paste prompt examples for asking an agent to explain `TASK_TRACKER`/`HANDOFF` and the as-built trio in learner-friendly language.
-- Add early 7-day and 14-day guidance about why the documents exist.
-- Add `tools/test_docs_tour.sh` and wire it into the relevant structure, as-built, developer-memory, aggregate, CI, and pre-commit checks when implemented.
+- Added `tools/docs-tour status|rules|design|workflow|memory|skills|all` with learning-mode-aware A/B/C explanation depth.
+- Added `./tools/dashboard docs` and included it in `./tools/dashboard all`.
+- Added copy-paste prompt examples for asking an agent to explain `TASK_TRACKER`/`HANDOFF` and the as-built trio in learner-friendly language.
+- Added early 7-day and 14-day guidance about why the documents exist.
+- Added `tools/test_docs_tour.sh` and wired it into the relevant structure, as-built, developer-memory, aggregate, CI, and pre-commit checks.
 - Preserve existing lesson progression, approvals, checks, menu behavior, dashboard behavior, skills, memory workflow, and repository-boundary behavior.
-- At this planning-synchronization stage, `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are planned artifacts and are not yet expected to exist in runtime.
-- Implementation completion will require validation wiring through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
+- `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are runtime artifacts.
+- Validation is wired through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
 - The validation suite must preserve existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-gate, Playwright, CI, and pre-commit behavior.
 
 Latest local verification passed the lesson-side verification sequence:

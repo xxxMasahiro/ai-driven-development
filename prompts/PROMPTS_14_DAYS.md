@@ -63,11 +63,39 @@ TASK_TRACKER.md、HANDOFF.md、REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATI
 この依頼では、まず更新案だけ提示してください。
 ```
 
+## 文書マップ確認プロンプト
+
+```text
+guides/DOCUMENT_MAP.md と tools/docs-tour status を確認してください。
+AGENTS.MDの不変ルール、ドキュメントルート、ルーティングテーブル、skills、
+docs/as-built/、docs/workflow/、docs/memory/の役割を、初めて見る人にも分かるように短く説明してください。
+AGENTS.MDは教材側のルールブック、AGENT.mdは成果物リポジトリ側の文脈メモである違いも説明してください。
+FAILURE_MEMORY.mdは成果物側の失敗復旧記録として扱い、教材側のdocs/memory/FAILURE_MEMORY.mdがあるとは説明しないでください。
+この依頼ではファイルを編集しないでください。
+```
+
+## 作業記録と引き継ぎの説明プロンプト
+
+```text
+docs/workflow/TASK_TRACKER.md と docs/workflow/HANDOFF.md を確認してください。
+現在の進捗、完了済みの作業、次に安全に進める作業を、初心者にも分かる言葉で説明してください。
+この依頼ではファイルを編集しないでください。
+```
+
+## 3文書の説明プロンプト
+
+```text
+docs/as-built/REQUIREMENTS.md、docs/as-built/SPECIFICATION.md、docs/as-built/IMPLEMENTATION_PLAN.mdを確認してください。
+それぞれが何を担当する文書なのか、3つの内容が同じ状態を説明しているかを、初心者にも分かる言葉で説明してください。
+この依頼ではファイルを編集しないでください。
+```
+
 ## Step 1/14
 
 ```text
 Step 1/14として、14日版ロードマップ、教材リポジトリと成果物リポジトリの境界、
-tools/lesson14、tools/roadmap、tools/helpdeskの使い方を確認してください。
+tools/lesson14、tools/roadmap、tools/helpdesk、tools/docs-tourの使い方を確認してください。
+文書が多く見える理由をguides/DOCUMENT_MAP.mdに沿って短く説明してください。
 最後にStep 1/14同期ゲートを通過できるか確認してください。
 ```
 
@@ -144,7 +172,8 @@ Step 10/14として、Playwrightを導入し、タスク管理表のE2Eテスト
 
 ```text
 Step 11/14として、Playwright E2EをCIに組み込みます。
-失敗した場合はログを読み、原因、修正、再実行、FAILURE_MEMORY.mdへの記録案を提示してください。
+失敗した場合はログを読み、原因、修正、再実行、成果物リポジトリ側のFAILURE_MEMORY.mdへの記録案を提示してください。
+教材側のdocs/memory/FAILURE_MEMORY.mdがあるとは説明しないでください。
 ```
 
 ## Step 12/14

@@ -84,35 +84,35 @@ Menu-control prerequisites are implemented without replacing or weakening any ex
 - Dashboard output exposes readiness for menu items 1 through 6 and does not hide existing dashboard information.
 - Tests validate the renamed menu label, absence of the old label in learner-facing menu output, missing-prerequisite failure paths for missing settings, and unchanged 7-day/14-day behavior.
 
-### Planned Documentation Map And Tour
+### Implemented Documentation Map And Tour
 
-The documentation-map improvement is planned and not yet implemented in the current runtime.
-It must be added without replacing or weakening existing lesson flow, menu behavior, dashboard behavior, checks, skills, memory documents, or as-built/workflow synchronization.
+The documentation-map improvement is implemented in the current runtime.
+It was added without replacing or weakening existing lesson flow, menu behavior, dashboard behavior, checks, skills, memory documents, or as-built/workflow synchronization.
 
-- `guides/DOCUMENT_MAP.md` will explain the repository documents through learner-facing categories:
+- `guides/DOCUMENT_MAP.md` explains the repository documents through learner-facing categories:
   - rules and routing,
   - design/as-built,
   - workflow state,
   - memory and decisions,
   - skills and reusable agent procedures.
-- The guide will explain `AGENTS.MD` as the lesson-side agent rulebook and will separately explain product-side `AGENT.md` where relevant.
-- The guide will explain the `AGENTS.MD` invariant rules, document root table, routing table, and repo-local skills in non-engineer-friendly terms.
-- The guide will explain `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md` as the design/as-built trio.
-- The guide will explain `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as the paired progress and restart-context documents.
-- The guide will explain `docs/memory/DEVELOPER_MEMORY.md` as developer intent and stable preference memory.
-- The guide will explain failure memory as product-side `FAILURE_MEMORY.md` or failure-recovery records when used by the lesson, without inventing a lesson-side file that does not exist.
-- `tools/docs-tour` will provide `status`, `rules`, `design`, `workflow`, `memory`, `skills`, and `all` views.
-- `tools/docs-tour` output will use the current learning mode when available:
+- The guide explains `AGENTS.MD` as the lesson-side agent rulebook and separately explains product-side `AGENT.md` where relevant.
+- The guide explains the `AGENTS.MD` invariant rules, document root table, routing table, and repo-local skills in non-engineer-friendly terms.
+- The guide explains `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md` as the design/as-built trio.
+- The guide explains `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as the paired progress and restart-context documents.
+- The guide explains `docs/memory/DEVELOPER_MEMORY.md` as developer intent and stable preference memory.
+- The guide explains failure memory as product-side `FAILURE_MEMORY.md` or failure-recovery records when used by the lesson, without inventing a lesson-side file that does not exist.
+- `tools/docs-tour` provides `status`, `rules`, `design`, `workflow`, `memory`, `skills`, and `all` views.
+- `tools/docs-tour` output uses the current learning mode when available:
   - A: fuller explanation with purpose, benefit, and examples,
   - B: short supplemental explanation,
   - C: file names and direct purposes only.
-- `tools/dashboard docs` will show document categories, key files, current workflow relevance, workflow-pair sync status, as-built sync status, and a next recommended document action.
-- `tools/dashboard all` will include the docs view without removing existing menu, lesson, development, or illustration views.
-- Prompt examples will be added so learners can ask an agent to explain `TASK_TRACKER` and `HANDOFF`, or the as-built trio, in plain language.
-- 7-day and 14-day guidance will introduce the documentation map before learners are expected to use the documents deeply.
-- `tools/test_docs_tour.sh` will cover guide presence, tour command behavior, dashboard docs output, prompt examples, structure integration, and as-built/workflow synchronization.
-- At this planning-synchronization stage, `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are planned artifacts and are not yet part of the runtime dispatcher or aggregate checks.
-- Implementation completion will wire validation through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
+- `tools/dashboard docs` shows document categories, key files, current workflow relevance, workflow-pair sync status, as-built sync status, and a next recommended document action.
+- `tools/dashboard all` includes the docs view without removing existing menu, lesson, development, or illustration views.
+- Prompt examples are included so learners can ask an agent to explain `TASK_TRACKER` and `HANDOFF`, or the as-built trio, in plain language.
+- 7-day and 14-day guidance introduces the documentation map before learners are expected to use the documents deeply.
+- `tools/test_docs_tour.sh` covers guide presence, tour command behavior, dashboard docs output, prompt examples, structure integration, and as-built/workflow synchronization.
+- `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are part of the runtime dispatcher and aggregate checks.
+- Validation is wired through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
 - The new validation must preserve existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-gate, Playwright, CI, and pre-commit behavior.
 
 ### Illustration Review Support

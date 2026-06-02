@@ -84,12 +84,12 @@ Menu prerequisite control is implemented additively and does not trade away any 
 - Add tests that positively confirm the renamed menu label `3. 応用レッスン` appears.
 - Add tests that fail if the old menu label returns, if menu items 1 through 6 can start without required settings, if missing-prerequisite failure paths are not enforced, or if existing 7-day/14-day behavior regresses.
 
-## Planned Documentation Map Requirements
+## Implemented Documentation Map Requirements
 
-The next lesson-improvement plan must explain the repository's many rule, routing, skill, design, workflow, and memory documents in language that non-engineer learners can understand.
-This planned work is additive and must not trade away any existing 7-day lesson, 14-day lesson, menu, dashboard, checks, document synchronization, skills, memory workflow, or repository-boundary behavior.
+The lesson repository explains its many rule, routing, skill, design, workflow, and memory documents in language that non-engineer learners can understand.
+This implemented work is additive and does not trade away any existing 7-day lesson, 14-day lesson, menu, dashboard, checks, document synchronization, skills, memory workflow, or repository-boundary behavior.
 
-- Add a learner-facing documentation map guide, planned as `guides/DOCUMENT_MAP.md`.
+- Provide a learner-facing documentation map guide at `guides/DOCUMENT_MAP.md`.
 - Explain `AGENTS.MD` as the lesson repository's agent rulebook, including invariant rules, document root, routing table, and repo-local skills.
 - Clearly distinguish lesson-side `AGENTS.MD` from product-side `AGENT.md`.
 - Explain `docs/as-built/` as the design/as-built area for requirements, specification, and implementation plan.
@@ -97,17 +97,17 @@ This planned work is additive and must not trade away any existing 7-day lesson,
 - Explain `docs/memory/` as the memory/decision area, currently including `docs/memory/DEVELOPER_MEMORY.md`.
 - Explain failure memory as product-side `FAILURE_MEMORY.md` or failure-recovery records where the lesson uses them, without falsely claiming that a lesson-side `docs/memory/FAILURE_MEMORY.md` file exists.
 - Explain `skills/*/SKILL.md` as reusable agent procedures, not learner homework.
-- Add a CLI tour command, planned as `tools/docs-tour`, with sections for rules, design, workflow, memory, skills, and all documents.
+- Provide a CLI tour command at `tools/docs-tour`, with sections for status, rules, design, workflow, memory, skills, and all documents.
 - Make the tour adapt to learning modes A/B/C so detailed learners get context, moderate learners get concise explanations, and workflow-only learners get file names and purposes.
-- Add `./tools/dashboard docs` and include the docs view in `./tools/dashboard all`.
+- Provide `./tools/dashboard docs` and include the docs view in `./tools/dashboard all`.
 - Show document categories, each document's purpose, relevant current workflow documents, `TASK_TRACKER`/`HANDOFF` pair status, and as-built synchronization status.
 - Add copy-paste prompt examples that ask an agent to explain current progress and next actions from `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` in learner-friendly terms.
 - Add early-lesson guidance for both 7-day and 14-day flows so learners understand why the documents exist before being asked to use them.
 - Keep repository source documents in English while allowing lesson/runtime explanations to follow the selected workflow display language.
-- Add mechanical checks, planned as `tools/test_docs_tour.sh` and updates to existing structure/as-built/developer-memory checks, so the documentation-map guide, tour command, dashboard docs view, prompt examples, and synchronization are testable.
-- At this planning-synchronization stage, `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are planned artifacts and are not yet required to exist.
-- Implementation completion will require validation wiring through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
-- Implementation verification must preserve existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-gate, Playwright, CI, and pre-commit behavior.
+- Provide mechanical checks through `tools/test_docs_tour.sh` and updates to existing structure/as-built/developer-memory checks, so the documentation-map guide, tour command, dashboard docs view, prompt examples, and synchronization are testable.
+- `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are required runtime artifacts.
+- Validation is wired through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
+- Implementation verification preserves existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-gate, Playwright, CI, and pre-commit behavior.
 
 ## Mechanical Enforcement
 
@@ -125,6 +125,8 @@ This planned work is additive and must not trade away any existing 7-day lesson,
 - Free Development Mode is gated by `tools/free-development gate`.
 - Team Development and Docker is gated by `tools/team-development gate`.
 - Product Improvement is gated by `tools/product-improvement gate`.
+- Documentation Map is checked by `tools/test_docs_tour.sh`.
+- Documentation Map runtime status is shown by `tools/docs-tour status` and `tools/dashboard docs`.
 - Menu prerequisites are checked by `tools/menu check <1|2|3|4|5|6>` and `tools/test_menu_prerequisites.sh`.
 - The learner-facing menu is checked by `tools/menu` and developer-memory requirement checks.
 - Dashboard and illustration entry points are checked by structure and developer-memory requirement checks.

@@ -17,6 +17,8 @@ test("CLI dashboard exposes the main learner views", () => {
   expect(output).toContain("Workflow display language");
   expect(output).toContain("Product development language");
   expect(output).toContain("Next approval");
+  expect(output).toContain("Documentation Map Dashboard");
+  expect(output).toContain("Documentation Map Status");
   expect(output).toContain("Illustration Review Dashboard");
 });
 

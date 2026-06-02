@@ -1,0 +1,243 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LESSON_CONFIG="${LESSON_CONFIG:-$ROOT/lesson/LESSON_CONFIG_14_DAYS.tsv}"
+export LESSON_CONFIG
+
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/document_paths.sh
+source "$ROOT/tools/lib/document_paths.sh"
+
+DOC_MAP="$ROOT/guides/DOCUMENT_MAP.md"
+
+print_section() {
+  local title="$1"
+  printf '%s\n' "$title"
+  printf '%s\n\n' "$(printf '%s' "$title" | sed 's/./=/g')"
+}
+
+current_mode_code() {
+  local file
+  if file="$(lesson_menu_latest_setting_file learning_mode 2>/dev/null)"; then
+    awk -F '\t' '$1 !~ /^#/ && $2 ~ /^[ABC]$/ { print $2; found=1; exit } END { exit found ? 0 : 1 }' "$file"
+    return
+  fi
+  printf 'B'
+}
+
+current_mode_label() {
+  local file
+  if file="$(lesson_menu_latest_setting_file learning_mode 2>/dev/null)"; then
+    lesson_setting_value_from_file learning_mode "$file"
+    return
+  fi
+  printf 'B (default concise explanation)'
+}
+
+current_workflow_language() {
+  local file
+  if file="$(lesson_menu_latest_setting_file workflow_language 2>/dev/null)"; then
+    lesson_setting_value_from_file workflow_language "$file"
+    return
+  fi
+  printf 'not selected'
+}
+
+file_presence() {
+  local rel="$1"
+  if [[ -f "$ROOT/$rel" ]]; then
+    printf 'present'
+  else
+    printf 'missing'
+  fi
+}
+
+sync_status() {
+  local command="$1"
+  local label="$2"
+  if "$ROOT/$command" >/dev/null 2>&1; then
+    printf '%s: synchronized\n' "$label"
+  else
+    printf '%s: needs review\n' "$label"
+  fi
+}
+
+mode_note() {
+  printf 'Learning mode: %s\n' "$(current_mode_label)"
+  printf 'Workflow display language: %s\n\n' "$(current_workflow_language)"
+}
+
+show_status() {
+  print_section 'Documentation Map Status'
+  mode_note
+  printf 'Guide: guides/DOCUMENT_MAP.md is %s\n' "$(file_presence guides/DOCUMENT_MAP.md)"
+  printf 'Rulebook: AGENTS.MD is %s\n' "$(file_presence AGENTS.MD)"
+  printf 'Design docs: %s, %s, %s\n' \
+    "$(file_presence docs/as-built/REQUIREMENTS.md)" \
+    "$(file_presence docs/as-built/SPECIFICATION.md)" \
+    "$(file_presence docs/as-built/IMPLEMENTATION_PLAN.md)"
+  printf 'Workflow docs: %s, %s\n' \
+    "$(file_presence docs/workflow/TASK_TRACKER.md)" \
+    "$(file_presence docs/workflow/HANDOFF.md)"
+  printf 'Memory docs: %s\n' "$(file_presence docs/memory/DEVELOPER_MEMORY.md)"
+  printf '\n'
+  printf 'Quick role overview:\n'
+  printf '%s\n' '- AGENTS.MD: lesson-side agent rulebook'
+  printf '%s\n' '- product-side AGENT.md: product repository context'
+  printf '%s\n' '- docs/as-built/: requirements, specification, and implementation plan'
+  printf '%s\n' '- docs/workflow/: TASK_TRACKER and HANDOFF paired work state'
+  printf '%s\n' '- docs/memory/: stable lesson-side maintainer memory'
+  printf '%s\n' '- product-side FAILURE_MEMORY.md: failure and recovery records when a product repository uses one'
+  printf '%s\n' '- skills/*/SKILL.md: reusable agent procedures'
+  printf '\n'
+  sync_status 'tools/check_workflow_pair_sync.sh' 'TASK_TRACKER/HANDOFF pair'
+  sync_status 'tools/check_as_built_docs.sh' 'As-built document set'
+  printf '\nNext recommended action: run ./tools/docs-tour all, then ask the agent to explain only the document category you need now.\n'
+}
+
+show_rules() {
+  print_section 'Rules And Routing'
+  case "$(current_mode_code)" in
+    A)
+      printf 'AGENTS.MD is the lesson-side rulebook. It tells an agent what must not be broken, which document to read first, how to route learner intent, and which repo-local skill to use.\n'
+      printf 'The invariant rules protect existing 7-day and 14-day flows, approval gates, repository boundaries, and the no-existing-feature-tradeoff requirement.\n'
+      printf 'The document root table is a navigation map. The routing table connects user intent to files, skills, and commands.\n\n'
+      ;;
+    B)
+      printf 'AGENTS.MD is the lesson-side rulebook. It contains invariant rules, document root, routing table, and repo-local skills.\n\n'
+      ;;
+    C)
+      printf 'AGENTS.MD: lesson-side rulebook, document root, routing table, skills.\n\n'
+      ;;
+  esac
+  printf 'Key files:\n'
+  printf '%s\n' '- AGENTS.MD'
+  printf '%s\n' '- guides/DOCUMENT_MAP.md'
+  printf '%s\n' '- skills/*/SKILL.md'
+  printf '\nDo not confuse AGENTS.MD with product-side AGENT.md.\n'
+}
+
+show_design() {
+  print_section 'Design And As-Built Documents'
+  case "$(current_mode_code)" in
+    A)
+      printf 'The as-built trio describes the repository from three angles: what it must provide, how it should behave, and how implementation and verification are organized.\n'
+      printf 'Use these documents when changing the lesson repository itself or checking whether implemented behavior matches maintainer intent.\n\n'
+      ;;
+    B)
+      printf 'The as-built trio keeps requirements, behavior, and implementation plan aligned.\n\n'
+      ;;
+    C)
+      printf 'As-built trio: requirements, specification, implementation plan.\n\n'
+      ;;
+  esac
+  printf '%s\n' '- docs/as-built/REQUIREMENTS.md: what the lesson repository must provide'
+  printf '%s\n' '- docs/as-built/SPECIFICATION.md: how the repository behavior is specified'
+  printf '%s\n' '- docs/as-built/IMPLEMENTATION_PLAN.md: how implementation and verification are organized'
+  printf '\n'
+  sync_status 'tools/check_as_built_docs.sh' 'As-built document set'
+}
+
+show_workflow() {
+  print_section 'Workflow State Documents'
+  case "$(current_mode_code)" in
+    A)
+      printf 'TASK_TRACKER.md and HANDOFF.md are a pair. The tracker records progress and remaining work. The handoff records enough context to restart safely later.\n'
+      printf 'When one changes, check whether the other should change too.\n\n'
+      ;;
+    B)
+      printf 'TASK_TRACKER.md records progress. HANDOFF.md records restart context. Treat them as a synchronized pair.\n\n'
+      ;;
+    C)
+      printf 'TASK_TRACKER.md: progress. HANDOFF.md: restart context.\n\n'
+      ;;
+  esac
+  printf '%s\n' '- docs/workflow/TASK_TRACKER.md'
+  printf '%s\n' '- docs/workflow/HANDOFF.md'
+  printf '\n'
+  sync_status 'tools/check_workflow_pair_sync.sh' 'TASK_TRACKER/HANDOFF pair'
+  printf '\nCopy-paste prompt:\n'
+  printf 'Read docs/workflow/TASK_TRACKER.md and docs/workflow/HANDOFF.md. Explain the current progress, completed work, and next safe action in plain language. Do not edit files yet.\n'
+}
+
+show_memory() {
+  print_section 'Memory And Decisions'
+  case "$(current_mode_code)" in
+    A)
+      printf 'Developer memory preserves stable maintainer intent, review findings, and follow-up requirements. It is different from a learner progress log.\n'
+      printf 'Failure memory is usually product-side: a product repository can use FAILURE_MEMORY.md to record failures and recovery steps.\n\n'
+      ;;
+    B)
+      printf 'Developer memory stores stable maintainer intent. Product-side failure memory stores failures and recovery notes.\n\n'
+      ;;
+    C)
+      printf 'DEVELOPER_MEMORY.md: maintainer intent. Product FAILURE_MEMORY.md: failure recovery.\n\n'
+      ;;
+  esac
+  printf '%s\n' '- docs/memory/DEVELOPER_MEMORY.md'
+  printf '%s\n' '- product-side FAILURE_MEMORY.md when a product repository uses one'
+  printf '\nThis lesson repository does not currently define docs/memory/FAILURE_MEMORY.md.\n'
+}
+
+show_skills() {
+  print_section 'Repo-Local Skills'
+  case "$(current_mode_code)" in
+    A)
+      printf 'Skills are reusable agent procedures. They help the agent repeat important workflows consistently, such as sync gates or document synchronization.\n'
+      printf 'Learners do not need to memorize skill files. They need to know that skills are reusable instructions the agent can consult.\n\n'
+      ;;
+    B)
+      printf 'Skills are reusable procedures for the agent. They keep repeated workflows consistent.\n\n'
+      ;;
+    C)
+      printf 'skills/*/SKILL.md: reusable agent procedures.\n\n'
+      ;;
+  esac
+  printf '%s\n' '- skills/lesson-sync-gate/SKILL.md'
+  printf '%s\n' '- skills/worklog-doc-sync/SKILL.md'
+  printf '%s\n' '- skills/lesson14-facilitator/SKILL.md'
+}
+
+usage() {
+  printf 'Usage: ./tools/docs-tour <status|rules|design|workflow|memory|skills|all>\n' >&2
+}
+
+case "${1:-status}" in
+  status)
+    show_status
+    ;;
+  rules)
+    show_rules
+    ;;
+  design)
+    show_design
+    ;;
+  workflow)
+    show_workflow
+    ;;
+  memory)
+    show_memory
+    ;;
+  skills)
+    show_skills
+    ;;
+  all)
+    show_status
+    printf '\n'
+    show_rules
+    printf '\n'
+    show_design
+    printf '\n'
+    show_workflow
+    printf '\n'
+    show_memory
+    printf '\n'
+    show_skills
+    ;;
+  *)
+    usage
+    exit 1
+    ;;
+esac

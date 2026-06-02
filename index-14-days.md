@@ -74,10 +74,11 @@ C: 解説不要でワークフローのみ
 3. guides/LESSON_14_DAYS.md
 4. playbooks/AGENT_PLAYBOOK_14_DAYS.md
 5. prompts/PROMPTS_14_DAYS.md
-6. lesson/LESSON_FLOW_14_DAYS.tsv
-7. lesson/SYNC_GATES_14_DAYS.tsv
-8. AGENTS.MD
-9. skills/lesson14-facilitator/SKILL.md
+6. guides/DOCUMENT_MAP.md
+7. lesson/LESSON_FLOW_14_DAYS.tsv
+8. lesson/SYNC_GATES_14_DAYS.tsv
+9. AGENTS.MD
+10. skills/lesson14-facilitator/SKILL.md
 ```
 
 ## 最初に実行するコマンド
@@ -87,6 +88,7 @@ C: 解説不要でワークフローのみ
 ./tools/check_lesson14_sync.sh
 ./tools/check_agents_skills.sh
 ./tools/check_developer_memory_requirements.sh
+./tools/docs-tour status
 ./tools/test_lesson_repository.sh
 ./tools/lesson14 status
 ./tools/roadmap status
@@ -125,6 +127,19 @@ C: 解説不要でワークフローのみ
 
 成果物リポジトリの開発に入る前に、学習者は別画面でUbuntu/WSL CLIを起動します。
 学習用リポジトリ `$HOME/projects/ai-driven-development-lesson/` と、成果物リポジトリ `$HOME/projects/task-tracker-repository/` を別々のCLI画面で扱うことで、Git管理の混線を防ぎます。
+
+## 文書マップ
+
+14日版では、要件、仕様、実装計画、タスクトラッカー、ハンドオフ、開発者メモリー、skills、AGENTS.MDを繰り返し使います。
+文書が多く見える場合は、先に文書の役割を確認します。
+
+```bash
+./tools/docs-tour status
+./tools/docs-tour all
+./tools/dashboard docs
+```
+
+詳しい説明は `guides/DOCUMENT_MAP.md` にあります。
 
 ## ロードマップとヘルプデスク
 

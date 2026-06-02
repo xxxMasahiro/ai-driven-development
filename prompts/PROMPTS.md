@@ -93,6 +93,32 @@ tools/lesson 現在地で現在項目を確認してください。
 エージェントがMarkdownを直接編集しないでください。
 ```
 
+## 文書マップ確認
+
+```text
+guides/DOCUMENT_MAP.md と tools/docs-tour status を確認してください。
+AGENTS.MD、docs/as-built/、docs/workflow/、docs/memory/、skills/ の役割を、初めて見る人にも分かるように短く説明してください。
+AGENTS.MDは教材側のルールブック、AGENT.mdは成果物リポジトリ側の文脈メモである違いも説明してください。
+FAILURE_MEMORY.mdは成果物側の失敗復旧記録として扱い、教材側のdocs/memory/FAILURE_MEMORY.mdがあるとは説明しないでください。
+この依頼ではファイルを編集しないでください。
+```
+
+## 作業記録と引き継ぎの説明
+
+```text
+docs/workflow/TASK_TRACKER.md と docs/workflow/HANDOFF.md を確認してください。
+現在の進捗、完了済みの作業、次に安全に進める作業を、初心者にも分かる言葉で説明してください。
+この依頼ではファイルを編集しないでください。
+```
+
+## 3文書の説明
+
+```text
+docs/as-built/REQUIREMENTS.md、docs/as-built/SPECIFICATION.md、docs/as-built/IMPLEMENTATION_PLAN.mdを確認してください。
+それぞれが何を担当する文書なのか、3つの内容が同じ状態を説明しているかを、初心者にも分かる言葉で説明してください。
+この依頼ではファイルを編集しないでください。
+```
+
 ## 初回同期
 
 ```text
@@ -133,7 +159,8 @@ TASK_TRACKER.md、HANDOFF.mdの整合性を確認してください。
 進行中に問題がありました。
 作業を止めて、問題点、原因、再発防止策、次の一問を短く提示してください。
 この依頼ではファイルを編集しないでください。
-FAILURE_MEMORY.mdへ書く必要がある場合も、まず記録案だけ出してください。
+成果物リポジトリ側のFAILURE_MEMORY.mdへ書く必要がある場合も、まず記録案だけ出してください。
+教材側のdocs/memory/FAILURE_MEMORY.mdがあるとは説明しないでください。
 ```
 
 ## Step 1/7

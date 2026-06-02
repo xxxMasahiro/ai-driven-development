@@ -85,27 +85,27 @@ The following developer-memory remediation items are implemented and mechanicall
 - The synchronization passes only when the implemented content is present in all five documents.
 - Preserve refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule while maintaining the implemented remediation.
 
-## Planned Documentation Map Synchronization
+## Implemented Documentation Map Synchronization
 
-The next planned lesson improvement explains the repository's rule, routing, skill, design, workflow, and memory documents in a way that non-engineer learners can understand.
-This is a plan only; runtime implementation has not started.
+The lesson now explains the repository's rule, routing, skill, design, workflow, and memory documents in a way that non-engineer learners can understand.
+Runtime implementation has started and the docs map artifacts are present.
 
-- Add `guides/DOCUMENT_MAP.md`.
+- Added `guides/DOCUMENT_MAP.md`.
 - Explain `AGENTS.MD` invariant rules, document root, routing table, and repo-local skills as the agent-facing rule and navigation layer.
 - Distinguish lesson-side `AGENTS.MD` from product-side `AGENT.md`.
 - Explain `docs/as-built/` as the requirements, specification, and implementation-plan area.
 - Explain `docs/workflow/` as the task-tracker and handoff area.
 - Explain `docs/memory/` as memory and decision records, including `docs/memory/DEVELOPER_MEMORY.md`.
 - Explain product-side `FAILURE_MEMORY.md` or failure-recovery records without claiming a lesson-side failure-memory file exists.
-- Add `tools/docs-tour` with `status`, `rules`, `design`, `workflow`, `memory`, `skills`, and `all` views.
-- Make `tools/docs-tour` adapt to learning modes A/B/C.
-- Add `./tools/dashboard docs` and include that view in `./tools/dashboard all`.
-- Add copy-paste prompt examples for asking an agent to explain `TASK_TRACKER`/`HANDOFF` and the as-built trio in learner-friendly language.
-- Add early 7-day and 14-day guidance so learners understand why the documents exist before they use them deeply.
-- Add `tools/test_docs_tour.sh` and wire it into structure/as-built/developer-memory checks, aggregate tests, CI, and pre-commit when implemented.
+- Added `tools/docs-tour` with `status`, `rules`, `design`, `workflow`, `memory`, `skills`, and `all` views.
+- Made `tools/docs-tour` adapt to learning modes A/B/C.
+- Added `./tools/dashboard docs` and included that view in `./tools/dashboard all`.
+- Added copy-paste prompt examples for asking an agent to explain `TASK_TRACKER`/`HANDOFF` and the as-built trio in learner-friendly language.
+- Added early 7-day and 14-day guidance so learners understand why the documents exist before they use them deeply.
+- Added `tools/test_docs_tour.sh` and wired it into structure/as-built/developer-memory checks, aggregate tests, CI, and pre-commit.
 - Preserve existing lesson progression, approvals, checks, menu behavior, dashboard behavior, skills, memory workflow, and repository-boundary behavior.
-- At this planning-synchronization stage, `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are planned artifacts and are not yet expected to exist in runtime.
-- Implementation completion will require validation wiring through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
+- `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are runtime artifacts.
+- Validation is wired through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
 - The validation suite must preserve existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-gate, Playwright, CI, and pre-commit behavior.
 
 ## Implemented Menu Prerequisite Control

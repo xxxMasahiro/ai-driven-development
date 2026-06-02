@@ -131,6 +131,8 @@ Related notes:
 - Treat design documents, workflow-state documents, and memory documents as different categories.
 - Long document lists should be grouped by role in learner-facing explanations.
 - Hide internal step IDs from ordinary learner-facing output.
+- Provide a learner-facing document map through `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, and `tools/dashboard docs` so learners can understand rules, routing, as-built documents, workflow documents, memory documents, and skills before document-heavy work.
+- Keep the document map mechanically enforced through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, aggregate tests, CI, and pre-commit.
 
 Related notes:
 
@@ -138,6 +140,7 @@ Related notes:
 - `Hide Internal Step IDs From Learners`
 - `Group Long Document Lists By Role`
 - `Separate Workflow Display Language And Product Development Language`
+- `Explain Repository Documents To Learners`
 
 ### Advanced And Post-Lesson Paths
 

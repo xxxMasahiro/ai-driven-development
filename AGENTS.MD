@@ -97,6 +97,7 @@
 | GitHub初期設定 | `github-login-setup-guide.md` |
 | 7日版体験開発 | `ai-driven-task-tracker-scenario.md` |
 | 14日版ロードマップ | `learning/ROADMAP.md` |
+| 文書マップ | `guides/DOCUMENT_MAP.md` |
 | 14日版進行台本 | `playbooks/AGENT_PLAYBOOK_14_DAYS.md` |
 | 14日版プロンプト | `prompts/PROMPTS_14_DAYS.md` |
 | 14日版フロー | `lesson/LESSON_FLOW_14_DAYS.tsv` |
@@ -111,6 +112,7 @@
 | --- | --- | --- | --- |
 | メニューを表示したい | `docs/memory/DEVELOPER_MEMORY.md` のメニュー方針、`README.md` | なし | `./tools/menu` |
 | ダッシュボードを見たい | `docs/memory/DEVELOPER_MEMORY.md` のダッシュボード方針 | なし | `./tools/dashboard all` |
+| 文書の役割を知りたい | `guides/DOCUMENT_MAP.md`、`AGENTS.MD` | なし | `./tools/docs-tour status`、`./tools/dashboard docs` |
 | 公開リポジトリから開始したい | `README.md` | なし | `git clone`、`./tools/lesson status` |
 | レッスン開始、再開、現在地確認 | 意図に応じて `index.md` または `index-14-days.md` | 14日版なら `skills/lesson14-facilitator/SKILL.md` | `./tools/lesson status` または `./tools/lesson14 status` |
 | 7日版を進めたい | `index.md` | なし | `./tools/check_lesson_structure.sh`、`./tools/lesson 学習モード <A\|B\|C>`、`./tools/lesson status` |
@@ -154,5 +156,6 @@ skills/worklog-doc-sync/SKILL.md
 ./tools/check_lesson14_structure.sh
 ./tools/check_lesson14_sync.sh
 ./tools/check_agents_skills.sh
+./tools/test_docs_tour.sh
 ./tools/test_lesson14.sh
 ```

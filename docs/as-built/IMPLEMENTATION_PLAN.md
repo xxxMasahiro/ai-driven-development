@@ -185,52 +185,51 @@ It preserves existing features without tradeoffs and follows the repository qual
    - Confirm existing 7-day and 14-day flows still pass.
    - Confirm Free Development Mode, Team Development, external integration, dashboard, and product gates remain available.
 
-## Planned Documentation Map Implementation Plan
+## Implemented Documentation Map Implementation Plan
 
-This is the next additive implementation plan.
-It must be completed only after the plan is synchronized across `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, `docs/as-built/IMPLEMENTATION_PLAN.md`, `docs/workflow/TASK_TRACKER.md`, and `docs/workflow/HANDOFF.md`.
-It must preserve existing features without tradeoffs and must follow the repository quality constraints for refactorability, ecosystem fit, reusability, and generality.
+This additive implementation is complete and synchronized across `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, `docs/as-built/IMPLEMENTATION_PLAN.md`, `docs/workflow/TASK_TRACKER.md`, and `docs/workflow/HANDOFF.md`.
+It preserves existing features without tradeoffs and follows the repository quality constraints for refactorability, ecosystem fit, reusability, and generality.
 
 1. Add a learner-facing documentation map guide.
-   - Create `guides/DOCUMENT_MAP.md`.
-   - Explain rules/routing, design/as-built, workflow state, memory/decisions, and skills as separate categories.
-   - Use non-engineer-friendly explanations while keeping repository source text in English.
+   - Created `guides/DOCUMENT_MAP.md`.
+   - Explained rules/routing, design/as-built, workflow state, memory/decisions, and skills as separate categories.
+   - Used non-engineer-friendly explanations while keeping repository source text in English.
 
 2. Explain the agent rule and routing layer.
-   - Explain `AGENTS.MD` as the lesson-side rulebook for agents.
-   - Cover invariant rules, document root, routing table, and repo-local skills.
-   - Explicitly distinguish `AGENTS.MD` from product-side `AGENT.md`.
+   - Explained `AGENTS.MD` as the lesson-side rulebook for agents.
+   - Covered invariant rules, document root, routing table, and repo-local skills.
+   - Explicitly distinguished `AGENTS.MD` from product-side `AGENT.md`.
 
 3. Explain design, workflow, and memory documents.
-   - Explain `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md`.
-   - Explain `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as a synchronized pair.
-   - Explain `docs/memory/DEVELOPER_MEMORY.md`.
-   - Explain product-side `FAILURE_MEMORY.md` and failure-recovery records without implying a lesson-side `docs/memory/FAILURE_MEMORY.md` exists.
+   - Explained `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md`.
+   - Explained `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as a synchronized pair.
+   - Explained `docs/memory/DEVELOPER_MEMORY.md`.
+   - Explained product-side `FAILURE_MEMORY.md` and failure-recovery records without implying a lesson-side `docs/memory/FAILURE_MEMORY.md` exists.
 
 4. Add a CLI tour command.
-   - Add `tools/docs-tour`.
+   - Added `tools/docs-tour`.
    - Support `status`, `rules`, `design`, `workflow`, `memory`, `skills`, and `all`.
    - Adapt explanation depth to learning modes A/B/C.
 
 5. Add a dashboard docs view.
-   - Add `./tools/dashboard docs`.
-   - Include the docs view in `./tools/dashboard all`.
+   - Added `./tools/dashboard docs`.
+   - Included the docs view in `./tools/dashboard all`.
    - Show categories, key files, current workflow relevance, workflow-pair sync, as-built sync, and next recommended document action.
 
 6. Add copy-paste prompt examples.
-   - Add document-understanding prompts to the appropriate prompt files or a dedicated prompt section.
-   - Include prompts for explaining `TASK_TRACKER`/`HANDOFF` and the as-built trio in learner-friendly language.
+   - Added document-understanding prompts to the prompt files.
+   - Included prompts for explaining `TASK_TRACKER`/`HANDOFF` and the as-built trio in learner-friendly language.
 
 7. Add early lesson guidance.
-   - Add non-disruptive guidance to 7-day and 14-day lesson materials so learners encounter the document map before document-heavy work.
+   - Added non-disruptive guidance to 7-day and 14-day lesson materials so learners encounter the document map before document-heavy work.
    - Preserve ordered lesson progression and approval gates.
 
 8. Add mechanical validation.
-   - Add `tools/test_docs_tour.sh`.
-   - Update structure checks, as-built checks, developer-memory checks, dashboard tests, aggregate tests, CI, and pre-commit as needed.
+   - Added `tools/test_docs_tour.sh`.
+   - Updated structure checks, as-built checks, developer-memory checks, dashboard tests, aggregate tests, CI, and pre-commit as needed.
    - Ensure checks fail if `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `dashboard docs`, prompt examples, or the synchronized planning/workflow entries are missing.
-   - At this planning-synchronization stage, `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are planned artifacts and are not yet expected to exist in runtime.
-   - Implementation completion will require validation wiring through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
+   - `guides/DOCUMENT_MAP.md`, `tools/docs-tour`, `tools/test_docs_tour.sh`, and `./tools/dashboard docs` are now expected to exist in runtime.
+   - Validation is wired through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
    - The validation suite must preserve existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-gate, Playwright, CI, and pre-commit behavior.
 
 9. Verify with existing and new tests.

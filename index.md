@@ -10,9 +10,10 @@
 1. index.mdで全体像と順番を確認する
 2. 学習モード、表示言語、成果物開発言語を選ぶ
 3. github-login-setup-guide.mdでGitHub接続設定を確認する
-4. tools/check_lesson_structure.shで教材構成を確認する
-5. tools/lesson 現在地で今進める項目を確認する
-6. ai-driven-task-tracker-scenario.mdで体験開発を進める
+4. guides/DOCUMENT_MAP.mdまたはtools/docs-tour allで文書の役割を確認する
+5. tools/check_lesson_structure.shで教材構成を確認する
+6. tools/lesson 現在地で今進める項目を確認する
+7. ai-driven-task-tracker-scenario.mdで体験開発を進める
 ```
 
 ## 学習モードと言語
@@ -47,6 +48,7 @@ C: 手順だけ
 | `ai-driven-task-tracker-scenario.md` | タスク管理表を題材にAI駆動開発を体験する |
 | `README.md` | 公開リポジトリ向けの概要と導入手順 |
 | `LICENSE` | MITライセンス |
+| `guides/DOCUMENT_MAP.md` | AGENTS.MD、設計文書、作業記録、メモリー、skillsの役割を整理する |
 | `guides/LESSON_GUIDE.md` | 学習者向けの短い案内 |
 | `playbooks/AGENT_PLAYBOOK.md` | エージェント向けの進行台本 |
 | `prompts/PROMPTS.md` | コピペ用プロンプト集 |
@@ -63,7 +65,22 @@ C: 手順だけ
 | `tools/learn` | 学習進捗を短いコマンドで記録する |
 | `tools/check_lesson_structure.sh` | 教材構成と状態ファイルを検査する |
 | `tools/check_repository_boundary.sh` | 教材リポジトリと成果物リポジトリの境界を確認する |
+| `tools/docs-tour` | 文書の役割と現在の同期状態をCLIで確認する |
 | `.githooks/pre-commit` | コミット前に教材構成と境界を自動検査する |
+
+## 文書マップ
+
+この教材では、設計、作業記録、引き継ぎ、開発者メモリー、エージェント向けルールを分けて扱います。
+最初にすべてを暗記する必要はありません。
+迷ったときは、次のコマンドで「どの文書が何のためにあるか」を確認します。
+
+```bash
+./tools/docs-tour all
+./tools/docs-tour status
+./tools/dashboard docs
+```
+
+詳しい説明は `guides/DOCUMENT_MAP.md` にあります。
 
 ## エージェントの開始手順
 
@@ -72,11 +89,12 @@ C: 手順だけ
 2. tools/check_lesson_structure.shを実行する
 3. tools/check_repository_boundary.shを実行する
 4. 学習モード、表示言語、成果物開発言語を確認し、tools/lessonで記録する
-5. tools/lesson 現在地を実行する
-6. 現在項目がsetup.indexなら、このindex.mdの内容を短く説明して通過確認する
-7. 現在項目がsetup.github-loginなら、github-login-setup-guide.mdを使ってGitHub接続を確認する
-8. setup.github-loginを通過したら、ai-driven-task-tracker-scenario.mdへ進む
-9. 以降はtools/lessonが示す現在項目だけを進める
+5. guides/DOCUMENT_MAP.mdまたはtools/docs-tour allで文書の役割を短く説明する
+6. tools/lesson 現在地を実行する
+7. 現在項目がsetup.indexなら、このindex.mdの内容を短く説明して通過確認する
+8. 現在項目がsetup.github-loginなら、github-login-setup-guide.mdを使ってGitHub接続を確認する
+9. setup.github-loginを通過したら、ai-driven-task-tracker-scenario.mdへ進む
+10. 以降はtools/lessonが示す現在項目だけを進める
 ```
 
 ## リポジトリ境界

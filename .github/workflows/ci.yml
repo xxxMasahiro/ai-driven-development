@@ -26,11 +26,13 @@ jobs:
           bash -n tools/check_review_protocol.sh
           bash -n tools/check_developer_memory_requirements.sh
           bash -n tools/test_lesson_playwright.sh
+          bash -n tools/test_docs_tour.sh
           bash -n tools/test_lesson.sh
           bash -n tools/test_menu_prerequisites.sh
           bash -n tools/test_product_gate_tools.sh
           bash -n tools/test_lesson_repository.sh
           bash -n tools/menu
+          bash -n tools/docs-tour
           bash -n tools/free-development
           bash -n tools/team-development
           bash -n tools/external-integration
@@ -48,6 +50,7 @@ jobs:
           ./tools/check_workflow_pair_sync.sh
           ./tools/check_review_protocol.sh
           ./tools/check_developer_memory_requirements.sh
+          ./tools/test_docs_tour.sh
 
       - name: Repository boundary
         run: ./tools/check_repository_boundary.sh
@@ -89,6 +92,9 @@ jobs:
 
       - name: Menu prerequisite regression
         run: ./tools/test_menu_prerequisites.sh
+
+      - name: Documentation tour regression
+        run: ./tools/test_docs_tour.sh
 
       - name: Lesson aggregate test
         run: ./tools/test_lesson_repository.sh

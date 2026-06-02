@@ -68,6 +68,9 @@ if [[ $missing -eq 0 ]]; then
     'menu prerequisite|Menu Prerequisite|menu items 1 through 6' \
     'product-improvement|Product Improvement|product improvement' \
     '応用レッスン' \
+    'DOCUMENT_MAP|Documentation Map' \
+    'docs-tour|Documentation tour' \
+    'dashboard docs|Documentation Map Dashboard' \
     'production operations test|test_production_operations'
   do
     if ! grep -Eiq "$topic" "$combined"; then
@@ -113,7 +116,11 @@ if [[ $missing -eq 0 ]]; then
     'failure-path|failure path' \
     'menu prerequisite|Menu Prerequisite|menu items 1 through 6' \
     'product-improvement|Product Improvement|product improvement' \
-    '応用レッスン'
+    '応用レッスン' \
+    'DOCUMENT_MAP|Documentation Map' \
+    'docs-tour|Documentation tour' \
+    'dashboard docs|Documentation Map Dashboard' \
+    'test_docs_tour|Documentation tour tests'
   do
     for doc in "${required_docs[@]}"; do
       if ! grep -Eiq "$topic" "$doc"; then

@@ -190,6 +190,29 @@ show_illustrations() {
   printf '\nReview page: illustration-review/index.html\n'
 }
 
+show_docs() {
+  print_section 'Documentation Map Dashboard'
+  "$ROOT/tools/docs-tour" status
+  printf '\nDocument categories:\n'
+  printf -- '- Rules and routing: AGENTS.MD, guides/DOCUMENT_MAP.md\n'
+  printf -- '- Design/as-built: docs/as-built/REQUIREMENTS.md, docs/as-built/SPECIFICATION.md, docs/as-built/IMPLEMENTATION_PLAN.md\n'
+  printf -- '- Workflow state: docs/workflow/TASK_TRACKER.md, docs/workflow/HANDOFF.md\n'
+  printf -- '- Memory and decisions: docs/memory/DEVELOPER_MEMORY.md\n'
+  printf -- '- Reusable agent procedures: skills/*/SKILL.md\n'
+  printf '\nDocument purposes:\n'
+  printf -- '- AGENTS.MD: lesson-side agent rulebook; do not confuse it with product-side AGENT.md\n'
+  printf -- '- guides/DOCUMENT_MAP.md: learner-facing explanation of the document system\n'
+  printf -- '- docs/as-built/REQUIREMENTS.md: what the lesson repository must provide\n'
+  printf -- '- docs/as-built/SPECIFICATION.md: how the repository behavior is specified\n'
+  printf -- '- docs/as-built/IMPLEMENTATION_PLAN.md: how implementation and verification are organized\n'
+  printf -- '- docs/workflow/TASK_TRACKER.md: current progress and remaining work\n'
+  printf -- '- docs/workflow/HANDOFF.md: restart context and next safe action\n'
+  printf -- '- docs/memory/DEVELOPER_MEMORY.md: stable maintainer intent and follow-up requirements\n'
+  printf -- '- product-side FAILURE_MEMORY.md: failure and recovery records when a product repository uses one\n'
+  printf -- '- skills/*/SKILL.md: reusable agent procedures, not learner homework\n'
+  printf '\nPrompt help: ./tools/docs-tour all, ./tools/docs-tour rules, ./tools/docs-tour memory, ./tools/docs-tour workflow\n'
+}
+
 show_menu() {
   print_section 'Menu'
   "$ROOT/tools/menu"
@@ -208,6 +231,9 @@ case "${1:-all}" in
   development)
     show_development
     ;;
+  docs)
+    show_docs
+    ;;
   illustrations)
     show_illustrations
     ;;
@@ -216,12 +242,14 @@ case "${1:-all}" in
     printf '\n'
     show_lesson
     printf '\n'
+    show_docs
+    printf '\n'
     show_development
     printf '\n'
     show_illustrations
     ;;
   *)
-    printf 'Usage: ./tools/dashboard <menu|lesson|development|illustrations|all>\n' >&2
+    printf 'Usage: ./tools/dashboard <menu|lesson|docs|development|illustrations|all>\n' >&2
     exit 1
     ;;
 esac
