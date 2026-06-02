@@ -15,6 +15,7 @@ jobs:
         run: |
           bash -n tools/lib/lesson_runtime.sh
           bash -n tools/lib/document_paths.sh
+          bash -n tools/lib/git_workflow_policy.sh
           bash -n tools/lesson14
           bash -n tools/roadmap
           bash -n tools/helpdesk
@@ -33,6 +34,7 @@ jobs:
           bash -n tools/test_lesson_playwright.sh
           bash -n tools/test_docs_tour.sh
           bash -n tools/test_as_built_sync_contract.sh
+          bash -n tools/test_git_workflow_policy.sh
           bash -n tools/test_lesson.sh
           bash -n tools/test_menu_prerequisites.sh
           bash -n tools/test_product_gate_tools.sh
@@ -42,6 +44,7 @@ jobs:
           bash -n tools/test_lesson14.sh
           bash -n tools/menu
           bash -n tools/as-built-sync
+          bash -n tools/git-workflow
           bash -n tools/docs-tour
           bash -n tools/free-development
           bash -n tools/team-development
@@ -74,6 +77,9 @@ jobs:
 
       - name: As-built sync contract regression
         run: ./tools/test_as_built_sync_contract.sh
+
+      - name: Git workflow policy regression
+        run: ./tools/test_git_workflow_policy.sh
 
       - name: Documentation tour regression
         run: ./tools/test_docs_tour.sh

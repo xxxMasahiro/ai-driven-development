@@ -4,8 +4,9 @@
 
 The lesson repository includes mechanical enforcement, flexible lesson entry, Free Development Mode, Team Development and Docker advanced module, dialogue-centered learning, as-built synchronization checks, sub-agent review protocol, menu/dashboard/illustration entry points, 7-day and 14-day lesson language controls, and lesson-side aggregate testing.
 
-The latest implemented change adds the as-built sync contract that mechanically enforces synchronization across the three design/as-built documents and the two workflow-state documents.
-The previous implemented change added safe product repository cleanup for the external product repository created by the 7-day or 14-day lessons.
+The latest implemented change adds user-configurable Git workflow policy settings for branch permission, `git worktree` permission, direct-main permission, automation level, Git monitoring, and non-destructive cleanup planning.
+The previous implemented change added the as-built sync contract that mechanically enforces synchronization across the three design/as-built documents and the two workflow-state documents.
+Safe product repository cleanup remains implemented for the external product repository created by the 7-day or 14-day lessons.
 It also preserves the 7-day and 14-day learning-mode, workflow display language, product development language, and expanded language-list controls.
 The shared standard language list remains `ja`, `en`, `ko`, `zh-CN`, `zh-TW`, `es`, `pt-BR`, `fr`, `de`, `id`, `vi`, `th`, `hi`, and `ar`, while `zh` remains a `zh-CN` alias and `custom` remains available.
 The implementation remains additive and keeps the existing 7-day lesson, 14-day lesson, free-development flow, advanced modules, existing checks, and repository-boundary behavior intact.
@@ -47,11 +48,17 @@ The implementation remains additive and keeps the existing 7-day lesson, 14-day 
 - Added `tools/check_as_built_sync_contract.sh`.
 - Added `tools/as-built-sync status`.
 - Added `tools/test_as_built_sync_contract.sh`.
+- Added `docs/workflow/GIT_WORKFLOW_POLICY.tsv`.
+- Added `learning/GIT_WORKFLOW_SETTINGS.tsv`.
+- Added `tools/lib/git_workflow_policy.sh`.
+- Added `tools/git-workflow status|configure|set|allow|check|cleanup-plan`.
+- Added `tools/test_git_workflow_policy.sh`.
 - Added AGENTS routing and standard-check references for the sync-contract status and validator.
 - Added dashboard readiness output for menu items 1 through 6.
 - Added menu prerequisite tests and wired them into aggregate tests, CI, and pre-commit.
 - Added product repository cleanup tests and wired them into structure checks, as-built checks, developer-memory checks, aggregate tests, CI, and pre-commit.
 - Added as-built sync-contract enforcement and wired it into structure checks, as-built checks, aggregate tests, CI, and pre-commit.
+- Added Git workflow policy tests and wired them into structure checks, as-built checks, aggregate tests, CI, and pre-commit.
 - Documented implementation quality constraints: refactorability, ecosystem fit, reusability, and generality.
 - Preserved the no-tradeoff rule for existing features.
 - Added as-built lesson-side documents:
@@ -93,6 +100,7 @@ The following developer-memory remediation items are implemented and mechanicall
   - `docs/workflow/HANDOFF.md`
 - The implemented product repository cleanup behavior remains synchronized in the same five documents.
 - The implemented menu prerequisite control remains synchronized in the same five documents.
+- The implemented Git workflow policy behavior is synchronized in the same five documents.
 - The synchronization passes only when the implemented content is present in all five documents.
 - Preserve refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule while maintaining the implemented remediation.
 
@@ -195,7 +203,36 @@ SYNC-ID: as_built_sync_contract
 STATUS: implemented
 ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv, tools/check_as_built_sync_contract.sh, tools/as-built-sync, tools/test_as_built_sync_contract.sh
 TESTS: tools/check_as_built_sync_contract.sh, tools/test_as_built_sync_contract.sh
+
+SYNC-ID: git_workflow_policy
+STATUS: implemented
+ARTIFACTS: docs/workflow/GIT_WORKFLOW_POLICY.tsv, learning/GIT_WORKFLOW_SETTINGS.tsv, tools/lib/git_workflow_policy.sh, tools/git-workflow, tools/test_git_workflow_policy.sh
+TESTS: tools/test_git_workflow_policy.sh
 ```
+
+## Implemented Git Workflow Policy Synchronization
+
+The Git workflow policy lets users choose how much Git management and Git automation the workflow agent may perform.
+This is implemented runtime behavior.
+It is additive and does not trade away existing lesson progression, approvals, menu behavior, dashboard behavior, Free Development, Product Improvement, external-integration, product-repository cleanup, CI, pre-commit, or as-built sync-contract behavior.
+
+- Added `docs/workflow/GIT_WORKFLOW_POLICY.tsv` for supported Git workflow policy definitions.
+- Added `learning/GIT_WORKFLOW_SETTINGS.tsv` for the current user-selected Git workflow settings.
+- Added `tools/lib/git_workflow_policy.sh` for shared setting loading, validation, permission checks, automation-level helpers, repository-context detection, and Git monitoring.
+- Added `tools/git-workflow status|configure|set|allow|check|cleanup-plan` as the learner/agent command surface.
+- Support working-branch permission, `git worktree` permission, and main-direct-work permission.
+- Support automation levels:
+  - `manual`: guidance only.
+  - `commit`: commit may be automated after checks pass.
+  - `pr_ci`: push, PR creation where applicable, and CI checks may be automated.
+  - `sync`: main CI plus local/remote synchronization checks may be automated.
+- Keep merge, branch deletion, worktree deletion, remote deletion, and other destructive operations behind explicit confirmation regardless of automation level.
+- Monitor uncommitted changes, unpushed commits, local/remote divergence, unnecessary working branches, unnecessary worktrees, and whether the current repository is the lesson, product, or a custom repository.
+- Separate lesson-repository Git state from product-repository Git state so the workflow cannot mix repositories.
+- Keep cleanup planning non-destructive.
+- Reuse existing repository-boundary, Git sync, menu prerequisite, dashboard, and aggregate-test patterns.
+- Added `tools/test_git_workflow_policy.sh` for settings validation, permission decisions, automation-level decisions, dirty-state detection, local/remote sync monitoring, repository separation, and non-destructive cleanup planning.
+- Wired validation into structure checks, as-built checks, aggregate tests, CI, and pre-commit.
 
 ## Implemented Menu Prerequisite Control
 
@@ -227,7 +264,8 @@ Latest local verification reached this target after synchronizing the 7-day pari
 The latest verification target now also includes `Menu prerequisite tests passed.`
 The latest verification target now also includes `Product repository cleanup tests passed.`
 The latest verification target now also includes `As-built sync contract tests passed.`
-The latest verification sequence includes `./tools/check_as_built_sync_contract.sh`, `./tools/as-built-sync status`, and `./tools/test_as_built_sync_contract.sh`.
+The latest verification target now also includes `Git workflow policy tests passed.`
+The latest verification sequence includes `./tools/check_as_built_sync_contract.sh`, `./tools/as-built-sync status`, `./tools/test_as_built_sync_contract.sh`, and `./tools/test_git_workflow_policy.sh`.
 Real product operations testing remains available through `tools/test_production_operations.sh` when an external product repository is intentionally recreated.
 
 ## Remaining Work

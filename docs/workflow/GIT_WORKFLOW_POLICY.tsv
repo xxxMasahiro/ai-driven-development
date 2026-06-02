@@ -1,0 +1,5 @@
+# key	allowed_values	default_value	label	description
+branch_allowed	true|false	true	Working branches	Allows normal feature or task branches for lesson and product development.
+worktree_allowed	true|false	false	Git worktree	Allows git worktree for parallel work when the user explicitly chooses it.
+main_direct_work_allowed	true|false	false	Direct main work	Allows direct edits on main only when the user explicitly chooses it.
+automation_level	manual|commit|pr_ci|sync	manual	Git automation	Controls the maximum Git automation level the agent may perform.

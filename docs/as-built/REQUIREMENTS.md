@@ -184,7 +184,36 @@ SYNC-ID: as_built_sync_contract
 STATUS: implemented
 ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv, tools/check_as_built_sync_contract.sh, tools/as-built-sync, tools/test_as_built_sync_contract.sh
 TESTS: tools/check_as_built_sync_contract.sh, tools/test_as_built_sync_contract.sh
+
+SYNC-ID: git_workflow_policy
+STATUS: implemented
+ARTIFACTS: docs/workflow/GIT_WORKFLOW_POLICY.tsv, learning/GIT_WORKFLOW_SETTINGS.tsv, tools/lib/git_workflow_policy.sh, tools/git-workflow, tools/test_git_workflow_policy.sh
+TESTS: tools/test_git_workflow_policy.sh
 ```
+
+## Implemented Git Workflow Policy Requirements
+
+The lesson repository lets users configure how much Git management and Git automation they want the workflow agent to perform.
+This implemented work is additive and does not trade away any existing 7-day lesson, 14-day lesson, menu, dashboard, free-development, product-improvement, external-integration, product-repository cleanup, CI, pre-commit, or as-built sync-contract behavior.
+
+- Provide a Git workflow policy definition at `docs/workflow/GIT_WORKFLOW_POLICY.tsv`.
+- Provide current user-selected Git workflow settings at `learning/GIT_WORKFLOW_SETTINGS.tsv`.
+- Let users allow or disallow normal working branches.
+- Let users allow or disallow `git worktree`.
+- Let users control whether direct work on `main` is allowed.
+- Provide Git automation levels:
+  - `manual`: Git actions are guidance only.
+  - `commit`: the agent may proceed through commit after checks pass.
+  - `pr_ci`: the agent may proceed through push, PR creation where applicable, and CI checks.
+  - `sync`: the agent may proceed through main CI plus local/remote synchronization checks.
+- Keep merge, branch deletion, worktree deletion, remote deletion, and other destructive Git operations behind explicit user confirmation even when automation is enabled.
+- Provide Git monitoring for uncommitted changes, unpushed commits, local/remote divergence, unnecessary working branches, unnecessary worktrees, and current repository context.
+- Provide a reusable command interface through `tools/git-workflow status|configure|set|allow|check|cleanup-plan`.
+- Keep cleanup planning non-destructive; deletion commands are out of scope for the initial Git workflow policy plan.
+- Separate lesson-repository Git state from product-repository Git state so the workflow cannot mix the two repositories.
+- Reuse existing `tools/lib` patterns, repository-boundary checks, Git sync checks, CI checks, menu prerequisites, dashboard views, and aggregate tests where practical.
+- Add `tools/test_git_workflow_policy.sh` to validate setting changes, invalid setting rejection, branch/worktree permission checks, automation-level decisions, dirty state detection, and local/remote sync monitoring.
+- Wire `tools/test_git_workflow_policy.sh` into structure checks, as-built checks, aggregate tests, CI, and pre-commit without replacing existing Git sync or CI checks.
 
 ## Mechanical Enforcement
 
@@ -207,6 +236,7 @@ TESTS: tools/check_as_built_sync_contract.sh, tools/test_as_built_sync_contract.
 - Documentation Map runtime status is shown by `tools/docs-tour status` and `tools/dashboard docs`.
 - Menu prerequisites are checked by `tools/menu check <1|2|3|4|5|6>` and `tools/test_menu_prerequisites.sh`.
 - The learner-facing menu is checked by `tools/menu` and developer-memory requirement checks.
+- Git workflow policy settings are checked by `tools/git-workflow status`, `tools/git-workflow cleanup-plan`, and `tools/test_git_workflow_policy.sh`.
 - Dashboard and illustration entry points are checked by structure and developer-memory requirement checks.
 - Remediation remains complete only while the audit items above are implemented, synchronized into these as-built documents, and covered by mechanical checks that fail when the requirement is missing.
 - Remediation checks and implementations must remain refactorable, ecosystem-friendly, reusable, and general.

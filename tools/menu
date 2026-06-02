@@ -47,6 +47,11 @@ show_menu() {
    レッスン、プロンプト、ダッシュボード、文書、運用テストを改善する
    入口: docs/memory/DEVELOPER_MEMORY.md と ./tools/dashboard all を確認する
 
+Git管理設定
+   作業ブランチ、git worktree、Git自動化レベル、同期監視を設定する
+   入口: ./tools/git-workflow status
+   設定案内: ./tools/git-workflow configure
+
 流れの目安:
   自由開発で作る → 成果物を改善する → 外部連携で発展させる
 

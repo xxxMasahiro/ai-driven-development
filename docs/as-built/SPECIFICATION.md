@@ -199,7 +199,42 @@ SYNC-ID: as_built_sync_contract
 STATUS: implemented
 ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv, tools/check_as_built_sync_contract.sh, tools/as-built-sync, tools/test_as_built_sync_contract.sh
 TESTS: tools/check_as_built_sync_contract.sh, tools/test_as_built_sync_contract.sh
+
+SYNC-ID: git_workflow_policy
+STATUS: implemented
+ARTIFACTS: docs/workflow/GIT_WORKFLOW_POLICY.tsv, learning/GIT_WORKFLOW_SETTINGS.tsv, tools/lib/git_workflow_policy.sh, tools/git-workflow, tools/test_git_workflow_policy.sh
+TESTS: tools/test_git_workflow_policy.sh
 ```
+
+### Implemented Git Workflow Policy
+
+The Git workflow policy lets users choose the Git-management permissions and automation level used by the lesson and post-lesson workflows.
+It is additive and preserves existing lesson progression, approvals, menu prerequisites, dashboard behavior, product-gate behavior, product-repository cleanup, CI, pre-commit, and as-built synchronization.
+
+- `docs/workflow/GIT_WORKFLOW_POLICY.tsv` defines supported policy keys, accepted values, defaults, and learner-facing labels.
+- `learning/GIT_WORKFLOW_SETTINGS.tsv` stores the current selected values.
+- `tools/lib/git_workflow_policy.sh` provides reusable policy loading, validation, permission helpers, automation-level decisions, repository-context detection, and Git monitor helpers.
+- `tools/git-workflow status` shows the selected policy and current Git monitoring result.
+- `tools/git-workflow configure` guides users through the settings and shows safe copy-paste commands.
+- `tools/git-workflow set <key> <value>` updates one setting after validating the key and value.
+- `tools/git-workflow allow <branch|worktree|main-direct|commit|push|pr|ci|sync>` checks whether a requested Git action is allowed by the current settings.
+- `tools/git-workflow check` inspects repository state, including uncommitted changes, local/remote divergence through configured upstreams, candidate cleanup branches, candidate cleanup worktrees, and whether the current repository is the lesson, product, or a custom repository.
+- `tools/git-workflow cleanup-plan` lists candidate branch/worktree cleanup actions without deleting anything.
+- The command layer separates lesson-repository Git state from product-repository Git state so the workflow cannot mix repositories.
+- Supported branch policy includes allowing or disallowing normal working branches.
+- Supported worktree policy includes allowing or disallowing `git worktree`.
+- The policy includes a main-direct-work setting so direct work on `main` can be controlled explicitly.
+- Automation levels are:
+  - `manual`: guidance only.
+  - `commit`: allow automated commit after checks pass.
+  - `pr_ci`: allow automated push, PR creation where applicable, and CI checks.
+  - `sync`: allow automated main CI and local/remote synchronization checks.
+- Destructive or high-impact operations remain confirmation-gated even when automation is enabled, including merge, branch deletion, worktree deletion, and remote deletion.
+- The policy is reusable across 7-day lessons, 14-day lessons, applied lessons, Free Development Mode, product improvement, and external integration.
+- Dashboard output reuses the status data to show Git-management readiness.
+- Menu output exposes `./tools/git-workflow status` and `./tools/git-workflow configure` as the Git management settings entry.
+- `tools/test_git_workflow_policy.sh` validates default settings, setting changes, invalid setting rejection, branch/worktree permission decisions, automation-level decisions, dirty-state detection, local/remote sync detection, repository separation, and non-destructive cleanup planning.
+- `tools/test_git_workflow_policy.sh` is wired into structure checks, as-built checks, aggregate tests, CI, and pre-commit without replacing existing Git sync or CI checks.
 
 ### Design Quality Constraints
 
@@ -225,6 +260,7 @@ TESTS: tools/check_as_built_sync_contract.sh, tools/test_as_built_sync_contract.
 - `tools/test_menu_prerequisites.sh` validates menu readiness, start approval, missing-prerequisite failure paths, the `3. 応用レッスン` label, and the absence of the old menu label.
 - `tools/test_product_repository_cleanup.sh` validates product repository cleanup status, plan, confirmation gates, boundary rejection, non-Git rejection, temporary local deletion, and fake-`gh` remote deletion behavior.
 - `tools/test_as_built_sync_contract.sh` validates complete synchronization, unknown sync IDs, mixed statuses, extra artifacts/tests, missing artifacts, inert wiring, and missing active test wiring.
+- `tools/test_git_workflow_policy.sh` validates Git workflow setting validation, permission decisions, repository monitoring, local/upstream sync detection, repository separation, and non-destructive cleanup planning.
 - `tools/test_lesson_start_position.sh` validates learner-selected start positions.
 - `tools/test_lesson.sh` validates 7-day CLI behavior, including learning mode, workflow display language, product development language, and setup gating.
 - `tools/test_lesson14.sh` validates lesson14 CLI behavior.

@@ -158,6 +158,8 @@ show_development() {
     (cd "$PRODUCT_ROOT" && git status --short --branch)
     printf '\nGit sync check:\n'
     "$ROOT/tools/check_git_sync.sh" --repo "$PRODUCT_ROOT" --required || true
+    printf '\nGit workflow policy:\n'
+    "$ROOT/tools/git-workflow" status --repo "$PRODUCT_ROOT" || true
     printf '\nWorkflow documents:\n'
     for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md TASK_TRACKER.md HANDOFF.md README.md RETROSPECTIVE.md; do
       file_status "$PRODUCT_ROOT" "$file"
@@ -185,6 +187,8 @@ show_development() {
     printf 'Product repository not found: %s\n' "$PRODUCT_ROOT"
     printf 'Use Free Development Mode or a lesson-created product repository when development work starts.\n'
     printf 'Cleanup status command: ./tools/product-repository-cleanup status\n'
+    printf '\nGit workflow policy:\n'
+    "$ROOT/tools/git-workflow" status --repo "$ROOT" || true
   fi
 }
 

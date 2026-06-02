@@ -1,0 +1,5 @@
+# key	value
+branch_allowed	true
+worktree_allowed	false
+main_direct_work_allowed	false
+automation_level	manual

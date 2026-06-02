@@ -38,7 +38,7 @@ list_file_status() {
   IFS=',' read -r -a items <<<"$list"
   for item in "${items[@]}"; do
     item="$(trim "$item")"
-    [[ -n "$item" ]] || continue
+    [[ -n "$item" && "$item" != "none" ]] || continue
     total=$((total + 1))
     if [[ -f "$ROOT/$item" ]]; then
       present=$((present + 1))

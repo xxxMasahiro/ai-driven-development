@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=lib/git_workflow_policy.sh
+source "$ROOT/tools/lib/git_workflow_policy.sh"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  tools/git-workflow status [--repo PATH]
+  tools/git-workflow configure
+  tools/git-workflow set <key> <value>
+  tools/git-workflow allow <branch|worktree|main-direct|commit|push|pr|ci|sync>
+  tools/git-workflow check [--repo PATH]
+  tools/git-workflow cleanup-plan [--repo PATH]
+
+Settings:
+  branch_allowed: true|false
+  worktree_allowed: true|false
+  main_direct_work_allowed: true|false
+  automation_level: manual|commit|pr_ci|sync
+USAGE
+}
+
+repo_arg() {
+  local repo="$PWD"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --repo)
+        [[ $# -ge 2 ]] || {
+          printf '%s\n' '--repo requires a path' >&2
+          return 1
+        }
+        repo="$2"
+        shift 2
+        ;;
+      *)
+        printf 'Unknown option: %s\n' "$1" >&2
+        return 1
+        ;;
+    esac
+  done
+  printf '%s\n' "$repo"
+}
+
+cmd="${1:-}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+case "$cmd" in
+  status)
+    repo="$(repo_arg "$@")"
+    printf 'Git workflow policy status\n'
+    printf 'Policy file: %s\n' "$(git_workflow_policy_file)"
+    printf 'Settings file: %s\n' "$(git_workflow_settings_file)"
+    printf '\nSettings\n'
+    git_workflow_print_settings
+    printf '\nRepository monitor\n'
+    git_workflow_print_monitor "$repo"
+    ;;
+  configure)
+    printf 'Git workflow settings\n'
+    printf 'Use these commands when the user chooses Git management preferences.\n\n'
+    git_workflow_print_settings
+    printf '\nExamples\n'
+    printf '  ./tools/git-workflow set branch_allowed true\n'
+    printf '  ./tools/git-workflow set worktree_allowed false\n'
+    printf '  ./tools/git-workflow set automation_level manual\n'
+    printf '  ./tools/git-workflow status\n'
+    ;;
+  set)
+    [[ $# -eq 2 ]] || {
+      usage >&2
+      exit 1
+    }
+    git_workflow_write_setting "$1" "$2"
+    printf 'Updated %s to %s\n' "$1" "$2"
+    ;;
+  allow)
+    [[ $# -eq 1 ]] || {
+      usage >&2
+      exit 1
+    }
+    if git_workflow_allow_policy "$1"; then
+      printf 'Allowed: %s\n' "$1"
+    else
+      printf 'Not allowed by current Git workflow settings: %s\n' "$1" >&2
+      exit 1
+    fi
+    ;;
+  check)
+    repo="$(repo_arg "$@")"
+    git_workflow_check_repository "$repo"
+    ;;
+  cleanup-plan)
+    repo="$(repo_arg "$@")"
+    root="$(git_workflow_git_root "$repo")" || {
+      printf 'Git repository: not found (%s)\n' "$repo" >&2
+      exit 1
+    }
+    branch="$(git_workflow_branch_name "$root")"
+    printf 'Git cleanup plan\n'
+    printf 'Repository context: %s\n' "$(git_workflow_repository_context "$root")"
+    printf 'Git root: %s\n' "$root"
+    printf '\nBranches that can be reviewed for deletion:\n'
+    git_workflow_candidate_branches "$root" "$branch" || true
+    printf '\nWorktrees that can be reviewed for removal:\n'
+    git_workflow_candidate_worktrees "$root" "$root" || true
+    printf '\nNo deletion is performed by this command.\n'
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 1
+    ;;
+esac

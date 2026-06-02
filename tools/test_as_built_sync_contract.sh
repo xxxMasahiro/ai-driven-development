@@ -34,9 +34,10 @@ write_fixture() {
   local fixture="$1"
   mkdir -p "$fixture/docs/as-built" "$fixture/docs/workflow" "$fixture/tools" "$fixture/.githooks" "$fixture/.github/workflows"
 
-  cat >"$fixture/docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv" <<'EOF'
+cat >"$fixture/docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv" <<'EOF'
 # sync_id	status	title	required_artifacts	required_tests	required_docs	runtime_evidence
 sample_sync	implemented	Sample sync	artifact-one.txt	tools/sample_test.sh	docs/as-built/REQUIREMENTS.md,docs/as-built/SPECIFICATION.md,docs/as-built/IMPLEMENTATION_PLAN.md,docs/workflow/TASK_TRACKER.md,docs/workflow/HANDOFF.md	tools/test_lesson_repository.sh,.githooks/pre-commit,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+planned_sync	planned	Planned sync	none	none	docs/as-built/REQUIREMENTS.md,docs/as-built/SPECIFICATION.md,docs/as-built/IMPLEMENTATION_PLAN.md,docs/workflow/TASK_TRACKER.md,docs/workflow/HANDOFF.md	docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
 EOF
 
   touch "$fixture/artifact-one.txt"
@@ -64,6 +65,11 @@ SYNC-ID: sample_sync
 STATUS: implemented
 ARTIFACTS: artifact-one.txt
 TESTS: tools/sample_test.sh
+
+SYNC-ID: planned_sync
+STATUS: planned
+ARTIFACTS: none
+TESTS: none
 ```
 EOF
   done
@@ -94,6 +100,10 @@ status_output="$(AS_BUILT_SYNC_ROOT="$BASE" AS_BUILT_SYNC_CONTRACT_FILE="$BASE/d
 assert_contains "$status_output" "SYNC-ID: sample_sync"
 assert_contains "$status_output" "Document blocks: 5/5 present"
 assert_contains "$status_output" "Active test wiring: 4/4 present"
+assert_contains "$status_output" "SYNC-ID: planned_sync"
+assert_contains "$status_output" "Artifacts: 0/0 present"
+assert_contains "$status_output" "Tests: 0/0 present"
+assert_contains "$status_output" "Active test wiring: 0/0 present"
 assert_contains "$status_output" "As-built sync contract check passed."
 
 MISSING_BLOCK="$TMP_DIR/missing-block"

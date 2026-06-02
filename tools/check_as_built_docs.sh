@@ -41,9 +41,14 @@ for file in "${required_docs[@]}"; do
 done
 
 require_file "$ROOT/docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv"
+require_file "$ROOT/docs/workflow/GIT_WORKFLOW_POLICY.tsv"
+require_file "$ROOT/learning/GIT_WORKFLOW_SETTINGS.tsv"
 require_file "$ROOT/tools/check_as_built_sync_contract.sh"
 require_file "$ROOT/tools/as-built-sync"
 require_file "$ROOT/tools/test_as_built_sync_contract.sh"
+require_file "$ROOT/tools/git-workflow"
+require_file "$ROOT/tools/lib/git_workflow_policy.sh"
+require_file "$ROOT/tools/test_git_workflow_policy.sh"
 
 if [[ $missing -eq 0 ]]; then
   combined="$(mktemp)"
@@ -77,7 +82,8 @@ if [[ $missing -eq 0 ]]; then
     'DOCUMENT_MAP|Documentation Map' \
     'docs-tour|Documentation tour' \
     'dashboard docs|Documentation Map Dashboard' \
-    'production operations test|test_production_operations'
+    'production operations test|test_production_operations' \
+    'git workflow policy|Git workflow policy|GIT_WORKFLOW_POLICY|git-workflow'
   do
     if ! grep -Eiq "$topic" "$combined"; then
       printf 'missing as-built topic across docs: %s\n' "$topic" >&2
@@ -127,7 +133,8 @@ if [[ $missing -eq 0 ]]; then
     'DOCUMENT_MAP|Documentation Map' \
     'docs-tour|Documentation tour' \
     'dashboard docs|Documentation Map Dashboard' \
-    'test_docs_tour|Documentation tour tests'
+    'test_docs_tour|Documentation tour tests' \
+    'git workflow policy|Git workflow policy|GIT_WORKFLOW_POLICY|git-workflow'
   do
     for doc in "${required_docs[@]}"; do
       if ! grep -Eiq "$topic" "$doc"; then

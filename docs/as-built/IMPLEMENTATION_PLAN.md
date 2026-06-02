@@ -41,6 +41,7 @@
 30. Add `tools/test_menu_prerequisites.sh` and wire it into aggregate tests, CI, and pre-commit.
 31. Add `tools/product-repository-cleanup` for safe external product repository cleanup.
 32. Add `tools/test_product_repository_cleanup.sh` and wire it into structure checks, as-built checks, developer-memory checks, aggregate tests, CI, and pre-commit.
+33. Add Git workflow policy settings, `tools/git-workflow`, and `tools/test_git_workflow_policy.sh` for configurable branch, worktree, automation, monitoring, and cleanup-plan behavior.
 
 ## Implemented Remediation Plan
 
@@ -387,7 +388,88 @@ SYNC-ID: as_built_sync_contract
 STATUS: implemented
 ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv, tools/check_as_built_sync_contract.sh, tools/as-built-sync, tools/test_as_built_sync_contract.sh
 TESTS: tools/check_as_built_sync_contract.sh, tools/test_as_built_sync_contract.sh
+
+SYNC-ID: git_workflow_policy
+STATUS: implemented
+ARTIFACTS: docs/workflow/GIT_WORKFLOW_POLICY.tsv, learning/GIT_WORKFLOW_SETTINGS.tsv, tools/lib/git_workflow_policy.sh, tools/git-workflow, tools/test_git_workflow_policy.sh
+TESTS: tools/test_git_workflow_policy.sh
 ```
+
+## Implemented Git Workflow Policy Implementation Plan
+
+This implementation lets users configure Git-management permissions and Git automation levels before the agent performs Git workflow operations.
+It is additive and does not trade away existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-repository cleanup, CI, pre-commit, or as-built sync-contract behavior.
+
+1. Add policy and settings files.
+   - Added `docs/workflow/GIT_WORKFLOW_POLICY.tsv` as the policy definition.
+   - Added `learning/GIT_WORKFLOW_SETTINGS.tsv` as the current user-selected settings file.
+   - Defined supported keys for working-branch permission, worktree permission, main-direct-work permission, and automation level.
+   - Keep the file format simple and reusable for CLI tools, dashboard output, and future browser dashboard work.
+
+2. Add a shared Git workflow policy library.
+   - Added `tools/lib/git_workflow_policy.sh`.
+   - Load policy definitions and selected settings.
+   - Validate setting keys and values.
+   - Expose helpers for branch permission, worktree permission, main-direct-work permission, automation level, repository context, and Git monitoring.
+   - Reuse existing repository-boundary, Git sync, and lesson-common patterns where practical.
+
+3. Add a learner-facing command.
+   - Added `tools/git-workflow status`.
+   - Added `tools/git-workflow configure`.
+   - Added `tools/git-workflow set <key> <value>`.
+   - Added `tools/git-workflow allow <branch|worktree|main-direct|commit|push|pr|ci|sync>`.
+   - Added `tools/git-workflow check`.
+   - Added `tools/git-workflow cleanup-plan`.
+   - Keep `cleanup-plan` non-destructive.
+
+4. Define automation levels.
+   - `manual`: provide guidance and monitoring only.
+   - `commit`: allow automated commit after required checks pass.
+   - `pr_ci`: allow automated push, PR creation where applicable, and CI checks.
+   - `sync`: allow automated main CI checks plus local/remote synchronization checks.
+
+5. Preserve explicit confirmation for high-impact operations.
+   - Keep merge confirmation-gated.
+   - Keep branch deletion confirmation-gated.
+   - Keep worktree deletion confirmation-gated.
+   - Keep remote deletion confirmation-gated.
+   - Do not let automation level bypass destructive-operation confirmation.
+
+6. Add Git monitoring.
+   - Detect uncommitted changes.
+   - Detect unpushed commits.
+   - Detect local/remote divergence.
+   - List candidate unnecessary working branches.
+   - List candidate unnecessary worktrees.
+   - Show whether the current repository is the lesson repository or product repository.
+   - Separate lesson-repository Git state from product-repository Git state so the workflow cannot mix repositories.
+
+7. Integrate with existing workflows.
+   - Added menu and dashboard entry points without removing existing entries.
+   - Keep the policy reusable for 7-day, 14-day, applied-learning, Free Development, product-improvement, and external-integration workflows.
+   - Keep status paths non-blocking.
+   - Enforce the policy only where a start, gate, check, or Git action actually depends on it.
+
+8. Add tests.
+   - Added `tools/test_git_workflow_policy.sh`.
+   - Test valid setting changes.
+   - Test invalid key and invalid value rejection.
+   - Test branch and worktree permission decisions.
+   - Test automation-level decisions.
+   - Test dirty-state and local/remote sync monitoring.
+   - Test lesson-repository and product-repository separation.
+   - Test cleanup-plan output without deleting branches or worktrees.
+
+9. Wire validation.
+   - Added new files to structure checks.
+   - Added policy checks to as-built checks.
+   - Added `tools/test_git_workflow_policy.sh` to aggregate tests, CI, and pre-commit.
+   - Preserve existing checks and avoid replacing current Git sync or CI checks.
+
+10. Synchronize documentation.
+   - Updated these five documents from planned to implemented state.
+   - Updated `AGENTS.MD`, menu guidance, dashboard guidance, and runtime checks only where the runtime feature became active.
+   - Keep unrelated existing content unchanged.
 
 ## Verification Plan
 
@@ -407,6 +489,7 @@ Run:
 ./tools/dashboard all
 ./tools/illustrations list
 ./tools/test_as_built_sync_contract.sh
+./tools/test_git_workflow_policy.sh
 ./tools/test_menu_prerequisites.sh
 ./tools/test_lesson_start_position.sh
 ./tools/test_lesson.sh
