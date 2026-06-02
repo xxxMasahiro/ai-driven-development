@@ -31,6 +31,8 @@ The repository must help learners move from structured lessons into real product
 - Provide a learner-facing menu command that groups learning, building/extending, and lesson-maintenance actions by intent.
 - Provide a CLI dashboard for lesson status, development status, developer-memory themes, and illustration review availability.
 - Provide an illustration request and review-material structure for learner-requested educational PNG illustrations.
+- Support Role-Based Document Organization for role-specific Markdown files so design/as-built, workflow-state, and memory documents remain easy to find.
+- Keep As-Built Synchronization explicit across the requirements, specification, implementation plan, task tracker, and handoff documents.
 
 ## Remediation Requirements From Developer-Memory Audit
 
@@ -47,13 +49,13 @@ The repository must complete the following remediation work without trading away
 - Show learning-mode display names consistently while preserving A/B/C as internal IDs.
 - Strengthen approval gates so start/pass actions require matching start/pass approvals.
 - Make passage prompts invite questions and explain copy-paste command blocks in learner-friendly wording.
-- Enforce `TASK_TRACKER.md` and `HANDOFF.md` as a synchronized pair for workflow state and restart context.
+- Enforce `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as a synchronized pair for workflow state and restart context.
 - Strengthen as-built document synchronization beyond shallow topic checks.
 - Expand the CLI dashboard to show current step, progress, languages, next approval, sync-gate status, workflow-pair status, real CI status when available, developer-memory items, and illustration availability.
 - Complete illustration request, metadata, generated-asset registration, and review-page support.
 - Add an external-integration CLI path that can follow Free Development Mode or start from an existing product repository.
-- Introduce lesson-repository Playwright checks for dashboard and illustration-review quality in a staged way.
-- Wire the strengthened checks into CI and pre-commit without removing existing checks.
+- Introduce required lesson-repository Playwright checks for dashboard and illustration-review quality after dependencies are installed.
+- Wire the strengthened checks, product-gate tests, Playwright checks, and aggregate tests into CI and pre-commit without removing existing checks.
 - Add failure-path tests for Free Development and Team Development gates.
 
 ## Mechanical Enforcement
@@ -90,6 +92,6 @@ The repository must complete the following remediation work without trading away
 - All lesson structure and sync checks pass.
 - Developer-memory requirements check passes.
 - Lesson repository aggregate test passes.
-- `TASK_TRACKER.md`, `HANDOFF.md`, `REQUIREMENTS.md`, `SPECIFICATION.md`, and `IMPLEMENTATION_PLAN.md` reflect the same as-built state.
+- `docs/workflow/TASK_TRACKER.md`, `docs/workflow/HANDOFF.md`, `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md` reflect the same as-built state.
 - `task-tracker-repository` remains outside this repository and may remain deleted unless a real product operations test is explicitly requested.
 - The unfinished-requirements audit is cleared only when all remediation requirements in this document are implemented or mechanically enforced.

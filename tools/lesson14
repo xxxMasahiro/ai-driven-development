@@ -20,6 +20,8 @@ LESSON_RUNTIME_REQUIRE_APPROVAL=1
 LESSON_RUNTIME_CHECK="$ROOT/tools/check_lesson14_structure.sh"
 LESSON_RUNTIME_BEFORE_PASS="lesson14_before_pass"
 LESSON14_LEARNING_MODE_FILE="$(lesson_learning_mode_file)"
+LESSON14_WORKFLOW_LANGUAGE_FILE="$(lesson_workflow_language_file)"
+LESSON14_PRODUCT_LANGUAGE_FILE="$(lesson_product_language_file)"
 
 lesson_runtime_name="$LESSON_RUNTIME_NAME"
 lesson_runtime_flow="$LESSON_RUNTIME_FLOW"
@@ -35,17 +37,43 @@ lesson14_normalize_learning_mode() {
   local mode="$1"
   case "$mode" in
     A|a)
-      printf 'A\tdetailed explanation'
+      printf 'A\tじっくり説明'
       ;;
     B|b)
-      printf 'B\tbrief supplemental explanation'
+      printf 'B\tほどよく説明'
       ;;
     C|c)
-      printf 'C\tworkflow only'
+      printf 'C\t手順だけ'
       ;;
     *)
       printf 'learning mode must be A, B, or C.\n' >&2
       exit 1
+      ;;
+  esac
+}
+
+lesson14_normalize_language() {
+  local raw="$1"
+  case "$raw" in
+    ja|JA|jp|JP|日本語|Japanese|japanese)
+      printf 'ja\t日本語'
+      ;;
+    en|EN|英語|English|english)
+      printf 'en\tEnglish'
+      ;;
+    ko|KO|韓国語|Korean|korean)
+      printf 'ko\t한국어'
+      ;;
+    zh|ZH|中国語|Chinese|chinese)
+      printf 'zh\t中文'
+      ;;
+    *)
+      if [[ -n "$raw" ]]; then
+        printf 'custom\t%s' "$raw"
+      else
+        printf 'language is required. Examples: ja, en, ko, zh.\n' >&2
+        exit 1
+      fi
       ;;
   esac
 }
@@ -76,10 +104,37 @@ lesson14_show_learning_mode() {
   fi
 }
 
+lesson14_set_language_file() {
+  local file="$1"
+  local label="$2"
+  local raw_language="${3:-}"
+  local normalized code display stamp
+  normalized="$(lesson14_normalize_language "$raw_language")"
+  code="${normalized%%$'\t'*}"
+  display="${normalized#*$'\t'}"
+  stamp="$(date '+%Y-%m-%d %H:%M:%S')"
+  printf '# selected_at\tcode\tlabel\n%s\t%s\t%s\n' "$stamp" "$code" "$display" > "$file"
+  printf '%s recorded: %s (%s)\n' "$label" "$code" "$display"
+}
+
+lesson14_show_language_file() {
+  local file="$1"
+  local label="$2"
+  local current
+  current="$(awk -F '\t' '$1 !~ /^#/ && $2 != "" { print $2 " (" $3 ")"; found=1; exit } END { exit found ? 0 : 1 }' "$file" || true)"
+  if [[ -n "$current" ]]; then
+    printf 'Current %s: %s\n' "$label" "$current"
+  else
+    printf 'Current %s: not selected\n' "$label"
+  fi
+}
+
 lesson14_reset_run() {
   local confirm="${1:-}"
   if [[ "$confirm" != "--confirm" ]]; then
-    printf 'This resets 14-day lesson runtime files. Re-run with: ./tools/lesson14 初期化 --confirm\n' >&2
+    printf '14日版レッスンの実行状態を最初からやり直す操作です。\n' >&2
+    printf '本当に初期化する場合は、次のコマンドを実行してください。\n' >&2
+    printf './tools/lesson14 初期化 --confirm\n' >&2
     exit 1
   fi
   local tmp_state
@@ -94,21 +149,23 @@ lesson14_reset_run() {
   mv "$tmp_state" "$LESSON_RUNTIME_STATE"
   printf '# step_id\taction\tapproved_at\tmemo\n' > "$LESSON_RUNTIME_APPROVAL"
   printf '# selected_at\tmode\tdescription\n' > "$LESSON14_LEARNING_MODE_FILE"
+  printf '# selected_at\tcode\tlabel\n' > "$LESSON14_WORKFLOW_LANGUAGE_FILE"
+  printf '# selected_at\tcode\tlabel\n' > "$LESSON14_PRODUCT_LANGUAGE_FILE"
   {
     printf '# Learning Task Tracker (14-day)\n\n'
     printf 'This file records learner-visible progress for the 14-day lesson.\n'
-    printf '\n## Day Progress\n\n'
-    local day
-    for day in $(seq 1 14); do
-      printf '%s\n' "- Day $day: not started"
+    printf '\n## Step Progress\n\n'
+    local step_number
+    for step_number in $(seq 1 14); do
+      printf '%s\n' "- Step $step_number/14: not started"
     done
   } > "$LESSON_RUNTIME_TRACKER"
   {
     printf '# Learning Handoff (14-day)\n\n'
-    printf 'Current step: setup.index\n'
-    printf 'Next question: May we start the 14-day lesson from index-14-days.md?\n'
+    printf 'Current step: Setup: index-14-days.mdでレッスン全体と14日版の入口を確認する\n'
+    printf 'Next question: index-14-days.mdから14日版レッスンを開始してよいですか？\n'
   } > "$LESSON_RUNTIME_HANDOFF"
-  printf '14-day lesson runtime reset to setup.index.\n'
+  printf '14日版レッスンの実行状態を最初のセットアップ項目へ戻しました。\n'
 }
 
 lesson14_require_learning_mode() {
@@ -118,6 +175,27 @@ lesson14_require_learning_mode() {
   printf 'Learning mode is required before passing setup.index.\n' >&2
   printf 'Run: ./tools/lesson14 学習モード <A|B|C>\n' >&2
   exit 1
+}
+
+lesson14_language_file_has_value() {
+  local file="$1"
+  [[ -f "$file" ]] || return 1
+  awk -F '\t' '$1 !~ /^#/ && $2 != "" && $3 != "" { found=1; exit } END { exit found ? 0 : 1 }' "$file"
+}
+
+lesson14_require_language_settings() {
+  local missing=0
+  if ! lesson14_language_file_has_value "$LESSON14_WORKFLOW_LANGUAGE_FILE"; then
+    printf 'Workflow display language is required before passing setup.index.\n' >&2
+    printf 'Run: ./tools/lesson14 表示言語 <ja|en|ko|zh>\n' >&2
+    missing=1
+  fi
+  if ! lesson14_language_file_has_value "$LESSON14_PRODUCT_LANGUAGE_FILE"; then
+    printf 'Product development language is required before passing setup.index.\n' >&2
+    printf 'Run: ./tools/lesson14 開発言語 <ja|en|ko|zh>\n' >&2
+    missing=1
+  fi
+  [[ "$missing" -eq 0 ]] || exit 1
 }
 
 lesson14_sync_gate_command_for_day() {
@@ -166,6 +244,7 @@ lesson14_before_pass() {
   case "$step_id" in
     setup.index)
       lesson14_require_learning_mode
+      lesson14_require_language_settings
       ;;
     *.sync-gate|day14.release-readiness)
       day="$(lesson_runtime_flow_field "$step_id" 3)"
@@ -185,6 +264,28 @@ case "${1:-}" in
       exit 0
     fi
     lesson14_set_learning_mode "$@"
+    exit 0
+    ;;
+  表示言語|display-language|workflow-language)
+    shift || true
+    lesson_runtime_require_files
+    [[ -f "$LESSON14_WORKFLOW_LANGUAGE_FILE" ]] || printf '# selected_at\tcode\tlabel\n' > "$LESSON14_WORKFLOW_LANGUAGE_FILE"
+    if [[ $# -eq 0 ]]; then
+      lesson14_show_language_file "$LESSON14_WORKFLOW_LANGUAGE_FILE" "workflow display language"
+      exit 0
+    fi
+    lesson14_set_language_file "$LESSON14_WORKFLOW_LANGUAGE_FILE" "Workflow display language" "$1"
+    exit 0
+    ;;
+  開発言語|product-language|development-language)
+    shift || true
+    lesson_runtime_require_files
+    [[ -f "$LESSON14_PRODUCT_LANGUAGE_FILE" ]] || printf '# selected_at\tcode\tlabel\n' > "$LESSON14_PRODUCT_LANGUAGE_FILE"
+    if [[ $# -eq 0 ]]; then
+      lesson14_show_language_file "$LESSON14_PRODUCT_LANGUAGE_FILE" "product development language"
+      exit 0
+    fi
+    lesson14_set_language_file "$LESSON14_PRODUCT_LANGUAGE_FILE" "Product development language" "$1"
     exit 0
     ;;
   初期化|reset)

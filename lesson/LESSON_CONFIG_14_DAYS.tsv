@@ -8,6 +8,8 @@ learning_tracker_file	learning/LEARNING_TASK_TRACKER_14_DAYS.md
 learning_handoff_file	learning/LEARNING_HANDOFF_14_DAYS.md
 approval_file	learning/LESSON_APPROVALS_14_DAYS.tsv
 learning_mode_file	learning/LESSON_MODE_14_DAYS.tsv
+workflow_language_file	learning/WORKFLOW_DISPLAY_LANGUAGE_14_DAYS.tsv
+product_language_file	learning/PRODUCT_DEVELOPMENT_LANGUAGE_14_DAYS.tsv
 roadmap_file	learning/ROADMAP.md
 helpdesk_file	learning/HELP_DESK.md
 sync_gates_file	lesson/SYNC_GATES_14_DAYS.tsv

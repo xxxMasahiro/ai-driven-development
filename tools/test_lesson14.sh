@@ -10,17 +10,17 @@ mkdir -p "$HOME/projects"
 cp -a "$ROOT" "$work/lesson"
 cd "$work/lesson"
 
-./tools/lesson14 初期化 --confirm | grep 'reset to setup.index'
+./tools/lesson14 初期化 --confirm | grep '最初のセットアップ項目へ戻しました'
 
 ./tools/check_lesson_structure.sh
 ./tools/check_repository_boundary.sh >/dev/null
 ./tools/check_lesson14_structure.sh
 ./tools/check_lesson14_sync.sh
 ./tools/check_developer_memory_requirements.sh
-./tools/lesson14 現在地 | grep 'setup.index'
-./tools/lesson14 一覧 | grep 'day14.complete'
-./tools/roadmap 現在地 | grep 'setup.index'
-./tools/roadmap Day 14 | grep 'day14.complete'
+./tools/lesson14 現在地 | grep './tools/lesson14 開始 setup.index'
+./tools/lesson14 一覧 | grep 'Step 14/14.*14日版レッスンを完了する'
+./tools/roadmap 現在地 | grep './tools/lesson14 開始 setup.index'
+./tools/roadmap Step 14/14 | grep 'Step 14/14.*14日版レッスンを完了する'
 
 bad_duplicate="$work/bad-duplicate"
 cp -a "$work/lesson" "$bad_duplicate"
@@ -47,7 +47,7 @@ grep '14-day setup index entry' /tmp/lesson14-bad-entry.out >/dev/null
 bad_learning_files="$work/bad-learning-files"
 cp -a "$work/lesson" "$bad_learning_files"
 tmp_gates="$(mktemp)"
-awk -F '\t' -v OFS='\t' '$1 !~ /^#/ && $1 == "Day 1" { $2 = "LEARNING_TASK_TRACKER.md,LEARNING_HANDOFF.md" } { print }' "$bad_learning_files/lesson/SYNC_GATES_14_DAYS.tsv" > "$tmp_gates"
+awk -F '\t' -v OFS='\t' '$1 !~ /^#/ && $1 == "Step 1/14" { $2 = "LEARNING_TASK_TRACKER.md,LEARNING_HANDOFF.md" } { print }' "$bad_learning_files/lesson/SYNC_GATES_14_DAYS.tsv" > "$tmp_gates"
 mv "$tmp_gates" "$bad_learning_files/lesson/SYNC_GATES_14_DAYS.tsv"
 (cd "$bad_learning_files" && ./tools/check_lesson14_sync.sh >/tmp/lesson14-bad-learning-files.out 2>&1 && exit 1 || true)
 grep 'sync gates must use 14-day learning files only' /tmp/lesson14-bad-learning-files.out >/dev/null
@@ -55,10 +55,10 @@ grep 'sync gates must use 14-day learning files only' /tmp/lesson14-bad-learning
 bad_day14_gate="$work/bad-day14-gate"
 cp -a "$work/lesson" "$bad_day14_gate"
 tmp_gates="$(mktemp)"
-awk -F '\t' -v OFS='\t' '$1 !~ /^#/ && $1 == "Day 14" { $6 = "tools/check_ci_status.sh --required" } { print }' "$bad_day14_gate/lesson/SYNC_GATES_14_DAYS.tsv" > "$tmp_gates"
+awk -F '\t' -v OFS='\t' '$1 !~ /^#/ && $1 == "Step 14/14" { $6 = "tools/check_ci_status.sh --required" } { print }' "$bad_day14_gate/lesson/SYNC_GATES_14_DAYS.tsv" > "$tmp_gates"
 mv "$tmp_gates" "$bad_day14_gate/lesson/SYNC_GATES_14_DAYS.tsv"
 (cd "$bad_day14_gate" && ./tools/check_lesson14_sync.sh >/tmp/lesson14-bad-day14-gate.out 2>&1 && exit 1 || true)
-grep 'Day 14 must use required git sync check' /tmp/lesson14-bad-day14-gate.out >/dev/null
+grep 'Step 14/14 must use required git sync check' /tmp/lesson14-bad-day14-gate.out >/dev/null
 
 ./tools/lesson14 通過 day2.git-basics "future step" >/tmp/lesson14-future.out 2>&1 && exit 1 || true
 grep 'locked' /tmp/lesson14-future.out >/dev/null
@@ -69,6 +69,12 @@ grep 'pass memo is required' /tmp/lesson14-empty-pass.out >/dev/null
 ./tools/lesson14 復習 setup.index >/tmp/lesson14-revisit-current.out 2>&1 && exit 1 || true
 grep 'only completed steps' /tmp/lesson14-revisit-current.out >/dev/null
 
+./tools/lesson14 開始 setup.index >/tmp/lesson14-start-approval-required.out 2>&1 && exit 1 || true
+grep 'Approval required' /tmp/lesson14-start-approval-required.out >/dev/null
+grep '質問や気になる点' /tmp/lesson14-start-approval-required.out >/dev/null
+./tools/lesson14 承認 start setup.index "ユーザーがsetup.indexの開始を承認した"
+./tools/lesson14 開始 setup.index | grep 'Started current step'
+
 ./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した" >/tmp/lesson14-approval-required.out 2>&1 && exit 1 || true
 grep 'Approval required' /tmp/lesson14-approval-required.out >/dev/null
 
@@ -76,13 +82,18 @@ grep 'Approval required' /tmp/lesson14-approval-required.out >/dev/null
 ./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した" >/tmp/lesson14-mode-required.out 2>&1 && exit 1 || true
 grep 'Learning mode is required' /tmp/lesson14-mode-required.out >/dev/null
 ./tools/lesson14 学習モード A | grep 'Learning mode recorded: A'
+./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した" >/tmp/lesson14-language-required.out 2>&1 && exit 1 || true
+grep 'Workflow display language is required' /tmp/lesson14-language-required.out >/dev/null
+grep 'Product development language is required' /tmp/lesson14-language-required.out >/dev/null
+./tools/lesson14 表示言語 ja | grep 'Workflow display language recorded: ja'
+./tools/lesson14 開発言語 ja | grep 'Product development language recorded: ja'
 ./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した"
-./tools/lesson14 現在地 | grep 'setup.github-login'
+./tools/lesson14 現在地 | grep './tools/lesson14 開始 setup.github-login'
 ./tools/lesson14 復習 setup.index | grep 'Revisit allowed'
-./tools/lesson14 現在地 | grep 'setup.github-login'
+./tools/lesson14 現在地 | grep './tools/lesson14 開始 setup.github-login'
 ./tools/lesson14 承認 pass setup.github-login "ユーザーがsetup.github-loginの通過を承認した"
 ./tools/lesson14 通過 setup.github-login "GitHub接続を確認した"
-./tools/lesson14 現在地 | grep 'day1.roadmap'
+./tools/lesson14 現在地 | grep './tools/lesson14 開始 day1.roadmap'
 ./tools/lesson14 学習モード C | grep 'Learning mode recorded: C'
 ./tools/lesson14 学習モード | grep 'Current learning mode: C'
 
@@ -108,7 +119,7 @@ awk -F '\t' -v OFS='\t' '
 mv "$tmp_state" learning/LESSON_STATE_14_DAYS.tsv
 git add .
 git -c user.name=Test -c user.email=test@example.com commit -m gate >/dev/null
-./tools/lesson14 承認 pass day3.sync-gate "ユーザーがDay 3同期ゲートの通過試行を承認した"
+./tools/lesson14 承認 pass day3.sync-gate "ユーザーがStep 3/14同期ゲートの通過試行を承認した"
 ./tools/lesson14 通過 day3.sync-gate "should fail without product repository" >/tmp/lesson14-gate-product-missing.out 2>&1 && exit 1 || true
 grep 'expected product repository does not exist' /tmp/lesson14-gate-product-missing.out >/dev/null
 
@@ -148,6 +159,15 @@ fi
 
 if [[ "$1 $2 $3 $4 $5" == "repo view --json nameWithOwner --jq" ]]; then
   printf 'owner/repo\n'
+  exit 0
+fi
+
+if [[ "$1" == "api" ]]; then
+  if printf '%s\n' "$*" | grep -q 'branch=fail'; then
+    printf 'completed\tfailure\tCI\tCI\tfail\t2\t0\t1s\t2026-06-01T00:00:00Z\n'
+  else
+    printf 'completed\tsuccess\tCI\tCI\tmain\t1\t0\t1s\t2026-06-01T00:00:00Z\n'
+  fi
   exit 0
 fi
 
@@ -203,14 +223,14 @@ awk -F '\t' -v OFS='\t' '
 mv "$tmp_state" learning/LESSON_STATE_14_DAYS.tsv
 git add .
 git -c user.name=Test -c user.email=test@example.com commit -m gate >/dev/null
-./tools/lesson14 承認 pass day14.release-readiness "ユーザーがDay 14 release readinessの通過試行を承認した"
+./tools/lesson14 承認 pass day14.release-readiness "ユーザーがStep 14/14 release readinessの通過試行を承認した"
 ./tools/lesson14 通過 day14.release-readiness "should fail without upstream" >/tmp/lesson14-gate-required.out 2>&1 && exit 1 || true
 grep 'Upstream: none' /tmp/lesson14-gate-required.out >/dev/null
 git -C "$product_repo" init --bare --initial-branch=main "$work/product-origin.git" >/dev/null
 git -C "$product_repo" remote add origin "$work/product-origin.git"
 git -C "$product_repo" push -u origin main >/dev/null
 PATH="$fake_bin:$PATH" ./tools/lesson14 通過 day14.release-readiness "main同期とCIを確認した" | grep 'Passed step'
-./tools/lesson14 status | grep 'day14.retrospective'
+./tools/lesson14 status | grep './tools/lesson14 開始 day14.retrospective'
 
 cd "$work/lesson"
 

@@ -34,6 +34,7 @@ case "$COMMAND" in
     ;;
   gate|確認)
     "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    "$LESSON_ROOT/tools/check_workflow_pair_sync.sh" --product
     "$LESSON_ROOT/tools/check_git_sync.sh" --product --required
     "$LESSON_ROOT/tools/check_ci_status.sh" --product --required
     printf 'Free Development Mode gate passed.\n'

@@ -1,0 +1,10 @@
+{
+  "name": "ai-driven-development-lesson",
+  "private": true,
+  "scripts": {
+    "test:dashboard": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.0"
+  }
+}

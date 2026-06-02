@@ -4,6 +4,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=tools/lib/lesson_common.sh
 source "$SCRIPT_DIR/lib/lesson_common.sh"
+# shellcheck source=tools/lib/document_paths.sh
+source "$SCRIPT_DIR/lib/document_paths.sh"
 
 ROOT="$LESSON_ROOT"
 FLOW="$(lesson_flow_file)"
@@ -17,12 +19,12 @@ required_files=(
   "AGENTS.MD"
   "LICENSE"
   "README.md"
-  "REQUIREMENTS.md"
-  "SPECIFICATION.md"
-  "IMPLEMENTATION_PLAN.md"
-  "TASK_TRACKER.md"
-  "HANDOFF.md"
-  "DEVELOPER_MEMORY.md"
+  "$(lesson_doc_relpath requirements)"
+  "$(lesson_doc_relpath specification)"
+  "$(lesson_doc_relpath implementation_plan)"
+  "$(lesson_doc_relpath task_tracker)"
+  "$(lesson_doc_relpath handoff)"
+  "$(lesson_doc_relpath developer_memory)"
   "index.md"
   "ai-driven-task-tracker-scenario.md"
   "github-login-setup-guide.md"
@@ -33,6 +35,10 @@ required_files=(
   "advanced/TEAM_DEVELOPMENT_DOCKER.md"
   "advanced/DOCKER_PATHS.md"
   "reviews/SUBAGENT_REVIEW_PROTOCOL.md"
+  "package.json"
+  "package-lock.json"
+  "playwright.config.js"
+  "tests/playwright/dashboard.spec.js"
   "playbooks/AGENT_PLAYBOOK.md"
   "lesson/LESSON_CONFIG.tsv"
   "lesson/LESSON_FLOW.tsv"
@@ -40,9 +46,12 @@ required_files=(
   "learning/LEARNING_TASK_TRACKER.md"
   "learning/LEARNING_HANDOFF.md"
   "tools/check_lesson_structure.sh"
+  "tools/check_document_organization.sh"
+  "tools/check_learner_display.sh"
   "tools/check_repository_boundary.sh"
   "tools/check_agents_skills.sh"
   "tools/check_as_built_docs.sh"
+  "tools/check_workflow_pair_sync.sh"
   "tools/check_review_protocol.sh"
   "tools/check_developer_memory_requirements.sh"
   "tools/list_non_english_docs.sh"
@@ -50,10 +59,12 @@ required_files=(
   "tools/test_product_gate_tools.sh"
   "tools/test_lesson_start_position.sh"
   "tools/free-development"
+  "tools/external-integration"
   "tools/team-development"
   "tools/menu"
   "tools/dashboard"
   "tools/illustrations"
+  "tools/test_lesson_playwright.sh"
   "tools/lib/lesson_common.sh"
   "tools/lesson"
   "tools/learn"
@@ -90,7 +101,7 @@ for file in "${misplaced_files[@]}"; do
   fi
 done
 
-for script in "tools/check_lesson_structure.sh" "tools/check_repository_boundary.sh" "tools/check_agents_skills.sh" "tools/check_as_built_docs.sh" "tools/check_review_protocol.sh" "tools/check_developer_memory_requirements.sh" "tools/list_non_english_docs.sh" "tools/test_lesson_repository.sh" "tools/test_product_gate_tools.sh" "tools/test_lesson_start_position.sh" "tools/free-development" "tools/team-development" "tools/menu" "tools/dashboard" "tools/illustrations" "tools/lesson" "tools/learn"; do
+for script in "tools/check_lesson_structure.sh" "tools/check_document_organization.sh" "tools/check_learner_display.sh" "tools/check_repository_boundary.sh" "tools/check_agents_skills.sh" "tools/check_as_built_docs.sh" "tools/check_workflow_pair_sync.sh" "tools/check_review_protocol.sh" "tools/check_developer_memory_requirements.sh" "tools/list_non_english_docs.sh" "tools/test_lesson_repository.sh" "tools/test_product_gate_tools.sh" "tools/test_lesson_start_position.sh" "tools/test_lesson_playwright.sh" "tools/free-development" "tools/external-integration" "tools/team-development" "tools/menu" "tools/dashboard" "tools/illustrations" "tools/lesson" "tools/learn"; do
   if [[ ! -x "$ROOT/$script" ]]; then
     printf 'not executable: %s\n' "$script" >&2
     missing=1

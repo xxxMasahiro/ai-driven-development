@@ -97,6 +97,14 @@ lesson_learning_mode_file() {
   lesson_abs_path "$(lesson_config_get learning_mode_file "learning/LESSON_MODE.tsv")"
 }
 
+lesson_workflow_language_file() {
+  lesson_abs_path "$(lesson_config_get workflow_language_file "learning/WORKFLOW_DISPLAY_LANGUAGE.tsv")"
+}
+
+lesson_product_language_file() {
+  lesson_abs_path "$(lesson_config_get product_language_file "learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv")"
+}
+
 lesson_structure_check() {
   "$LESSON_ROOT/tools/check_lesson_structure.sh" >/dev/null
 }

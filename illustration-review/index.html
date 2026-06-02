@@ -14,15 +14,61 @@
       }
 
       main {
-        width: min(960px, calc(100% - 32px));
-        margin: 40px auto;
+        width: min(1120px, calc(100% - 32px));
+        margin: 32px auto;
       }
 
-      section {
+      h1 {
+        font-size: 28px;
+        margin: 0 0 20px;
+      }
+
+      .record {
+        display: grid;
+        grid-template-columns: minmax(280px, 1fr) minmax(280px, 1.2fr);
+        gap: 20px;
+        margin: 18px 0;
         padding: 20px;
         background: #fff;
         border: 1px solid #d8dee4;
         border-radius: 8px;
+      }
+
+      .image-box {
+        display: grid;
+        min-height: 260px;
+        place-items: center;
+        background: #eef2f6;
+        border: 1px solid #d8dee4;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .image-box img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .placeholder {
+        padding: 18px;
+        text-align: center;
+        color: #52616b;
+      }
+
+      dl {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 6px 14px;
+        margin: 0;
+      }
+
+      dt {
+        font-weight: 700;
+      }
+
+      dd {
+        margin: 0;
       }
 
       code {
@@ -30,16 +76,123 @@
         background: #eef2f6;
         border-radius: 4px;
       }
+
+      @media (max-width: 760px) {
+        .record {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
     <main>
       <h1>Lesson Illustration Review</h1>
-      <section>
-        <h2>How to Use</h2>
-        <p>Use <code>./tools/illustrations list</code> to see illustration records.</p>
-        <p>Generated PNG assets are stored under <code>illustrations/lesson14/&lt;step_id&gt;/</code> and can be reviewed here as this page is extended.</p>
-      </section>
+      <p id="status">Loading illustration records...</p>
+      <section id="records" aria-live="polite"></section>
     </main>
+    <script>
+      const indexPath = "../illustrations/lesson14/index.tsv";
+      const recordsEl = document.querySelector("#records");
+      const statusEl = document.querySelector("#status");
+
+      function cell(value) {
+        return value && value !== "-" ? value : "Not recorded";
+      }
+
+      function parseRows(text) {
+        return text
+          .split(/\r?\n/)
+          .filter((line) => line.trim() && !line.startsWith("#"))
+          .map((line) => {
+            const [
+              stepId,
+              topic,
+              status,
+              assetPath,
+              learningMode,
+              displayLanguage,
+              sourceExplanation,
+              summary,
+              keyTerms,
+              generatedAt,
+              note,
+            ] = line.split("\t");
+            return {
+              stepId,
+              topic,
+              status,
+              assetPath,
+              learningMode,
+              displayLanguage,
+              sourceExplanation,
+              summary,
+              keyTerms,
+              generatedAt,
+              note,
+            };
+          });
+      }
+
+      function renderRecord(record) {
+        const article = document.createElement("article");
+        article.className = "record";
+
+        const imageBox = document.createElement("div");
+        imageBox.className = "image-box";
+        if (record.status === "available" && record.assetPath) {
+          const image = document.createElement("img");
+          image.src = `../${record.assetPath}`;
+          image.alt = `${record.topic} illustration`;
+          imageBox.append(image);
+        } else {
+          const placeholder = document.createElement("div");
+          placeholder.className = "placeholder";
+          placeholder.textContent = "PNG illustration is not registered yet.";
+          imageBox.append(placeholder);
+        }
+
+        const details = document.createElement("dl");
+        const rows = [
+          ["Step", record.stepId],
+          ["Topic", record.topic],
+          ["Status", record.status],
+          ["Learning Mode", record.learningMode],
+          ["Language", record.displayLanguage],
+          ["Summary", record.summary],
+          ["Key Terms", record.keyTerms],
+          ["Source", record.sourceExplanation],
+          ["Generated", record.generatedAt],
+          ["Asset", record.assetPath],
+          ["Note", record.note],
+        ];
+
+        for (const [label, value] of rows) {
+          const dt = document.createElement("dt");
+          dt.textContent = label;
+          const dd = document.createElement("dd");
+          dd.textContent = cell(value);
+          details.append(dt, dd);
+        }
+
+        article.append(imageBox, details);
+        return article;
+      }
+
+      fetch(indexPath)
+        .then((response) => {
+          if (!response.ok) throw new Error(`Could not load ${indexPath}`);
+          return response.text();
+        })
+        .then((text) => {
+          const rows = parseRows(text);
+          recordsEl.replaceChildren(...rows.map(renderRecord));
+          statusEl.textContent = rows.length
+            ? `${rows.length} illustration record(s)`
+            : "No illustration records yet.";
+        })
+        .catch((error) => {
+          statusEl.textContent = error.message;
+        });
+    </script>
   </body>
 </html>

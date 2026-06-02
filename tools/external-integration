@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$SCRIPT_DIR/lib/lesson_common.sh"
+
+COMMAND="${1:-status}"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  tools/external-integration status
+  tools/external-integration start
+  tools/external-integration gate
+
+Rules:
+  - This path can follow Free Development Mode or start from an existing product repository.
+  - It does not replace the lesson, free-development, product improvement, or MCP learning paths.
+  - The learner chooses the external tool and scope before implementation.
+USAGE
+}
+
+check_scope_docs() {
+  local product_root missing file
+  product_root="$(lesson_product_repo_root)"
+  missing=0
+  for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md; do
+    if [[ ! -s "$product_root/$file" ]]; then
+      printf 'missing external-integration scope document: %s\n' "$product_root/$file" >&2
+      missing=1
+    fi
+  done
+  [[ "$missing" -eq 0 ]] || exit 1
+}
+
+case "$COMMAND" in
+  status|現在地)
+    printf 'External Integration: optional extension path\n'
+    printf 'Product repository: %s\n' "$(lesson_product_repo_root)"
+    printf 'Typical targets: calendar, task service, spreadsheet, documentation, API, or MCP-style resource.\n'
+    ;;
+  start|開始)
+    cat <<'PROMPT'
+External Integration start prompt:
+
+I want to extend my product by connecting it to an external tool.
+First inspect the product requirements, specification, implementation plan, TASK_TRACKER, and HANDOFF.
+Then ask me which external tool I want to connect, what information should move, and what should stay out of scope.
+Do not implement until I approve the smallest useful integration plan.
+PROMPT
+    ;;
+  gate|確認)
+    "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    check_scope_docs
+    "$LESSON_ROOT/tools/check_workflow_pair_sync.sh" --product
+    "$LESSON_ROOT/tools/check_git_sync.sh" --product --required
+    "$LESSON_ROOT/tools/check_ci_status.sh" --product --required
+    printf 'External Integration gate passed.\n'
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    printf 'unknown command: %s\n' "$COMMAND" >&2
+    usage
+    exit 1
+    ;;
+esac

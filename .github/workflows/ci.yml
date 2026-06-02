@@ -15,16 +15,32 @@ jobs:
         run: |
           bash -n .githooks/pre-commit
           bash -n tools/lib/lesson_common.sh
+          bash -n tools/lib/document_paths.sh
           bash -n tools/check_lesson_structure.sh
+          bash -n tools/check_document_organization.sh
+          bash -n tools/check_learner_display.sh
           bash -n tools/check_repository_boundary.sh
           bash -n tools/check_agents_skills.sh
+          bash -n tools/check_as_built_docs.sh
+          bash -n tools/check_workflow_pair_sync.sh
+          bash -n tools/check_review_protocol.sh
+          bash -n tools/check_developer_memory_requirements.sh
+          bash -n tools/test_lesson_playwright.sh
+          bash -n tools/test_product_gate_tools.sh
+          bash -n tools/test_lesson_repository.sh
           bash -n tools/lesson
           bash -n tools/learn
 
       - name: Lesson structure
         run: |
           ./tools/check_lesson_structure.sh
+          ./tools/check_document_organization.sh
+          ./tools/check_learner_display.sh
           ./tools/check_agents_skills.sh
+          ./tools/check_as_built_docs.sh
+          ./tools/check_workflow_pair_sync.sh
+          ./tools/check_review_protocol.sh
+          ./tools/check_developer_memory_requirements.sh
 
       - name: Repository boundary
         run: ./tools/check_repository_boundary.sh
@@ -45,10 +61,18 @@ jobs:
           ./tools/lesson 通過 day1.mode "future step" >/tmp/future.out 2>&1 && exit 1 || true
           ./tools/lesson 通過 setup.index >/tmp/empty-pass.out 2>&1 && exit 1 || true
           ./tools/lesson 通過 setup.index "設定から体験開発へ進む順番を確認した"
-          ./tools/lesson 現在地 | grep 'setup.github-login'
+          ./tools/lesson 現在地 | grep './tools/lesson 開始 setup.github-login'
           ./tools/lesson 通過 setup.github-login "github-loginでGitHub接続を確認した"
-          ./tools/lesson 現在地 | grep 'day1.mode'
+          ./tools/lesson 現在地 | grep './tools/lesson 開始 day1.mode'
 
           cd "$work/lesson"
           mkdir "$(awk -F '\t' '$1 == "product_repo_name" { print $2 }' lesson/LESSON_CONFIG.tsv)"
           ./tools/check_lesson_structure.sh >/tmp/nested.out 2>&1 && exit 1 || true
+
+      - name: Install browser test dependencies
+        run: |
+          npm install
+          npx playwright install chromium
+
+      - name: Lesson aggregate test
+        run: ./tools/test_lesson_repository.sh

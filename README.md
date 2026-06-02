@@ -101,6 +101,12 @@ lesson/LESSON_FLOW.tsv           レッスンの正しい進行順
 learning/LESSON_STATE.tsv        現在の学習状態
 learning/LEARNING_TASK_TRACKER.md 学習進捗の記録
 learning/LEARNING_HANDOFF.md     直近の学習内容と次の作業
+docs/as-built/REQUIREMENTS.md    教材側の要件
+docs/as-built/SPECIFICATION.md   教材側の仕様
+docs/as-built/IMPLEMENTATION_PLAN.md 教材側の実装計画
+docs/workflow/TASK_TRACKER.md    教材側の作業進捗
+docs/workflow/HANDOFF.md         教材側の引き継ぎ
+docs/memory/DEVELOPER_MEMORY.md  教材側の開発者メモリー
 tools/lesson                     レッスン順序の制御
 tools/learn                      学習進捗の記録
 tools/check_lesson_structure.sh  教材構成と進捗状態の検査

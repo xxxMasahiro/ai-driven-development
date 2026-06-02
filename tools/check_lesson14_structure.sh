@@ -7,11 +7,15 @@ export LESSON_CONFIG="$ROOT/lesson/LESSON_CONFIG_14_DAYS.tsv"
 
 # shellcheck source=tools/lib/lesson_common.sh
 source "$SCRIPT_DIR/lib/lesson_common.sh"
+# shellcheck source=tools/lib/document_paths.sh
+source "$SCRIPT_DIR/lib/document_paths.sh"
 
 FLOW="$(lesson_flow_file)"
 STATE="$(lesson_state_file)"
 APPROVALS="$(lesson_approval_file)"
 LEARNING_MODE="$(lesson_learning_mode_file)"
+WORKFLOW_LANGUAGE="$(lesson_workflow_language_file)"
+PRODUCT_LANGUAGE="$(lesson_product_language_file)"
 ROADMAP="$(lesson_abs_path "$(lesson_config_get roadmap_file "learning/ROADMAP.md")")"
 HELP_DESK="$(lesson_abs_path "$(lesson_config_get helpdesk_file "learning/HELP_DESK.md")")"
 SYNC_GATES="$(lesson_abs_path "$(lesson_config_get sync_gates_file "lesson/SYNC_GATES_14_DAYS.tsv")")"
@@ -19,12 +23,12 @@ PROMPTS="$(lesson_abs_path "$(lesson_config_get prompt_file "prompts/PROMPTS_14_
 
 required_files=(
   "index-14-days.md"
-  "REQUIREMENTS.md"
-  "SPECIFICATION.md"
-  "IMPLEMENTATION_PLAN.md"
-  "TASK_TRACKER.md"
-  "HANDOFF.md"
-  "DEVELOPER_MEMORY.md"
+  "$(lesson_doc_relpath requirements)"
+  "$(lesson_doc_relpath specification)"
+  "$(lesson_doc_relpath implementation_plan)"
+  "$(lesson_doc_relpath task_tracker)"
+  "$(lesson_doc_relpath handoff)"
+  "$(lesson_doc_relpath developer_memory)"
   "guides/LESSON_14_DAYS.md"
   "playbooks/AGENT_PLAYBOOK_14_DAYS.md"
   "lesson/LESSON_CONFIG_14_DAYS.tsv"
@@ -33,6 +37,8 @@ required_files=(
   "learning/LESSON_STATE_14_DAYS.tsv"
   "learning/LESSON_APPROVALS_14_DAYS.tsv"
   "learning/LESSON_MODE_14_DAYS.tsv"
+  "learning/WORKFLOW_DISPLAY_LANGUAGE_14_DAYS.tsv"
+  "learning/PRODUCT_DEVELOPMENT_LANGUAGE_14_DAYS.tsv"
   "learning/LEARNING_TASK_TRACKER_14_DAYS.md"
   "learning/LEARNING_HANDOFF_14_DAYS.md"
   "learning/ROADMAP.md"
@@ -41,22 +47,31 @@ required_files=(
   "advanced/TEAM_DEVELOPMENT_DOCKER.md"
   "advanced/DOCKER_PATHS.md"
   "reviews/SUBAGENT_REVIEW_PROTOCOL.md"
+  "package.json"
+  "package-lock.json"
+  "playwright.config.js"
+  "tests/playwright/dashboard.spec.js"
   "prompts/PROMPTS_14_DAYS.md"
   "tools/lib/lesson_runtime.sh"
+  "tools/lib/document_paths.sh"
   "tools/lesson14"
   "tools/roadmap"
   "tools/helpdesk"
   "tools/free-development"
+  "tools/external-integration"
   "tools/team-development"
   "tools/menu"
   "tools/dashboard"
   "tools/illustrations"
   "tools/check_lesson14_structure.sh"
+  "tools/check_document_organization.sh"
+  "tools/check_learner_display.sh"
   "tools/check_lesson14_sync.sh"
   "tools/check_git_sync.sh"
   "tools/check_ci_status.sh"
   "tools/check_agents_skills.sh"
   "tools/check_as_built_docs.sh"
+  "tools/check_workflow_pair_sync.sh"
   "tools/check_review_protocol.sh"
   "tools/check_developer_memory_requirements.sh"
   "tools/list_non_english_docs.sh"
@@ -64,6 +79,7 @@ required_files=(
   "tools/test_product_gate_tools.sh"
   "tools/test_lesson_start_position.sh"
   "tools/test_production_operations.sh"
+  "tools/test_lesson_playwright.sh"
   "tools/test_lesson14.sh"
   "illustrations/README.md"
   "illustrations/lesson14/index.tsv"
@@ -75,16 +91,20 @@ executable_files=(
   "tools/roadmap"
   "tools/helpdesk"
   "tools/free-development"
+  "tools/external-integration"
   "tools/team-development"
   "tools/menu"
   "tools/dashboard"
   "tools/illustrations"
   "tools/check_lesson14_structure.sh"
+  "tools/check_document_organization.sh"
+  "tools/check_learner_display.sh"
   "tools/check_lesson14_sync.sh"
   "tools/check_git_sync.sh"
   "tools/check_ci_status.sh"
   "tools/check_agents_skills.sh"
   "tools/check_as_built_docs.sh"
+  "tools/check_workflow_pair_sync.sh"
   "tools/check_review_protocol.sh"
   "tools/check_developer_memory_requirements.sh"
   "tools/list_non_english_docs.sh"
@@ -92,6 +112,7 @@ executable_files=(
   "tools/test_product_gate_tools.sh"
   "tools/test_lesson_start_position.sh"
   "tools/test_production_operations.sh"
+  "tools/test_lesson_playwright.sh"
   "tools/test_lesson14.sh"
 )
 
@@ -115,6 +136,30 @@ if [[ $missing -ne 0 ]]; then
   printf '\nLesson14 structure check failed.\n' >&2
   exit 1
 fi
+
+if [[ -f "$LEARNING_MODE" ]]; then
+  if ! awk -F '\t' '
+    $1 !~ /^#/ {
+      if ($2 == "A" && $3 != "じっくり説明") bad = 1
+      if ($2 == "B" && $3 != "ほどよく説明") bad = 1
+      if ($2 == "C" && $3 != "手順だけ") bad = 1
+      if ($2 !~ /^[ABC]$/) bad = 1
+    }
+    END { exit bad }
+  ' "$LEARNING_MODE"; then
+    printf 'invalid learning mode display label in %s\n' "$LEARNING_MODE" >&2
+    missing=1
+  fi
+fi
+
+for language_file in "$WORKFLOW_LANGUAGE" "$PRODUCT_LANGUAGE"; do
+  if [[ -f "$language_file" ]]; then
+    if ! awk -F '\t' '$1 !~ /^#/ && (NF != 3 || $2 == "" || $3 == "") { bad = 1 } END { exit bad }' "$language_file"; then
+      printf 'invalid language state file: %s\n' "$language_file" >&2
+      missing=1
+    fi
+  fi
+done
 
 if ! awk -F '\t' '
   NR == FNR {
@@ -140,10 +185,11 @@ if ! awk -F '\t' '
       flow_step[flow_count] = $2
       flow_day[flow_count] = $3
       flow[$2] = $1
-      if ($3 ~ /^Day [0-9]+$/) {
-        day = $3
-        sub(/^Day /, "", day)
-        day_seen[day] = 1
+      if ($3 ~ /^Step [0-9]+\/14$/) {
+        step_label = $3
+        sub(/^Step /, "", step_label)
+        sub(/\/14$/, "", step_label)
+        step_label_seen[step_label] = 1
       }
     }
     next
@@ -191,8 +237,8 @@ if ! awk -F '\t' '
       }
     }
     for (i = 1; i <= 14; i++) {
-      if (!day_seen[i]) {
-        printf "missing Day %d in lesson14 flow\n", i > "/dev/stderr"
+      if (!step_label_seen[i]) {
+        printf "missing Step %d/14 in lesson14 flow\n", i > "/dev/stderr"
         bad = 1
       }
     }

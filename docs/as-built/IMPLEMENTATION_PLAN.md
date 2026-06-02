@@ -2,7 +2,7 @@
 
 ## Implemented Plan
 
-1. Record developer feedback in `DEVELOPER_MEMORY.md`.
+1. Record developer feedback in `docs/memory/DEVELOPER_MEMORY.md`.
 2. Add documentation and protocol updates for 14-day lesson facilitation.
 3. Add mechanical approval enforcement for `tools/lesson14`.
 4. Add learning-mode recording and switching.
@@ -23,11 +23,11 @@
 19. Add `tools/test_lesson_repository.sh` as the lesson-side aggregate test.
 20. Add learner-facing menu, dashboard, and illustration review entry points.
 21. Synchronize as-built lesson documentation in:
-    - `REQUIREMENTS.md`
-    - `SPECIFICATION.md`
-    - `IMPLEMENTATION_PLAN.md`
-    - `TASK_TRACKER.md`
-    - `HANDOFF.md`
+    - `docs/as-built/REQUIREMENTS.md`
+    - `docs/as-built/SPECIFICATION.md`
+    - `docs/as-built/IMPLEMENTATION_PLAN.md`
+    - `docs/workflow/TASK_TRACKER.md`
+    - `docs/workflow/HANDOFF.md`
 22. Preserve existing behavior while keeping additions refactorable, reusable, ecosystem-friendly, and general.
 
 ## Planned Remediation Plan
@@ -80,7 +80,7 @@ It is additive and must not trade away existing 7-day lessons, 14-step lessons, 
    - Add short explanations before copy-paste command blocks.
    - Add checks for reusable guidance text.
 
-9. Enforce paired `TASK_TRACKER.md` and `HANDOFF.md` synchronization.
+9. Enforce paired `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` synchronization.
    - Add a workflow-pair synchronization checker.
    - Validate compatible current state, next action, and restart context.
    - Detect one-sided workflow-state updates without an explicit reason.
@@ -104,16 +104,16 @@ It is additive and must not trade away existing 7-day lessons, 14-step lessons, 
 13. Add an external-integration CLI path.
     - Add `status`, `start`, and `gate` actions.
     - Support both post-Free-Development progression and direct use with an existing product repository.
-    - Check scope documents, product boundary, paired workflow documents, Git sync, and CI where applicable.
+    - Check product scope documents (`REQUIREMENTS.md`, `SPECIFICATION.md`, and `IMPLEMENTATION_PLAN.md`), product boundary, paired workflow documents, Git sync, and CI where applicable.
 
-14. Introduce lesson-repository Playwright checks in stages.
-    - Add minimal Playwright setup for dashboard and illustration-review pages.
+14. Introduce lesson-repository Playwright checks.
+    - Add Playwright setup for dashboard and illustration-review pages.
     - Keep CLI checks and documentation checks active.
-    - Add browser checks to CI only after local tests pass.
+    - Require browser checks after `npm install` in CI, pre-commit, and aggregate tests.
 
 15. Wire strengthened checks into CI and pre-commit.
     - Add new checks to the aggregate lesson repository test.
-    - Add critical checks to pre-commit.
+    - Add critical checks, product-gate tests, Playwright checks, and aggregate tests to pre-commit.
     - Add aggregate validation to CI without removing existing CI jobs.
 
 16. Expand Free Development and Team Development gate tests.

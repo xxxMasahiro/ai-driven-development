@@ -103,8 +103,8 @@
 
 | ユーザー意図 | 最初に読む | 使うスキル | 主なコマンド |
 | --- | --- | --- | --- |
-| メニューを表示したい | `DEVELOPER_MEMORY.md` のメニュー方針、`README.md` | なし | `./tools/menu` |
-| ダッシュボードを見たい | `DEVELOPER_MEMORY.md` のダッシュボード方針 | なし | `./tools/dashboard all` |
+| メニューを表示したい | `docs/memory/DEVELOPER_MEMORY.md` のメニュー方針、`README.md` | なし | `./tools/menu` |
+| ダッシュボードを見たい | `docs/memory/DEVELOPER_MEMORY.md` のダッシュボード方針 | なし | `./tools/dashboard all` |
 | 公開リポジトリから開始したい | `README.md` | なし | `git clone`、`./tools/lesson status` |
 | レッスン開始、再開、現在地確認 | 意図に応じて `index.md` または `index-14-days.md` | 14日版なら `skills/lesson14-facilitator/SKILL.md` | `./tools/lesson status` または `./tools/lesson14 status` |
 | 7日版を進めたい | `index.md` | なし | `./tools/check_lesson_structure.sh`、`./tools/lesson status` |
@@ -117,12 +117,12 @@
 | Git/CI同期を確認したい | `lesson/SYNC_GATES_14_DAYS.tsv` | `skills/lesson-sync-gate/SKILL.md` | `./tools/check_git_sync.sh --required`、`./tools/check_ci_status.sh --required` |
 | 成果物文書を作りたい | `templates/TEMPLATES.md` | `skills/task-tracker-docs/SKILL.md` | 境界確認後に更新案を提示 |
 | TASK_TRACKER/HANDOFFを同期したい | `ai-driven-task-tracker-scenario.md`、`lesson/SYNC_GATES_14_DAYS.tsv` | `skills/worklog-doc-sync/SKILL.md`、`skills/lesson-sync-gate/SKILL.md` | 更新案、同期チェック、通過 |
-| Playwright E2Eを扱う | `prompts/PROMPTS_14_DAYS.md` Day 10-11 | `skills/lesson-sync-gate/SKILL.md` | ローカルE2E、CI、失敗復旧 |
-| サブエージェントで精査する | `playbooks/AGENT_PLAYBOOK_14_DAYS.md` Day 12 | `skills/lesson-sync-gate/SKILL.md` | レビュー、テスト、同期確認 |
-| スキル/MCPを体験する | `prompts/PROMPTS_14_DAYS.md` Day 13 | `skills/lesson14-facilitator/SKILL.md` | 最小構成で実施 |
+| Playwright E2Eを扱う | `prompts/PROMPTS_14_DAYS.md` Step 10/14からStep 11/14 | `skills/lesson-sync-gate/SKILL.md` | ローカルE2E、CI、失敗復旧 |
+| サブエージェントで精査する | `playbooks/AGENT_PLAYBOOK_14_DAYS.md` Step 12/14 | `skills/lesson-sync-gate/SKILL.md` | レビュー、テスト、同期確認 |
+| スキル/MCPを体験する | `prompts/PROMPTS_14_DAYS.md` Step 13/14 | `skills/lesson14-facilitator/SKILL.md` | 最小構成で実施 |
 | 全レッスン後に自由開発したい | `free-development/FREE_DEVELOPMENT_MODE.md` | `skills/worklog-doc-sync/SKILL.md`、`skills/lesson-sync-gate/SKILL.md` | `./tools/free-development start`、`./tools/free-development gate` |
-| 外部連携へ発展させたい | `free-development/FREE_DEVELOPMENT_MODE.md`、`prompts/PROMPTS_14_DAYS.md` Day 13 | `skills/lesson14-facilitator/SKILL.md`、`skills/worklog-doc-sync/SKILL.md` | 自由開発または既存成果物の要件・仕様から連携設計 |
-| 教材そのものを改善したい | `DEVELOPER_MEMORY.md`、`TASK_TRACKER.md`、`HANDOFF.md` | `skills/lesson-sync-gate/SKILL.md` | `./tools/dashboard all`、各種チェック |
+| 外部連携へ発展させたい | `free-development/FREE_DEVELOPMENT_MODE.md`、`prompts/PROMPTS_14_DAYS.md` Step 13/14 | `skills/lesson14-facilitator/SKILL.md`、`skills/worklog-doc-sync/SKILL.md` | 自由開発または既存成果物の要件・仕様から連携設計 |
+| 教材そのものを改善したい | `docs/memory/DEVELOPER_MEMORY.md`、`docs/workflow/TASK_TRACKER.md`、`docs/workflow/HANDOFF.md` | `skills/lesson-sync-gate/SKILL.md` | `./tools/dashboard all`、各種チェック |
 | 発展的にチーム開発とDockerを学びたい | `advanced/TEAM_DEVELOPMENT_DOCKER.md` | `skills/lesson-sync-gate/SKILL.md`、`skills/worklog-doc-sync/SKILL.md` | `./tools/team-development start`、`./tools/team-development gate` |
 
 ## repo-local skills

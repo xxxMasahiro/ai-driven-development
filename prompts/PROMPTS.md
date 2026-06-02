@@ -124,10 +124,10 @@ TASK_TRACKER.md、HANDOFF.mdの整合性を確認してください。
 FAILURE_MEMORY.mdへ書く必要がある場合も、まず記録案だけ出してください。
 ```
 
-## Day 1
+## Step 1/7
 
 ```text
-Day 1として、AI駆動開発の土台を作ります。
+Step 1/7として、AI駆動開発の土台を作ります。
 成果物リポジトリの開発に入る前には、別画面でUbuntu/WSL CLIを起動するよう必ず促してください。
 フォルダ構成、メモリー用Markdown、設計用Markdownの役割を確認し、
 REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.md、
@@ -136,52 +136,52 @@ TASK_TRACKER.md、HANDOFF.mdの初期案を作ってください。
 まず更新案だけ提示してください。
 ```
 
-## Day 2
+## Step 2/7
 
 ```text
-Day 2として、index.htmlの画面構成案を作ります。
+Step 2/7として、index.htmlの画面構成案を作ります。
 REQUIREMENTS.mdとSPECIFICATION.mdを確認し、
 タスク追加フォームと一覧表に必要な項目を整理してください。
 index.htmlへ書き込む前に画面構成案を提示してください。
 ```
 
-## Day 3
+## Step 3/7
 
 ```text
-Day 3として、style.cssの見た目方針を作ります。
+Step 3/7として、style.cssの見た目方針を作ります。
 SPECIFICATION.mdを確認し、見やすいタスク表の色、余白、状態表示の案を作ってください。
 style.cssへ書き込む前に見た目の方針を提示してください。
 ```
 
-## Day 4
+## Step 4/7
 
 ```text
-Day 4として、app.jsの動作案を作ります。
+Step 4/7として、app.jsの動作案を作ります。
 SPECIFICATION.mdを確認し、タスク追加、空欄チェック、追加後の入力リセットの流れを整理してください。
 app.jsへ書き込む前に処理の流れを提示してください。
 ```
 
-## Day 5
+## Step 5/7
 
 ```text
-Day 5として、追加機能や削除する機能を検討します。
+Step 5/7として、追加機能や削除する機能を検討します。
 TASK_TRACKER.mdとHANDOFF.mdを先に確認し、
 編集、削除、保存のうち入れるものと入れないものを整理してください。
 3文書はまだ更新しないでください。
 ```
 
-## Day 6
+## Step 6/7
 
 ```text
-Day 6として、操作確認とREADME.md案を作ります。
+Step 6/7として、操作確認とREADME.md案を作ります。
 index.html、style.css、app.jsの想定内容とSPECIFICATION.mdを確認し、
 操作確認リストとREADME.mdの案を作ってください。
 ```
 
-## Day 7
+## Step 7/7
 
 ```text
-Day 7として、完成確認、ふりかえり、GitHubに残す準備をします。
+Step 7/7として、完成確認、ふりかえり、GitHubに残す準備をします。
 REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.md、
 TASK_TRACKER.md、HANDOFF.md、README.mdの整合性を確認し、
 完成、未完成、要確認のどれかで判定してください。

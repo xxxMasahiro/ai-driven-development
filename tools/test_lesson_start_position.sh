@@ -30,7 +30,7 @@ grep 'locked' /tmp/lesson-start-locked.out >/dev/null
 ./tools/lesson 開始位置 day2.screen-structure >/tmp/lesson-start-at-no-confirm.out 2>&1 && exit 1 || true
 grep 'explicit confirmation' /tmp/lesson-start-at-no-confirm.out >/dev/null
 ./tools/lesson 開始位置 day2.screen-structure --confirm | grep 'Start position set to'
-./tools/lesson status | grep 'day2.screen-structure'
+./tools/lesson status | grep './tools/lesson 開始 day2.screen-structure'
 ./tools/check_lesson_structure.sh >/dev/null
 
 reset_state_from_flow lesson/LESSON_FLOW_14_DAYS.tsv learning/LESSON_STATE_14_DAYS.tsv setup.index
@@ -41,7 +41,7 @@ grep 'locked' /tmp/lesson14-start-locked.out >/dev/null
 ./tools/lesson14 開始位置 day2.git-basics >/tmp/lesson14-start-at-no-confirm.out 2>&1 && exit 1 || true
 grep 'explicit confirmation' /tmp/lesson14-start-at-no-confirm.out >/dev/null
 ./tools/lesson14 開始位置 day2.git-basics --confirm | grep 'Start position set to'
-./tools/lesson14 status | grep 'day2.git-basics'
+./tools/lesson14 status | grep './tools/lesson14 開始 day2.git-basics'
 ./tools/check_lesson14_structure.sh >/dev/null
 
 printf 'Lesson start position tests passed.\n'

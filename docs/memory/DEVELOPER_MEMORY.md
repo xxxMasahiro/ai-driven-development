@@ -179,7 +179,7 @@ Developer feedback:
 
 Developer feedback:
 
-- Replace learner-facing `Day 1`, `Day 2`, and similar labels with `Step 1`, `Step 2`, and similar labels.
+- Replace learner-facing `Step 1/14`, `Step 2/14`, and similar labels with `Step 1`, `Step 2`, and similar labels.
 - Reason: actual study time and calendar days depend on each learner's pace, so `Step` communicates ordered progress more clearly than `Day`.
 - Keep the intent of the sequence and sync gates unchanged.
 - Review flow files, roadmap, prompts, guides, tracker, handoff, and runtime messages for learner-facing `Day` terminology during implementation.

@@ -91,10 +91,25 @@ lesson_runtime_step_exists() {
 
 lesson_runtime_step_label() {
   local step_id="$1"
-  local day title
-  day="$(lesson_runtime_flow_field "$step_id" 3)"
+  local group title
+  group="$(lesson_runtime_flow_field "$step_id" 3)"
   title="$(lesson_runtime_flow_field "$step_id" 4)"
-  printf '%s / %s / %s' "$step_id" "$day" "$title"
+  printf '%s: %s' "$group" "$title"
+}
+
+lesson_runtime_step_command_line() {
+  local action="$1"
+  local step_id="$2"
+  case "$action" in
+    start)
+      printf './tools/%s 承認 開始 %s "このステップの開始を承認した"\n' "$lesson_runtime_name" "$step_id"
+      printf './tools/%s 開始 %s\n' "$lesson_runtime_name" "$step_id"
+      ;;
+    pass)
+      printf './tools/%s 承認 通過 %s "このステップの通過を承認した"\n' "$lesson_runtime_name" "$step_id"
+      printf './tools/%s 通過 %s "<確認した内容>"\n' "$lesson_runtime_name" "$step_id"
+      ;;
+  esac
 }
 
 lesson_runtime_require_step() {
@@ -137,7 +152,18 @@ lesson_runtime_enforce_approval() {
     return 0
   fi
   printf 'Approval required before this action.\n' >&2
-  printf 'Run: ./tools/%s 承認 %s %s "ユーザーが次へ進むことを承認した"\n' "$lesson_runtime_name" "$action" "$step_id" >&2
+  printf '質問や気になる点があれば、その内容を入力してください。\n' >&2
+  printf '次のコマンドは、このステップを承認済みとして記録するためのものです。\n' >&2
+  case "$action" in
+    start)
+      printf 'そのまま使える承認コマンド:\n' >&2
+      printf './tools/%s 承認 開始 %s "ユーザーがこのステップの開始を承認した"\n' "$lesson_runtime_name" "$step_id" >&2
+      ;;
+    pass)
+      printf 'そのまま使える承認コマンド:\n' >&2
+      printf './tools/%s 承認 通過 %s "ユーザーがこのステップの通過を承認した"\n' "$lesson_runtime_name" "$step_id" >&2
+      ;;
+  esac
   exit 1
 }
 
@@ -218,13 +244,19 @@ lesson_runtime_status() {
   printf '%s progress: %s/%s completed\n' "$lesson_runtime_name" "$completed" "$total"
   if [[ -n "$current" ]]; then
     printf 'Current step: %s\n' "$(lesson_runtime_step_label "$current")"
+    printf '\nこの項目を開始または通過してよければ、対応する承認コマンドを実行してください。\n'
+    printf '質問や気になる点があれば、その内容を入力してください。\n'
+    printf '\nそのまま使える開始コマンド:\n\n'
+    lesson_runtime_step_command_line start "$current"
+    printf '\nそのまま使える通過コマンド:\n\n'
+    lesson_runtime_step_command_line pass "$current"
   else
     printf 'Current step: all steps completed\n'
   fi
   printf '\nUse:\n'
   printf '  ./tools/%s 開始 <step_id>\n' "$lesson_runtime_name"
   if [[ "$lesson_runtime_approval_required" == "1" ]]; then
-    printf '  ./tools/%s 承認 <start|pass> <step_id> "承認メモ"\n' "$lesson_runtime_name"
+    printf '  ./tools/%s 承認 <開始|通過> <step_id> "承認メモ"\n' "$lesson_runtime_name"
   fi
   printf '  ./tools/%s 通過 <step_id> "メモ"\n' "$lesson_runtime_name"
   printf '  ./tools/%s 復習 <completed_step_id>\n' "$lesson_runtime_name"
@@ -237,7 +269,7 @@ lesson_runtime_list_steps() {
       next
     }
     $1 !~ /^#/ {
-      printf "%s\t%s\t%s\t%s\n", $2, status[$2], $3, $4
+      printf "%s\t%s\t%s\n", $3, status[$2], $4
     }
   ' "$lesson_runtime_state" "$lesson_runtime_flow"
 }

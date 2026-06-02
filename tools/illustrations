@@ -2,33 +2,63 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+export LESSON_CONFIG="${LESSON_CONFIG:-$ROOT/lesson/LESSON_CONFIG_14_DAYS.tsv}"
+
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+
 INDEX="$ROOT/illustrations/lesson14/index.tsv"
+HEADER='# step_id	topic	status	asset_path	learning_mode	display_language	source_explanation	summary	key_terms	generated_at	note'
 
 usage() {
   cat <<'USAGE'
 Usage:
   ./tools/illustrations list
-  ./tools/illustrations request <step_id> <topic>
+  ./tools/illustrations request <step_id> <topic> [source_explanation]
+  ./tools/illustrations available <step_id> <topic> <asset_path> <summary> <key_terms>
 
 This tool records learner requests for educational PNG illustrations.
-The agent still generates the actual PNG with imagegen, then stores it under:
-  illustrations/lesson14/<step_id>/<topic-slug>.png
+The agent still generates the actual PNG with imagegen, then registers the asset.
 USAGE
 }
 
+ensure_index() {
+  mkdir -p "$(dirname "$INDEX")"
+  if [[ ! -f "$INDEX" ]]; then
+    printf '%s\n' "$HEADER" > "$INDEX"
+  fi
+}
+
 slugify() {
-  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+//; s/-+$//'
+  local raw="$1"
+  local slug suffix
+  slug="$(printf '%s' "$raw" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+//; s/-+$//')"
+  suffix="$(printf '%s' "$raw" | cksum | awk '{ print $1 }')"
+  if [[ -n "$slug" ]]; then
+    printf '%s-%s' "$slug" "$suffix"
+  else
+    printf 'topic-%s' "$suffix"
+  fi
+}
+
+latest_learning_mode() {
+  local file
+  file="$(lesson_learning_mode_file)"
+  awk -F '\t' '$1 !~ /^#/ && $2 != "" { print $2 ":" $3; found=1; exit } END { if (!found) print "not-selected" }' "$file" 2>/dev/null || printf 'not-selected'
+}
+
+latest_display_language() {
+  local file
+  file="$(lesson_workflow_language_file)"
+  awk -F '\t' '$1 !~ /^#/ && $2 != "" { print $2 ":" $3; found=1; exit } END { if (!found) print "not-selected" }' "$file" 2>/dev/null || printf 'not-selected'
 }
 
 list_items() {
-  if [[ ! -f "$INDEX" ]]; then
-    printf 'No illustration records yet.\n'
-    return 0
-  fi
+  ensure_index
   awk -F '\t' '
     BEGIN { printed = 0 }
     $1 !~ /^#/ {
-      printf "- %s / %s / %s / %s\n", $1, $2, $3, $4
+      printf "- %s / %s / %s / %s / mode=%s / language=%s / summary=%s\n", $1, $2, $3, $4, $5, $6, $8
       printed = 1
     }
     END {
@@ -40,19 +70,57 @@ list_items() {
 request_item() {
   local step_id="${1:-}"
   local topic="${2:-}"
+  local source_explanation="${3:-Learner requested an educational illustration for this explanation.}"
   [[ -n "$step_id" && -n "$topic" ]] || { usage >&2; exit 1; }
-  mkdir -p "$(dirname "$INDEX")"
-  if [[ ! -f "$INDEX" ]]; then
-    printf '# step_id\ttopic\tstatus\tasset_path\tnote\n' > "$INDEX"
-  fi
-  local slug asset
+  ensure_index
+  local slug asset learning_mode display_language
   slug="$(slugify "$topic")"
-  [[ -n "$slug" ]] || slug="topic"
   asset="illustrations/lesson14/$step_id/$slug.png"
   mkdir -p "$ROOT/illustrations/lesson14/$step_id"
-  printf '%s\t%s\trequested\t%s\tGenerate a gentle educational PNG illustration with imagegen and update this status when complete.\n' "$step_id" "$topic" "$asset" >> "$INDEX"
+  learning_mode="$(latest_learning_mode)"
+  display_language="$(latest_display_language)"
+  printf '%s\t%s\trequested\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$step_id" "$topic" "$asset" "$learning_mode" "$display_language" "$source_explanation" \
+    "pending" "pending" "-" "Generate a gentle educational PNG illustration with imagegen, then register it with available." >> "$INDEX"
   printf 'Illustration request recorded: %s / %s\n' "$step_id" "$topic"
   printf 'Expected asset path: %s\n' "$asset"
+}
+
+mark_available() {
+  local step_id="${1:-}"
+  local topic="${2:-}"
+  local asset_path="${3:-}"
+  local summary="${4:-}"
+  local key_terms="${5:-}"
+  [[ -n "$step_id" && -n "$topic" && -n "$asset_path" && -n "$summary" && -n "$key_terms" ]] || { usage >&2; exit 1; }
+  ensure_index
+  local tmp stamp
+  stamp="$(date '+%Y-%m-%d %H:%M:%S')"
+  tmp="$(mktemp "$INDEX.tmp.XXXXXX")"
+  awk -F '\t' -v OFS='\t' -v step="$step_id" -v topic="$topic" -v asset="$asset_path" -v summary="$summary" -v key_terms="$key_terms" -v stamp="$stamp" '
+    /^#/ { print; next }
+    $1 == step && $2 == topic && !updated {
+      $3 = "available"
+      $4 = asset
+      $8 = summary
+      $9 = key_terms
+      $10 = stamp
+      $11 = "Generated PNG registered for review."
+      updated = 1
+      print
+      next
+    }
+    { print }
+    END {
+      if (!updated) exit 2
+    }
+  ' "$INDEX" > "$tmp" || {
+    rm -f "$tmp"
+    printf 'matching illustration request not found: %s / %s\n' "$step_id" "$topic" >&2
+    exit 1
+  }
+  mv "$tmp" "$INDEX"
+  printf 'Illustration marked available: %s / %s\n' "$step_id" "$topic"
 }
 
 case "${1:-}" in
@@ -62,6 +130,10 @@ case "${1:-}" in
   request)
     shift
     request_item "$@"
+    ;;
+  available)
+    shift
+    mark_available "$@"
     ;;
   -h|--help|help)
     usage

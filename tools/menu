@@ -24,16 +24,16 @@ cat <<'MENU'
 
 5. 成果物を改善
    完了、削除、保存、デザイン改善などを追加する
-   入口: TASK_TRACKER.md と HANDOFF.md を確認して改善サイクルを開始する
+   入口: 成果物リポジトリの TASK_TRACKER.md と HANDOFF.md を確認して改善サイクルを開始する
 
 6. 外部連携
    自由開発や既存成果物を、Googleカレンダーなど外部ツールと連携させる
-   入口: 自由開発または既存成果物の要件・仕様を確認して連携設計を始める
+   入口: ./tools/external-integration status
 
 【整える】
 7. 教材そのものを改善
    レッスン、プロンプト、ダッシュボード、文書、運用テストを改善する
-   入口: DEVELOPER_MEMORY.md と ./tools/dashboard all を確認する
+   入口: docs/memory/DEVELOPER_MEMORY.md と ./tools/dashboard all を確認する
 
 流れの目安:
   自由開発で作る → 成果物を改善する → 外部連携で発展させる

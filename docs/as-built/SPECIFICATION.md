@@ -24,7 +24,7 @@
 
 - `guides/LESSON_14_DAYS.md` defines dialogue and wall-bouncing with the agent as a core learning objective.
 - `prompts/PROMPTS_14_DAYS.md` includes a wall-bouncing prompt.
-- Day 12 teaches sub-agents as role-based viewpoints.
+- Step 12/14 teaches sub-agents as role-based viewpoints.
 - The orchestrating agent must decide what to adopt, defer, or reject based on the learner's goal.
 
 ### Free Development Mode
@@ -66,7 +66,7 @@
 
 ### As-Built Synchronization
 
-- `REQUIREMENTS.md`, `SPECIFICATION.md`, `IMPLEMENTATION_PLAN.md`, `TASK_TRACKER.md`, and `HANDOFF.md` describe the lesson-side as-built state.
+- `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, `docs/as-built/IMPLEMENTATION_PLAN.md`, `docs/workflow/TASK_TRACKER.md`, and `docs/workflow/HANDOFF.md` describe the lesson-side as-built state.
 - `reviews/SUBAGENT_REVIEW_PROTOCOL.md` defines the multi-perspective review process.
 - `tools/list_non_english_docs.sh` lists Markdown files that still contain Japanese text so translation work can be scoped explicitly.
 
@@ -85,7 +85,7 @@
 - `tools/check_lesson14_structure.sh` validates the 14-day structure.
 - `tools/check_lesson14_sync.sh` validates 14-day document synchronization.
 - `tools/check_agents_skills.sh` validates AGENTS and skills integration.
-- `tools/check_as_built_docs.sh` validates the five as-built root documents.
+- `tools/check_as_built_docs.sh` validates the five role-organized as-built/workflow documents.
 - `tools/check_review_protocol.sh` validates the review protocol.
 - `tools/check_developer_memory_requirements.sh` validates that developer-memory requirements are represented mechanically.
 - `tools/menu`, `tools/dashboard`, and `tools/illustrations` validate the menu, dashboard, and illustration entry points at runtime.
@@ -142,7 +142,7 @@ They are additive to the current as-built components and must not weaken or repl
 
 ### Paired Workflow Documents
 
-- `TASK_TRACKER.md` and `HANDOFF.md` are treated as one workflow-state pair.
+- `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` are treated as one workflow-state pair.
 - Checks validate compatible current status, next action, and restart context.
 - Dashboard reports whether the pair is synchronized.
 - A workflow-state update that changes only one file fails unless an explicit reason is recorded.
@@ -157,6 +157,7 @@ They are additive to the current as-built components and must not weaken or repl
 - Lesson dashboard shows current step, progress, learning-mode label, workflow display language, product development language where relevant, helpdesk/question records, developer-memory open items, next approval, sync-gate status, and illustration availability.
 - Development dashboard shows product repository, current objective, workflow document status, paired tracker/handoff synchronization, developer-memory items, Git status, real CI status when available, and next recommended action.
 - Dashboard data is structured so a future browser dashboard can reuse it without replacing CLI behavior.
+- Dashboard product status uses the same configured product repository path that product checks use.
 
 ### Illustration Review Completion
 
@@ -169,17 +170,17 @@ They are additive to the current as-built components and must not weaken or repl
 
 - A dedicated external-integration CLI supports `status`, `start`, and `gate`.
 - The path works both after Free Development Mode and from an existing product repository.
-- The gate checks scope documents, product boundary, paired workflow documents, Git sync, and CI when applicable.
+- The gate checks product scope documents (`REQUIREMENTS.md`, `SPECIFICATION.md`, and `IMPLEMENTATION_PLAN.md`), product boundary, paired workflow documents, Git sync, and CI when applicable.
 
 ### Lesson-Repository Playwright
 
-- Playwright is introduced in a staged way for lesson-repository dashboard and illustration-review quality checks.
+- Playwright checks are required after `npm install` and validate dashboard and illustration-review quality.
 - Existing CLI lesson flow, documentation checks, and sync gates remain active.
 - Browser tests complement existing checks and do not replace them.
 
 ### CI, Pre-Commit, And Gate Failure Tests
 
-- Strengthened checks are wired into CI and pre-commit without removing existing checks.
+- Strengthened checks, product-gate tests, Playwright checks, and the aggregate lesson test are wired into CI and pre-commit without removing existing checks.
 - Free Development and Team Development tests cover success and failure paths, including missing product repository, dirty Git state, CI failure, Docker installed/not-installed paths, and status/start output.
 
 ## Product Repository Boundary

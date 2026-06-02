@@ -16,7 +16,7 @@ Future implementation must preserve refactorability, ecosystem fit, reusable des
 - Team Development and Docker advanced module.
 - Dialogue and wall-bouncing as core AI-driven development learning.
 - Role-based sub-agent use and orchestration.
-- MCP purpose-before-workflow guidance for Day 13.
+- MCP purpose-before-workflow guidance for Step 13/14.
 - Developer-memory requirement checks.
 - Learner-facing menu, dashboard, and illustration review entry points.
 - As-built document checks.
@@ -38,24 +38,24 @@ The synchronized plan covers these items:
 6. Learning-mode display labels for A/B/C.
 7. Stronger start/pass approval gate pairing.
 8. Question-inviting passage prompts and command-block explanations.
-9. Paired `TASK_TRACKER.md` and `HANDOFF.md` synchronization checks.
+9. Paired `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` synchronization checks.
 10. Stronger as-built synchronization checks.
 11. Expanded CLI dashboard views.
 12. Completed illustration metadata, asset registration, and review page.
 13. External-integration CLI path with `status`, `start`, and `gate`.
-14. Staged lesson-repository Playwright checks.
-15. CI and pre-commit integration for strengthened checks.
+14. Required lesson-repository Playwright checks after dependencies are installed.
+15. CI and pre-commit integration for strengthened checks, product-gate tests, Playwright checks, and aggregate tests.
 16. Free Development and Team Development failure-path tests.
 
 ## Important Files
 
 ```text
-REQUIREMENTS.md
-SPECIFICATION.md
-IMPLEMENTATION_PLAN.md
-TASK_TRACKER.md
-HANDOFF.md
-DEVELOPER_MEMORY.md
+docs/as-built/REQUIREMENTS.md
+docs/as-built/SPECIFICATION.md
+docs/as-built/IMPLEMENTATION_PLAN.md
+docs/workflow/TASK_TRACKER.md
+docs/workflow/HANDOFF.md
+docs/memory/DEVELOPER_MEMORY.md
 free-development/FREE_DEVELOPMENT_MODE.md
 advanced/TEAM_DEVELOPMENT_DOCKER.md
 advanced/DOCKER_PATHS.md

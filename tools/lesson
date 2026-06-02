@@ -87,10 +87,10 @@ step_exists() {
 
 step_label() {
   local step_id="$1"
-  local day title
-  day="$(flow_field "$step_id" 3)"
+  local group title
+  group="$(flow_field "$step_id" 3)"
   title="$(flow_field "$step_id" 4)"
-  printf '%s / %s / %s' "$step_id" "$day" "$title"
+  printf '%s: %s' "$group" "$title"
 }
 
 require_step() {
@@ -147,6 +147,12 @@ status() {
   printf 'Lesson progress: %s/%s completed\n' "$completed" "$total"
   if [[ -n "$current" ]]; then
     printf 'Current step: %s\n' "$(step_label "$current")"
+    printf '\nこの項目を開始または通過してよければ、対応するコマンドを実行してください。\n'
+    printf '質問や気になる点があれば、その内容を入力してください。\n'
+    printf '\nそのまま使える開始コマンド:\n\n'
+    printf './tools/lesson 開始 %s\n' "$current"
+    printf '\nそのまま使える通過コマンド:\n\n'
+    printf './tools/lesson 通過 %s "<確認した内容>"\n' "$current"
   else
     printf 'Current step: all steps completed\n'
   fi
@@ -164,7 +170,7 @@ list_steps() {
       next
     }
     $1 !~ /^#/ {
-      printf "%s\t%s\t%s\t%s\n", $2, status[$2], $3, $4
+      printf "%s\t%s\t%s\n", $3, status[$2], $4
     }
   ' "$STATE" "$FLOW"
 }

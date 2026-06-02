@@ -2,7 +2,14 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PRODUCT_ROOT="${PRODUCT_ROOT:-/home/masahiro/projects/task-tracker-repository}"
+DASHBOARD_CI_TIMEOUT_SECONDS="${DASHBOARD_CI_TIMEOUT_SECONDS:-8}"
+export LESSON_CONFIG="${LESSON_CONFIG:-$ROOT/lesson/LESSON_CONFIG_14_DAYS.tsv}"
+
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/document_paths.sh
+source "$ROOT/tools/lib/document_paths.sh"
+PRODUCT_ROOT="${PRODUCT_ROOT:-$(lesson_product_repo_root)}"
 
 print_section() {
   local title="$1"
@@ -38,6 +45,78 @@ next_action_from_file() {
   ' "$file"
 }
 
+current_state_from_file() {
+  local file="$1"
+  awk '
+    /^## / {
+      capture = ($0 ~ /Current State|Current Status|Current/)
+      next
+    }
+    capture && NF {
+      print
+      found = 1
+      exit
+    }
+    END {
+      if (!found) print "not recorded"
+    }
+  ' "$file"
+}
+
+language_status() {
+  local file="$1"
+  local label="$2"
+  if [[ -f "$file" ]]; then
+    awk -F '\t' -v label="$label" '
+      $1 !~ /^#/ && $2 != "" {
+        printf "%s: %s (%s)\n", label, $2, $3
+        found = 1
+        exit
+      }
+      END {
+        if (!found) printf "%s: not selected\n", label
+      }
+    ' "$file"
+  else
+    printf '%s: not selected\n' "$label"
+  fi
+}
+
+optional_ci_status() {
+  if command -v timeout >/dev/null 2>&1; then
+    if timeout "$DASHBOARD_CI_TIMEOUT_SECONDS" "$ROOT/tools/check_ci_status.sh" --repo "$PRODUCT_ROOT"; then
+      return 0
+    fi
+    printf 'CI status: optional dashboard lookup did not finish within %s seconds or could not complete.\n' "$DASHBOARD_CI_TIMEOUT_SECONDS"
+    return 0
+  fi
+
+  "$ROOT/tools/check_ci_status.sh" --repo "$PRODUCT_ROOT" || true
+}
+
+next_approval_status() {
+  local current approvals
+  current="$(awk -F '\t' '$1 !~ /^#/ && $3 == "current" { print $2; exit }' "$(lesson_state_file)" 2>/dev/null || true)"
+  approvals="$(lesson_approval_file)"
+  if [[ -z "$current" ]]; then
+    printf 'Next approval: none\n'
+    return
+  fi
+  printf 'Next approval step: %s\n' "$current"
+  if [[ -f "$approvals" ]]; then
+    if awk -F '\t' -v step="$current" '$1 !~ /^#/ && $1 == step && $2 == "start" { found=1 } END { exit found ? 0 : 1 }' "$approvals"; then
+      printf 'Start approval: recorded\n'
+    else
+      printf 'Start approval: pending\n'
+    fi
+    if awk -F '\t' -v step="$current" '$1 !~ /^#/ && $1 == step && $2 == "pass" { found=1 } END { exit found ? 0 : 1 }' "$approvals"; then
+      printf 'Pass approval: recorded\n'
+    else
+      printf 'Pass approval: pending\n'
+    fi
+  fi
+}
+
 show_lesson() {
   print_section 'Lesson Dashboard'
   "$ROOT/tools/lesson14" status || true
@@ -45,6 +124,15 @@ show_lesson() {
   "$ROOT/tools/lesson" status || true
   printf '\nLearning mode:\n'
   "$ROOT/tools/lesson14" 学習モード || true
+  printf '\nLanguage settings:\n'
+  language_status "$(lesson_workflow_language_file)" "Workflow display language"
+  language_status "$(lesson_product_language_file)" "Product development language"
+  printf '\nNext approval:\n'
+  next_approval_status
+  printf '\nSync-gate status:\n'
+  "$ROOT/tools/check_lesson14_sync.sh" >/dev/null && printf 'Lesson14 sync gate data: synchronized\n' || printf 'Lesson14 sync gate data: inconsistent\n'
+  printf '\nIllustration availability:\n'
+  "$ROOT/tools/illustrations" list || true
   printf '\nHelp desk summary:\n'
   "$ROOT/tools/helpdesk" 一覧 || true
   printf '\nDeveloper memory themes:\n'
@@ -52,7 +140,7 @@ show_lesson() {
     /^### / && section == 1 { print "- " substr($0, 5) }
     /^## Systematic Review Index/ { section = 1; next }
     /^## Chronological Operation Test Notes/ { section = 0 }
-  ' "$ROOT/DEVELOPER_MEMORY.md"
+  ' "$(lesson_doc_path developer_memory)"
 }
 
 show_development() {
@@ -61,20 +149,27 @@ show_development() {
     printf 'Product repository: %s\n\n' "$PRODUCT_ROOT"
     (cd "$PRODUCT_ROOT" && git status --short --branch)
     printf '\nGit sync check:\n'
-    "$ROOT/tools/check_git_sync.sh" --product --required || true
+    "$ROOT/tools/check_git_sync.sh" --repo "$PRODUCT_ROOT" --required || true
     printf '\nWorkflow documents:\n'
     for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md TASK_TRACKER.md HANDOFF.md README.md RETROSPECTIVE.md; do
       file_status "$PRODUCT_ROOT" "$file"
     done
     printf '\nPaired workflow state:\n'
     if [[ -f "$PRODUCT_ROOT/TASK_TRACKER.md" && -f "$PRODUCT_ROOT/HANDOFF.md" ]]; then
+      if "$ROOT/tools/check_workflow_pair_sync.sh" --repo "$PRODUCT_ROOT" >/dev/null 2>&1; then
+        printf 'Workflow pair sync: synchronized\n'
+      else
+        printf 'Workflow pair sync: inconsistent\n'
+      fi
+      printf 'Current objective: %s\n' "$(current_state_from_file "$PRODUCT_ROOT/TASK_TRACKER.md")"
       printf 'TASK_TRACKER next action: %s\n' "$(next_action_from_file "$PRODUCT_ROOT/TASK_TRACKER.md")"
       printf 'HANDOFF next action: %s\n' "$(next_action_from_file "$PRODUCT_ROOT/HANDOFF.md")"
     else
       printf 'TASK_TRACKER.md and HANDOFF.md are not both present.\n'
     fi
     printf '\nCI status:\n'
-    printf 'Run when needed: ./tools/check_ci_status.sh --product --required\n'
+    optional_ci_status
+    printf 'Required CI command: ./tools/check_ci_status.sh --repo "%s" --required\n' "$PRODUCT_ROOT"
   else
     printf 'Product repository not found: %s\n' "$PRODUCT_ROOT"
     printf 'Use Free Development Mode or a lesson-created product repository when development work starts.\n'

@@ -8,6 +8,11 @@ Thumbs.db
 *.tmp
 *.bak
 
+# Node and Playwright generated files
+node_modules/
+test-results/
+playwright-report/
+
 # The learner's product repository must be a sibling of this lesson repository,
 # not a child directory. This ignore is defensive; the structure checker also
 # fails if this directory appears here.

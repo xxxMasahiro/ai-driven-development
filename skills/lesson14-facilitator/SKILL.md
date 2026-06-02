@@ -73,7 +73,7 @@ C: Workflow only
 Skip conceptual explanation and show only the action, prompt, command, and checks.
 ```
 
-For Day 12 and Day 13, always teach step by step. Explain why sub-agents, skills, and MCP are useful, then provide copy-paste prompts or commands for the learner to run. Stop after each role, skill, or MCP step and ask for approval before continuing.
+For Step 12/14 and Step 13/14, always teach step by step. Explain why sub-agents, skills, and MCP are useful, then provide copy-paste prompts or commands for the learner to run. Stop after each role, skill, or MCP step and ask for approval before continuing.
 
 Before any MCP-related work, do not implement or simulate the connection first. Explain the connection goal, the external tool or resource, the input, the output, the learner benefit, the minimal scope, the difference from a real MCP server, the files or UI behavior that may change, and the verification checks. Show short learner-facing request text, ask for approval, and only then create or update product files, tests, and paired workflow documents.
 

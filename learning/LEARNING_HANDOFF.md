@@ -88,7 +88,7 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 直近の項目: setup.github-login / Setup / github-login-setup-guide.mdでGitHub接続を確認する
 通過条件: github-loginでGitHub接続確認
 内容: github-loginでGitHub接続を確認した
-次に進める項目: day1.mode / Day 1 / デモモードと実作業モード、承認ルールを確認する
+次に進める項目: day1.mode / Step 1/7 / デモモードと実作業モード、承認ルールを確認する
 次回の最初の一問: デモモードと実作業モード、承認ルールを確認する を始めてよいですか？
 ```
 
@@ -96,10 +96,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day1.mode / Day 1 / デモモードと実作業モード、承認ルールを確認する
+直近の項目: day1.mode / Step 1/7 / デモモードと実作業モード、承認ルールを確認する
 通過条件: モードと承認ルールの了承
 内容: この項目から進行中。
-次に進める項目: day1.mode / Day 1 / デモモードと実作業モード、承認ルールを確認する
+次に進める項目: day1.mode / Step 1/7 / デモモードと実作業モード、承認ルールを確認する
 次回の最初の一問: デモモードと実作業モード、承認ルールを確認する を始めてよいですか？
 ```
 
@@ -107,10 +107,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day1.mode / Day 1 / デモモードと実作業モード、承認ルールを確認する
+直近の項目: day1.mode / Step 1/7 / デモモードと実作業モード、承認ルールを確認する
 通過条件: モードと承認ルールの了承
 内容: デモモードで進めることと承認ルールを確認した
-次に進める項目: day1.project-directory / Day 1 / 教材リポジトリと成果物リポジトリの並列配置を確認する
+次に進める項目: day1.project-directory / Step 1/7 / 教材リポジトリと成果物リポジトリの並列配置を確認する
 次回の最初の一問: 教材リポジトリと成果物リポジトリの並列配置を確認する を始めてよいですか？
 ```
 
@@ -118,10 +118,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day1.project-directory / Day 1 / 教材リポジトリと成果物リポジトリの並列配置を確認する
+直近の項目: day1.project-directory / Step 1/7 / 教材リポジトリと成果物リポジトリの並列配置を確認する
 通過条件: 配置方針と別CLI起動の了承
 内容: この項目から進行中。
-次に進める項目: day1.project-directory / Day 1 / 教材リポジトリと成果物リポジトリの並列配置を確認する
+次に進める項目: day1.project-directory / Step 1/7 / 教材リポジトリと成果物リポジトリの並列配置を確認する
 次回の最初の一問: 教材リポジトリと成果物リポジトリの並列配置を確認する を始めてよいですか？
 ```
 
@@ -129,10 +129,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day1.project-directory / Day 1 / 教材リポジトリと成果物リポジトリの並列配置を確認する
+直近の項目: day1.project-directory / Step 1/7 / 教材リポジトリと成果物リポジトリの並列配置を確認する
 通過条件: 配置方針と別CLI起動の了承
 内容: 教材リポジトリと成果物リポジトリを並列に置く方針を確認した
-次に進める項目: day1.folder-overview / Day 1 / 全体のフォルダ構成を確認する
+次に進める項目: day1.folder-overview / Step 1/7 / 全体のフォルダ構成を確認する
 次回の最初の一問: 全体のフォルダ構成を確認する を始めてよいですか？
 ```
 
@@ -140,10 +140,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day1.folder-overview / Day 1 / 全体のフォルダ構成を確認する
+直近の項目: day1.folder-overview / Step 1/7 / 全体のフォルダ構成を確認する
 通過条件: フォルダ構成の確認
 内容: この項目から進行中。
-次に進める項目: day1.folder-overview / Day 1 / 全体のフォルダ構成を確認する
+次に進める項目: day1.folder-overview / Step 1/7 / 全体のフォルダ構成を確認する
 次回の最初の一問: 全体のフォルダ構成を確認する を始めてよいですか？
 ```
 
@@ -151,10 +151,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day1.folder-overview / Day 1 / 全体のフォルダ構成を確認する
+直近の項目: day1.folder-overview / Step 1/7 / 全体のフォルダ構成を確認する
 通過条件: フォルダ構成の確認
 内容: 作業の節目で全体のフォルダ構成を確認しながら進めることを確認した
-次に進める項目: day1.memory-files / Day 1 / AGENT.mdなどメモリー用Markdownの役割を確認する
+次に進める項目: day1.memory-files / Step 1/7 / AGENT.mdなどメモリー用Markdownの役割を確認する
 次回の最初の一問: AGENT.mdなどメモリー用Markdownの役割を確認する を始めてよいですか？
 ```
 
@@ -162,10 +162,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day1.memory-files / Day 1 / AGENT.mdなどメモリー用Markdownの役割を確認する
+直近の項目: day1.memory-files / Step 1/7 / AGENT.mdなどメモリー用Markdownの役割を確認する
 通過条件: メモリー文書の役割理解
 内容: この項目から進行中。
-次に進める項目: day1.memory-files / Day 1 / AGENT.mdなどメモリー用Markdownの役割を確認する
+次に進める項目: day1.memory-files / Step 1/7 / AGENT.mdなどメモリー用Markdownの役割を確認する
 次回の最初の一問: AGENT.mdなどメモリー用Markdownの役割を確認する を始めてよいですか？
 ```
 
@@ -173,10 +173,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day1.memory-files / Day 1 / AGENT.mdなどメモリー用Markdownの役割を確認する
+直近の項目: day1.memory-files / Step 1/7 / AGENT.mdなどメモリー用Markdownの役割を確認する
 通過条件: メモリー文書の役割理解
 内容: AGENT.mdなどメモリー用Markdownの役割を確認した
-次に進める項目: day1.requirements / Day 1 / REQUIREMENTS.mdの初期案を作成する
+次に進める項目: day1.requirements / Step 1/7 / REQUIREMENTS.mdの初期案を作成する
 次回の最初の一問: REQUIREMENTS.mdの初期案を作成する を始めてよいですか？
 ```
 
@@ -184,10 +184,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day1.requirements / Day 1 / REQUIREMENTS.mdの初期案を作成する
+直近の項目: day1.requirements / Step 1/7 / REQUIREMENTS.mdの初期案を作成する
 通過条件: 要件初期案
 内容: この項目から進行中。
-次に進める項目: day1.requirements / Day 1 / REQUIREMENTS.mdの初期案を作成する
+次に進める項目: day1.requirements / Step 1/7 / REQUIREMENTS.mdの初期案を作成する
 次回の最初の一問: REQUIREMENTS.mdの初期案を作成する を始めてよいですか？
 ```
 
@@ -195,10 +195,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day1.requirements / Day 1 / REQUIREMENTS.mdの初期案を作成する
+直近の項目: day1.requirements / Step 1/7 / REQUIREMENTS.mdの初期案を作成する
 通過条件: 要件初期案
 内容: 個人用タスク管理表のREQUIREMENTS.md初期案を確認した
-次に進める項目: day1.specification / Day 1 / SPECIFICATION.mdの初期案を作成する
+次に進める項目: day1.specification / Step 1/7 / SPECIFICATION.mdの初期案を作成する
 次回の最初の一問: SPECIFICATION.mdの初期案を作成する を始めてよいですか？
 ```
 
@@ -206,10 +206,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day1.specification / Day 1 / SPECIFICATION.mdの初期案を作成する
+直近の項目: day1.specification / Step 1/7 / SPECIFICATION.mdの初期案を作成する
 通過条件: 仕様初期案
 内容: この項目から進行中。
-次に進める項目: day1.specification / Day 1 / SPECIFICATION.mdの初期案を作成する
+次に進める項目: day1.specification / Step 1/7 / SPECIFICATION.mdの初期案を作成する
 次回の最初の一問: SPECIFICATION.mdの初期案を作成する を始めてよいですか？
 ```
 
@@ -217,10 +217,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day1.specification / Day 1 / SPECIFICATION.mdの初期案を作成する
+直近の項目: day1.specification / Step 1/7 / SPECIFICATION.mdの初期案を作成する
 通過条件: 仕様初期案
 内容: REQUIREMENTS.md初期案に基づくSPECIFICATION.md初期案を確認した
-次に進める項目: day1.implementation-plan / Day 1 / IMPLEMENTATION_PLAN.mdの初期案を作成する
+次に進める項目: day1.implementation-plan / Step 1/7 / IMPLEMENTATION_PLAN.mdの初期案を作成する
 次回の最初の一問: IMPLEMENTATION_PLAN.mdの初期案を作成する を始めてよいですか？
 ```
 
@@ -228,10 +228,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day1.implementation-plan / Day 1 / IMPLEMENTATION_PLAN.mdの初期案を作成する
+直近の項目: day1.implementation-plan / Step 1/7 / IMPLEMENTATION_PLAN.mdの初期案を作成する
 通過条件: 実装計画初期案
 内容: この項目から進行中。
-次に進める項目: day1.implementation-plan / Day 1 / IMPLEMENTATION_PLAN.mdの初期案を作成する
+次に進める項目: day1.implementation-plan / Step 1/7 / IMPLEMENTATION_PLAN.mdの初期案を作成する
 次回の最初の一問: IMPLEMENTATION_PLAN.mdの初期案を作成する を始めてよいですか？
 ```
 
@@ -239,10 +239,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day1.implementation-plan / Day 1 / IMPLEMENTATION_PLAN.mdの初期案を作成する
+直近の項目: day1.implementation-plan / Step 1/7 / IMPLEMENTATION_PLAN.mdの初期案を作成する
 通過条件: 実装計画初期案
 内容: SPECIFICATION.md初期案に基づくIMPLEMENTATION_PLAN.md初期案を確認した
-次に進める項目: day1.initial-tracker-handoff / Day 1 / TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する
+次に進める項目: day1.initial-tracker-handoff / Step 1/7 / TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する
 次回の最初の一問: TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する を始めてよいですか？
 ```
 
@@ -250,10 +250,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day1.initial-tracker-handoff / Day 1 / TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する
+直近の項目: day1.initial-tracker-handoff / Step 1/7 / TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する
 通過条件: 初回履歴記録
 内容: この項目から進行中。
-次に進める項目: day1.initial-tracker-handoff / Day 1 / TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する
+次に進める項目: day1.initial-tracker-handoff / Step 1/7 / TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する
 次回の最初の一問: TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する を始めてよいですか？
 ```
 
@@ -261,10 +261,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day1.initial-tracker-handoff / Day 1 / TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する
+直近の項目: day1.initial-tracker-handoff / Step 1/7 / TASK_TRACKER.mdとHANDOFF.mdに初回作成を記録する
 通過条件: 初回履歴記録
 内容: 3文書の初回作成をTASK_TRACKER.mdとHANDOFF.mdへ記録する流れを確認した
-次に進める項目: day1.learning-controls / Day 1 / 学習進捗管理と順番制御コマンドを確認する
+次に進める項目: day1.learning-controls / Step 1/7 / 学習進捗管理と順番制御コマンドを確認する
 次回の最初の一問: 学習進捗管理と順番制御コマンドを確認する を始めてよいですか？
 ```
 
@@ -272,10 +272,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day1.learning-controls / Day 1 / 学習進捗管理と順番制御コマンドを確認する
+直近の項目: day1.learning-controls / Step 1/7 / 学習進捗管理と順番制御コマンドを確認する
 通過条件: 学習管理方法の理解
 内容: この項目から進行中。
-次に進める項目: day1.learning-controls / Day 1 / 学習進捗管理と順番制御コマンドを確認する
+次に進める項目: day1.learning-controls / Step 1/7 / 学習進捗管理と順番制御コマンドを確認する
 次回の最初の一問: 学習進捗管理と順番制御コマンドを確認する を始めてよいですか？
 ```
 
@@ -283,10 +283,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day1.learning-controls / Day 1 / 学習進捗管理と順番制御コマンドを確認する
+直近の項目: day1.learning-controls / Step 1/7 / 学習進捗管理と順番制御コマンドを確認する
 通過条件: 学習管理方法の理解
 内容: tools/lessonとtools/learnの役割を確認した
-次に進める項目: day2.screen-structure / Day 2 / index.htmlの画面構成を作成する
+次に進める項目: day2.screen-structure / Step 2/7 / index.htmlの画面構成を作成する
 次回の最初の一問: index.htmlの画面構成を作成する を始めてよいですか？
 ```
 
@@ -294,10 +294,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day2.screen-structure / Day 2 / index.htmlの画面構成を作成する
+直近の項目: day2.screen-structure / Step 2/7 / index.htmlの画面構成を作成する
 通過条件: 画面骨組み
 内容: この項目から進行中。
-次に進める項目: day2.screen-structure / Day 2 / index.htmlの画面構成を作成する
+次に進める項目: day2.screen-structure / Step 2/7 / index.htmlの画面構成を作成する
 次回の最初の一問: index.htmlの画面構成を作成する を始めてよいですか？
 ```
 
@@ -305,10 +305,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day2.screen-structure / Day 2 / index.htmlの画面構成を作成する
+直近の項目: day2.screen-structure / Step 2/7 / index.htmlの画面構成を作成する
 通過条件: 画面骨組み
 内容: index.htmlの画面構成と一覧表の列を確認した
-次に進める項目: day3.visual-design / Day 3 / style.cssで見た目を整理する
+次に進める項目: day3.visual-design / Step 3/7 / style.cssで見た目を整理する
 次回の最初の一問: style.cssで見た目を整理する を始めてよいですか？
 ```
 
@@ -316,10 +316,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day3.visual-design / Day 3 / style.cssで見た目を整理する
+直近の項目: day3.visual-design / Step 3/7 / style.cssで見た目を整理する
 通過条件: 画面スタイル
 内容: この項目から進行中。
-次に進める項目: day3.visual-design / Day 3 / style.cssで見た目を整理する
+次に進める項目: day3.visual-design / Step 3/7 / style.cssで見た目を整理する
 次回の最初の一問: style.cssで見た目を整理する を始めてよいですか？
 ```
 
@@ -327,10 +327,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day3.visual-design / Day 3 / style.cssで見た目を整理する
+直近の項目: day3.visual-design / Step 3/7 / style.cssで見た目を整理する
 通過条件: 画面スタイル
 内容: style.cssの見た目方針と状態ごとの色分けを確認した
-次に進める項目: day4.task-add-behavior / Day 4 / app.jsでタスク追加の動きを作成する
+次に進める項目: day4.task-add-behavior / Step 4/7 / app.jsでタスク追加の動きを作成する
 次回の最初の一問: app.jsでタスク追加の動きを作成する を始めてよいですか？
 ```
 
@@ -338,10 +338,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day4.task-add-behavior / Day 4 / app.jsでタスク追加の動きを作成する
+直近の項目: day4.task-add-behavior / Step 4/7 / app.jsでタスク追加の動きを作成する
 通過条件: タスク追加動作
 内容: この項目から進行中。
-次に進める項目: day4.task-add-behavior / Day 4 / app.jsでタスク追加の動きを作成する
+次に進める項目: day4.task-add-behavior / Step 4/7 / app.jsでタスク追加の動きを作成する
 次回の最初の一問: app.jsでタスク追加の動きを作成する を始めてよいですか？
 ```
 
@@ -349,10 +349,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 通過
-直近の項目: day4.task-add-behavior / Day 4 / app.jsでタスク追加の動きを作成する
+直近の項目: day4.task-add-behavior / Step 4/7 / app.jsでタスク追加の動きを作成する
 通過条件: タスク追加動作
 内容: app.jsのタスク追加動作とタスク名空欄チェックを確認した
-次に進める項目: day5.change-start / Day 5 / 変更時はTASK_TRACKER.mdとHANDOFF.mdから始める流れを体験する
+次に進める項目: day5.change-start / Step 5/7 / 変更時はTASK_TRACKER.mdとHANDOFF.mdから始める流れを体験する
 次回の最初の一問: 変更時はTASK_TRACKER.mdとHANDOFF.mdから始める流れを体験する を始めてよいですか？
 ```
 
@@ -360,10 +360,10 @@ tools/lesson と tools/learn を明示実行した場合は、learning/配下へ
 
 ```text
 種別: 開始
-直近の項目: day5.change-start / Day 5 / 変更時はTASK_TRACKER.mdとHANDOFF.mdから始める流れを体験する
+直近の項目: day5.change-start / Step 5/7 / 変更時はTASK_TRACKER.mdとHANDOFF.mdから始める流れを体験する
 通過条件: 変更開始履歴
 内容: この項目から進行中。
-次に進める項目: day5.change-start / Day 5 / 変更時はTASK_TRACKER.mdとHANDOFF.mdから始める流れを体験する
+次に進める項目: day5.change-start / Step 5/7 / 変更時はTASK_TRACKER.mdとHANDOFF.mdから始める流れを体験する
 次回の最初の一問: 変更時はTASK_TRACKER.mdとHANDOFF.mdから始める流れを体験する を始めてよいですか？
 ```
 

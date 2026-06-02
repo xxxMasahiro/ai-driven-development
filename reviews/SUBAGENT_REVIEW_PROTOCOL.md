@@ -11,7 +11,7 @@ The orchestrating agent must combine findings and decide what to adopt, defer, o
 ## Required Review Roles
 
 1. Documentation consistency reviewer
-   - Checks `REQUIREMENTS.md`, `SPECIFICATION.md`, `IMPLEMENTATION_PLAN.md`, `TASK_TRACKER.md`, and `HANDOFF.md`.
+   - Checks `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, `docs/as-built/IMPLEMENTATION_PLAN.md`, `docs/workflow/TASK_TRACKER.md`, and `docs/workflow/HANDOFF.md`.
    - Confirms that the same capabilities and constraints appear across all five files.
 
 2. Implementation and test reviewer
