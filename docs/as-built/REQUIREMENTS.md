@@ -109,6 +109,32 @@ This implemented work is additive and does not trade away any existing 7-day les
 - Validation is wired through `tools/test_docs_tour.sh`, structure checks, as-built checks, developer-memory checks, dashboard or Playwright tests, aggregate tests, CI, and pre-commit.
 - Implementation verification preserves existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-gate, Playwright, CI, and pre-commit behavior.
 
+## Planned Product Repository Cleanup Requirements
+
+The next lesson-improvement plan must provide a safe, explicit cleanup path for the external product repository created by the 7-day or 14-day lessons.
+This planned work is additive and must not trade away any existing 7-day lesson, 14-day lesson, menu, dashboard, checks, document synchronization, product-gate behavior, GitHub/CI workflow, or repository-boundary behavior.
+
+- Add a dedicated cleanup command, planned as `tools/product-repository-cleanup`.
+- Support non-destructive discovery through `tools/product-repository-cleanup status`.
+- Support non-destructive procedure preview through `tools/product-repository-cleanup plan`.
+- Support local product repository deletion only through an explicit command such as `tools/product-repository-cleanup local --confirm task-tracker-repository`.
+- Support remote GitHub product repository deletion only through an explicit command such as `tools/product-repository-cleanup remote --confirm xxxMasahiro/task-tracker-repository`.
+- Keep local deletion and remote deletion as separate commands; do not add an `all` command or any automatic chained local-plus-remote deletion.
+- Make every cleanup command show the target path, target repository name, configured product repository name, and safety status before any destructive operation.
+- Require the local target to be the configured product repository path, normally `$HOME/projects/task-tracker-repository`.
+- Reject local deletion if the target is inside the lesson repository, does not match the configured product repository name, is not a Git repository, or cannot be identified safely.
+- Require explicit confirmation text for local deletion, matching the configured product repository name.
+- Require explicit confirmation text for remote deletion, matching the full GitHub owner/repository name.
+- Require GitHub authentication and a successful remote repository lookup before any remote deletion attempt.
+- Show the remote repository URL and owner/repository name immediately before remote deletion.
+- Record or print a clear operation log for status, plan, local cleanup, and remote cleanup operations.
+- Keep dry-run and failure-path behavior testable without deleting a real GitHub repository.
+- Test missing-confirmation and wrong-confirmation failure paths for both local and remote cleanup where applicable.
+- Add mechanical checks, planned as `tools/test_product_repository_cleanup.sh` and updates to existing structure/as-built/developer-memory checks, so cleanup command presence, dry-run behavior, confirmation failures, boundary failures, and documentation synchronization are testable.
+- At this planning-synchronization stage, `tools/product-repository-cleanup` and `tools/test_product_repository_cleanup.sh` are planned artifacts and are not yet required to exist.
+- Implementation completion will require validation wiring through `tools/test_product_repository_cleanup.sh`, structure checks, as-built checks, developer-memory checks, aggregate tests, CI, and pre-commit.
+- Implementation verification must preserve existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-gate, Playwright, docs-tour, CI, and pre-commit behavior.
+
 ## Mechanical Enforcement
 
 - 14-day progression requires approval receipts through `tools/lesson14 承認`.

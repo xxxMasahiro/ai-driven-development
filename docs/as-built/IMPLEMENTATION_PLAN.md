@@ -237,6 +237,72 @@ It preserves existing features without tradeoffs and follows the repository qual
    - Run the new docs-tour test.
    - Confirm existing 7-day, 14-day, menu, dashboard, free-development, product-improvement, external-integration, product-gate, Playwright, CI, and pre-commit behavior remains available.
 
+## Planned Product Repository Cleanup Implementation Plan
+
+This is the next additive implementation plan.
+It must be completed only after the plan is synchronized across `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, `docs/as-built/IMPLEMENTATION_PLAN.md`, `docs/workflow/TASK_TRACKER.md`, and `docs/workflow/HANDOFF.md`.
+It must preserve existing features without tradeoffs and must follow the repository quality constraints for refactorability, ecosystem fit, reusability, and generality.
+
+1. Add a dedicated cleanup command.
+   - Add `tools/product-repository-cleanup`.
+   - Support `status`, `plan`, `local`, and `remote` subcommands.
+   - Keep the command focused on the external product repository configured by the lesson settings.
+
+2. Implement non-destructive status and plan views.
+   - `status` prints the configured product repository path, local existence, Git status, repository-name match, nested-repository safety, remote URL, and remote existence when safely checkable.
+   - `plan` prints the local and remote cleanup procedure without deleting anything.
+   - Both commands remain safe to run without confirmation.
+
+3. Implement local cleanup safety gates.
+   - Require a command shape such as `tools/product-repository-cleanup local --confirm task-tracker-repository`.
+   - Reject deletion when confirmation is missing or does not match the configured product repository name.
+   - Reject deletion when the target path is inside the lesson repository.
+   - Reject deletion when the target path does not equal the configured external product repository path.
+   - Reject deletion when the target is not a Git repository or cannot be identified safely.
+   - Print a clear operation log before and after local deletion.
+
+4. Implement remote cleanup safety gates.
+   - Require a command shape such as `tools/product-repository-cleanup remote --confirm xxxMasahiro/task-tracker-repository`.
+   - Require GitHub authentication and a successful remote repository lookup before any deletion attempt.
+   - Show the owner/repository name and remote URL immediately before deletion.
+   - Reject deletion when the confirmation text does not exactly match the full owner/repository name.
+   - Print a clear operation log before and after remote deletion.
+
+5. Keep destructive operations separated.
+   - Do not add an `all` command.
+   - Do not chain local and remote deletion automatically.
+   - Do not infer deletion targets from loose user text.
+
+6. Add mechanical validation.
+   - Add `tools/test_product_repository_cleanup.sh`.
+   - Test status and plan behavior.
+   - Test missing-confirmation and wrong-confirmation failures.
+   - Test nested repository rejection.
+   - Test non-Git target rejection.
+   - Test local cleanup using temporary repositories only.
+   - Test remote paths with non-destructive or mocked failure behavior, never by deleting a real GitHub repository.
+   - At this planning-synchronization stage, `tools/product-repository-cleanup` and `tools/test_product_repository_cleanup.sh` are planned artifacts and are not yet expected to exist in runtime.
+
+7. Wire validation into existing checks.
+   - Update structure checks.
+   - Update as-built checks.
+   - Update developer-memory checks when implementation is complete.
+   - Add the new test to aggregate tests, CI, and pre-commit.
+   - Preserve existing 7-day, 14-day, menu, dashboard, Free Development, Product Improvement, external-integration, product-gate, Playwright, docs-tour, CI, and pre-commit behavior.
+
+8. Synchronize related guidance after implementation.
+   - Update the five planning/workflow documents from planned to implemented state.
+   - Update `AGENTS.MD`, README/menu/dashboard guidance, and developer memory only where the cleanup command becomes part of runtime behavior.
+   - Keep unrelated existing content unchanged.
+
+9. Verify local, remote, and CI consistency.
+   - Run the new cleanup test.
+   - Run the existing lesson-side verification sequence.
+   - Run pre-commit.
+   - Commit and push only after all local checks pass.
+   - Confirm `CI` and `Lesson14 CI` succeed for the pushed commit.
+   - Confirm local HEAD, `origin/main`, and the CI target SHA match.
+
 ## Verification Plan
 
 Run:
