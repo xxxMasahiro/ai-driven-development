@@ -17,7 +17,7 @@ It is not a learner-facing progress log.
 ## Mechanical Baseline Requirements
 
 - Approval checkpoints now have tooling enforcement and must remain active for lesson progression.
-- The lesson supports `tools/lesson14 学習モード <A|B|C>` and the learning mode can be changed at any time during the lesson.
+- The lessons support `tools/lesson 学習モード <A|B|C>` and `tools/lesson14 学習モード <A|B|C>`, and the learning mode can be changed at any time during either lesson.
 - Implementation choices must remain refactorable, ecosystem-friendly, reusable, and general.
 - Existing functionality must not be traded away when adding new lesson features, workflow checks, or learner-facing guidance.
 

@@ -30,6 +30,9 @@ require_file() {
 }
 
 require_file "$DEVELOPER_MEMORY_DOC"
+require_file "learning/LESSON_MODE.tsv"
+require_file "learning/WORKFLOW_DISPLAY_LANGUAGE.tsv"
+require_file "learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv"
 require_file "learning/LESSON_APPROVALS_14_DAYS.tsv"
 require_file "learning/LESSON_MODE_14_DAYS.tsv"
 
@@ -38,8 +41,15 @@ require_pattern "tools/lesson14" 'LESSON_RUNTIME_REQUIRE_APPROVAL=1' "lesson14 a
 require_pattern "tools/lib/lesson_runtime.sh" 'Approval required before this action' "approval gate"
 require_pattern "tools/test_lesson14.sh" 'lesson14-approval-required' "approval regression test"
 
-require_pattern "$DEVELOPER_MEMORY_DOC" 'tools/lesson14 学習モード <A\|B\|C>' "learning mode record"
-require_pattern "$DEVELOPER_MEMORY_DOC" 'at any time during the lesson' "learning mode switchability record"
+require_pattern "$DEVELOPER_MEMORY_DOC" 'tools/lesson 学習モード <A\|B\|C>' "7-day learning mode record"
+require_pattern "$DEVELOPER_MEMORY_DOC" 'tools/lesson14 学習モード <A\|B\|C>' "14-day learning mode record"
+require_pattern "$DEVELOPER_MEMORY_DOC" 'at any time during (the|either) lesson' "learning mode switchability record"
+require_pattern "tools/lesson" 'Learning mode is required before passing setup\.index' "7-day learning mode gate"
+require_pattern "tools/test_lesson.sh" 'Learning mode recorded: C' "7-day learning mode switch regression test"
+require_pattern "tools/test_lesson.sh" 'lesson-mode-required' "7-day learning mode regression test"
+require_pattern "tools/lesson" 'Workflow display language is required before passing setup\.index' "7-day workflow language gate"
+require_pattern "tools/lesson" 'Product development language is required before passing setup\.index' "7-day product development language gate"
+require_pattern "tools/test_lesson.sh" 'lesson-language-required' "7-day language gate regression test"
 require_pattern "tools/lesson14" 'Learning mode is required before passing setup\.index' "learning mode gate"
 require_pattern "tools/test_lesson14.sh" 'Learning mode recorded: C' "learning mode switch regression test"
 require_pattern "tools/test_lesson14.sh" 'lesson14-mode-required' "learning mode regression test"

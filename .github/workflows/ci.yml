@@ -26,6 +26,7 @@ jobs:
           bash -n tools/check_review_protocol.sh
           bash -n tools/check_developer_memory_requirements.sh
           bash -n tools/test_lesson_playwright.sh
+          bash -n tools/test_lesson.sh
           bash -n tools/test_product_gate_tools.sh
           bash -n tools/test_lesson_repository.sh
           bash -n tools/lesson
@@ -60,6 +61,9 @@ jobs:
           cd "$work/lesson"
           ./tools/lesson 通過 day1.mode "future step" >/tmp/future.out 2>&1 && exit 1 || true
           ./tools/lesson 通過 setup.index >/tmp/empty-pass.out 2>&1 && exit 1 || true
+          ./tools/lesson 学習モード A
+          ./tools/lesson 表示言語 ja
+          ./tools/lesson 開発言語 ja
           ./tools/lesson 通過 setup.index "設定から体験開発へ進む順番を確認した"
           ./tools/lesson 現在地 | grep './tools/lesson 開始 setup.github-login'
           ./tools/lesson 通過 setup.github-login "github-loginでGitHub接続を確認した"
@@ -73,6 +77,9 @@ jobs:
         run: |
           npm install
           npx playwright install chromium
+
+      - name: 7-day lesson CLI regression
+        run: ./tools/test_lesson.sh
 
       - name: Lesson aggregate test
         run: ./tools/test_lesson_repository.sh

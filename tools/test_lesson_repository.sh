@@ -21,6 +21,7 @@ WORKFLOW_PAIR_SINGLE_FILE_REASON="aggregate test may run while remediation docum
 ./tools/test_lesson_playwright.sh
 ./tools/test_product_gate_tools.sh
 ./tools/test_lesson_start_position.sh
+./tools/test_lesson.sh
 ./tools/test_lesson14.sh
 
 printf 'Lesson repository test passed.\n'

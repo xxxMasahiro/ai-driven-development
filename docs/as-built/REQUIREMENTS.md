@@ -10,8 +10,9 @@ The repository must help learners move from structured lessons into real product
 - Preserve the existing 7-day lesson.
 - Preserve the existing 14-day lesson.
 - Prevent accidental lesson progression without learner approval.
-- Let learners choose explanation depth through learning modes A/B/C.
-- Allow the learning mode to be switched during the lesson.
+- Let learners choose explanation depth through learning modes A/B/C in both the 7-day and 14-day lessons.
+- Allow the learning mode to be switched during either lesson.
+- Let learners choose workflow display language and product development language in both the 7-day and 14-day lessons.
 - Allow learners to start from any lesson topic intentionally, without weakening normal ordered progression.
 - Teach agent dialogue and goal-oriented prompt refinement as a core skill.
 - Teach sub-agent use as role-based viewpoints that are orchestrated toward a goal.
@@ -34,10 +35,10 @@ The repository must help learners move from structured lessons into real product
 - Support Role-Based Document Organization for role-specific Markdown files so design/as-built, workflow-state, and memory documents remain easy to find.
 - Keep As-Built Synchronization explicit across the requirements, specification, implementation plan, task tracker, and handoff documents.
 
-## Remediation Requirements From Developer-Memory Audit
+## Implemented Remediation Requirements From Developer-Memory Audit
 
-The 2026-06-02 unfinished-requirements audit found that some developer-memory requirements are recorded but not fully implemented or mechanically enforced yet.
-The repository must complete the following remediation work without trading away existing behavior or changing unrelated existing content.
+The 2026-06-02 developer-memory audit requirements are implemented additively.
+The repository must keep the following remediation behavior active without trading away existing behavior or changing unrelated existing content.
 
 - Organize lesson-side Markdown documents by role while keeping `AGENTS.MD` at the repository root.
 - Provide a shared document-path layer so tools, checks, prompts, skills, and dashboard code do not hard-code final document locations.
@@ -45,13 +46,13 @@ The repository must complete the following remediation work without trading away
 - Remove final root-level copies of role-specific documents after references and checks are updated.
 - Replace learner-facing `Day N` labels with `Step N` labels where practical.
 - Hide internal step IDs from ordinary learner-facing output while preserving them for state files, command arguments, and diagnostics.
-- Implement separate settings for workflow display language and product development language.
+- Implement separate settings for workflow display language and product development language for both structured lesson versions.
 - Show learning-mode display names consistently while preserving A/B/C as internal IDs.
 - Strengthen approval gates so start/pass actions require matching start/pass approvals.
 - Make passage prompts invite questions and explain copy-paste command blocks in learner-friendly wording.
 - Enforce `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as a synchronized pair for workflow state and restart context.
 - Strengthen as-built document synchronization beyond shallow topic checks.
-- Expand the CLI dashboard to show current step, progress, languages, next approval, sync-gate status, workflow-pair status, real CI status when available, developer-memory items, and illustration availability.
+- Expand the CLI dashboard to show current step, progress, 7-day and 14-day language settings, learning-mode labels, next approval, sync-gate status, workflow-pair status, real CI status when available, developer-memory items, and illustration availability.
 - Complete illustration request, metadata, generated-asset registration, and review-page support.
 - Add an external-integration CLI path that can follow Free Development Mode or start from an existing product repository.
 - Introduce required lesson-repository Playwright checks for dashboard and illustration-review quality after dependencies are installed.
@@ -61,9 +62,12 @@ The repository must complete the following remediation work without trading away
 ## Mechanical Enforcement
 
 - 14-day progression requires approval receipts through `tools/lesson14 承認`.
-- 14-day `setup.index` cannot pass before learning mode is selected.
+- 7-day `setup.index` cannot pass before learning mode, workflow display language, and product development language are selected.
+- 14-day `setup.index` cannot pass before learning mode, workflow display language, and product development language are selected.
 - Developer-memory requirements are checked by `tools/check_developer_memory_requirements.sh`.
 - Lesson-side validation is checked by `tools/test_lesson_repository.sh`.
+- 7-day CLI behavior is checked by `tools/test_lesson.sh`.
+- 14-day CLI behavior is checked by `tools/test_lesson14.sh`.
 - Free/Team product gates are regression-tested with a temporary product repository through `tools/test_product_gate_tools.sh`.
 - As-built document consistency is checked by `tools/check_as_built_docs.sh`.
 - Sub-agent review protocol presence is checked by `tools/check_review_protocol.sh`.
@@ -72,7 +76,7 @@ The repository must complete the following remediation work without trading away
 - Team Development and Docker is gated by `tools/team-development gate`.
 - The learner-facing menu is checked by `tools/menu` and developer-memory requirement checks.
 - Dashboard and illustration entry points are checked by structure and developer-memory requirement checks.
-- Future remediation is complete only when the audit items above are implemented, synchronized into these as-built documents, and covered by mechanical checks that fail when the requirement is missing.
+- Remediation remains complete only while the audit items above are implemented, synchronized into these as-built documents, and covered by mechanical checks that fail when the requirement is missing.
 - Remediation checks and implementations must remain refactorable, ecosystem-friendly, reusable, and general.
 
 ## Non-Goals
@@ -92,6 +96,7 @@ The repository must complete the following remediation work without trading away
 - All lesson structure and sync checks pass.
 - Developer-memory requirements check passes.
 - Lesson repository aggregate test passes.
+- Latest 7-day parity verification passes `./tools/test_lesson.sh` and `./tools/test_lesson_repository.sh`.
 - `docs/workflow/TASK_TRACKER.md`, `docs/workflow/HANDOFF.md`, `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md` reflect the same as-built state.
 - `task-tracker-repository` remains outside this repository and may remain deleted unless a real product operations test is explicitly requested.
-- The unfinished-requirements audit is cleared only when all remediation requirements in this document are implemented or mechanically enforced.
+- The developer-memory audit remains cleared only while all remediation requirements in this document are implemented or mechanically enforced.

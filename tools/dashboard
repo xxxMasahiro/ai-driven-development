@@ -3,7 +3,9 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DASHBOARD_CI_TIMEOUT_SECONDS="${DASHBOARD_CI_TIMEOUT_SECONDS:-8}"
-export LESSON_CONFIG="${LESSON_CONFIG:-$ROOT/lesson/LESSON_CONFIG_14_DAYS.tsv}"
+DASHBOARD_LESSON_CONFIG="$ROOT/lesson/LESSON_CONFIG.tsv"
+DASHBOARD_LESSON14_CONFIG="$ROOT/lesson/LESSON_CONFIG_14_DAYS.tsv"
+export LESSON_CONFIG="${LESSON_CONFIG:-$DASHBOARD_LESSON14_CONFIG}"
 
 # shellcheck source=tools/lib/lesson_common.sh
 source "$ROOT/tools/lib/lesson_common.sh"
@@ -95,9 +97,10 @@ optional_ci_status() {
 }
 
 next_approval_status() {
-  local current approvals
-  current="$(awk -F '\t' '$1 !~ /^#/ && $3 == "current" { print $2; exit }' "$(lesson_state_file)" 2>/dev/null || true)"
-  approvals="$(lesson_approval_file)"
+  local current approvals state_file
+  state_file="$ROOT/learning/LESSON_STATE_14_DAYS.tsv"
+  approvals="$ROOT/learning/LESSON_APPROVALS_14_DAYS.tsv"
+  current="$(awk -F '\t' '$1 !~ /^#/ && $3 == "current" { print $2; exit }' "$state_file" 2>/dev/null || true)"
   if [[ -z "$current" ]]; then
     printf 'Next approval: none\n'
     return
@@ -119,14 +122,19 @@ next_approval_status() {
 
 show_lesson() {
   print_section 'Lesson Dashboard'
-  "$ROOT/tools/lesson14" status || true
+  LESSON_CONFIG="$DASHBOARD_LESSON14_CONFIG" "$ROOT/tools/lesson14" status || true
   printf '\n7-day lesson status:\n'
-  "$ROOT/tools/lesson" status || true
+  LESSON_CONFIG="$DASHBOARD_LESSON_CONFIG" "$ROOT/tools/lesson" status || true
   printf '\nLearning mode:\n'
-  "$ROOT/tools/lesson14" 学習モード || true
+  printf '14-day: '
+  LESSON_CONFIG="$DASHBOARD_LESSON14_CONFIG" "$ROOT/tools/lesson14" 学習モード || true
+  printf '7-day: '
+  LESSON_CONFIG="$DASHBOARD_LESSON_CONFIG" "$ROOT/tools/lesson" 学習モード || true
   printf '\nLanguage settings:\n'
-  language_status "$(lesson_workflow_language_file)" "Workflow display language"
-  language_status "$(lesson_product_language_file)" "Product development language"
+  language_status "$ROOT/learning/WORKFLOW_DISPLAY_LANGUAGE_14_DAYS.tsv" "14-day Workflow display language"
+  language_status "$ROOT/learning/PRODUCT_DEVELOPMENT_LANGUAGE_14_DAYS.tsv" "14-day Product development language"
+  language_status "$ROOT/learning/WORKFLOW_DISPLAY_LANGUAGE.tsv" "7-day Workflow display language"
+  language_status "$ROOT/learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv" "7-day Product development language"
   printf '\nNext approval:\n'
   next_approval_status
   printf '\nSync-gate status:\n'

@@ -30,6 +30,7 @@ jobs:
           bash -n tools/check_review_protocol.sh
           bash -n tools/check_developer_memory_requirements.sh
           bash -n tools/test_lesson_playwright.sh
+          bash -n tools/test_lesson.sh
           bash -n tools/test_product_gate_tools.sh
           bash -n tools/test_lesson_repository.sh
           bash -n tools/test_lesson14.sh

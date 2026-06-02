@@ -11,7 +11,7 @@
 ```text
 1. AGENTS.MDを読む
 2. ユーザーが7日版か14日版を明示していない場合は、先にどちらで進めるか質問する
-3. 14日版で学習モードが未指定の場合は、A/B/Cのどれで進めるか質問する
+3. 選んだ版で学習モード、表示言語、成果物開発言語が未指定の場合は確認する
 4. ルーティングテーブルで入口を選ぶ
 5. 選んだ入口ドキュメントを読む
 6. 必要なrepo-local skillを読む
@@ -75,7 +75,7 @@
 15. テストを通してから完了する。
     既存チェック、14日版チェック、AGENTS/skillsチェック、必要な GitHub Actions を確認します。
 
-16. 14日版の説明量は学習モードに従う。
+16. 7日版と14日版の説明量は学習モードに従う。
     Aは目的、利便性、専門用語、作業内容を詳しく説明します。Bは専門用語を短く補足します。Cは説明を省き、ワークフローのみ進めます。
 
 17. エージェントとの壁打ちを教材の中核として扱う。
@@ -107,9 +107,9 @@
 | ダッシュボードを見たい | `docs/memory/DEVELOPER_MEMORY.md` のダッシュボード方針 | なし | `./tools/dashboard all` |
 | 公開リポジトリから開始したい | `README.md` | なし | `git clone`、`./tools/lesson status` |
 | レッスン開始、再開、現在地確認 | 意図に応じて `index.md` または `index-14-days.md` | 14日版なら `skills/lesson14-facilitator/SKILL.md` | `./tools/lesson status` または `./tools/lesson14 status` |
-| 7日版を進めたい | `index.md` | なし | `./tools/check_lesson_structure.sh`、`./tools/lesson status` |
+| 7日版を進めたい | `index.md` | なし | `./tools/check_lesson_structure.sh`、`./tools/lesson 学習モード <A\|B\|C>`、`./tools/lesson status` |
 | 14日版を進めたい | `index-14-days.md` | `skills/lesson14-facilitator/SKILL.md` | `./tools/check_lesson14_structure.sh`、`./tools/lesson14 status` |
-| 7日版か14日版を選びたい | `README.md`、`index.md`、`index-14-days.md` | `skills/lesson14-facilitator/SKILL.md` | 版選択、学習モード選択 |
+| 7日版か14日版を選びたい | `README.md`、`index.md`、`index-14-days.md` | `skills/lesson14-facilitator/SKILL.md` | 版選択、学習モード選択、表示言語選択、成果物開発言語選択 |
 | 現在地やロードマップを知りたい | `learning/ROADMAP.md` | `skills/lesson14-facilitator/SKILL.md` | `./tools/roadmap status` |
 | GitHub初期設定を進めたい | `github-login-setup-guide.md` | `skills/github-login-onboarding/SKILL.md` | `gh auth status -h github.com`、`ssh -T github.com` |
 | 学習進捗、再開、中断、つまずき相談 | `learning/ROADMAP.md`、`learning/HELP_DESK.md` | `skills/learning-progress-helpdesk/SKILL.md` | `./tools/roadmap status`、`./tools/helpdesk 相談 "..."` |

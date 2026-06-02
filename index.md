@@ -8,11 +8,34 @@
 
 ```text
 1. index.mdで全体像と順番を確認する
-2. github-login-setup-guide.mdでGitHub接続設定を確認する
-3. tools/check_lesson_structure.shで教材構成を確認する
-4. tools/lesson 現在地で今進める項目を確認する
-5. ai-driven-task-tracker-scenario.mdで体験開発を進める
+2. 学習モード、表示言語、成果物開発言語を選ぶ
+3. github-login-setup-guide.mdでGitHub接続設定を確認する
+4. tools/check_lesson_structure.shで教材構成を確認する
+5. tools/lesson 現在地で今進める項目を確認する
+6. ai-driven-task-tracker-scenario.mdで体験開発を進める
 ```
+
+## 学習モードと言語
+
+7日版でも、最初に学習モード、教材・ワークフローの表示言語、成果物リポジトリ側の開発言語を選びます。
+`setup.index` は、この3つが記録されるまで通過できません。
+
+```bash
+./tools/lesson 学習モード <A|B|C>
+./tools/lesson 表示言語 <ja|en|ko|zh>
+./tools/lesson 開発言語 <ja|en|ko|zh>
+```
+
+学習モードの表示名:
+
+```text
+A: じっくり説明
+B: ほどよく説明
+C: 手順だけ
+```
+
+`表示言語` は教材・ワークフローの説明表示に使います。
+`開発言語` は成果物リポジトリ側の要件、仕様、実装計画、README、UI文言などに使います。
 
 ## 使うファイル
 
@@ -30,6 +53,9 @@
 | `lesson/LESSON_CONFIG.tsv` | リポジトリ名、配置、主要ファイル名の設定 |
 | `lesson/LESSON_FLOW.tsv` | レッスンの正しい通過順 |
 | `learning/LESSON_STATE.tsv` | 現在位置、完了済み、未解放の状態 |
+| `learning/LESSON_MODE.tsv` | 7日版の学習モード |
+| `learning/WORKFLOW_DISPLAY_LANGUAGE.tsv` | 7日版の教材・ワークフロー表示言語 |
+| `learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv` | 7日版の成果物開発言語 |
 | `learning/LEARNING_TASK_TRACKER.md` | 学習者の進捗記録 |
 | `learning/LEARNING_HANDOFF.md` | 次回再開用の学習引き継ぎ |
 | `tools/lesson` | 順番どおりの開始、通過、復習を制御する |
@@ -44,11 +70,12 @@
 1. このindex.mdを読む
 2. tools/check_lesson_structure.shを実行する
 3. tools/check_repository_boundary.shを実行する
-4. tools/lesson 現在地を実行する
-5. 現在項目がsetup.indexなら、このindex.mdの内容を短く説明して通過確認する
-6. 現在項目がsetup.github-loginなら、github-login-setup-guide.mdを使ってGitHub接続を確認する
-7. setup.github-loginを通過したら、ai-driven-task-tracker-scenario.mdへ進む
-8. 以降はtools/lessonが示す現在項目だけを進める
+4. 学習モード、表示言語、成果物開発言語を確認し、tools/lessonで記録する
+5. tools/lesson 現在地を実行する
+6. 現在項目がsetup.indexなら、このindex.mdの内容を短く説明して通過確認する
+7. 現在項目がsetup.github-loginなら、github-login-setup-guide.mdを使ってGitHub接続を確認する
+8. setup.github-loginを通過したら、ai-driven-task-tracker-scenario.mdへ進む
+9. 以降はtools/lessonが示す現在項目だけを進める
 ```
 
 ## リポジトリ境界
@@ -131,6 +158,9 @@ Git hooksは `.githooks/pre-commit` に置き、`core.hooksPath` で有効化し
 学びたい項目から始める場合は、明示確認つきで開始位置を変更できます。
 
 ```bash
+./tools/lesson 学習モード <A|B|C>
+./tools/lesson 表示言語 <ja|en|ko|zh>
+./tools/lesson 開発言語 <ja|en|ko|zh>
 ./tools/lesson 現在地
 ./tools/lesson 開始位置 <step_id> --confirm
 ./tools/lesson 開始 <step_id>

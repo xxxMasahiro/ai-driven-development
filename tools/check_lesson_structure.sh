@@ -43,6 +43,9 @@ required_files=(
   "lesson/LESSON_CONFIG.tsv"
   "lesson/LESSON_FLOW.tsv"
   "learning/LESSON_STATE.tsv"
+  "learning/LESSON_MODE.tsv"
+  "learning/WORKFLOW_DISPLAY_LANGUAGE.tsv"
+  "learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv"
   "learning/LEARNING_TASK_TRACKER.md"
   "learning/LEARNING_HANDOFF.md"
   "tools/check_lesson_structure.sh"
@@ -55,6 +58,7 @@ required_files=(
   "tools/check_review_protocol.sh"
   "tools/check_developer_memory_requirements.sh"
   "tools/list_non_english_docs.sh"
+  "tools/test_lesson.sh"
   "tools/test_lesson_repository.sh"
   "tools/test_product_gate_tools.sh"
   "tools/test_lesson_start_position.sh"
@@ -101,7 +105,7 @@ for file in "${misplaced_files[@]}"; do
   fi
 done
 
-for script in "tools/check_lesson_structure.sh" "tools/check_document_organization.sh" "tools/check_learner_display.sh" "tools/check_repository_boundary.sh" "tools/check_agents_skills.sh" "tools/check_as_built_docs.sh" "tools/check_workflow_pair_sync.sh" "tools/check_review_protocol.sh" "tools/check_developer_memory_requirements.sh" "tools/list_non_english_docs.sh" "tools/test_lesson_repository.sh" "tools/test_product_gate_tools.sh" "tools/test_lesson_start_position.sh" "tools/test_lesson_playwright.sh" "tools/free-development" "tools/external-integration" "tools/team-development" "tools/menu" "tools/dashboard" "tools/illustrations" "tools/lesson" "tools/learn"; do
+for script in "tools/check_lesson_structure.sh" "tools/check_document_organization.sh" "tools/check_learner_display.sh" "tools/check_repository_boundary.sh" "tools/check_agents_skills.sh" "tools/check_as_built_docs.sh" "tools/check_workflow_pair_sync.sh" "tools/check_review_protocol.sh" "tools/check_developer_memory_requirements.sh" "tools/list_non_english_docs.sh" "tools/test_lesson.sh" "tools/test_lesson_repository.sh" "tools/test_product_gate_tools.sh" "tools/test_lesson_start_position.sh" "tools/test_lesson_playwright.sh" "tools/free-development" "tools/external-integration" "tools/team-development" "tools/menu" "tools/dashboard" "tools/illustrations" "tools/lesson" "tools/learn"; do
   if [[ ! -x "$ROOT/$script" ]]; then
     printf 'not executable: %s\n' "$script" >&2
     missing=1
@@ -212,6 +216,78 @@ if [[ -f "$FLOW" && -f "$STATE" ]]; then
     missing=1
   fi
 fi
+
+validate_learning_mode_file() {
+  local file="$1"
+  if [[ -f "$file" ]]; then
+    if ! awk -F '\t' '
+      NR == 1 && $0 != "# selected_at\tmode\tdescription" {
+        printf "invalid learning mode header in %s\n", FILENAME > "/dev/stderr"
+        bad = 1
+      }
+      NR > 1 {
+        count++
+        if (NF != 3) {
+          printf "invalid learning mode column count in %s: %d\n", FILENAME, NF > "/dev/stderr"
+          bad = 1
+        }
+        if ($1 == "" || $2 == "" || $3 == "") {
+          printf "empty learning mode field in %s\n", FILENAME > "/dev/stderr"
+          bad = 1
+        }
+        if ($2 !~ /^[ABC]$/) {
+          printf "invalid learning mode in %s: %s\n", FILENAME, $2 > "/dev/stderr"
+          bad = 1
+        }
+      }
+      END {
+        if (count > 1) {
+          printf "multiple learning mode records in %s: %d\n", FILENAME, count > "/dev/stderr"
+          bad = 1
+        }
+        exit bad
+      }
+    ' "$file"; then
+      missing=1
+    fi
+  fi
+}
+
+validate_language_file() {
+  local file="$1"
+  if [[ -f "$file" ]]; then
+    if ! awk -F '\t' '
+      NR == 1 && $0 != "# selected_at\tcode\tlabel" {
+        printf "invalid language header in %s\n", FILENAME > "/dev/stderr"
+        bad = 1
+      }
+      NR > 1 {
+        count++
+        if (NF != 3) {
+          printf "invalid language column count in %s: %d\n", FILENAME, NF > "/dev/stderr"
+          bad = 1
+        }
+        if ($1 == "" || $2 == "" || $3 == "") {
+          printf "empty language field in %s\n", FILENAME > "/dev/stderr"
+          bad = 1
+        }
+      }
+      END {
+        if (count > 1) {
+          printf "multiple language records in %s: %d\n", FILENAME, count > "/dev/stderr"
+          bad = 1
+        }
+        exit bad
+      }
+    ' "$file"; then
+      missing=1
+    fi
+  fi
+}
+
+validate_learning_mode_file "$ROOT/learning/LESSON_MODE.tsv"
+validate_language_file "$ROOT/learning/WORKFLOW_DISPLAY_LANGUAGE.tsv"
+validate_language_file "$ROOT/learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv"
 
 if [[ $missing -ne 0 ]]; then
   printf '\nLesson structure check failed.\n' >&2

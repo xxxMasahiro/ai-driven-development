@@ -2,16 +2,18 @@
 
 ## Current Status
 
-The lesson repository includes mechanical enforcement, flexible lesson entry, Free Development Mode, Team Development and Docker advanced module, dialogue-centered learning, initial as-built synchronization checks, sub-agent review protocol, menu/dashboard/illustration entry points, and lesson-side aggregate testing.
+The lesson repository includes mechanical enforcement, flexible lesson entry, Free Development Mode, Team Development and Docker advanced module, dialogue-centered learning, as-built synchronization checks, sub-agent review protocol, menu/dashboard/illustration entry points, 7-day and 14-day lesson language controls, and lesson-side aggregate testing.
 
-The 2026-06-02 unfinished developer-memory audit found that several recorded requirements are not fully implemented or mechanically enforced yet.
-The current task is to keep the existing functionality intact while synchronizing and then implementing the remediation plan recorded in `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md`.
+The current task implements the follow-up requirement that 7-day lessons must have the same learning-mode, workflow display language, and product development language controls that were added to the 14-day lesson.
+The implementation remains additive and keeps the existing 7-day lesson, 14-day lesson, free-development flow, advanced modules, existing checks, and repository-boundary behavior intact.
 
 ## Completed
 
 - Recorded developer feedback in `docs/memory/DEVELOPER_MEMORY.md`.
 - Added 14-day approval receipts and enforcement.
-- Added learning mode A/B/C selection and switching.
+- Added learning mode A/B/C selection and switching for 7-day and 14-day lessons.
+- Added workflow display language and product development language controls for 7-day and 14-day lessons.
+- Added setup.index gates so both structured lessons require learning mode, workflow display language, and product development language before passing the entry step.
 - Added learner-selected start position commands for 7-day and 14-day lessons.
 - Added 14-day runtime reset command.
 - Added `tools/check_developer_memory_requirements.sh`.
@@ -29,6 +31,7 @@ The current task is to keep the existing functionality intact while synchronizin
 - Added sub-agent review protocol checks.
 - Added lesson-repository aggregate test.
 - Added product-gate tool tests that use a temporary product repository and fake CI response.
+- Added `tools/test_lesson.sh` for 7-day setup gating and settings regression coverage.
 - Added a non-English Markdown listing tool for translation follow-up.
 - Added learner-facing menu, dashboard, and illustration review entry points.
 - Documented implementation quality constraints: refactorability, ecosystem fit, reusability, and generality.
@@ -40,21 +43,21 @@ The current task is to keep the existing functionality intact while synchronizin
   - `docs/workflow/TASK_TRACKER.md`
   - `docs/workflow/HANDOFF.md`
 
-## Open Remediation Backlog
+## Implemented Remediation Summary
 
-The following items are open until implemented and mechanically verified:
+The following developer-memory remediation items are implemented and mechanically verified:
 
 1. Add shared document-path support for design/as-built, workflow-state, and memory/decision documents.
 2. Safely migrate role-specific Markdown documents into directories while keeping `AGENTS.MD` at root.
 3. Replace learner-facing `Day N` labels with `Step N` labels where practical.
 4. Hide internal step IDs from ordinary learner-facing output.
-5. Implement separate workflow display language and product development language settings.
+5. Implement separate workflow display language and product development language settings for both structured lessons.
 6. Enforce learner-facing learning-mode display names while preserving A/B/C internal IDs.
 7. Strengthen start/pass approval gates and approval/action pairing checks.
 8. Improve passage prompts and copy-paste command-block explanations.
 9. Enforce `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as a synchronized workflow-state pair.
 10. Strengthen as-built synchronization beyond shallow topic checks.
-11. Expand CLI dashboard lesson and development views to match developer-memory requirements.
+11. Expand CLI dashboard lesson and development views to match developer-memory requirements, including separate 7-day and 14-day language settings.
 12. Complete illustration request metadata, generated-asset registration, and review-page display.
 13. Add an external-integration CLI path with `status`, `start`, and `gate`.
 14. Require Playwright checks for lesson-repository dashboard and illustration-review quality after dependencies are installed.
@@ -63,30 +66,29 @@ The following items are open until implemented and mechanically verified:
 
 ## Current Synchronization Task
 
-- Synchronize the remediation plan into the three design/as-built documents:
+- Synchronize the implemented 7-day parity change into the three design/as-built documents:
   - `docs/as-built/REQUIREMENTS.md`
   - `docs/as-built/SPECIFICATION.md`
   - `docs/as-built/IMPLEMENTATION_PLAN.md`
-- Synchronize the same plan into the two workflow-state documents:
+- Synchronize the same implemented state into the two workflow-state documents:
   - `docs/workflow/TASK_TRACKER.md`
   - `docs/workflow/HANDOFF.md`
-- Verify with xhigh sub-agent review and mechanical checks.
-- Treat the synchronization as passing only when the plan content is present in all five documents.
-- Preserve refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule while implementing the backlog.
+- Treat the synchronization as passing only when the implemented content is present in all five documents.
+- Preserve refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule while maintaining the implemented remediation.
 
 ## Verification Status
 
 Required lesson-side verification target:
 
 ```text
+7-day lesson CLI tests passed.
 Lesson repository test passed.
 ```
 
+Latest local verification reached this target after synchronizing the 7-day parity implementation.
 Real product operations testing remains available through `tools/test_production_operations.sh` when an external product repository is intentionally recreated.
 
 ## Remaining Work
 
-- Run final lesson-repository tests after synchronization edits.
-- Use xhigh sub-agent review to inspect consistency across the five planning/workflow documents.
-- Implement the open remediation backlog without existing-feature tradeoffs.
+- Commit and push only after all local checks pass.
 - Translate remaining learner-facing Markdown files to English using the audit output from `tools/list_non_english_docs.sh`.

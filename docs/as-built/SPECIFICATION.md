@@ -7,7 +7,12 @@
 - `tools/lesson` controls the 7-day lesson.
 - `tools/lesson14` controls the 14-day lesson.
 - `tools/lesson14 承認 <start|pass> <step_id> "memo"` records approval receipts.
+- `tools/lesson 学習モード <A|B|C>` records and switches 7-day explanation depth.
+- `tools/lesson 表示言語 <ja|en|ko|zh>` records 7-day workflow display language.
+- `tools/lesson 開発言語 <ja|en|ko|zh>` records 7-day product development language.
 - `tools/lesson14 学習モード <A|B|C>` records and switches explanation depth.
+- `tools/lesson14 表示言語 <ja|en|ko|zh>` records 14-day workflow display language.
+- `tools/lesson14 開発言語 <ja|en|ko|zh>` records 14-day product development language.
 - `tools/lesson 開始位置 <step_id> --confirm` changes the 7-day start position intentionally.
 - `tools/lesson14 開始位置 <step_id> --confirm` changes the 14-day start position intentionally.
 - `tools/lesson14 初期化 --confirm` resets 14-day runtime state for a fresh run.
@@ -18,7 +23,9 @@
 - A: detailed explanation.
 - B: brief supplemental explanation.
 - C: workflow only.
-- Mode can be changed during the lesson.
+- Mode can be changed during either structured lesson.
+- 7-day `setup.index` cannot pass until learning mode, workflow display language, and product development language are selected.
+- 14-day `setup.index` cannot pass until learning mode, workflow display language, and product development language are selected.
 
 ### Dialogue And Sub-Agent Learning
 
@@ -51,7 +58,7 @@
   - building and extending paths,
   - lesson-maintenance paths.
 - The menu explicitly shows the progression from Free Development Mode to product improvement to external integration.
-- `tools/dashboard lesson` shows lesson status, learning mode, helpdesk information, and developer-memory themes.
+- `tools/dashboard lesson` shows 14-day lesson status, 7-day lesson status, both lesson language settings, learning mode labels, helpdesk information, and developer-memory themes.
 - `tools/dashboard development` shows product repository status and workflow document presence when a product repository exists.
 - `tools/dashboard illustrations` shows illustration request and review records.
 - `tools/dashboard all` combines the lesson, development, and illustration views.
@@ -77,7 +84,7 @@
 - Checks should be composable so they can run independently or through `tools/test_lesson_repository.sh`.
 - Free Development Mode must stay stack-agnostic so learners can choose their ecosystem.
 - No implementation may trade away an existing feature to add a new one.
-- Planned remediation must remain refactorable, ecosystem-friendly, reusable, and general.
+- Remediation must remain refactorable, ecosystem-friendly, reusable, and general.
 
 ### Verification
 
@@ -90,13 +97,15 @@
 - `tools/check_developer_memory_requirements.sh` validates that developer-memory requirements are represented mechanically.
 - `tools/menu`, `tools/dashboard`, and `tools/illustrations` validate the menu, dashboard, and illustration entry points at runtime.
 - `tools/test_lesson_start_position.sh` validates learner-selected start positions.
+- `tools/test_lesson.sh` validates 7-day CLI behavior, including learning mode, workflow display language, product development language, and setup gating.
 - `tools/test_lesson14.sh` validates lesson14 CLI behavior.
 - `tools/test_lesson_repository.sh` runs the lesson-side validation suite without requiring `task-tracker-repository`.
 - `tools/test_production_operations.sh` validates the end-to-end production operations path when an external product repository exists.
+- Latest local verification for the 7-day parity change passed `./tools/test_lesson.sh` and `./tools/test_lesson_repository.sh`.
 
-## Planned Remediation Specification
+## Implemented Remediation Specification
 
-The following specifications describe the target state for the unfinished developer-memory audit.
+The following specifications describe the implemented developer-memory remediation state.
 They are additive to the current as-built components and must not weaken or replace existing lesson behavior.
 
 ### Role-Based Document Organization
@@ -117,11 +126,13 @@ They are additive to the current as-built components and must not weaken or repl
 
 ### Language Settings
 
-- Workflow display language and product development language are separate settings.
+- Workflow display language and product development language are separate settings in both 7-day and 14-day flows.
 - Workflow display language controls lesson guidance, dashboard text, prompts, and facilitation output.
 - Product development language controls generated or proposed product-side documents and product-facing text.
 - The lesson repository source remains English.
 - Dashboard and status commands show both settings when relevant.
+- 7-day settings are stored in `learning/LESSON_MODE.tsv`, `learning/WORKFLOW_DISPLAY_LANGUAGE.tsv`, and `learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv`.
+- 14-day settings are stored in `learning/LESSON_MODE_14_DAYS.tsv`, `learning/WORKFLOW_DISPLAY_LANGUAGE_14_DAYS.tsv`, and `learning/PRODUCT_DEVELOPMENT_LANGUAGE_14_DAYS.tsv`.
 
 ### Learning Mode Display Labels
 
@@ -134,9 +145,10 @@ They are additive to the current as-built components and must not weaken or repl
 
 ### Approval And Passage Guidance
 
-- Start actions require matching start approvals.
-- Pass actions require matching pass approvals.
-- Checks validate that approval/action pairs are complete and in the correct order.
+- 14-day start actions require matching start approvals.
+- 14-day pass actions require matching pass approvals.
+- Checks validate that 14-day approval/action pairs are complete and in the correct order.
+- 7-day progression keeps ordered runtime control and user-approval facilitation without adding receipt storage.
 - Start/pass prompts invite questions before continuing.
 - Command blocks are introduced with short learner-friendly explanations.
 
@@ -154,7 +166,7 @@ They are additive to the current as-built components and must not weaken or repl
 
 ### Dashboard Expansion
 
-- Lesson dashboard shows current step, progress, learning-mode label, workflow display language, product development language where relevant, helpdesk/question records, developer-memory open items, next approval, sync-gate status, and illustration availability.
+- Lesson dashboard shows current step, progress, 7-day and 14-day learning-mode labels, 7-day and 14-day workflow display language, 7-day and 14-day product development language, helpdesk/question records, developer-memory open items, next approval, sync-gate status, and illustration availability.
 - Development dashboard shows product repository, current objective, workflow document status, paired tracker/handoff synchronization, developer-memory items, Git status, real CI status when available, and next recommended action.
 - Dashboard data is structured so a future browser dashboard can reuse it without replacing CLI behavior.
 - Dashboard product status uses the same configured product repository path that product checks use.

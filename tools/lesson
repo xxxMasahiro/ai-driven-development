@@ -10,6 +10,9 @@ FLOW="$(lesson_flow_file)"
 STATE="$(lesson_state_file)"
 TRACKER="$(lesson_tracker_file)"
 HANDOFF="$(lesson_handoff_file)"
+LEARNING_MODE="$(lesson_learning_mode_file)"
+WORKFLOW_LANGUAGE="$(lesson_workflow_language_file)"
+PRODUCT_LANGUAGE="$(lesson_product_language_file)"
 COMMAND="${1:-}"
 [[ $# -gt 0 ]] && shift || true
 STAMP="$(date '+%Y-%m-%d %H:%M:%S')"
@@ -19,16 +22,20 @@ usage() {
 Usage:
   tools/lesson 現在地
   tools/lesson 一覧
+  tools/lesson 学習モード <A|B|C>
+  tools/lesson 表示言語 <ja|en|ko|zh>
+  tools/lesson 開発言語 <ja|en|ko|zh>
   tools/lesson 開始 <step_id>
   tools/lesson 開始位置 <step_id> --confirm
   tools/lesson 通過 <step_id> "メモ"
   tools/lesson 復習 <step_id>
 
 Aliases:
-  status, list, start, start-at, pass, complete, revisit
+  status, list, learning-mode, display-language, product-language, start, start-at, pass, complete, revisit
 
 Rules:
   - Only the current step can be started or passed.
+  - setup.index cannot be passed before learning mode, workflow display language, and product development language are selected.
   - A learner-selected start position requires the explicit --confirm flag.
   - Future locked steps cannot be started or passed.
   - Completed steps can be revisited freely.
@@ -36,7 +43,7 @@ USAGE
 }
 
 require_files() {
-  for file in "$FLOW" "$STATE" "$TRACKER" "$HANDOFF"; do
+  for file in "$FLOW" "$STATE" "$TRACKER" "$HANDOFF" "$LEARNING_MODE" "$WORKFLOW_LANGUAGE" "$PRODUCT_LANGUAGE"; do
     [[ -f "$file" ]] || { printf 'missing: %s\n' "$file" >&2; exit 1; }
   done
 }
@@ -83,6 +90,50 @@ next_step_after() {
 step_exists() {
   local step_id="$1"
   awk -F '\t' -v step="$step_id" '$1 !~ /^#/ && $2 == step { found=1 } END { exit found ? 0 : 1 }' "$FLOW"
+}
+
+set_learning_mode() {
+  lesson_set_learning_mode_file "$LEARNING_MODE" "${1:-}"
+}
+
+show_learning_mode() {
+  lesson_show_learning_mode_file "$LEARNING_MODE"
+}
+
+set_workflow_language() {
+  lesson_set_language_file "$WORKFLOW_LANGUAGE" "Workflow display language" "${1:-}"
+}
+
+show_workflow_language() {
+  lesson_show_language_file "$WORKFLOW_LANGUAGE" "workflow display language"
+}
+
+set_product_language() {
+  lesson_set_language_file "$PRODUCT_LANGUAGE" "Product development language" "${1:-}"
+}
+
+show_product_language() {
+  lesson_show_language_file "$PRODUCT_LANGUAGE" "product development language"
+}
+
+require_setup_settings() {
+  local missing=0
+  if ! lesson_current_learning_mode_file "$LEARNING_MODE" >/dev/null; then
+    printf 'Learning mode is required before passing setup.index.\n' >&2
+    printf 'Run: ./tools/lesson 学習モード <A|B|C>\n' >&2
+    missing=1
+  fi
+  if ! lesson_language_file_has_value "$WORKFLOW_LANGUAGE"; then
+    printf 'Workflow display language is required before passing setup.index.\n' >&2
+    printf 'Run: ./tools/lesson 表示言語 <ja|en|ko|zh>\n' >&2
+    missing=1
+  fi
+  if ! lesson_language_file_has_value "$PRODUCT_LANGUAGE"; then
+    printf 'Product development language is required before passing setup.index.\n' >&2
+    printf 'Run: ./tools/lesson 開発言語 <ja|en|ko|zh>\n' >&2
+    missing=1
+  fi
+  [[ "$missing" -eq 0 ]] || exit 1
 }
 
 step_label() {
@@ -157,6 +208,9 @@ status() {
     printf 'Current step: all steps completed\n'
   fi
   printf '\nUse:\n'
+  printf '  ./tools/lesson 学習モード <A|B|C>\n'
+  printf '  ./tools/lesson 表示言語 <ja|en|ko|zh>\n'
+  printf '  ./tools/lesson 開発言語 <ja|en|ko|zh>\n'
   printf '  ./tools/lesson 開始 <step_id>\n'
   printf '  ./tools/lesson 開始位置 <step_id> --confirm\n'
   printf '  ./tools/lesson 通過 <step_id> "メモ"\n'
@@ -304,6 +358,7 @@ pass_step() {
 
   case "$state" in
     current)
+      [[ "$step_id" != "setup.index" ]] || require_setup_settings
       rewrite_state_for_pass "$step_id" "$next"
       append_tracker "通過" "$step_id" "$memo"
       append_handoff "通過" "$step_id" "$memo"
@@ -359,6 +414,27 @@ case "$COMMAND" in
     ;;
   一覧|list)
     list_steps
+    ;;
+  学習モード|learning-mode|mode)
+    if [[ $# -eq 0 ]]; then
+      show_learning_mode
+    else
+      set_learning_mode "$1"
+    fi
+    ;;
+  表示言語|display-language|workflow-language)
+    if [[ $# -eq 0 ]]; then
+      show_workflow_language
+    else
+      set_workflow_language "$1"
+    fi
+    ;;
+  開発言語|product-language|development-language)
+    if [[ $# -eq 0 ]]; then
+      show_product_language
+    else
+      set_product_language "$1"
+    fi
     ;;
   開始|start)
     start_step "${1:-}"

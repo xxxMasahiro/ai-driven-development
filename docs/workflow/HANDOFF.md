@@ -2,15 +2,17 @@
 
 ## Current State
 
-The lesson repository is in a developer-memory remediation planning synchronization phase.
+The lesson repository is in a 7-day lesson parity remediation phase.
 The current validation scope is lesson-side only; it must not recreate or depend on `task-tracker-repository`.
 Existing 7-day lessons, 14-step lessons, free-development flow, advanced modules, checks, and repository-boundary behavior must not be weakened or replaced.
-Future implementation must preserve refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule.
+The implementation adds 7-day learning-mode, workflow display language, and product development language controls while preserving refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule.
 
 ## Key Implemented Capabilities
 
 - 14-day approval enforcement.
-- Learning mode A/B/C selection and switching.
+- Learning mode A/B/C selection and switching for 7-day and 14-day lessons.
+- Workflow display language and product development language selection for 7-day and 14-day lessons.
+- Entry-step gates requiring learning mode, workflow display language, and product development language before passing `setup.index` in both structured lesson versions.
 - Learner-selected start positions.
 - Free Development Mode.
 - Team Development and Docker advanced module.
@@ -25,22 +27,22 @@ Future implementation must preserve refactorability, ecosystem fit, reusable des
 - Real product operations test for explicit product-repository runs.
 - Quality constraints: refactorability, ecosystem fit, reusability, generality, and no existing-feature tradeoffs.
 
-## Open Remediation Plan
+## Implemented Remediation Plan
 
-The 2026-06-02 unfinished developer-memory audit must be implemented additively.
-The synchronized plan covers these items:
+The 2026-06-02 developer-memory audit has been implemented additively.
+The synchronized implemented state covers these items:
 
 1. Shared document-path support.
 2. Safe role-based Markdown document migration.
 3. Learner-facing `Day N` to `Step N` wording.
 4. Internal step ID hiding in ordinary learner-facing output.
-5. Separate workflow display language and product development language settings.
+5. Separate workflow display language and product development language settings for both structured lessons.
 6. Learning-mode display labels for A/B/C.
 7. Stronger start/pass approval gate pairing.
 8. Question-inviting passage prompts and command-block explanations.
 9. Paired `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` synchronization checks.
 10. Stronger as-built synchronization checks.
-11. Expanded CLI dashboard views.
+11. Expanded CLI dashboard views, including separate 7-day and 14-day language settings.
 12. Completed illustration metadata, asset registration, and review page.
 13. External-integration CLI path with `status`, `start`, and `gate`.
 14. Required lesson-repository Playwright checks after dependencies are installed.
@@ -66,6 +68,7 @@ tools/check_review_protocol.sh
 tools/menu
 tools/dashboard
 tools/illustrations
+tools/test_lesson.sh
 tools/test_lesson_repository.sh
 tools/test_product_gate_tools.sh
 tools/test_production_operations.sh
@@ -73,8 +76,8 @@ tools/test_production_operations.sh
 
 ## Next Step
 
-Verify that the remediation plan is synchronized across the three design/as-built documents and two workflow-state documents.
-Then run the lesson-side verification sequence:
+The implemented 7-day parity change is synchronized across the three design/as-built documents and two workflow-state documents.
+Latest local verification passed the lesson-side verification sequence:
 
 ```bash
 ./tools/check_lesson_structure.sh
@@ -85,10 +88,17 @@ Then run the lesson-side verification sequence:
 ./tools/check_review_protocol.sh
 ./tools/check_developer_memory_requirements.sh
 ./tools/test_lesson_start_position.sh
+./tools/test_lesson.sh
 ./tools/test_lesson14.sh
 ./tools/test_product_gate_tools.sh
 ./tools/test_lesson_repository.sh
 ```
 
-Use xhigh sub-agent review results to fix any remaining synchronization inconsistencies before implementing the remediation backlog.
+The expected terminal evidence is:
+
+```text
+7-day lesson CLI tests passed.
+Lesson repository test passed.
+```
+
 Run `tools/test_production_operations.sh` only when a product repository is intentionally present.

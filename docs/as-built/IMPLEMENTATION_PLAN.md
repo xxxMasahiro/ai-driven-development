@@ -5,7 +5,7 @@
 1. Record developer feedback in `docs/memory/DEVELOPER_MEMORY.md`.
 2. Add documentation and protocol updates for 14-day lesson facilitation.
 3. Add mechanical approval enforcement for `tools/lesson14`.
-4. Add learning-mode recording and switching.
+4. Add learning-mode recording and switching for 7-day and 14-day lessons.
 5. Add learner-selected start position support for 7-day and 14-day flows.
 6. Add a reset path for 14-day runtime state.
 7. Add `tools/check_developer_memory_requirements.sh`.
@@ -28,11 +28,13 @@
     - `docs/as-built/IMPLEMENTATION_PLAN.md`
     - `docs/workflow/TASK_TRACKER.md`
     - `docs/workflow/HANDOFF.md`
-22. Preserve existing behavior while keeping additions refactorable, reusable, ecosystem-friendly, and general.
+22. Add workflow display language and product development language settings for 7-day and 14-day lessons.
+23. Add `tools/test_lesson.sh` for 7-day setup gating and setting regression coverage.
+24. Preserve existing behavior while keeping additions refactorable, reusable, ecosystem-friendly, and general.
 
-## Planned Remediation Plan
+## Implemented Remediation Plan
 
-This plan implements the unfinished developer-memory audit.
+This plan implements the developer-memory audit.
 It is additive and must not trade away existing 7-day lessons, 14-step lessons, free-development flow, advanced modules, existing checks, or repository-boundary behavior.
 
 1. Add shared document-path support.
@@ -58,9 +60,9 @@ It is additive and must not trade away existing 7-day lessons, 14-step lessons, 
    - Validate dashboard/status output against this rule.
 
 5. Implement language settings.
-   - Add workflow display language state.
-   - Add product development language state.
-   - Add CLI commands and status output for both settings.
+   - Add workflow display language state for 7-day and 14-day lessons.
+   - Add product development language state for 7-day and 14-day lessons.
+   - Add CLI commands and status output for both settings in `tools/lesson` and `tools/lesson14`.
    - Show both settings in dashboard output where relevant.
    - Add tests for selection, switching, and required prompts before product development.
 
@@ -91,7 +93,7 @@ It is additive and must not trade away existing 7-day lessons, 14-step lessons, 
     - Keep topic checks only as a supporting signal, not the primary pass condition.
 
 11. Expand the CLI dashboard.
-    - Lesson view shows current step, progress, learning-mode label, workflow display language, product development language where relevant, helpdesk/question records, developer-memory open items, next approval, sync-gate status, and illustration availability.
+    - Lesson view shows current step, progress, 7-day and 14-day learning-mode labels, workflow display language, product development language where relevant, helpdesk/question records, developer-memory open items, next approval, sync-gate status, and illustration availability.
     - Development view shows product repository, current objective, workflow document status, paired tracker/handoff synchronization, developer-memory items, Git status, real CI status when available, and next recommended action.
     - Keep dashboard data reusable for a future browser dashboard.
 
@@ -139,6 +141,7 @@ Run:
 ./tools/dashboard all
 ./tools/illustrations list
 ./tools/test_lesson_start_position.sh
+./tools/test_lesson.sh
 ./tools/test_lesson14.sh
 ./tools/test_product_gate_tools.sh
 ./tools/test_lesson_repository.sh
@@ -146,7 +149,14 @@ Run:
 
 Run `./tools/test_production_operations.sh` only when an external product repository is intentionally present.
 
-After the remediation plan is implemented, the verification sequence must also include the new document-organization, workflow-pair synchronization, strengthened as-built synchronization, external-integration, Playwright, CI/pre-commit, and failure-path tests introduced by this plan.
+The verification sequence also includes document-organization, workflow-pair synchronization, strengthened as-built synchronization, external-integration, Playwright, CI/pre-commit, and failure-path tests introduced by this plan.
+
+Latest local verification for the 7-day parity change passed:
+
+```text
+7-day lesson CLI tests passed.
+Lesson repository test passed.
+```
 
 ## Acceptance Criteria
 
@@ -158,4 +168,4 @@ After the remediation plan is implemented, the verification sequence must also i
 - Product repository boundary, Git sync, and CI checks remain available for explicit real product operations testing.
 - All as-built documents describe the same implemented state.
 - Lesson repository test prints `Lesson repository test passed.`
-- Every unfinished developer-memory audit item is implemented, synchronized into the five planning/workflow documents, and backed by a mechanical check.
+- Every developer-memory audit item is implemented, synchronized into the five planning/workflow documents, and backed by a mechanical check.
