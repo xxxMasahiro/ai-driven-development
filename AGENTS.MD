@@ -10,11 +10,13 @@
 
 ```text
 1. AGENTS.MDを読む
-2. ルーティングテーブルで入口を選ぶ
-3. 選んだ入口ドキュメントを読む
-4. 必要なrepo-local skillを読む
-5. 対応する検査コマンドで現在地を確認する
-6. ユーザーには現在地、次の一問、必要なコピペ用プロンプトだけを提示する
+2. ユーザーが7日版か14日版を明示していない場合は、先にどちらで進めるか質問する
+3. 14日版で学習モードが未指定の場合は、A/B/Cのどれで進めるか質問する
+4. ルーティングテーブルで入口を選ぶ
+5. 選んだ入口ドキュメントを読む
+6. 必要なrepo-local skillを読む
+7. 対応する検査コマンドで現在地を確認する
+8. ユーザーには現在地、次の一問、必要なコピペ用プロンプトだけを提示し、承認を待つ
 ```
 
 既定の入口:
@@ -34,8 +36,8 @@
 2. 既存機能とのトレードオフは一切禁止する。
    7日版、14日版、既存CI、既存チェック、既存ドキュメント導線を壊して新機能を入れることはできません。追加は既存機能と両立する形にします。
 
-3. コード実装は、再利用性、リファクタリング性、汎用性、変更可能性を満たす。
-   固定値や場当たり的な分岐を増やさず、既存の設定ファイル、共通ライブラリ、検査コマンド、repo-local skills と接続できる設計にします。
+3. 実装とテストは、リファクタリング性、エコシステム性、再利用性、汎用性を満たす。
+   固定値や場当たり的な分岐を増やさず、既存の設定ファイル、共通ライブラリ、検査コマンド、repo-local skills と接続できる設計にします。新しい検査は単体でも集約テストからでも使えるようにし、特定の成果物スタックだけに依存させません。
 
 4. `AGENTS.MD` と `AGENT.md` を混同しない。
    `AGENTS.MD` は本教材リポジトリで最初に読むエージェント入口です。`AGENT.md` は成果物リポジトリ側で作るメモリー文書です。
@@ -46,29 +48,38 @@
 6. 14日版レッスンは拡張版として扱う。
    14日版は `index-14-days.md`、`lesson/LESSON_FLOW_14_DAYS.tsv`、`learning/LESSON_STATE_14_DAYS.tsv`、`tools/lesson14` を使います。
 
-7. 未来ステップへのスキップは禁止する。
-   7日版は `tools/lesson`、14日版は `tools/lesson14` の現在地だけを進めます。完了済みステップだけ復習できます。
+7. 通常進行での未来ステップへのスキップは禁止する。
+   7日版は `tools/lesson`、14日版は `tools/lesson14` の現在地だけを進めます。完了済みステップだけ復習できます。学習者が学びたい項目から開始したい場合だけ、`開始位置 <step_id> --confirm` で現在地を変更できます。
 
-8. 教材リポジトリと成果物リポジトリを入れ子にしない。
+8. 各レッスン項目は、次へ進む前に必ずユーザー承認を得る。
+   `開始`、作業実行、`通過`、次項目への移動を連続実行しません。現在地、目的、これから行うこと、必要なコピペ用プロンプトを提示し、「進めてよいですか？」への明示的な返答を待ちます。
+
+9. 教材リポジトリと成果物リポジトリを入れ子にしない。
    成果物リポジトリは標準では `$HOME/projects/task-tracker-repository` です。作業前に必要なら `tools/check_repository_boundary.sh` を実行します。
 
-9. 14日版の学習記録は14日版専用ファイルへ書く。
+10. 14日版の学習記録は14日版専用ファイルへ書く。
    `learning/LEARNING_TASK_TRACKER_14_DAYS.md` と `learning/LEARNING_HANDOFF_14_DAYS.md` を使い、7日版の学習記録とは混ぜません。
 
-10. 同期ゲートを省略しない。
+11. 同期ゲートを省略しない。
    14日版では `lesson/SYNC_GATES_14_DAYS.tsv` を正本とし、必要な Git 同期、CI 確認、文書同期を完了してから `tools/lesson14 通過` を実行します。
 
-11. 危険操作、認証操作、曖昧な書き込みはユーザー確認を先に行う。
+12. 危険操作、認証操作、曖昧な書き込みはユーザー確認を先に行う。
    認証情報、SSH鍵、GitHub device flow、破壊的 Git 操作、成果物リポジトリの公開や削除は確認なしに進めません。
 
-12. 書き込み前にリポジトリ文脈を確認する。
+13. 書き込み前にリポジトリ文脈を確認する。
    教材側で作業しているのか、成果物側で作業しているのかを `pwd`、`git rev-parse --show-toplevel`、境界チェックで確認します。
 
-13. repo-local skills を優先して使う。
+14. repo-local skills を優先して使う。
    14日版進行、同期ゲート、成果物文書作成に該当する作業では `skills/` 配下の該当スキルを読んでから進めます。
 
-14. テストを通してから完了する。
+15. テストを通してから完了する。
     既存チェック、14日版チェック、AGENTS/skillsチェック、必要な GitHub Actions を確認します。
+
+16. 14日版の説明量は学習モードに従う。
+    Aは目的、利便性、専門用語、作業内容を詳しく説明します。Bは専門用語を短く補足します。Cは説明を省き、ワークフローのみ進めます。
+
+17. エージェントとの壁打ちを教材の中核として扱う。
+    学習者の目的、利用者、制約、優先順位を質問で引き出し、要件、仕様、実装計画、検証方法へ整理します。サブエージェントを使う場合は、各担当の観点を統括役が目的に照らして採用、保留、却下します。
 
 ## ドキュメントルート
 
@@ -92,10 +103,13 @@
 
 | ユーザー意図 | 最初に読む | 使うスキル | 主なコマンド |
 | --- | --- | --- | --- |
+| メニューを表示したい | `DEVELOPER_MEMORY.md` のメニュー方針、`README.md` | なし | `./tools/menu` |
+| ダッシュボードを見たい | `DEVELOPER_MEMORY.md` のダッシュボード方針 | なし | `./tools/dashboard all` |
 | 公開リポジトリから開始したい | `README.md` | なし | `git clone`、`./tools/lesson status` |
 | レッスン開始、再開、現在地確認 | 意図に応じて `index.md` または `index-14-days.md` | 14日版なら `skills/lesson14-facilitator/SKILL.md` | `./tools/lesson status` または `./tools/lesson14 status` |
 | 7日版を進めたい | `index.md` | なし | `./tools/check_lesson_structure.sh`、`./tools/lesson status` |
 | 14日版を進めたい | `index-14-days.md` | `skills/lesson14-facilitator/SKILL.md` | `./tools/check_lesson14_structure.sh`、`./tools/lesson14 status` |
+| 7日版か14日版を選びたい | `README.md`、`index.md`、`index-14-days.md` | `skills/lesson14-facilitator/SKILL.md` | 版選択、学習モード選択 |
 | 現在地やロードマップを知りたい | `learning/ROADMAP.md` | `skills/lesson14-facilitator/SKILL.md` | `./tools/roadmap status` |
 | GitHub初期設定を進めたい | `github-login-setup-guide.md` | `skills/github-login-onboarding/SKILL.md` | `gh auth status -h github.com`、`ssh -T github.com` |
 | 学習進捗、再開、中断、つまずき相談 | `learning/ROADMAP.md`、`learning/HELP_DESK.md` | `skills/learning-progress-helpdesk/SKILL.md` | `./tools/roadmap status`、`./tools/helpdesk 相談 "..."` |
@@ -106,6 +120,10 @@
 | Playwright E2Eを扱う | `prompts/PROMPTS_14_DAYS.md` Day 10-11 | `skills/lesson-sync-gate/SKILL.md` | ローカルE2E、CI、失敗復旧 |
 | サブエージェントで精査する | `playbooks/AGENT_PLAYBOOK_14_DAYS.md` Day 12 | `skills/lesson-sync-gate/SKILL.md` | レビュー、テスト、同期確認 |
 | スキル/MCPを体験する | `prompts/PROMPTS_14_DAYS.md` Day 13 | `skills/lesson14-facilitator/SKILL.md` | 最小構成で実施 |
+| 全レッスン後に自由開発したい | `free-development/FREE_DEVELOPMENT_MODE.md` | `skills/worklog-doc-sync/SKILL.md`、`skills/lesson-sync-gate/SKILL.md` | `./tools/free-development start`、`./tools/free-development gate` |
+| 外部連携へ発展させたい | `free-development/FREE_DEVELOPMENT_MODE.md`、`prompts/PROMPTS_14_DAYS.md` Day 13 | `skills/lesson14-facilitator/SKILL.md`、`skills/worklog-doc-sync/SKILL.md` | 自由開発または既存成果物の要件・仕様から連携設計 |
+| 教材そのものを改善したい | `DEVELOPER_MEMORY.md`、`TASK_TRACKER.md`、`HANDOFF.md` | `skills/lesson-sync-gate/SKILL.md` | `./tools/dashboard all`、各種チェック |
+| 発展的にチーム開発とDockerを学びたい | `advanced/TEAM_DEVELOPMENT_DOCKER.md` | `skills/lesson-sync-gate/SKILL.md`、`skills/worklog-doc-sync/SKILL.md` | `./tools/team-development start`、`./tools/team-development gate` |
 
 ## repo-local skills
 

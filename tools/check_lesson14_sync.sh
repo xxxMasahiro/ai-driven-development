@@ -14,6 +14,8 @@ ROADMAP="$(lesson_abs_path "$(lesson_config_get roadmap_file "learning/ROADMAP.m
 HELP_DESK="$(lesson_abs_path "$(lesson_config_get helpdesk_file "learning/HELP_DESK.md")")"
 SYNC_GATES="$(lesson_abs_path "$(lesson_config_get sync_gates_file "lesson/SYNC_GATES_14_DAYS.tsv")")"
 PROMPTS="$(lesson_abs_path "$(lesson_config_get prompt_file "prompts/PROMPTS_14_DAYS.md")")"
+APPROVALS="$(lesson_approval_file)"
+LEARNING_MODE="$(lesson_learning_mode_file)"
 INDEX="$ROOT/index-14-days.md"
 GUIDE="$ROOT/guides/LESSON_14_DAYS.md"
 PLAYBOOK="$ROOT/playbooks/AGENT_PLAYBOOK_14_DAYS.md"
@@ -32,7 +34,7 @@ require_pattern() {
   fi
 }
 
-for file in "$FLOW" "$STATE" "$ROADMAP" "$HELP_DESK" "$SYNC_GATES" "$PROMPTS" "$INDEX" "$GUIDE" "$PLAYBOOK" "$TRACKER" "$HANDOFF"; do
+for file in "$FLOW" "$STATE" "$ROADMAP" "$HELP_DESK" "$SYNC_GATES" "$PROMPTS" "$APPROVALS" "$LEARNING_MODE" "$INDEX" "$GUIDE" "$PLAYBOOK" "$TRACKER" "$HANDOFF"; do
   if [[ ! -f "$file" ]]; then
     printf 'missing: %s\n' "$file" >&2
     missing=1
@@ -48,6 +50,14 @@ require_pattern "$FLOW" '^001[[:space:]]+setup\.index[[:space:]]+Setup[[:space:]
 require_pattern "$PROMPTS" 'index-14-days\.md' "14-day prompt entry"
 require_pattern "$INDEX" 'LEARNING_TASK_TRACKER_14_DAYS\.md' "14-day tracker reference"
 require_pattern "$INDEX" 'LEARNING_HANDOFF_14_DAYS\.md' "14-day handoff reference"
+require_pattern "$INDEX" 'tools/lesson14 承認' "14-day approval command"
+require_pattern "$INDEX" 'tools/lesson14 学習モード' "14-day learning mode command"
+require_pattern "$PROMPTS" 'tools/lesson14 承認' "14-day approval prompt"
+require_pattern "$PROMPTS" '承認 start' "14-day start approval prompt"
+require_pattern "$PROMPTS" 'tools/lesson14 学習モード' "14-day learning mode prompt"
+require_pattern "$GUIDE" 'tools/lesson14 承認' "14-day approval guide"
+require_pattern "$GUIDE" '承認 start' "14-day start approval guide"
+require_pattern "$GUIDE" 'tools/lesson14 学習モード' "14-day learning mode guide"
 require_pattern "$PLAYBOOK" 'LEARNING_TASK_TRACKER_14_DAYS\.md' "14-day tracker playbook reference"
 require_pattern "$PLAYBOOK" 'LEARNING_HANDOFF_14_DAYS\.md' "14-day handoff playbook reference"
 if grep -Eq 'LEARNING_TASK_TRACKER\.md|LEARNING_HANDOFF\.md' "$SYNC_GATES"; then

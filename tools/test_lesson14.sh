@@ -10,10 +10,13 @@ mkdir -p "$HOME/projects"
 cp -a "$ROOT" "$work/lesson"
 cd "$work/lesson"
 
+./tools/lesson14 初期化 --confirm | grep 'reset to setup.index'
+
 ./tools/check_lesson_structure.sh
 ./tools/check_repository_boundary.sh >/dev/null
 ./tools/check_lesson14_structure.sh
 ./tools/check_lesson14_sync.sh
+./tools/check_developer_memory_requirements.sh
 ./tools/lesson14 現在地 | grep 'setup.index'
 ./tools/lesson14 一覧 | grep 'day14.complete'
 ./tools/roadmap 現在地 | grep 'setup.index'
@@ -66,12 +69,22 @@ grep 'pass memo is required' /tmp/lesson14-empty-pass.out >/dev/null
 ./tools/lesson14 復習 setup.index >/tmp/lesson14-revisit-current.out 2>&1 && exit 1 || true
 grep 'only completed steps' /tmp/lesson14-revisit-current.out >/dev/null
 
+./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した" >/tmp/lesson14-approval-required.out 2>&1 && exit 1 || true
+grep 'Approval required' /tmp/lesson14-approval-required.out >/dev/null
+
+./tools/lesson14 承認 pass setup.index "ユーザーがsetup.indexの通過を承認した"
+./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した" >/tmp/lesson14-mode-required.out 2>&1 && exit 1 || true
+grep 'Learning mode is required' /tmp/lesson14-mode-required.out >/dev/null
+./tools/lesson14 学習モード A | grep 'Learning mode recorded: A'
 ./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した"
 ./tools/lesson14 現在地 | grep 'setup.github-login'
 ./tools/lesson14 復習 setup.index | grep 'Revisit allowed'
 ./tools/lesson14 現在地 | grep 'setup.github-login'
+./tools/lesson14 承認 pass setup.github-login "ユーザーがsetup.github-loginの通過を承認した"
 ./tools/lesson14 通過 setup.github-login "GitHub接続を確認した"
 ./tools/lesson14 現在地 | grep 'day1.roadmap'
+./tools/lesson14 学習モード C | grep 'Learning mode recorded: C'
+./tools/lesson14 学習モード | grep 'Current learning mode: C'
 
 ./tools/helpdesk 相談 "テスト用の相談"
 ./tools/helpdesk 解決 "テスト用の解決"
@@ -95,6 +108,7 @@ awk -F '\t' -v OFS='\t' '
 mv "$tmp_state" learning/LESSON_STATE_14_DAYS.tsv
 git add .
 git -c user.name=Test -c user.email=test@example.com commit -m gate >/dev/null
+./tools/lesson14 承認 pass day3.sync-gate "ユーザーがDay 3同期ゲートの通過試行を承認した"
 ./tools/lesson14 通過 day3.sync-gate "should fail without product repository" >/tmp/lesson14-gate-product-missing.out 2>&1 && exit 1 || true
 grep 'expected product repository does not exist' /tmp/lesson14-gate-product-missing.out >/dev/null
 
@@ -189,6 +203,7 @@ awk -F '\t' -v OFS='\t' '
 mv "$tmp_state" learning/LESSON_STATE_14_DAYS.tsv
 git add .
 git -c user.name=Test -c user.email=test@example.com commit -m gate >/dev/null
+./tools/lesson14 承認 pass day14.release-readiness "ユーザーがDay 14 release readinessの通過試行を承認した"
 ./tools/lesson14 通過 day14.release-readiness "should fail without upstream" >/tmp/lesson14-gate-required.out 2>&1 && exit 1 || true
 grep 'Upstream: none' /tmp/lesson14-gate-required.out >/dev/null
 git -C "$product_repo" init --bare --initial-branch=main "$work/product-origin.git" >/dev/null

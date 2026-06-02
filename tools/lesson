@@ -20,14 +20,16 @@ Usage:
   tools/lesson 現在地
   tools/lesson 一覧
   tools/lesson 開始 <step_id>
+  tools/lesson 開始位置 <step_id> --confirm
   tools/lesson 通過 <step_id> "メモ"
   tools/lesson 復習 <step_id>
 
 Aliases:
-  status, list, start, pass, complete, revisit
+  status, list, start, start-at, pass, complete, revisit
 
 Rules:
   - Only the current step can be started or passed.
+  - A learner-selected start position requires the explicit --confirm flag.
   - Future locked steps cannot be started or passed.
   - Completed steps can be revisited freely.
 USAGE
@@ -150,6 +152,7 @@ status() {
   fi
   printf '\nUse:\n'
   printf '  ./tools/lesson 開始 <step_id>\n'
+  printf '  ./tools/lesson 開始位置 <step_id> --confirm\n'
   printf '  ./tools/lesson 通過 <step_id> "メモ"\n'
   printf '  ./tools/lesson 復習 <completed_step_id>\n'
 }
@@ -204,6 +207,37 @@ rewrite_state_for_pass() {
   mv "$tmp" "$STATE"
 }
 
+rewrite_state_for_start_at() {
+  local step_id="$1"
+  local tmp
+  tmp="$(mktemp "$STATE.tmp.XXXXXX")"
+  awk -F '\t' -v OFS='\t' -v step="$step_id" -v stamp="$STAMP" '
+    /^#/ { print; next }
+    $2 == step {
+      phase = "after"
+      $3 = "current"
+      $4 = stamp
+      $5 = ""
+      print
+      next
+    }
+    phase != "after" {
+      $3 = "completed"
+      if ($4 == "") $4 = stamp
+      if ($5 == "") $5 = stamp
+      print
+      next
+    }
+    {
+      $3 = "locked"
+      $4 = ""
+      $5 = ""
+      print
+    }
+  ' "$STATE" > "$tmp"
+  mv "$tmp" "$STATE"
+}
+
 start_step() {
   local step_id="$1"
   require_step "$step_id"
@@ -231,6 +265,21 @@ start_step() {
       exit 1
       ;;
   esac
+}
+
+start_at_step() {
+  local step_id="$1"
+  local confirm="${2:-}"
+  require_step "$step_id"
+  if [[ "$confirm" != "--confirm" ]]; then
+    printf 'Start position changes require explicit confirmation.\n' >&2
+    printf 'Run: ./tools/lesson 開始位置 %s --confirm\n' "$step_id" >&2
+    exit 1
+  fi
+  rewrite_state_for_start_at "$step_id"
+  append_tracker "開始位置" "$step_id" "学習者がこの項目から開始することを選択した。"
+  append_handoff "開始位置" "$step_id" "学習者指定により、この項目を現在地に設定した。"
+  printf 'Start position set to: %s\n' "$(step_label "$step_id")"
 }
 
 pass_step() {
@@ -307,6 +356,9 @@ case "$COMMAND" in
     ;;
   開始|start)
     start_step "${1:-}"
+    ;;
+  開始位置|start-at)
+    start_at_step "${1:-}" "${2:-}"
     ;;
   通過|完了|pass|complete)
     step="${1:-}"

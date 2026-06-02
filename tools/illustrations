@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+INDEX="$ROOT/illustrations/lesson14/index.tsv"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  ./tools/illustrations list
+  ./tools/illustrations request <step_id> <topic>
+
+This tool records learner requests for educational PNG illustrations.
+The agent still generates the actual PNG with imagegen, then stores it under:
+  illustrations/lesson14/<step_id>/<topic-slug>.png
+USAGE
+}
+
+slugify() {
+  printf '%s' "$1" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+//; s/-+$//'
+}
+
+list_items() {
+  if [[ ! -f "$INDEX" ]]; then
+    printf 'No illustration records yet.\n'
+    return 0
+  fi
+  awk -F '\t' '
+    BEGIN { printed = 0 }
+    $1 !~ /^#/ {
+      printf "- %s / %s / %s / %s\n", $1, $2, $3, $4
+      printed = 1
+    }
+    END {
+      if (!printed) print "No illustration records yet."
+    }
+  ' "$INDEX"
+}
+
+request_item() {
+  local step_id="${1:-}"
+  local topic="${2:-}"
+  [[ -n "$step_id" && -n "$topic" ]] || { usage >&2; exit 1; }
+  mkdir -p "$(dirname "$INDEX")"
+  if [[ ! -f "$INDEX" ]]; then
+    printf '# step_id\ttopic\tstatus\tasset_path\tnote\n' > "$INDEX"
+  fi
+  local slug asset
+  slug="$(slugify "$topic")"
+  [[ -n "$slug" ]] || slug="topic"
+  asset="illustrations/lesson14/$step_id/$slug.png"
+  mkdir -p "$ROOT/illustrations/lesson14/$step_id"
+  printf '%s\t%s\trequested\t%s\tGenerate a gentle educational PNG illustration with imagegen and update this status when complete.\n' "$step_id" "$topic" "$asset" >> "$INDEX"
+  printf 'Illustration request recorded: %s / %s\n' "$step_id" "$topic"
+  printf 'Expected asset path: %s\n' "$asset"
+}
+
+case "${1:-}" in
+  list|"")
+    list_items
+    ;;
+  request)
+    shift
+    request_item "$@"
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 1
+    ;;
+esac

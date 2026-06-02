@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$SCRIPT_DIR/lib/lesson_common.sh"
+
+COMMAND="${1:-status}"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  tools/free-development status
+  tools/free-development start
+  tools/free-development gate
+
+Rules:
+  - This mode is optional and starts only after the learner chooses it.
+  - It does not replace the 7-day or 14-day lesson flows.
+  - The learner may choose the language, framework, database, payment system, and tools.
+  - Product work must follow the repository workflow: stack choice, requirements, specification, implementation plan, task tracker, handoff, Git sync, tests, and CI.
+USAGE
+}
+
+case "$COMMAND" in
+  status|現在地)
+    printf 'Free Development Mode: optional\n'
+    printf 'Guide: %s\n' "$LESSON_ROOT/free-development/FREE_DEVELOPMENT_MODE.md"
+    printf 'Product repository: %s\n' "$(lesson_product_repo_root)"
+    ;;
+  start|開始)
+    printf 'Free Development Mode start prompt:\n\n'
+    sed -n '/^## Product Setup Prompt$/,/^## Completion Gate$/p' "$LESSON_ROOT/free-development/FREE_DEVELOPMENT_MODE.md" | sed '$d'
+    ;;
+  gate|確認)
+    "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    "$LESSON_ROOT/tools/check_git_sync.sh" --product --required
+    "$LESSON_ROOT/tools/check_ci_status.sh" --product --required
+    printf 'Free Development Mode gate passed.\n'
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    printf 'unknown command: %s\n' "$COMMAND" >&2
+    usage
+    exit 1
+    ;;
+esac

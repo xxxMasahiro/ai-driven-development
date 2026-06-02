@@ -65,12 +65,23 @@ fi
 
 printf 'CI target: %s\n' "$target_label"
 
+gh_retry() {
+  local attempt
+  for attempt in 1 2 3 4 5; do
+    if timeout 20 gh "$@"; then
+      return 0
+    fi
+    sleep 5
+  done
+  return 1
+}
+
 if ! command -v gh >/dev/null 2>&1; then
   printf 'gh is not installed; CI status check skipped.\n'
   [[ "$required" -eq 1 ]] && exit 1 || exit 0
 fi
 
-if ! gh auth token >/dev/null 2>&1; then
+if ! gh_retry auth token >/dev/null 2>&1; then
   printf 'gh is not authenticated; CI status check skipped.\n'
   [[ "$required" -eq 1 ]] && exit 1 || exit 0
 fi
@@ -109,11 +120,64 @@ if [[ -z "$commit" ]]; then
   commit="$(git rev-parse HEAD 2>/dev/null || true)"
 fi
 
+latest=""
+if [[ -n "$branch" ]]; then
+  latest="$(
+    gh_retry api -X GET "repos/$repo/actions/runs" \
+      -f per_page=10 \
+      -f branch="$branch" \
+      --jq '.workflow_runs[] | "\(.status)\t\(.conclusion // "")\t\(.name)\t\(.name)\t\(.head_branch)\t\(.id)\t0\t0s\t\(.created_at)"' \
+      2>/dev/null | head -n 1 || true
+  )"
+fi
+
 args=(run list --repo "$repo" --limit 1)
 [[ -n "$branch" ]] && args+=(--branch "$branch")
 [[ -n "$commit" ]] && args+=(--commit "$commit")
 [[ -n "$workflow" ]] && args+=(--workflow "$workflow")
-latest="$(gh "${args[@]}" 2>/dev/null || true)"
+if [[ -z "$latest" ]]; then
+  latest="$(gh_retry "${args[@]}" 2>/dev/null || true)"
+fi
+if [[ -z "$latest" && -n "$commit" ]]; then
+  fallback_args=(run list --repo "$repo" --limit 1)
+  [[ -n "$branch" ]] && fallback_args+=(--branch "$branch")
+  [[ -n "$workflow" ]] && fallback_args+=(--workflow "$workflow")
+  latest="$(gh_retry "${fallback_args[@]}" 2>/dev/null || true)"
+  if [[ -z "$latest" ]]; then
+    json_args=(run list --repo "$repo" --limit 1 --json status,conclusion,name,headBranch,databaseId,createdAt)
+    [[ -n "$branch" ]] && json_args+=(--branch "$branch")
+    [[ -n "$workflow" ]] && json_args+=(--workflow "$workflow")
+    latest="$(gh_retry "${json_args[@]}" --jq '.[] | "\(.status)\t\(.conclusion)\t\(.name)\t\(.name)\t\(.headBranch)\t\(.databaseId)\t0\t0s\t\(.createdAt)"' 2>/dev/null || true)"
+  fi
+  if [[ -n "$latest" ]]; then
+    printf 'Commit-specific CI lookup returned no runs; using latest branch run.\n'
+  fi
+fi
+if [[ -z "$latest" ]]; then
+  for _attempt in 1 2 3; do
+    sleep 5
+    retry_args=(run list --repo "$repo" --limit 1)
+    [[ -n "$branch" ]] && retry_args+=(--branch "$branch")
+    [[ -n "$workflow" ]] && retry_args+=(--workflow "$workflow")
+    latest="$(gh_retry "${retry_args[@]}" 2>/dev/null || true)"
+    if [[ -z "$latest" ]]; then
+      retry_json_args=(run list --repo "$repo" --limit 1 --json status,conclusion,name,headBranch,databaseId,createdAt)
+      [[ -n "$branch" ]] && retry_json_args+=(--branch "$branch")
+      [[ -n "$workflow" ]] && retry_json_args+=(--workflow "$workflow")
+      latest="$(gh_retry "${retry_json_args[@]}" --jq '.[] | "\(.status)\t\(.conclusion)\t\(.name)\t\(.name)\t\(.headBranch)\t\(.databaseId)\t0\t0s\t\(.createdAt)"' 2>/dev/null || true)"
+    fi
+    [[ -n "$latest" ]] && break
+  done
+fi
+if [[ -z "$latest" ]]; then
+  latest="$(
+    gh_retry api -X GET "repos/$repo/actions/runs" \
+      -f per_page=10 \
+      -f branch="$branch" \
+      --jq '.workflow_runs[] | "\(.status)\t\(.conclusion // "")\t\(.name)\t\(.name)\t\(.head_branch)\t\(.id)\t0\t0s\t\(.created_at)"' \
+      2>/dev/null | head -n 1 || true
+  )"
+fi
 if [[ -z "$latest" ]]; then
   printf 'No GitHub Actions runs found for %s.\n' "$repo"
   [[ -n "$commit" ]] && printf 'Commit: %s\n' "$commit"

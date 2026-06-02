@@ -10,6 +10,8 @@ source "$SCRIPT_DIR/lib/lesson_common.sh"
 
 FLOW="$(lesson_flow_file)"
 STATE="$(lesson_state_file)"
+APPROVALS="$(lesson_approval_file)"
+LEARNING_MODE="$(lesson_learning_mode_file)"
 ROADMAP="$(lesson_abs_path "$(lesson_config_get roadmap_file "learning/ROADMAP.md")")"
 HELP_DESK="$(lesson_abs_path "$(lesson_config_get helpdesk_file "learning/HELP_DESK.md")")"
 SYNC_GATES="$(lesson_abs_path "$(lesson_config_get sync_gates_file "lesson/SYNC_GATES_14_DAYS.tsv")")"
@@ -17,38 +19,79 @@ PROMPTS="$(lesson_abs_path "$(lesson_config_get prompt_file "prompts/PROMPTS_14_
 
 required_files=(
   "index-14-days.md"
+  "REQUIREMENTS.md"
+  "SPECIFICATION.md"
+  "IMPLEMENTATION_PLAN.md"
+  "TASK_TRACKER.md"
+  "HANDOFF.md"
+  "DEVELOPER_MEMORY.md"
   "guides/LESSON_14_DAYS.md"
   "playbooks/AGENT_PLAYBOOK_14_DAYS.md"
   "lesson/LESSON_CONFIG_14_DAYS.tsv"
   "lesson/LESSON_FLOW_14_DAYS.tsv"
   "lesson/SYNC_GATES_14_DAYS.tsv"
   "learning/LESSON_STATE_14_DAYS.tsv"
+  "learning/LESSON_APPROVALS_14_DAYS.tsv"
+  "learning/LESSON_MODE_14_DAYS.tsv"
   "learning/LEARNING_TASK_TRACKER_14_DAYS.md"
   "learning/LEARNING_HANDOFF_14_DAYS.md"
   "learning/ROADMAP.md"
   "learning/HELP_DESK.md"
+  "free-development/FREE_DEVELOPMENT_MODE.md"
+  "advanced/TEAM_DEVELOPMENT_DOCKER.md"
+  "advanced/DOCKER_PATHS.md"
+  "reviews/SUBAGENT_REVIEW_PROTOCOL.md"
   "prompts/PROMPTS_14_DAYS.md"
   "tools/lib/lesson_runtime.sh"
   "tools/lesson14"
   "tools/roadmap"
   "tools/helpdesk"
+  "tools/free-development"
+  "tools/team-development"
+  "tools/menu"
+  "tools/dashboard"
+  "tools/illustrations"
   "tools/check_lesson14_structure.sh"
   "tools/check_lesson14_sync.sh"
   "tools/check_git_sync.sh"
   "tools/check_ci_status.sh"
   "tools/check_agents_skills.sh"
+  "tools/check_as_built_docs.sh"
+  "tools/check_review_protocol.sh"
+  "tools/check_developer_memory_requirements.sh"
+  "tools/list_non_english_docs.sh"
+  "tools/test_lesson_repository.sh"
+  "tools/test_product_gate_tools.sh"
+  "tools/test_lesson_start_position.sh"
+  "tools/test_production_operations.sh"
   "tools/test_lesson14.sh"
+  "illustrations/README.md"
+  "illustrations/lesson14/index.tsv"
+  "illustration-review/index.html"
 )
 
 executable_files=(
   "tools/lesson14"
   "tools/roadmap"
   "tools/helpdesk"
+  "tools/free-development"
+  "tools/team-development"
+  "tools/menu"
+  "tools/dashboard"
+  "tools/illustrations"
   "tools/check_lesson14_structure.sh"
   "tools/check_lesson14_sync.sh"
   "tools/check_git_sync.sh"
   "tools/check_ci_status.sh"
   "tools/check_agents_skills.sh"
+  "tools/check_as_built_docs.sh"
+  "tools/check_review_protocol.sh"
+  "tools/check_developer_memory_requirements.sh"
+  "tools/list_non_english_docs.sh"
+  "tools/test_lesson_repository.sh"
+  "tools/test_product_gate_tools.sh"
+  "tools/test_lesson_start_position.sh"
+  "tools/test_production_operations.sh"
   "tools/test_lesson14.sh"
 )
 
@@ -193,6 +236,80 @@ fi
 
 if ! "$ROOT/tools/check_lesson14_sync.sh" >/dev/null; then
   "$ROOT/tools/check_lesson14_sync.sh" >&2 || true
+  missing=1
+fi
+
+if ! awk -F '\t' '
+  NR == FNR {
+    if ($1 !~ /^#/) flow[$2] = 1
+    next
+  }
+  FNR == 1 {
+    if ($0 != "# step_id\taction\tapproved_at\tmemo") {
+      printf "invalid approval header\n" > "/dev/stderr"
+      bad = 1
+    }
+    next
+  }
+  $1 !~ /^#/ {
+    if (NF != 4) {
+      printf "invalid approval column count at %s %s: %d\n", $1, $2, NF > "/dev/stderr"
+      bad = 1
+    }
+    if ($1 == "" || $2 == "" || $3 == "" || $4 == "") {
+      printf "empty approval field at %s %s\n", $1, $2 > "/dev/stderr"
+      bad = 1
+    }
+    if (!($1 in flow)) {
+      printf "approval step not in flow: %s\n", $1 > "/dev/stderr"
+      bad = 1
+    }
+    if ($2 != "start" && $2 != "pass") {
+      printf "invalid approval action at %s: %s\n", $1, $2 > "/dev/stderr"
+      bad = 1
+    }
+    key = $1 "\t" $2
+    if (seen[key]++) {
+      printf "duplicate approval receipt: %s %s\n", $1, $2 > "/dev/stderr"
+      bad = 1
+    }
+  }
+  END { exit bad }
+' "$FLOW" "$APPROVALS"; then
+  missing=1
+fi
+
+if ! awk -F '\t' '
+  FNR == 1 {
+    if ($0 != "# selected_at\tmode\tdescription") {
+      printf "invalid learning mode header\n" > "/dev/stderr"
+      bad = 1
+    }
+    next
+  }
+  $1 !~ /^#/ {
+    if (NF != 3) {
+      printf "invalid learning mode column count: %d\n", NF > "/dev/stderr"
+      bad = 1
+    }
+    if ($1 == "" || $2 == "" || $3 == "") {
+      printf "empty learning mode field\n" > "/dev/stderr"
+      bad = 1
+    }
+    if ($2 != "A" && $2 != "B" && $2 != "C") {
+      printf "invalid learning mode: %s\n", $2 > "/dev/stderr"
+      bad = 1
+    }
+    count++
+  }
+  END {
+    if (count > 1) {
+      printf "multiple learning mode records: %d\n", count > "/dev/stderr"
+      bad = 1
+    }
+    exit bad
+  }
+' "$LEARNING_MODE"; then
   missing=1
 fi
 

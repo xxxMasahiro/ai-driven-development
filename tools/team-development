@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$SCRIPT_DIR/lib/lesson_common.sh"
+
+COMMAND="${1:-status}"
+GUIDE="$LESSON_ROOT/advanced/TEAM_DEVELOPMENT_DOCKER.md"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  tools/team-development status
+  tools/team-development start
+  tools/team-development gate
+
+Rules:
+  - This is an advanced optional module.
+  - It does not replace the 7-day, 14-day, or Free Development Mode flows.
+  - Docker execution is required only when Docker is available and the learner chooses container implementation.
+USAGE
+}
+
+case "$COMMAND" in
+  status|現在地)
+    printf 'Team Development and Docker: optional advanced module\n'
+    printf 'Guide: %s\n' "$GUIDE"
+    if command -v docker >/dev/null 2>&1; then
+      docker --version
+    else
+      printf 'Docker: not installed in this environment\n'
+    fi
+    ;;
+  start|開始)
+    printf 'Team Development and Docker start prompt:\n\n'
+    sed -n '/^## Agent Prompt$/,/^## Sub-Agent Roles$/p' "$GUIDE" | sed '$d'
+    ;;
+  gate|確認)
+    [[ -f "$GUIDE" ]] || { printf 'missing: %s\n' "$GUIDE" >&2; exit 1; }
+    "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    "$LESSON_ROOT/tools/check_git_sync.sh" --product --required
+    "$LESSON_ROOT/tools/check_ci_status.sh" --product --required
+    if command -v docker >/dev/null 2>&1; then
+      docker --version >/dev/null
+    fi
+    printf 'Team Development and Docker gate passed.\n'
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    printf 'unknown command: %s\n' "$COMMAND" >&2
+    usage
+    exit 1
+    ;;
+esac

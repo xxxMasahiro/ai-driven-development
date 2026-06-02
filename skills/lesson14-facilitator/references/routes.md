@@ -23,4 +23,4 @@ locked: may not start, pass, or revisit
 completed: may revisit
 ```
 
-The learner may freely review completed content but may not skip unfinished future content.
+The learner may freely review completed content. During normal progression they may not skip unfinished future content, but they can explicitly choose a new start position with `tools/lesson14 開始位置 <step_id> --confirm`.

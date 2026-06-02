@@ -89,6 +89,14 @@ lesson_handoff_file() {
   lesson_abs_path "$(lesson_config_get learning_handoff_file "learning/LEARNING_HANDOFF.md")"
 }
 
+lesson_approval_file() {
+  lesson_abs_path "$(lesson_config_get approval_file "learning/LESSON_APPROVALS.tsv")"
+}
+
+lesson_learning_mode_file() {
+  lesson_abs_path "$(lesson_config_get learning_mode_file "learning/LESSON_MODE.tsv")"
+}
+
 lesson_structure_check() {
   "$LESSON_ROOT/tools/check_lesson_structure.sh" >/dev/null
 }

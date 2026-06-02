@@ -1,0 +1,117 @@
+# step_id	action	approved_at	memo
+setup.index	start	2026-06-02 05:10:03	開発者が目視運用テスト開始を承認した
+setup.index	pass	2026-06-02 05:11:33	setup.indexの確認完了を承認した
+setup.github-login	start	2026-06-02 05:12:33	setup.github-loginの開始を承認した
+setup.github-login	pass	2026-06-02 05:17:44	GitHub CLI認証、SSH設定、github-login接続確認が完了した
+day1.roadmap	start	2026-06-02 05:18:35	day1.roadmapの開始を承認した
+day1.roadmap	pass	2026-06-02 05:21:52	14日間のロードマップと毎日の終了条件を確認した
+day1.lesson-controls	start	2026-06-02 05:28:21	day1.lesson-controlsの開始を承認した
+day1.lesson-controls	pass	2026-06-02 05:29:42	lesson14、roadmap、helpdeskの使い方を確認した
+day1.repository-boundary	start	2026-06-02 05:31:52	day1.repository-boundaryの開始を承認した
+day1.repository-boundary	pass	2026-06-02 05:36:09	教材リポジトリと成果物リポジトリの境界を確認した
+day1.sync-gate	start	2026-06-02 05:36:59	day1.sync-gateの開始を承認した
+day1.sync-gate	pass	2026-06-02 05:40:28	Day 1の学習記録、ハンドオフ、現在地を確認した
+day2.git-basics	start	2026-06-02 05:44:40	day2.git-basicsの開始を承認した
+day2.git-basics	pass	2026-06-02 05:54:08	Gitのstatus、add、commitとdiff statの役割を確認した
+day2.github-connection	start	2026-06-02 05:55:07	day2.github-connectionの開始を承認した
+day2.github-connection	pass	2026-06-02 06:17:30	gh auth statusとSSH認証成功を確認した
+day2.remote-sync	start	2026-06-02 06:18:13	day2.remote-syncの開始を承認した
+day2.remote-sync	pass	2026-06-02 06:25:42	remote、push、pull、fetchの役割と現在のorigin設定を確認した
+day2.sync-gate	start	2026-06-02 06:32:05	day2.sync-gateの開始を承認した
+day2.sync-gate	pass	2026-06-02 06:32:52	Day 2のGitHub接続、ローカルGit状態、学習記録を確認した
+day3.product-repo	start	2026-06-02 06:33:36	day3.product-repoの開始を承認し、成果物リポジトリを実作成する方針を選択した
+day3.product-repo	pass	2026-06-02 06:36:00	成果物リポジトリを教材外に作成し、ローカルとリモートの同期を確認した
+day3.memory-docs	start	2026-06-02 06:39:35	メモ文書の役割の開始を承認した
+day3.memory-docs	pass	2026-06-02 06:51:42	成果物リポジトリ側に初期メモ文書を作成し、役割を確認した
+day3.initial-commit	start	2026-06-02 06:52:23	初回commit体験の開始を承認した
+day3.initial-commit	pass	2026-06-02 06:53:33	初期メモ文書をadd、commit、pushし、ローカルとリモートの同期を確認した
+day3.sync-gate	start	2026-06-02 06:55:43	Step 3同期ゲートの開始を承認した
+day3.sync-gate	pass	2026-06-02 06:56:27	成果物リポジトリ境界、初期メモ文書、Git同期を確認した
+day4.requirements	start	2026-06-02 06:57:15	要件を決めるステップの開始を承認した
+day4.requirements	pass	2026-06-02 07:28:11	日本語でタスク管理表の初期要件を作成した
+day4.specification	start	2026-06-02 07:28:53	仕様を決めるステップの開始を承認した
+day4.specification	pass	2026-06-02 07:30:01	日本語でタスク管理表の初期仕様を作成した
+day4.implementation-plan	start	2026-06-02 07:30:52	実装計画を決めるステップの開始を承認した
+day4.implementation-plan	pass	2026-06-02 07:33:08	日本語でタスク管理表の初期実装計画を作成した
+day4.sync-gate	start	2026-06-02 07:41:36	Step 4同期ゲートの開始を承認した
+day4.sync-gate	pass	2026-06-02 07:43:06	3文書、開発言語メモ、Git同期、レッスン同期を確認した
+day5.initial-tracker-handoff	start	2026-06-02 07:43:58	進み具合と引き継ぎを記録するステップの開始を承認した
+day5.initial-tracker-handoff	pass	2026-06-02 07:50:19	TASK_TRACKER.mdとHANDOFF.mdを日本語で作成した
+day5.main-ci	start	2026-06-02 07:54:41	mainブランチのCIを作成するステップの開始を承認した
+day5.main-ci	pass	2026-06-02 07:57:53	mainブランチのCIを作成し、GitHub Actions成功を確認した
+day5.remote-push	start	2026-06-02 07:58:21	GitHubへ送って状態を確認するステップの開始を承認した
+day5.remote-push	pass	2026-06-02 08:02:59	GitHubへのpush状態、リモート設定、CI成功を確認した
+day5.sync-gate	start	2026-06-02 08:03:42	Step 5/14: 同期状態を確認するステップの開始を承認した
+day5.sync-gate	pass	2026-06-02 08:05:31	Step 5/14: 成果物リポジトリの同期、CI成功、教材側同期チェック通過を確認した
+day6.screen-structure	start	2026-06-02 08:05:56	Step 6/14: 画面の土台を作るステップの開始を承認した
+day6.screen-structure	pass	2026-06-02 08:10:20	Step 6/14: index.htmlの画面構成を作成し、コミット、push、CI成功を確認した
+day6.accessibility-copy	start	2026-06-02 08:11:04	Step 6/14: 画面の文言をわかりやすくするステップの開始を承認した
+day6.accessibility-copy	pass	2026-06-02 08:37:29	Step 6/14: 画面文言を調整し、コミット、push、CI成功を確認した
+day6.local-check	start	2026-06-02 08:38:04	Step 6/14: ローカルで画面を確認するステップの開始を承認した
+day6.local-check	pass	2026-06-02 08:39:03	Step 6/14: index.htmlの存在、HTML構造、同期状態、CI成功を確認した
+day6.sync-gate	start	2026-06-02 08:39:45	Step 6/14: 同期状態を確認するステップの開始を承認した
+day6.sync-gate	pass	2026-06-02 08:45:59	Step 6/14: 成果物リポジトリの同期、CI成功、教材側同期チェック通過を確認した
+day7.task-add-behavior	start	2026-06-02 08:46:28	Step 7/14: タスクを追加する動きを作るステップの開始を承認した
+day7.task-add-behavior	pass	2026-06-02 09:04:06	Step 7/14: app.jsでタスク追加、空欄チェック、入力リセットを実装し、確認、push、CI成功を確認した
+day7.validation	start	2026-06-02 09:04:53	Step 7/14: 入力チェックと入力リセットを確認するステップの開始を承認した
+day7.validation	pass	2026-06-02 09:08:22	Step 7/14: 空欄チェック、通常入力追加、入力リセット、確認結果記録、push、CI成功を確認した
+day7.unit-check	start	2026-06-02 09:12:30	Step 7/14: 小さな確認結果を記録するステップの開始を承認した
+day7.unit-check	pass	2026-06-02 09:15:56	Step 7/14: タスク追加機能の検証ログを記録し、確認、push、CI成功を確認した
+day7.sync-gate	start	2026-06-02 09:20:24	Step 7/14: 同期状態を確認するステップの開始を承認した
+day7.sync-gate	pass	2026-06-02 09:21:15	Step 7/14: 成果物リポジトリの同期、CI成功、教材側同期チェック通過を確認した
+day8.handoff-stop	start	2026-06-02 09:22:59	Step 8/14: 中断記録を残すステップの開始を承認した
+day8.handoff-stop	pass	2026-06-02 09:31:03	Step 8/14: HANDOFF.mdに再開時の確認事項を追加し、push、CI成功を確認した
+day8.handoff-resume	start	2026-06-02 09:31:47	Step 8/14: 中断記録を読んで再開するステップの開始を承認した
+day8.handoff-resume	pass	2026-06-02 09:36:28	Step 8/14: TASK_TRACKER.mdとHANDOFF.mdを読んで再開確認し、push、CI成功を確認した
+day8.tracker-update	start	2026-06-02 09:37:58	Step 8/14: 進行状態を更新するステップの開始を承認した
+day8.tracker-update	pass	2026-06-02 09:41:06	Step 8/14: TASK_TRACKER.mdとHANDOFF.mdの進行状態をそろえ、push、CI成功を確認した
+day8.sync-gate	start	2026-06-02 09:41:41	Step 8/14: 同期状態を確認するステップの開始を承認した
+day8.sync-gate	pass	2026-06-02 09:43:01	Step 8/14: 成果物リポジトリの同期、CI成功、教材側同期チェック通過を確認した
+day9.work-branch	start	2026-06-02 09:44:12	Step 9/14: 作業ブランチを作るステップの開始を承認した
+day9.work-branch	pass	2026-06-02 09:48:35	Step 9/14: feature/style-task-tracker ブランチを作成し、style.css追加コミットまで確認した
+day9.pr-ci	start	2026-06-02 09:49:50	Step 9/14: PRを作ってCIを確認するステップの開始を承認した
+day9.pr-ci	pass	2026-06-02 09:54:37	Step 9/14: PR #1を作成し、PR CI成功とブランチ同期を確認した
+day9.merge-sync	start	2026-06-02 09:55:23	Step 9/14: PRをmergeしてmainを同期するステップの開始を承認した
+day9.merge-sync	pass	2026-06-02 10:01:38	Step 9/14: PR #1をmergeし、main同期、push、CI成功を確認した
+day9.sync-gate	start	2026-06-02 10:02:16	Step 9/14: 同期状態を確認するステップの開始を承認した
+day9.sync-gate	pass	2026-06-02 10:05:47	Step 9/14: PR merge後のmain同期、CI成功、教材側同期チェック通過を確認した
+day10.playwright-install	start	2026-06-02 10:07:27	Step 10/14: Playwrightを導入するステップの開始を承認した
+day10.playwright-install	pass	2026-06-02 10:26:28	Step 10/14: Playwright導入、設定追加、push、CI成功を確認した
+day10.e2e-test	start	2026-06-02 10:30:26	Step 10/14: E2Eテストを作成するステップの開始を承認した
+day10.e2e-test	pass	2026-06-02 10:38:10	Step 10/14: E2Eテストを作成し、検出確認、push、CI成功を確認した
+day10.e2e-local-run	start	2026-06-02 10:39:07	Step 10/14: E2Eテストをローカルで実行するステップの開始を承認した
+day10.e2e-local-run	pass	2026-06-02 10:43:40	Step 10/14: E2Eテストをローカル実行し、1件成功、push、CI成功を確認した
+day10.sync-gate	start	2026-06-02 10:45:05	Step 10/14: 同期状態を確認するステップの開始を承認した
+day10.sync-gate	pass	2026-06-02 10:49:10	Step 10/14: Playwright導入後の同期、CI成功、教材側同期チェック通過を確認した
+day11.e2e-ci	start	2026-06-02 10:51:22	Step 11/14: E2EテストをCIに組み込むステップの開始を承認した
+day11.e2e-ci	pass	2026-06-02 10:57:25	Step 11/14: E2EをCIに組み込み、product-docsとe2e job成功を確認した
+day11.failure-learning	start	2026-06-02 10:58:59	Step 11/14: 失敗ログを読んで復旧するステップの開始を承認した
+day11.failure-learning	pass	2026-06-02 11:04:56	Step 11/14: E2E CI成功ログを確認し、失敗時の復旧記録をFAILURE_MEMORY.mdへ反映した
+day11.docs-sync	start	2026-06-02 11:05:29	Step 11/14: E2E導入後の3文書と履歴同期確認ステップの開始を承認した
+day11.docs-sync	pass	2026-06-02 11:09:46	Step 11/14: E2E導入後の3文書とTASK_TRACKER/HANDOFFを同期し、最新CI成功を確認した
+day11.sync-gate	start	2026-06-02 11:10:55	Step 11/14: Day 11同期ゲート確認ステップの開始を承認した
+day11.sync-gate	pass	2026-06-02 11:12:06	Step 11/14: mainとorigin/mainの同期、最新CI成功、作業ツリーcleanを確認した
+day12.subagents-plan	start	2026-06-02 11:14:30	Step 12/14: 複数サブエージェントの役割分担を設計するステップの開始を承認した
+day12.subagents-plan	pass	2026-06-02 11:47:12	Step 12/14: サブエージェントの役割候補と実務的な意味を補足し、役割分担案とCI成功を確認した
+day12.subagents-review	start	2026-06-02 11:47:23	Step 12/14: レビュー、テスト、同期確認の観点で精査するステップの開始を承認した
+day12.subagents-review	pass	2026-06-02 11:56:30	Step 12/14: 役割名ベースでサブエージェント精査結果を整理し、ローカルE2Eと最新CI成功を確認した
+day12.findings-fix	start	2026-06-02 11:58:13	Step 12/14: 指摘を整理し必要な修正を行うステップの開始を承認した
+day12.findings-fix	pass	2026-06-02 12:03:46	Step 12/14: 採用したサブエージェント指摘を修正し、ローカルE2Eと最新CI成功を確認した
+day12.sync-gate	start	2026-06-02 12:05:32	Step 12/14: Day 12同期ゲート確認ステップの開始を承認した
+day12.sync-gate	pass	2026-06-02 12:06:24	Step 12/14: mainとorigin/mainの同期、最新CI成功、作業ツリーcleanを確認した
+day13.skill-create	start	2026-06-02 12:07:26	Step 13/14: 小さなエージェントスキルを作成するステップの開始を承認した
+day13.skill-create	pass	2026-06-02 12:11:53	Step 13/14: タスク管理表レビュー用の小さなスキルを作成し、ローカルE2Eと最新CI成功を確認した
+day13.skill-use	start	2026-06-02 12:23:09	Step 13/14: 作成したスキルを呼び出して使うステップの開始を承認した
+day13.skill-use	pass	2026-06-02 12:28:36	Step 13/14: 作成したレビュー用スキルを使い、結果を記録し、ローカルE2Eと最新CI成功を確認した
+day13.mcp-minimal	start	2026-06-02 12:29:34	Step 13/14: 最小MCP連携でタスク管理表を便利にするステップの開始を承認した
+day13.mcp-minimal	pass	2026-06-02 12:36:16	Step 13/14: 最小MCP連携として連携用メモを追加し、ローカルE2Eと最新CI成功を確認した
+day13.sync-gate	start	2026-06-02 12:49:53	Step 13/14: Day 13同期ゲートを通過するステップの開始を承認した
+day13.sync-gate	pass	2026-06-02 12:51:02	Step 13/14: スキルとMCP体験後の成果物Git同期、AGENTS/skills整合、14日版同期、最新CI成功を確認した
+day14.final-sync	start	2026-06-02 12:59:58	Step 14/14: 3文書、TASK_TRACKER.md、HANDOFF.mdを最終同期するステップの開始を承認した
+day14.final-sync	pass	2026-06-02 13:05:35	Step 14/14: 3文書、TASK_TRACKER.md、HANDOFF.mdを現在の実装に合わせて同期し、ローカルE2E、Git同期、最新CI成功を確認した
+day14.release-readiness	start	2026-06-02 13:29:14	Step 14/14: main CI、リモート同期、READMEを確認するステップの開始を承認した
+day14.release-readiness	pass	2026-06-02 13:32:53	Step 14/14: READMEを作成し、Git同期、main CI成功、ローカルE2E成功を確認した
+day14.retrospective	start	2026-06-02 13:37:07	Step 14/14: 学習ロードマップとヘルプデスクを見返してふりかえるステップの開始を承認した
+day14.retrospective	pass	2026-06-02 13:41:06	Step 14/14: 学習ロードマップとヘルプデスクを見返し、RETROSPECTIVE.mdを作成し、Git同期、ローカルE2E、最新CI成功を確認した
+day14.complete	start	2026-06-02 13:41:50	Step 14/14: 14日版レッスンを完了するステップの開始を承認した
+day14.complete	pass	2026-06-02 13:43:00	Step 14/14: 14日版レッスンの全項目、成果物Git同期、3文書、ローカルE2E、最新CI成功を確認した

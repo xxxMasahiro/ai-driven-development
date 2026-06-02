@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cat <<'MENU'
+メニュー
+
+【学ぶ】
+1. 7日間レッスン
+   基礎を短く一周する
+   入口: ./tools/lesson status
+
+2. 14日間レッスン
+   GitHub、CI、E2E、PR、サブエージェント、スキル、MCPまで学ぶ
+   入口: ./tools/lesson14 status
+
+3. 発展・応用レッスン
+   Docker、git worktree、チーム開発、より実務的な検証を学ぶ
+   入口: ./tools/team-development status
+
+【作る・発展させる】
+4. 自由開発
+   自分で成果物を決め、この教材のワークフローで開発する
+   入口: ./tools/free-development status
+
+5. 成果物を改善
+   完了、削除、保存、デザイン改善などを追加する
+   入口: TASK_TRACKER.md と HANDOFF.md を確認して改善サイクルを開始する
+
+6. 外部連携
+   自由開発や既存成果物を、Googleカレンダーなど外部ツールと連携させる
+   入口: 自由開発または既存成果物の要件・仕様を確認して連携設計を始める
+
+【整える】
+7. 教材そのものを改善
+   レッスン、プロンプト、ダッシュボード、文書、運用テストを改善する
+   入口: DEVELOPER_MEMORY.md と ./tools/dashboard all を確認する
+
+流れの目安:
+  自由開発で作る → 成果物を改善する → 外部連携で発展させる
+
+外部連携は、既存成果物リポジトリがある場合は単独でも選べます。
+MENU

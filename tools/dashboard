@@ -1,0 +1,121 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PRODUCT_ROOT="${PRODUCT_ROOT:-/home/masahiro/projects/task-tracker-repository}"
+
+print_section() {
+  local title="$1"
+  printf '%s\n' "$title"
+  printf '%s\n\n' "$(printf '%s' "$title" | sed 's/./=/g')"
+}
+
+file_status() {
+  local root="$1"
+  local file="$2"
+  if [[ -f "$root/$file" ]]; then
+    printf '%s\n' "- $file: present"
+  else
+    printf '%s\n' "- $file: missing"
+  fi
+}
+
+next_action_from_file() {
+  local file="$1"
+  awk '
+    /^## / {
+      capture = ($0 ~ /Next Step|Remaining Work|次にやること/)
+      next
+    }
+    capture && NF {
+      print
+      found = 1
+      exit
+    }
+    END {
+      if (!found) print "not recorded"
+    }
+  ' "$file"
+}
+
+show_lesson() {
+  print_section 'Lesson Dashboard'
+  "$ROOT/tools/lesson14" status || true
+  printf '\n7-day lesson status:\n'
+  "$ROOT/tools/lesson" status || true
+  printf '\nLearning mode:\n'
+  "$ROOT/tools/lesson14" 学習モード || true
+  printf '\nHelp desk summary:\n'
+  "$ROOT/tools/helpdesk" 一覧 || true
+  printf '\nDeveloper memory themes:\n'
+  awk '
+    /^### / && section == 1 { print "- " substr($0, 5) }
+    /^## Systematic Review Index/ { section = 1; next }
+    /^## Chronological Operation Test Notes/ { section = 0 }
+  ' "$ROOT/DEVELOPER_MEMORY.md"
+}
+
+show_development() {
+  print_section 'Development Dashboard'
+  if [[ -d "$PRODUCT_ROOT/.git" ]]; then
+    printf 'Product repository: %s\n\n' "$PRODUCT_ROOT"
+    (cd "$PRODUCT_ROOT" && git status --short --branch)
+    printf '\nGit sync check:\n'
+    "$ROOT/tools/check_git_sync.sh" --product --required || true
+    printf '\nWorkflow documents:\n'
+    for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md TASK_TRACKER.md HANDOFF.md README.md RETROSPECTIVE.md; do
+      file_status "$PRODUCT_ROOT" "$file"
+    done
+    printf '\nPaired workflow state:\n'
+    if [[ -f "$PRODUCT_ROOT/TASK_TRACKER.md" && -f "$PRODUCT_ROOT/HANDOFF.md" ]]; then
+      printf 'TASK_TRACKER next action: %s\n' "$(next_action_from_file "$PRODUCT_ROOT/TASK_TRACKER.md")"
+      printf 'HANDOFF next action: %s\n' "$(next_action_from_file "$PRODUCT_ROOT/HANDOFF.md")"
+    else
+      printf 'TASK_TRACKER.md and HANDOFF.md are not both present.\n'
+    fi
+    printf '\nCI status:\n'
+    printf 'Run when needed: ./tools/check_ci_status.sh --product --required\n'
+  else
+    printf 'Product repository not found: %s\n' "$PRODUCT_ROOT"
+    printf 'Use Free Development Mode or a lesson-created product repository when development work starts.\n'
+  fi
+}
+
+show_illustrations() {
+  print_section 'Illustration Review Dashboard'
+  "$ROOT/tools/illustrations" list
+  printf '\nReview page: illustration-review/index.html\n'
+}
+
+show_menu() {
+  print_section 'Menu'
+  "$ROOT/tools/menu"
+}
+
+case "${1:-all}" in
+  menu)
+    show_menu
+    ;;
+  lesson)
+    show_lesson
+    ;;
+  development)
+    show_development
+    ;;
+  illustrations)
+    show_illustrations
+    ;;
+  all)
+    show_menu
+    printf '\n'
+    show_lesson
+    printf '\n'
+    show_development
+    printf '\n'
+    show_illustrations
+    ;;
+  *)
+    printf 'Usage: ./tools/dashboard <menu|lesson|development|illustrations|all>\n' >&2
+    exit 1
+    ;;
+esac

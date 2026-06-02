@@ -30,7 +30,7 @@ require_pattern "AGENTS.MD" 'エージェントは、ユーザーに `index\.md`
 require_pattern "AGENTS.MD" '^1\. 学習用リポジトリと成果物リポジトリは、2つのUbuntu/WSL CLI画面で分けて扱う。$' "two-cli immutable rule"
 require_pattern "AGENTS.MD" '成果物リポジトリの開発に入る前には、必ず学習者へ別画面でUbuntu/WSL CLIを起動' "product CLI prompt immutable detail"
 require_pattern "AGENTS.MD" '^2\. 既存機能とのトレードオフは一切禁止する。$' "no-tradeoff immutable rule"
-require_pattern "AGENTS.MD" '^3\. コード実装は、再利用性、リファクタリング性、汎用性、変更可能性を満たす。$' "implementation-quality immutable rule"
+require_pattern "AGENTS.MD" '^3\. 実装とテストは、リファクタリング性、エコシステム性、再利用性、汎用性を満たす。$' "implementation-quality immutable rule"
 require_pattern "AGENTS.MD" 'AGENTS\.MD.*AGENT\.md' "AGENTS versus AGENT distinction"
 require_pattern "AGENTS.MD" '7日版レッスン: index\.md' "7-day default entry"
 require_pattern "AGENTS.MD" '14日版レッスン: index-14-days\.md' "14-day default entry"
