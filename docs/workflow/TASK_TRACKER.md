@@ -7,7 +7,7 @@ The lesson repository includes mechanical enforcement, flexible lesson entry, Fr
 The previous implemented change promotes the Git workflow policy into a shared menu-level policy for menu items 1 through 7, including branch permission, `git worktree` permission, direct-main permission, automation level, Git monitoring, and non-destructive cleanup planning.
 The previous implemented change added user-configurable Git workflow policy settings and the as-built sync contract that mechanically enforces synchronization across the three design/as-built documents and the two workflow-state documents.
 The current implemented Git workflow action settings split Git workflow behavior into detailed settings for commit, push, PR creation, PR CI monitoring, merge execution, developer-responsibility auto-merge, main CI monitoring, and local/remote sync monitoring.
-The current implemented Git hooks policy provides faster safe serial pre-commit operation through `full`, `fast`, and `minimal` modes plus conservative Git-local caching.
+The current implemented Git hooks policy provides faster safe serial pre-commit operation through `full`, `fast`, and `minimal` modes, conservative Git-local caching, and a path-based local full/no-cache recommendation command.
 The current planned learner context foundation prepares source documents under `learning/context/` for the next lesson-content implementation cycle; runtime lesson output has not been changed by that foundation step.
 The current planned learner context runtime integration separates learning context from workflow context; Free Development Mode remains a workflow, not a lesson.
 Safe product repository cleanup remains implemented for the external product repository created by the 7-day or 14-day lessons.
@@ -59,9 +59,11 @@ The implementation remains additive and keeps the existing 7-day lesson, 14-day 
 - Added `tools/test_git_workflow_policy.sh`.
 - Added `docs/workflow/GIT_HOOKS_POLICY.tsv`.
 - Added `docs/workflow/GIT_HOOK_CHECKS.tsv`.
+- Added `docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv`.
 - Added `learning/GIT_HOOK_SETTINGS.tsv`.
 - Added `tools/lib/git_hooks_policy.sh`.
 - Added `tools/git-hooks status|mode|cache|run`.
+- Added `tools/git-hooks recommend`.
 - Added `tools/test_git_hooks.sh`.
 - Added planned learner context source documents under `learning/context/`.
 - Added `learning/context/AI_DRIVEN_DEVELOPMENT_FOUNDATION.md`.
@@ -240,7 +242,7 @@ TESTS: tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
 
 SYNC-ID: git_hooks_policy
 STATUS: implemented
-ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
+ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
 TESTS: tools/test_git_hooks.sh
 
 SYNC-ID: learner_context_foundation
@@ -385,11 +387,14 @@ It is synchronized as `git_hooks_policy` with `STATUS: implemented`.
 - Fail closed on missing, stale, corrupted, or unverifiable cache entries.
 - Fail closed on malformed `docs/workflow/GIT_HOOK_CHECKS.tsv` rows, including invalid or empty mode tokens.
 - Store the hook check list in `docs/workflow/GIT_HOOK_CHECKS.tsv`.
+- Store the local full/no-cache recommendation path policy in `docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv`.
 - Provide a reusable command surface for hook status, mode selection, cache clearing, normal run, no-cache run, and explicit mode run.
+- Provide a reusable recommendation surface so local full/no-cache is recommended for Git hooks, CI, checks, tests, or as-built synchronization changes, while ordinary local work can stay on the selected mode such as `minimal`.
 - Connect the implementation to existing settings files, `tools/lib` helpers, aggregate tests, CI, pre-commit, and repo-local skills.
 - Preserve existing wiring enforcement by teaching the existing checks and status output to recognize runner-based pre-commit dispatch.
 - Keep CI and completion verification on full or no-cache execution.
 - Add `tools/test_git_hooks.sh` for standalone policy/cache validation, invalid persisted settings, malformed check rows, invalid or empty mode tokens, invalidation, no-cache behavior, minimal-mode coverage, failing-check cache refusal, and safe cache clearing.
+- Extend `tools/test_git_hooks.sh` for local verification recommendation behavior.
 - Verify full/no-cache coverage, aggregate wiring, CI wiring, and preservation of existing checks through `tools/git-hooks run --mode full --no-cache`, `.githooks/pre-commit`, `tools/test_lesson_repository.sh`, and the CI workflow definitions.
 - Require developer approval before changing the minimal-mode required check list or using cache to skip Playwright-related checks beyond the implemented fail-closed behavior.
 
@@ -425,6 +430,7 @@ The implemented verification target also includes `Product repository cleanup te
 The implemented verification target also includes `As-built sync contract tests passed.`
 The implemented verification target also includes `Git workflow policy tests passed.`
 The implemented verification target also includes `Git hooks policy tests passed.`
+Current local pre-commit mode remains selectable through `learning/GIT_HOOK_SETTINGS.tsv`; CI and final verification remain full/no-cache.
 The implemented verification sequence includes `./tools/check_as_built_sync_contract.sh`, `./tools/as-built-sync status`, `./tools/test_as_built_sync_contract.sh`, `./tools/test_git_workflow_policy.sh`, `./tools/test_git_hooks.sh`, `./tools/git-hooks run --mode full --no-cache`, and `.githooks/pre-commit`.
 Real product operations testing remains available through `tools/test_production_operations.sh` when an external product repository is intentionally recreated.
 

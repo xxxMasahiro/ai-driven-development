@@ -77,6 +77,7 @@ The workflow documents live in `docs/workflow/`.
 | `docs/workflow/HANDOFF.md` | How to restart the work safely later |
 | `docs/workflow/GIT_HOOKS_POLICY.tsv` | Which Git hook modes exist and which mode is the default |
 | `docs/workflow/GIT_HOOK_CHECKS.tsv` | Which checks run in each Git hook mode |
+| `docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv` | Which changed files should make the agent recommend local `full --no-cache` verification |
 | `learning/GIT_HOOK_SETTINGS.tsv` | The current local Git hook mode selected for this workspace |
 
 These two files should be treated as a pair.

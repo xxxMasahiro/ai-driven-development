@@ -8,6 +8,7 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 POLICY_FILE="$TMP_DIR/policy.tsv"
 SETTINGS_FILE="$TMP_DIR/settings.tsv"
 CHECKS_FILE="$TMP_DIR/checks.tsv"
+RECOMMENDATION_FILE="$TMP_DIR/recommendation-paths.tsv"
 CACHE_DIR="$TMP_DIR/cache"
 TEST_REPO="$TMP_DIR/repo"
 
@@ -22,6 +23,13 @@ git -C "$TEST_REPO" commit -q -m "Initial test repo"
 cat >"$POLICY_FILE" <<'EOF'
 # key	allowed_values	default_value	label	description
 hook_mode	full|fast|minimal	fast	Git hooks mode	Test policy.
+EOF
+
+cat >"$RECOMMENDATION_FILE" <<'EOF'
+# pattern	recommendation	reason
+.github/workflows/	full-no-cache	CI workflow changes need full verification.
+docs/workflow/GIT_HOOK_CHECKS.tsv	full-no-cache	Check-list changes need full verification.
+tools/test_*.sh	full-no-cache	Regression-test changes need full verification.
 EOF
 
 write_check_script() {
@@ -47,6 +55,7 @@ run_git_hooks() {
   GIT_HOOKS_POLICY_FILE="$POLICY_FILE" \
   GIT_HOOKS_SETTINGS_FILE="$SETTINGS_FILE" \
   GIT_HOOKS_CHECKS_FILE="$CHECKS_FILE" \
+  GIT_HOOKS_RECOMMENDATION_PATHS_FILE="$RECOMMENDATION_FILE" \
   GIT_HOOKS_CACHE_DIR="$CACHE_DIR" \
   "$ROOT/tools/git-hooks" "$@"
 }
@@ -58,6 +67,7 @@ run_git_hooks_with_cache() {
   GIT_HOOKS_POLICY_FILE="$POLICY_FILE" \
   GIT_HOOKS_SETTINGS_FILE="$SETTINGS_FILE" \
   GIT_HOOKS_CHECKS_FILE="$CHECKS_FILE" \
+  GIT_HOOKS_RECOMMENDATION_PATHS_FILE="$RECOMMENDATION_FILE" \
   GIT_HOOKS_CACHE_DIR="$cache_dir" \
   "$ROOT/tools/git-hooks" "$@"
 }
@@ -74,6 +84,36 @@ minimal_check	minimal|fast	$TMP_DIR/minimal_check.sh	Minimal test.
 EOF
 
 run_git_hooks status >/dev/null
+recommend_output="$(run_git_hooks recommend --paths README.md)"
+[[ "$recommend_output" == *"Recommended command: ./tools/git-hooks run --mode minimal"* ]]
+recommend_output="$(run_git_hooks recommend --paths docs/workflow/GIT_HOOK_CHECKS.tsv)"
+[[ "$recommend_output" == *"Recommended command: ./tools/git-hooks run --mode full --no-cache"* ]]
+[[ "$recommend_output" == *"docs/workflow/GIT_HOOK_CHECKS.tsv"* ]]
+recommend_output="$(run_git_hooks recommend --paths ./.github/workflows/ci.yml)"
+[[ "$recommend_output" == *"Recommended command: ./tools/git-hooks run --mode full --no-cache"* ]]
+recommend_output="$(run_git_hooks recommend --paths "$TEST_REPO/tools/test_git_hooks.sh")"
+[[ "$recommend_output" == *"Recommended command: ./tools/git-hooks run --mode full --no-cache"* ]]
+recommend_output="$(run_git_hooks recommend --paths tools/test_git_hooks.sh)"
+[[ "$recommend_output" == *"Recommended command: ./tools/git-hooks run --mode full --no-cache"* ]]
+mkdir -p "$TEST_REPO/.github/workflows"
+printf 'name: changed\n' >"$TEST_REPO/.github/workflows/ci.yml"
+recommend_output="$(run_git_hooks recommend)"
+[[ "$recommend_output" == *"Recommended command: ./tools/git-hooks run --mode full --no-cache"* ]]
+rm -rf "$TEST_REPO/.github"
+cat >"$RECOMMENDATION_FILE" <<'EOF'
+# pattern	recommendation	reason
+tools/test_*.sh	bogus	Invalid recommendation must fail closed.
+EOF
+if run_git_hooks recommend --paths tools/test_git_hooks.sh >/dev/null 2>&1; then
+  printf 'invalid recommendation row passed unexpectedly\n' >&2
+  exit 1
+fi
+cat >"$RECOMMENDATION_FILE" <<'EOF'
+# pattern	recommendation	reason
+.github/workflows/	full-no-cache	CI workflow changes need full verification.
+docs/workflow/GIT_HOOK_CHECKS.tsv	full-no-cache	Check-list changes need full verification.
+tools/test_*.sh	full-no-cache	Regression-test changes need full verification.
+EOF
 run_git_hooks mode fast >/dev/null
 [[ "$(awk -F '\t' '$1 == "hook_mode" { print $2 }' "$SETTINGS_FILE")" == "fast" ]]
 

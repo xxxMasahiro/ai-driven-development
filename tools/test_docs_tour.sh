@@ -54,6 +54,7 @@ require_output "status product agent distinction" "$status_output" "product-side
 require_output "status product failure memory" "$status_output" "product-side FAILURE_MEMORY.md"
 require_output "status Git hook policy" "$status_output" "Git hook policy"
 require_output "status Git hook checks" "$status_output" "GIT_HOOK_CHECKS.tsv"
+require_output "status Git hook recommendation paths" "$status_output" "GIT_HOOK_RECOMMENDATION_PATHS.tsv"
 
 all_output="$("$ROOT/tools/docs-tour" all)"
 require_output "rules section" "$all_output" "Rules And Routing"
@@ -65,6 +66,7 @@ require_output "AGENTS distinction" "$all_output" "AGENTS.MD.*AGENT.md|AGENT.md"
 require_output "developer memory" "$all_output" "DEVELOPER_MEMORY.md"
 require_output "failure memory" "$all_output" "FAILURE_MEMORY.md"
 require_output "Git hook policy tour" "$all_output" "GIT_HOOKS_POLICY.tsv"
+require_output "Git hook recommendation paths tour" "$all_output" "GIT_HOOK_RECOMMENDATION_PATHS.tsv"
 require_output "Git hook settings tour" "$all_output" "GIT_HOOK_SETTINGS.tsv"
 
 dashboard_output="$("$ROOT/tools/dashboard" docs)"
@@ -77,6 +79,7 @@ require_output "dashboard failure memory" "$dashboard_output" "product-side FAIL
 require_output "dashboard Git hook policy category" "$dashboard_output" "Git hook policy"
 require_output "dashboard Git hooks policy file" "$dashboard_output" "GIT_HOOKS_POLICY.tsv"
 require_output "dashboard Git hook checks file" "$dashboard_output" "GIT_HOOK_CHECKS.tsv"
+require_output "dashboard Git hook recommendation paths file" "$dashboard_output" "GIT_HOOK_RECOMMENDATION_PATHS.tsv"
 require_output "dashboard Git hook settings" "$dashboard_output" "GIT_HOOK_SETTINGS.tsv"
 
 dashboard_all_output="$("$ROOT/tools/dashboard" all)"
@@ -88,6 +91,7 @@ require_pattern "guides/DOCUMENT_MAP.md" "docs/workflow/TASK_TRACKER.md" "guide 
 require_pattern "guides/DOCUMENT_MAP.md" "docs/workflow/HANDOFF.md" "guide handoff explanation"
 require_pattern "guides/DOCUMENT_MAP.md" "docs/workflow/GIT_HOOKS_POLICY.tsv" "guide Git hooks policy explanation"
 require_pattern "guides/DOCUMENT_MAP.md" "docs/workflow/GIT_HOOK_CHECKS.tsv" "guide Git hook checks explanation"
+require_pattern "guides/DOCUMENT_MAP.md" "docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv" "guide Git hook recommendation explanation"
 require_pattern "guides/DOCUMENT_MAP.md" "learning/GIT_HOOK_SETTINGS.tsv" "guide Git hook settings explanation"
 require_pattern "guides/DOCUMENT_MAP.md" "docs/memory/DEVELOPER_MEMORY.md" "guide developer memory explanation"
 require_pattern "guides/DOCUMENT_MAP.md" "FAILURE_MEMORY.md" "guide failure memory explanation"

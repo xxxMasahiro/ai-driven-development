@@ -1,0 +1,12 @@
+# pattern	recommendation	reason
+.githooks/	full-no-cache	Pre-commit dispatcher changes need CI-equivalent local verification before push.
+.github/workflows/	full-no-cache	GitHub Actions changes need CI-equivalent local verification before push.
+docs/workflow/GIT_HOOKS_POLICY.tsv	full-no-cache	Git hooks policy changes affect local verification behavior.
+docs/workflow/GIT_HOOK_CHECKS.tsv	full-no-cache	Git hooks check-list changes affect local verification behavior.
+docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv	full-no-cache	Git hooks recommendation-policy changes affect local verification guidance.
+docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv	full-no-cache	As-built sync-contract changes affect mechanical document synchronization.
+tools/git-hooks	full-no-cache	Git hooks runner changes affect local verification behavior.
+tools/lib/git_hooks_policy.sh	full-no-cache	Git hooks shared helper changes affect local verification behavior.
+tools/as-built-sync	full-no-cache	As-built status changes affect sync-contract visibility.
+tools/check_*.sh	full-no-cache	Checker changes affect mechanical verification behavior.
+tools/test_*.sh	full-no-cache	Regression-test changes affect aggregate and CI verification behavior.

@@ -63,6 +63,7 @@ required_files=(
   "tools/lib/document_paths.sh"
   "tools/lib/git_workflow_policy.sh"
   "tools/lib/git_hooks_policy.sh"
+  "docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv"
   "tools/lesson14"
   "tools/roadmap"
   "tools/helpdesk"

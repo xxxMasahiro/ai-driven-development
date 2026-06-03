@@ -11,6 +11,7 @@ usage() {
   cat <<'USAGE'
 Usage:
   ./tools/git-hooks status
+  ./tools/git-hooks recommend [--paths <path>...]
   ./tools/git-hooks mode
   ./tools/git-hooks mode <full|fast|minimal>
   ./tools/git-hooks cache clear
@@ -24,6 +25,17 @@ shift || true
 case "$cmd" in
   status)
     git_hooks_print_status
+    ;;
+  recommend)
+    if [[ $# -eq 0 ]]; then
+      git_hooks_print_recommendation
+    elif [[ "${1:-}" == "--paths" && $# -ge 2 ]]; then
+      shift
+      git_hooks_print_recommendation "$@"
+    else
+      usage >&2
+      exit 1
+    fi
     ;;
   mode)
     if [[ $# -eq 0 ]]; then

@@ -206,7 +206,7 @@ TESTS: tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
 
 SYNC-ID: git_hooks_policy
 STATUS: implemented
-ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
+ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
 TESTS: tools/test_git_hooks.sh
 
 SYNC-ID: learner_context_foundation
@@ -353,18 +353,22 @@ This implemented work is additive and does not trade away any existing 7-day les
   - `fast`: use a cache to skip only checks that previously passed with unchanged relevant inputs.
   - `minimal`: run only the smallest safe mechanical set required for local orientation, never as a replacement for full verification before completion.
 - Store the implemented check list in `docs/workflow/GIT_HOOK_CHECKS.tsv` so the runner does not hard-code the pre-commit command list.
+- Store the local full/no-cache recommendation path policy in `docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv` so the runner does not hard-code which changed files require heavier local verification.
 - Treat malformed `docs/workflow/GIT_HOOK_CHECKS.tsv` rows, including unknown or empty mode tokens, as fail-closed configuration errors.
+- Treat malformed `docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv` rows as fail-closed configuration errors.
 - Store hook cache data outside version control, under a Git-local cache area such as `.git/pre-commit-cache/`.
 - Treat missing, stale, or corrupted cache entries as cache misses that force the relevant check to run.
 - Build cache keys from reusable inputs such as hook mode, command identity, tool hashes, relevant file hashes, and staged or working-tree changes where practical.
 - Keep CI and completion verification on full or no-cache execution so local cache behavior cannot hide regressions.
+- Keep ordinary local pre-commit operation on the selected mode, such as `minimal`, while preserving full/no-cache CI as the final verification.
+- Recommend local `tools/git-hooks run --mode full --no-cache` when changed files match the recommendation policy for Git hooks, CI, checks, tests, or as-built synchronization.
 - Connect the implementation to existing settings, shared libraries, aggregate tests, CI, pre-commit, and repo-local skills instead of adding fixed one-off branches.
 - Keep existing pre-commit wiring checks active by recognizing the `tools/git-hooks` runner plus `docs/workflow/GIT_HOOK_CHECKS.tsv` as active wiring, not as inert text.
 - Keep new checks runnable as standalone commands and through the aggregate lesson repository test.
 - Do not depend on a specific product stack, a specific learner-facing phrase, or one narrow case.
-- Make the command surface learner-readable, including status, mode selection, cache clearing, normal run, no-cache run, and explicit mode run.
+- Make the command surface learner-readable, including status, local verification recommendation, mode selection, cache clearing, normal run, no-cache run, and explicit mode run.
 - Keep failure behavior conservative: if the hook runner cannot prove a cached pass is valid, it must run the check or fail.
-- `tools/test_git_hooks.sh` must validate standalone policy and cache behavior: mode validation, invalid persisted settings, malformed check rows, invalid or empty check-row mode tokens, cache-hit and cache-miss behavior, cache invalidation, no-cache behavior, minimal-mode required checks, failing-check cache refusal, and safe cache clearing.
+- `tools/test_git_hooks.sh` must validate standalone policy and cache behavior: mode validation, invalid persisted settings, malformed check rows, invalid or empty check-row mode tokens, local full/no-cache recommendation behavior, cache-hit and cache-miss behavior, cache invalidation, no-cache behavior, minimal-mode required checks, failing-check cache refusal, and safe cache clearing.
 - Full/no-cache coverage, aggregate-test wiring, CI wiring, and preservation of existing pre-commit behavior must be verified through `tools/git-hooks run --mode full --no-cache`, `.githooks/pre-commit`, `tools/test_lesson_repository.sh`, and the CI workflow definitions.
 - Require developer approval before changing the minimal-mode required check list or skipping Playwright-related checks through cache beyond the implemented fail-closed cache behavior.
 

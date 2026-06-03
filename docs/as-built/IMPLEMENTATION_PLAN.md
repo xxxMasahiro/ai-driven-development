@@ -407,7 +407,7 @@ TESTS: tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
 
 SYNC-ID: git_hooks_policy
 STATUS: implemented
-ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
+ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
 TESTS: tools/test_git_hooks.sh
 
 SYNC-ID: learner_context_foundation
@@ -781,12 +781,15 @@ The work is implemented through runtime artifacts, tests, and the `git_hooks_pol
 2. Define a reusable policy and settings layer.
    - Added `docs/workflow/GIT_HOOKS_POLICY.tsv`.
    - Added `docs/workflow/GIT_HOOK_CHECKS.tsv`.
+   - Added `docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv`.
    - Added `learning/GIT_HOOK_SETTINGS.tsv`.
    - Added shared shell helpers in `tools/lib/git_hooks_policy.sh`.
    - Kept mode names and accepted values centralized so future tools, dashboard output, repo-local skills, and tests can reuse the same source.
 
 3. Add a hook runner command.
    - Added `tools/git-hooks status`.
+   - Added `tools/git-hooks recommend`.
+   - Added `tools/git-hooks recommend --paths <path>...`.
    - Added `tools/git-hooks mode <full|fast|minimal>`.
    - Added `tools/git-hooks cache clear`.
    - Added `tools/git-hooks run`.
@@ -807,26 +810,33 @@ The work is implemented through runtime artifacts, tests, and the `git_hooks_pol
    - `minimal` runs a small required mechanical set for quick local feedback.
    - Future changes to the minimal-mode check list require developer approval because it defines the lowest acceptable local safety gate.
 
-6. Connect to existing ecosystem surfaces.
+6. Add local full/no-cache recommendation behavior.
+   - Keep the selected local hook mode, such as `minimal`, as the default local pre-commit behavior.
+   - Keep remote CI and final verification on full/no-cache coverage.
+   - Recommend local `tools/git-hooks run --mode full --no-cache` only when changed paths match the recommendation policy for Git hooks, CI, checks, tests, or as-built synchronization.
+   - Keep the recommendation policy in `docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv` instead of hard-coding one-off branches in the runner.
+
+7. Connect to existing ecosystem surfaces.
    - Updated `.githooks/pre-commit` to call `tools/git-hooks run`.
    - Wired the dedicated hook test into `tools/test_lesson_repository.sh`.
    - Added CI coverage for the hook test and for full/no-cache behavior.
    - Added AGENTS routing and standard-check references for the hook command and test.
-   - Updated existing wiring checks and status output so runner-based hook dispatch is recognized as active pre-commit wiring for the current hook mode.
+   - Updated existing wiring checks and status output so runner-based hook dispatch is recognized as active pre-commit wiring against full-mode coverage, independent of the current local hook mode.
 
-7. Add standalone and aggregate tests.
+8. Add standalone and aggregate tests.
    - Added `tools/test_git_hooks.sh` for modes, invalid mode rejection, invalid persisted settings, malformed check rows, invalid or empty check-row mode tokens, cache hits, cache misses, invalidation, no-cache operation, minimal-mode required checks, failing-check cache refusal, and safe cache clearing.
+   - Added recommendation tests that confirm ordinary changed files keep the local recommendation at `minimal`, while Git hooks, CI, checks, tests, or as-built synchronization paths recommend local `full --no-cache`.
    - Confirm existing pre-commit checks still run in `full` through `tools/git-hooks run --mode full --no-cache`.
    - Confirm aggregate tests, CI, and pre-commit include the new hook validation after implementation.
    - Confirm existing 7-day, 14-day, Git workflow policy, menu, dashboard, docs-tour, product cleanup, sync-contract, and CI behavior remains available.
 
-8. Plan recovery behavior.
+9. Plan recovery behavior.
    - If a cache bug is suspected, clear the cache and rerun with `--no-cache`.
    - If hook-runner integration fails, restore the current serial `.githooks/pre-commit` command list while preserving the new tests for diagnosis.
    - If minimal-mode scope conflicts with safety expectations, stop for developer approval.
    - If CI behavior diverges from local hooks, keep CI on full/no-cache verification and fix local runner behavior.
 
-9. Synchronize after implementation.
+10. Synchronize after implementation.
    - Moved `git_hooks_policy` from `planned` to `implemented`.
    - Replaced `ARTIFACTS: none` and `TESTS: none` with the implemented files and tests.
    - Updated these five synchronized documents and `docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv` together.

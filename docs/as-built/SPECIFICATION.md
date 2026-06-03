@@ -218,7 +218,7 @@ TESTS: tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
 
 SYNC-ID: git_hooks_policy
 STATUS: implemented
-ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
+ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
 TESTS: tools/test_git_hooks.sh
 
 SYNC-ID: learner_context_foundation
@@ -398,6 +398,8 @@ The runtime behavior is implemented through a reusable hook runner and synchroni
 - Cache is disabled while untracked files are present so untracked content cannot create a false cache hit.
 - Command surface:
   - `tools/git-hooks status`,
+  - `tools/git-hooks recommend`,
+  - `tools/git-hooks recommend --paths <path>...`,
   - `tools/git-hooks mode <full|fast|minimal>`,
   - `tools/git-hooks cache clear`,
   - `tools/git-hooks run`,
@@ -406,12 +408,15 @@ The runtime behavior is implemented through a reusable hook runner and synchroni
 - `.githooks/pre-commit` delegates to `tools/git-hooks run`.
 - `docs/workflow/GIT_HOOK_CHECKS.tsv` stores the serial check list and mode membership.
 - `docs/workflow/GIT_HOOK_CHECKS.tsv` rows fail closed when required fields are missing, the field count is not exact, or a mode token is empty or outside the accepted policy modes.
+- `docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv` stores path patterns that recommend local `tools/git-hooks run --mode full --no-cache` when Git hooks, CI, checks, tests, or as-built synchronization behavior changes.
+- `tools/git-hooks recommend` inspects current changed paths and prints whether local `minimal` is sufficient for ordinary quick feedback or whether local `full --no-cache` is recommended before push.
+- `tools/git-hooks recommend --paths <path>...` evaluates explicit paths for tests, diagnostics, and agent planning without depending on the current working tree.
 - `docs/workflow/GIT_HOOKS_POLICY.tsv` stores accepted hook modes and the default mode.
 - `learning/GIT_HOOK_SETTINGS.tsv` stores the current hook mode.
-- `tools/lib/git_hooks_policy.sh` provides reusable policy loading, mode validation, status output, cache-key generation, cache clearing, and serial check execution.
-- `tools/test_git_hooks.sh` validates standalone policy and cache behavior: mode parsing, invalid persisted settings, malformed check rows, invalid or empty check-row mode tokens, cache hit and miss behavior, invalidation, no-cache operation, minimal-mode required checks, failing-check cache refusal, and safe cache clearing.
+- `tools/lib/git_hooks_policy.sh` provides reusable policy loading, mode validation, status output, local verification recommendation, cache-key generation, cache clearing, and serial check execution.
+- `tools/test_git_hooks.sh` validates standalone policy and cache behavior: mode parsing, invalid persisted settings, malformed check rows, invalid or empty check-row mode tokens, local full/no-cache recommendation behavior, cache hit and miss behavior, invalidation, no-cache operation, minimal-mode required checks, failing-check cache refusal, and safe cache clearing.
 - Full/no-cache coverage, aggregate test wiring, CI wiring, and preservation of existing checks are validated by `tools/git-hooks run --mode full --no-cache`, `.githooks/pre-commit`, `tools/test_lesson_repository.sh`, and the CI workflow definitions.
-- Existing sync, AGENTS/skills, developer-memory, and status checks recognize `.githooks/pre-commit` -> `tools/git-hooks` -> `docs/workflow/GIT_HOOK_CHECKS.tsv` as active wiring while preserving direct-command detection; as-built active pre-commit wiring is mode-aware and only counts checks included in the current hook mode.
+- Existing sync, AGENTS/skills, developer-memory, and status checks recognize `.githooks/pre-commit` -> `tools/git-hooks` -> `docs/workflow/GIT_HOOK_CHECKS.tsv` as active wiring while preserving direct-command detection; as-built active pre-commit wiring is checked against full-mode coverage so a local `minimal` setting does not weaken implemented sync-contract verification.
 - CI must not rely on local cache state; CI should run full or no-cache verification.
 
 ### Design Quality Constraints

@@ -14,6 +14,10 @@ git_hooks_checks_file() {
   printf '%s\n' "${GIT_HOOKS_CHECKS_FILE:-$LESSON_ROOT/docs/workflow/GIT_HOOK_CHECKS.tsv}"
 }
 
+git_hooks_recommendation_paths_file() {
+  printf '%s\n' "${GIT_HOOKS_RECOMMENDATION_PATHS_FILE:-$LESSON_ROOT/docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv}"
+}
+
 git_hooks_settings_file() {
   printf '%s\n' "${GIT_HOOKS_SETTINGS_FILE:-$LESSON_ROOT/learning/GIT_HOOK_SETTINGS.tsv}"
 }
@@ -317,6 +321,7 @@ git_hooks_print_status() {
   printf 'Mode: %s\n' "$mode"
   printf 'Policy file: %s\n' "$(git_hooks_policy_file)"
   printf 'Checks file: %s\n' "$(git_hooks_checks_file)"
+  printf 'Recommendation paths file: %s\n' "$(git_hooks_recommendation_paths_file)"
   printf 'Settings file: %s\n' "$(git_hooks_settings_file)"
   printf 'Cache directory: %s\n' "$(git_hooks_cache_dir)"
   printf 'Full checks: %s\n' "$full_count"
@@ -327,6 +332,7 @@ git_hooks_print_status() {
   else
     printf 'Cache status: available for fast mode\n'
   fi
+  git_hooks_print_recommendation
 }
 
 git_hooks_cache_file_for() {
@@ -427,4 +433,114 @@ git_hooks_clear_cache() {
   git_hooks_prepare_cache_dir || return 1
   find "$cache_dir" -maxdepth 1 -type f -name '*.cache' -delete
   printf 'Git hooks cache cleared: %s\n' "$cache_dir"
+}
+
+git_hooks_changed_paths() {
+  local root
+  root="$(git_hooks_git_root)"
+  {
+    git -C "$root" diff --name-only --diff-filter=ACDMRTUXB 2>/dev/null || true
+    git -C "$root" diff --cached --name-only --diff-filter=ACDMRTUXB 2>/dev/null || true
+    git -C "$root" ls-files --others --exclude-standard 2>/dev/null || true
+  } | sed '/^[[:space:]]*$/d' | sort -u
+}
+
+git_hooks_normalize_path() {
+  local path="$1"
+  local root
+  root="$(git_hooks_git_root)"
+  path="${path#./}"
+  if [[ "$path" == "$root/"* ]]; then
+    path="${path#"$root/"}"
+  fi
+  printf '%s\n' "$path"
+}
+
+git_hooks_path_matches_pattern() {
+  local pattern="$1"
+  local path="$2"
+  path="$(git_hooks_normalize_path "$path")"
+  if [[ "$pattern" == */ ]]; then
+    [[ "$path" == "$pattern"* ]]
+    return
+  fi
+  case "$path" in
+    $pattern) return 0 ;;
+  esac
+  return 1
+}
+
+git_hooks_recommendation_rows_for_paths() {
+  local recommendation_file
+  local path
+  local pattern
+  local recommendation
+  local reason
+  local invalid=0
+
+  recommendation_file="$(git_hooks_recommendation_paths_file)"
+  [[ -f "$recommendation_file" ]] || {
+    printf 'Git hooks recommendation paths file is missing: %s\n' "$recommendation_file" >&2
+    return 1
+  }
+
+  while IFS=$'\t' read -r pattern recommendation reason extra; do
+    [[ -n "${pattern:-}" ]] || continue
+    [[ "$pattern" != \#* ]] || continue
+    if [[ -n "${extra:-}" || -z "${recommendation:-}" || -z "${reason:-}" ]]; then
+      printf 'Malformed Git hooks recommendation row for pattern: %s\n' "$pattern" >&2
+      invalid=1
+      continue
+    fi
+    case "$recommendation" in
+      full-no-cache) ;;
+      *)
+        printf 'Invalid Git hooks recommendation for pattern %s: %s\n' "$pattern" "$recommendation" >&2
+        invalid=1
+        continue
+        ;;
+    esac
+    for path in "$@"; do
+      [[ -n "$path" ]] || continue
+      if git_hooks_path_matches_pattern "$pattern" "$path"; then
+        printf '%s\t%s\t%s\t%s\n' "$recommendation" "$path" "$pattern" "$reason"
+      fi
+    done
+  done <"$recommendation_file"
+
+  [[ "$invalid" -eq 0 ]]
+}
+
+git_hooks_print_recommendation() {
+  local paths=("$@")
+  local matches
+  local path
+  if [[ "${#paths[@]}" -eq 0 ]]; then
+    mapfile -t paths < <(git_hooks_changed_paths)
+  fi
+
+  printf 'Local verification recommendation\n'
+  if [[ "${#paths[@]}" -eq 0 ]]; then
+    printf 'Recommended command: ./tools/git-hooks run --mode minimal\n'
+    printf 'Reason: no local changes were detected.\n'
+    printf 'Remote CI: full/no-cache remains the final verification.\n'
+    return 0
+  fi
+
+  matches="$(git_hooks_recommendation_rows_for_paths "${paths[@]}")" || return 1
+  if [[ -z "$matches" ]]; then
+    printf 'Recommended command: ./tools/git-hooks run --mode minimal\n'
+    printf 'Reason: changed files do not match the full/no-cache recommendation policy.\n'
+    printf 'Remote CI: full/no-cache remains the final verification.\n'
+    return 0
+  fi
+
+  printf 'Recommended command: ./tools/git-hooks run --mode full --no-cache\n'
+  printf 'Reason: changed files affect Git hooks, CI, checks, tests, or as-built synchronization.\n'
+  printf 'Matched files:\n'
+  while IFS=$'\t' read -r _recommendation path pattern reason; do
+    [[ -n "${path:-}" ]] || continue
+    printf '%s\n' "- $path (policy: $pattern; $reason)"
+  done <<<"$matches"
+  printf 'Remote CI: full/no-cache remains the final verification.\n'
 }

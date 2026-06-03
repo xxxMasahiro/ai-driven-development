@@ -76,6 +76,7 @@ required_files=(
   "tools/test_as_built_sync_contract.sh"
   "tools/test_git_workflow_policy.sh"
   "tools/test_git_hooks.sh"
+  "docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv"
   "tools/test_lesson_start_position.sh"
   "tools/free-development"
   "tools/product-improvement"
