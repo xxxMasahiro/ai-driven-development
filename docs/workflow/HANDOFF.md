@@ -8,6 +8,8 @@ Existing 7-day lessons, 14-step lessons, free-development flow, advanced modules
 The implementation adds `docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv`, `tools/check_as_built_sync_contract.sh`, `tools/as-built-sync`, `tools/test_as_built_sync_contract.sh`, `docs/workflow/GIT_WORKFLOW_POLICY.tsv`, `learning/GIT_WORKFLOW_SETTINGS.tsv`, `tools/lib/git_workflow_policy.sh`, `tools/git-workflow`, and `tools/test_git_workflow_policy.sh`; it also extends `tools/menu`, `tools/dashboard`, and `tools/test_menu_prerequisites.sh` for menu-wide Git policy controls while preserving product repository cleanup, shared menu prerequisite control for menu items 1 through 6, refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule.
 The implemented Git workflow policy now applies at menu level for items 1 through 7 and preserves all existing Git sync, CI, menu, dashboard, cleanup, lesson, and as-built synchronization behavior.
 The current implemented Git workflow action settings separate Git workflow actions into detailed controls for commit, push, PR creation, PR CI monitoring, merge execution, developer-responsibility auto-merge, main CI monitoring, and local/remote sync monitoring while preserving existing broad Git settings and menu-wide Git policy behavior.
+The current implemented Git hooks policy provides faster safe serial pre-commit behavior with `full`, `fast`, and `minimal` modes plus conservative Git-local caching.
+The current planned learner context foundation adds source documents under `learning/context/` for the next lesson-content implementation cycle; it does not yet change runtime lesson output.
 
 ## Key Implemented Capabilities
 
@@ -35,6 +37,9 @@ The current implemented Git workflow action settings separate Git workflow actio
 - `tools/test_as_built_sync_contract.sh` covers sync-contract success and failure paths.
 - `tools/git-workflow status|configure|set|allow|check|cleanup-plan` provides the Git workflow policy command surface.
 - `tools/test_git_workflow_policy.sh` covers Git workflow policy success and failure paths.
+- `tools/git-hooks status|mode|cache|run` provides the Git hooks policy command surface.
+- `tools/test_git_hooks.sh` covers standalone Git hooks policy/cache success and failure paths.
+- `tools/git-hooks run --mode full --no-cache` and `.githooks/pre-commit` cover full/no-cache and real pre-commit dispatch verification.
 - Dashboard readiness output shows menu items 1 through 7 and menu-wide Git workflow policy status.
 - As-built document checks.
 - Sub-agent review protocol.
@@ -92,13 +97,20 @@ tools/test_product_repository_cleanup.sh
 tools/test_as_built_sync_contract.sh
 tools/git-workflow
 tools/test_git_workflow_policy.sh
+tools/git-hooks
+tools/test_git_hooks.sh
 tools/test_production_operations.sh
+learning/context/README.md
+learning/context/AI_DRIVEN_DEVELOPMENT_FOUNDATION.md
+learning/context/SECURITY_FOUNDATION.md
+learning/context/LESSON_CONTEXT_MAP.tsv
 ```
 
 ## Next Step
 
-Run the verification suite after reviewing the implemented Git workflow policy settings.
-The synchronized implementation covers user-configurable Git management, Git automation, Git monitoring, and non-destructive cleanup planning.
+Review the planned learner context foundation and then prepare the next implementation plan.
+The next plan should connect `learning/context/LESSON_CONTEXT_MAP.tsv` to 7-day lesson output, 14-day lesson output, applied lesson guidance, final recaps, prompt display, security guidance, and dashboard review surfaces.
+Do not treat runtime lesson rendering as complete until that follow-up implementation and its tests are added.
 
 Implemented Git workflow policy scope:
 
@@ -191,7 +203,27 @@ SYNC-ID: git_workflow_action_settings
 STATUS: implemented
 ARTIFACTS: docs/workflow/GIT_WORKFLOW_POLICY.tsv, learning/GIT_WORKFLOW_SETTINGS.tsv, learning/GIT_WORKFLOW_APPROVALS.tsv, tools/lib/git_workflow_policy.sh, tools/git-workflow, tools/menu, tools/dashboard, tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
 TESTS: tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
+
+SYNC-ID: git_hooks_policy
+STATUS: implemented
+ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
+TESTS: tools/test_git_hooks.sh
+
+SYNC-ID: learner_context_foundation
+STATUS: planned
+ARTIFACTS: learning/context/README.md,learning/context/AI_DRIVEN_DEVELOPMENT_FOUNDATION.md,learning/context/SECURITY_FOUNDATION.md,learning/context/LESSON_CONTEXT_MAP.tsv
+TESTS: tools/test_lesson_repository.sh
 ```
+
+Planned learner context foundation scope:
+
+- Added `learning/context/README.md` for context-document organization and synchronization boundaries.
+- Added `learning/context/AI_DRIVEN_DEVELOPMENT_FOUNDATION.md` for the main learner-facing conceptual source text.
+- Added `learning/context/SECURITY_FOUNDATION.md` for staged security learning.
+- Added `learning/context/LESSON_CONTEXT_MAP.tsv` so future implementation can map context topics to lesson phases.
+- Updated `guides/DOCUMENT_MAP.md` so learners and agents can find the context source documents.
+- Synchronized the planned state through `docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv` and the five synchronized documents.
+- Runtime integration remains the next step and must not be assumed complete.
 
 The previously synchronized menu-wide implementation is `menu_git_workflow_policy`.
 It promotes the existing Git workflow policy into a shared menu-level policy without weakening any existing lesson, menu, dashboard, cleanup, CI, pre-commit, or as-built synchronization behavior.
@@ -250,6 +282,27 @@ Implemented Git workflow action settings scope:
 - Keep branch deletion, worktree deletion, remote deletion, and product repository deletion behind explicit user confirmation regardless of merge settings.
 - Moved `git_workflow_action_settings` from `planned` to `implemented` across the sync contract and all five synchronized documents.
 
+Implemented Git hooks policy handoff:
+
+- Sync ID: `git_hooks_policy`.
+- Current status: `implemented`.
+- Current scope: faster safe serial pre-commit execution.
+- Safety baseline: preserve the current `.githooks/pre-commit` behavior and existing CI/check coverage.
+- Implemented modes:
+  - `full`: current-equivalent required pre-commit coverage.
+  - `fast`: cache-assisted execution only when prior successful inputs still match.
+  - `minimal`: quick local mechanical checks, not final completion coverage.
+- Normal learner-facing `off` mode is out of scope.
+- Cache location is Git-local and untracked, such as `.git/pre-commit-cache/`.
+- Cache must fail closed: missing, stale, corrupted, or unverifiable entries force a run.
+- Hook check configuration must fail closed when rows are malformed or contain invalid or empty mode tokens.
+- The command surface includes hook status, mode selection, cache clearing, normal run, no-cache run, and explicit mode run.
+- Implemented targets include `.githooks/pre-commit`, `tools/git-hooks`, `tools/lib/git_hooks_policy.sh`, `docs/workflow/GIT_HOOKS_POLICY.tsv`, `docs/workflow/GIT_HOOK_CHECKS.tsv`, `learning/GIT_HOOK_SETTINGS.tsv`, and `tools/test_git_hooks.sh`.
+- Existing wiring checks and status output now recognize runner-based pre-commit dispatch while preserving direct-command detection.
+- Required next action after this sync: run the as-built sync checks, related tests, aggregate test, `tools/git-hooks run --mode full --no-cache`, and pre-commit. If they pass, the change is ready for developer review or commit.
+- Developer approval is required before changing the minimal-mode required check list or skipping Playwright-related checks through cache beyond the implemented fail-closed behavior.
+- Recovery path: clear the cache and rerun no-cache on suspected cache issues; restore the current serial pre-commit command list if runner integration fails.
+
 The synchronized product repository cleanup implementation remains represented across the same documents.
 
 Implemented product repository cleanup scope:
@@ -294,6 +347,7 @@ Current implemented docs-map scope:
 - Explain `AGENTS.MD` invariant rules, document root, routing table, and repo-local skills in non-engineer-friendly terms.
 - Distinguish lesson-side `AGENTS.MD` from product-side `AGENT.md`.
 - Explain `docs/as-built/`, `docs/workflow/`, and `docs/memory/` by role.
+- Explain `docs/workflow/GIT_HOOKS_POLICY.tsv`, `docs/workflow/GIT_HOOK_CHECKS.tsv`, and `learning/GIT_HOOK_SETTINGS.tsv` as Git hook policy and current local hook-mode controls.
 - Explain `docs/memory/DEVELOPER_MEMORY.md` and product-side `FAILURE_MEMORY.md` or failure-recovery records without claiming a lesson-side failure-memory file exists.
 - Added `tools/docs-tour status|rules|design|workflow|memory|skills|all` with learning-mode-aware A/B/C explanation depth.
 - Added `./tools/dashboard docs` and included it in `./tools/dashboard all`.
@@ -321,6 +375,9 @@ Implemented local verification passed the lesson-side verification sequence:
 ./tools/as-built-sync status
 ./tools/illustrations list
 ./tools/test_as_built_sync_contract.sh
+./tools/test_git_workflow_policy.sh
+./tools/test_git_hooks.sh
+./tools/git-hooks run --mode full --no-cache
 ./tools/test_menu_prerequisites.sh
 ./tools/test_lesson_start_position.sh
 ./tools/test_lesson.sh
@@ -328,6 +385,7 @@ Implemented local verification passed the lesson-side verification sequence:
 ./tools/test_product_gate_tools.sh
 ./tools/test_product_repository_cleanup.sh
 ./tools/test_lesson_repository.sh
+.githooks/pre-commit
 ```
 
 The expected terminal evidence is:
@@ -336,6 +394,8 @@ The expected terminal evidence is:
 7-day lesson CLI tests passed.
 Lesson14 CLI tests passed.
 Lesson repository test passed.
+Git hooks policy tests passed.
+Git hooks checks passed: full mode
 ```
 
 Run `tools/test_production_operations.sh` only when a product repository is intentionally present.

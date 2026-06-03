@@ -81,6 +81,10 @@ show_status() {
   printf 'Workflow docs: %s, %s\n' \
     "$(file_presence docs/workflow/TASK_TRACKER.md)" \
     "$(file_presence docs/workflow/HANDOFF.md)"
+  printf 'Git hook policy: %s, %s, %s\n' \
+    "$(file_presence docs/workflow/GIT_HOOKS_POLICY.tsv)" \
+    "$(file_presence docs/workflow/GIT_HOOK_CHECKS.tsv)" \
+    "$(file_presence learning/GIT_HOOK_SETTINGS.tsv)"
   printf 'Memory docs: %s\n' "$(file_presence docs/memory/DEVELOPER_MEMORY.md)"
   printf '\n'
   printf 'Quick role overview:\n'
@@ -88,6 +92,8 @@ show_status() {
   printf '%s\n' '- product-side AGENT.md: product repository context'
   printf '%s\n' '- docs/as-built/: requirements, specification, and implementation plan'
   printf '%s\n' '- docs/workflow/: TASK_TRACKER and HANDOFF paired work state'
+  printf '%s\n' '- docs/workflow/GIT_HOOKS_POLICY.tsv and GIT_HOOK_CHECKS.tsv: what pre-commit checks run'
+  printf '%s\n' '- learning/GIT_HOOK_SETTINGS.tsv: current local Git hook mode'
   printf '%s\n' '- docs/memory/: stable lesson-side maintainer memory'
   printf '%s\n' '- product-side FAILURE_MEMORY.md: failure and recovery records when a product repository uses one'
   printf '%s\n' '- skills/*/SKILL.md: reusable agent procedures'
@@ -156,6 +162,9 @@ show_workflow() {
   esac
   printf '%s\n' '- docs/workflow/TASK_TRACKER.md'
   printf '%s\n' '- docs/workflow/HANDOFF.md'
+  printf '%s\n' '- docs/workflow/GIT_HOOKS_POLICY.tsv: available Git hook modes and the default mode'
+  printf '%s\n' '- docs/workflow/GIT_HOOK_CHECKS.tsv: checks included in each Git hook mode'
+  printf '%s\n' '- learning/GIT_HOOK_SETTINGS.tsv: current local Git hook mode setting'
   printf '\n'
   sync_status 'tools/check_workflow_pair_sync.sh' 'TASK_TRACKER/HANDOFF pair'
   printf '\nCopy-paste prompt:\n'

@@ -6,6 +6,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/lesson_common.sh"
 # shellcheck source=tools/lib/document_paths.sh
 source "$SCRIPT_DIR/lib/document_paths.sh"
+# shellcheck source=tools/lib/git_hooks_policy.sh
+source "$SCRIPT_DIR/lib/git_hooks_policy.sh"
 
 ROOT="$LESSON_ROOT"
 DEVELOPER_MEMORY_DOC="$(lesson_doc_relpath developer_memory)"
@@ -19,6 +21,43 @@ require_pattern() {
     printf 'missing %s in %s\n' "$label" "$file" >&2
     missing=1
   fi
+}
+
+require_pre_commit_check() {
+  local command="$1"
+  local label="$2"
+  local hook_mode
+  local row_command
+  local rows
+  local row_separator
+  if awk -v command="$command" '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*$/ { next }
+    index($0, command) { found = 1 }
+    END { exit found ? 0 : 1 }
+  ' "$ROOT/.githooks/pre-commit"; then
+    return
+  fi
+  if awk '
+      /^[[:space:]]*#/ { next }
+      /^[[:space:]]*$/ { next }
+      index($0, "tools/git-hooks") { found = 1 }
+      END { exit found ? 0 : 1 }
+    ' "$ROOT/.githooks/pre-commit" \
+    && [[ -f "$ROOT/docs/workflow/GIT_HOOK_CHECKS.tsv" ]]; then
+    hook_mode="$(git_hooks_mode)" || true
+    if [[ -n "$hook_mode" ]]; then
+      row_separator=$'\034'
+      rows="$(git_hooks_rows_for_mode "$hook_mode")" || rows=""
+      while IFS="$row_separator" read -r _ _ row_command _; do
+        if [[ "$row_command" == "./tools/$command" || "$row_command" == "$ROOT/tools/$command" ]]; then
+          return
+        fi
+      done <<<"$rows"
+    fi
+  fi
+  printf 'missing %s in .githooks/pre-commit\n' "$label" >&2
+  missing=1
 }
 
 require_file() {
@@ -119,7 +158,7 @@ require_pattern "guides/DOCUMENT_MAP.md" 'docs/memory/DEVELOPER_MEMORY.md' "docu
 require_pattern "guides/DOCUMENT_MAP.md" 'skills/\*/SKILL.md|skills/.*/SKILL.md' "document map skills explanation"
 require_pattern "tools/docs-tour" 'status\|rules\|design\|workflow\|memory\|skills\|all' "docs-tour supported views"
 require_pattern "tools/test_docs_tour.sh" 'Documentation tour tests passed' "docs-tour test"
-require_pattern ".githooks/pre-commit" 'test_docs_tour\.sh' "pre-commit docs-tour test"
+require_pre_commit_check 'test_docs_tour.sh' "pre-commit docs-tour test"
 require_file "tools/illustrations"
 require_file "illustrations/README.md"
 require_file "illustrations/lesson14/index.tsv"
@@ -145,11 +184,11 @@ require_pattern "tools/test_product_repository_cleanup.sh" 'Product repository c
 require_file "tools/test_menu_prerequisites.sh"
 require_pattern "tools/test_menu_prerequisites.sh" 'Menu prerequisite tests passed' "menu prerequisite tests"
 require_pattern "tools/test_menu_prerequisites.sh" '3\\. 応用レッスン' "menu label regression test"
-require_pattern ".githooks/pre-commit" 'test_lesson_repository\.sh' "pre-commit aggregate test"
-require_pattern ".githooks/pre-commit" 'test_product_gate_tools\.sh' "pre-commit product gate test"
-require_pattern ".githooks/pre-commit" 'test_product_repository_cleanup\.sh' "pre-commit product cleanup test"
-require_pattern ".githooks/pre-commit" 'test_menu_prerequisites\.sh' "pre-commit menu prerequisite test"
-require_pattern ".githooks/pre-commit" 'test_lesson_playwright\.sh' "pre-commit Playwright test"
+require_pre_commit_check 'test_lesson_repository.sh' "pre-commit aggregate test"
+require_pre_commit_check 'test_product_gate_tools.sh' "pre-commit product gate test"
+require_pre_commit_check 'test_product_repository_cleanup.sh' "pre-commit product cleanup test"
+require_pre_commit_check 'test_menu_prerequisites.sh' "pre-commit menu prerequisite test"
+require_pre_commit_check 'test_lesson_playwright.sh' "pre-commit Playwright test"
 require_file "tools/check_as_built_docs.sh"
 require_pattern "tools/check_as_built_docs.sh" 'As-built docs check passed' "as-built docs check"
 require_file "tools/check_review_protocol.sh"

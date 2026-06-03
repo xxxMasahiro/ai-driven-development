@@ -4,6 +4,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 missing=0
 
+# shellcheck source=tools/lib/git_hooks_policy.sh
+source "$ROOT/tools/lib/git_hooks_policy.sh"
+
 require_file() {
   local file="$1"
   if [[ ! -f "$ROOT/$file" ]]; then
@@ -20,6 +23,43 @@ require_pattern() {
     printf 'missing %s in %s\n' "$label" "$file" >&2
     missing=1
   fi
+}
+
+require_pre_commit_check() {
+  local command="$1"
+  local label="$2"
+  local hook_mode
+  local row_command
+  local rows
+  local row_separator
+  if awk -v command="$command" '
+    /^[[:space:]]*#/ { next }
+    /^[[:space:]]*$/ { next }
+    index($0, command) { found = 1 }
+    END { exit found ? 0 : 1 }
+  ' "$ROOT/.githooks/pre-commit"; then
+    return
+  fi
+  if awk '
+      /^[[:space:]]*#/ { next }
+      /^[[:space:]]*$/ { next }
+      index($0, "tools/git-hooks") { found = 1 }
+      END { exit found ? 0 : 1 }
+    ' "$ROOT/.githooks/pre-commit" \
+    && [[ -f "$ROOT/docs/workflow/GIT_HOOK_CHECKS.tsv" ]]; then
+    hook_mode="$(git_hooks_mode)" || true
+    if [[ -n "$hook_mode" ]]; then
+      row_separator=$'\034'
+      rows="$(git_hooks_rows_for_mode "$hook_mode")" || rows=""
+      while IFS="$row_separator" read -r _ _ row_command _; do
+        if [[ "$row_command" == "./tools/$command" || "$row_command" == "$ROOT/tools/$command" ]]; then
+          return
+        fi
+      done <<<"$rows"
+    fi
+  fi
+  printf 'missing %s in .githooks/pre-commit\n' "$label" >&2
+  missing=1
 }
 
 require_file "AGENTS.MD"
@@ -101,9 +141,9 @@ require_pattern "skills/lesson-sync-gate/references/sync-gates.md" 'separate Ubu
 require_pattern "skills/task-tracker-docs/references/product-docs.md" 'separate Ubuntu/WSL CLI window' "task docs reference product CLI prompt"
 require_pattern "skills/worklog-doc-sync/references/worklog-sync.md" 'separate Ubuntu/WSL CLI window' "worklog reference product CLI prompt"
 
-require_pattern ".githooks/pre-commit" 'check_agents_skills\.sh' "pre-commit agents skills check"
-require_pattern ".githooks/pre-commit" 'check_lesson14_structure\.sh' "pre-commit lesson14 structure check"
-require_pattern ".githooks/pre-commit" 'check_lesson14_sync\.sh' "pre-commit lesson14 sync check"
+require_pre_commit_check 'check_agents_skills.sh' "pre-commit agents skills check"
+require_pre_commit_check 'check_lesson14_structure.sh' "pre-commit lesson14 structure check"
+require_pre_commit_check 'check_lesson14_sync.sh' "pre-commit lesson14 sync check"
 require_pattern ".github/workflows/ci.yml" 'check_agents_skills\.sh' "ci agents skills check"
 require_pattern ".github/workflows/lesson14-ci.yml" 'check_agents_skills\.sh' "lesson14 ci agents skills check"
 require_pattern "ai-driven-task-tracker-scenario.md" '成果物リポジトリの開発に入る前には、別画面でUbuntu/WSL CLIを起動' "7-day scenario product CLI prompt"

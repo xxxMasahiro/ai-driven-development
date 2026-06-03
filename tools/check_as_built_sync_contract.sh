@@ -177,6 +177,68 @@ active_command_reference() {
   return 1
 }
 
+git_hooks_runner_reference() {
+  local test_relpath="$1"
+  local pre_commit="$ROOT/.githooks/pre-commit"
+  local checks_file="$ROOT/docs/workflow/GIT_HOOK_CHECKS.tsv"
+  local policy_file="$ROOT/docs/workflow/GIT_HOOKS_POLICY.tsv"
+  local settings_file="$ROOT/learning/GIT_HOOK_SETTINGS.tsv"
+  local allowed_modes
+  local hook_mode
+
+  [[ -f "$pre_commit" && -f "$checks_file" && -f "$policy_file" ]] || return 1
+  active_command_reference "$pre_commit" "tools/git-hooks" || return 1
+  allowed_modes="$(awk -F '\t' '$1 == "hook_mode" { print $2; found = 1 } END { if (!found) exit 1 }' "$policy_file")" || return 1
+  if [[ -f "$settings_file" ]]; then
+    hook_mode="$(awk -F '\t' '$1 == "hook_mode" { print $2; found = 1 } END { if (!found) exit 1 }' "$settings_file" 2>/dev/null || true)"
+  fi
+  if [[ -z "${hook_mode:-}" ]]; then
+    hook_mode="$(awk -F '\t' '$1 == "hook_mode" { print $3; found = 1 } END { if (!found) exit 1 }' "$policy_file")" || return 1
+  fi
+  case "|$allowed_modes|" in
+    *"|$hook_mode|"*) ;;
+    *) return 1 ;;
+  esac
+
+  awk -F '\t' -v rel="./$test_relpath" -v abs="$ROOT/$test_relpath" -v hook_mode="$hook_mode" -v allowed_modes="$allowed_modes" '
+    function trim(value) {
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      return value
+    }
+    /^[[:space:]]*$/ { next }
+    $1 ~ /^#/ { next }
+    NF != 4 {
+      invalid = 1
+      next
+    }
+    {
+      check_id = trim($1)
+      modes_field = trim($2)
+      command = trim($3)
+      if (check_id == "" || modes_field == "" || command == "") {
+        invalid = 1
+        next
+      }
+      selected = 0
+      row_invalid = 0
+      mode_count = split(modes_field, modes, "|")
+      for (i = 1; i <= mode_count; i++) {
+        if (modes[i] == "" || index("|" allowed_modes "|", "|" modes[i] "|") == 0) {
+          invalid = 1
+          row_invalid = 1
+        }
+        if (modes[i] == hook_mode) {
+          selected = 1
+        }
+      }
+      if (!row_invalid && selected && (command == rel || command == abs)) {
+        found = 1
+      }
+    }
+    END { exit invalid ? 1 : (found ? 0 : 1) }
+  ' "$checks_file"
+}
+
 require_test_wiring() {
   local test_relpath="$1"
   local wiring_relpath
@@ -186,6 +248,12 @@ require_test_wiring() {
   for wiring_relpath in "${wiring_relpaths[@]}"; do
     if [[ ! -f "$ROOT/$wiring_relpath" ]]; then
       report_missing "missing wiring file: $wiring_relpath"
+      continue
+    fi
+    if active_command_reference "$ROOT/$wiring_relpath" "$test_relpath"; then
+      continue
+    fi
+    if [[ "$wiring_relpath" == ".githooks/pre-commit" ]] && git_hooks_runner_reference "$test_relpath"; then
       continue
     fi
     if ! active_command_reference "$ROOT/$wiring_relpath" "$test_relpath"; then
@@ -233,6 +301,9 @@ require_runtime_evidence_reference() {
     item="$(trim "$item")"
     [[ -n "$item" && "$item" != "none" ]] || continue
     if grep -F "$item" "$ROOT/$evidence_relpath" >/dev/null; then
+      return
+    fi
+    if [[ "$evidence_relpath" == ".githooks/pre-commit" ]] && git_hooks_runner_reference "$item"; then
       return
     fi
   done

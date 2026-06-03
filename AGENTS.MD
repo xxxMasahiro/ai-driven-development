@@ -104,6 +104,7 @@
 | 14日版同期ゲート | `lesson/SYNC_GATES_14_DAYS.tsv` |
 | 14日版ヘルプデスク | `learning/HELP_DESK.md` |
 | Gitワークフロー設定 | `docs/workflow/GIT_WORKFLOW_POLICY.tsv`、`learning/GIT_WORKFLOW_SETTINGS.tsv` |
+| Git hooks設定 | `docs/workflow/GIT_HOOKS_POLICY.tsv`、`docs/workflow/GIT_HOOK_CHECKS.tsv`、`learning/GIT_HOOK_SETTINGS.tsv` |
 | 成果物文書雛形 | `templates/TEMPLATES.md` |
 | repo-local skills | `skills/*/SKILL.md` |
 
@@ -125,6 +126,7 @@
 | 同期ゲートを通したい | `lesson/SYNC_GATES_14_DAYS.tsv` | `skills/lesson-sync-gate/SKILL.md` | `./tools/check_lesson14_sync.sh`、`./tools/lesson14 通過 ...` |
 | Git/CI同期を確認したい | `lesson/SYNC_GATES_14_DAYS.tsv` | `skills/lesson-sync-gate/SKILL.md` | `./tools/check_git_sync.sh --required`、`./tools/check_ci_status.sh --required` |
 | Git管理設定を確認・変更したい | `docs/workflow/GIT_WORKFLOW_POLICY.tsv`、`learning/GIT_WORKFLOW_SETTINGS.tsv` | なし | `./tools/git-workflow status`、`./tools/git-workflow configure`、`./tools/git-workflow check` |
+| Git hooks/pre-commit設定を確認・変更したい | `docs/workflow/GIT_HOOKS_POLICY.tsv`、`docs/workflow/GIT_HOOK_CHECKS.tsv`、`learning/GIT_HOOK_SETTINGS.tsv` | なし | `./tools/git-hooks status`、`./tools/git-hooks mode <full\|fast\|minimal>`、`./tools/git-hooks run --mode full --no-cache` |
 | 成果物文書を作りたい | `templates/TEMPLATES.md` | `skills/task-tracker-docs/SKILL.md` | 境界確認後に更新案を提示 |
 | TASK_TRACKER/HANDOFFを同期したい | `ai-driven-task-tracker-scenario.md`、`lesson/SYNC_GATES_14_DAYS.tsv` | `skills/worklog-doc-sync/SKILL.md`、`skills/lesson-sync-gate/SKILL.md` | 更新案、同期チェック、通過 |
 | 3文書とTASK_TRACKER/HANDOFFの同期契約を確認したい | `docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv`、`docs/as-built/REQUIREMENTS.md`、`docs/as-built/SPECIFICATION.md`、`docs/as-built/IMPLEMENTATION_PLAN.md`、`docs/workflow/TASK_TRACKER.md`、`docs/workflow/HANDOFF.md` | なし | `./tools/as-built-sync status`、`./tools/check_as_built_sync_contract.sh` |
@@ -166,6 +168,7 @@ skills/worklog-doc-sync/SKILL.md
 ./tools/test_docs_tour.sh
 ./tools/test_as_built_sync_contract.sh
 ./tools/test_git_workflow_policy.sh
+./tools/test_git_hooks.sh
 ./tools/test_menu_prerequisites.sh
 ./tools/test_product_repository_cleanup.sh
 ./tools/test_lesson14.sh

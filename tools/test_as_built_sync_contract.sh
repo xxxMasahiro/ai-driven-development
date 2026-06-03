@@ -40,6 +40,11 @@ sample_sync	implemented	Sample sync	artifact-one.txt	tools/sample_test.sh	docs/a
 planned_sync	planned	Planned sync	none	none	docs/as-built/REQUIREMENTS.md,docs/as-built/SPECIFICATION.md,docs/as-built/IMPLEMENTATION_PLAN.md,docs/workflow/TASK_TRACKER.md,docs/workflow/HANDOFF.md	docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
 EOF
 
+cat >"$fixture/docs/workflow/GIT_HOOKS_POLICY.tsv" <<'EOF'
+# key	allowed_values	default_value	label	description
+hook_mode	full|fast|minimal	fast	Git hooks mode	Test policy.
+EOF
+
   touch "$fixture/artifact-one.txt"
   cat >"$fixture/tools/sample_test.sh" <<'EOF'
 #!/usr/bin/env bash
@@ -105,6 +110,46 @@ assert_contains "$status_output" "Artifacts: 0/0 present"
 assert_contains "$status_output" "Tests: 0/0 present"
 assert_contains "$status_output" "Active test wiring: 0/0 present"
 assert_contains "$status_output" "As-built sync contract check passed."
+
+RUNNER_WIRING="$TMP_DIR/runner-wiring"
+copy_fixture "$BASE" "$RUNNER_WIRING"
+cat >"$RUNNER_WIRING/.githooks/pre-commit" <<'EOF'
+./tools/git-hooks run
+EOF
+cat >"$RUNNER_WIRING/docs/workflow/GIT_HOOK_CHECKS.tsv" <<'EOF'
+# check_id	modes	command	description
+sample_test	full|fast	./tools/sample_test.sh	Sample test.
+EOF
+run_check "$RUNNER_WIRING" >/dev/null
+runner_status_output="$(AS_BUILT_SYNC_ROOT="$RUNNER_WIRING" AS_BUILT_SYNC_CONTRACT_FILE="$RUNNER_WIRING/docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv" "$ROOT/tools/as-built-sync" status)"
+assert_contains "$runner_status_output" "Active test wiring: 4/4 present"
+
+RUNNER_FULL_ONLY="$TMP_DIR/runner-full-only"
+copy_fixture "$RUNNER_WIRING" "$RUNNER_FULL_ONLY"
+cat >"$RUNNER_FULL_ONLY/docs/workflow/GIT_HOOK_CHECKS.tsv" <<'EOF'
+# check_id	modes	command	description
+sample_test	full	./tools/sample_test.sh	Full-only sample test.
+EOF
+assert_fails_with "missing active test wiring for tools/sample_test.sh in .githooks/pre-commit" run_check "$RUNNER_FULL_ONLY"
+full_only_status_output="$(AS_BUILT_SYNC_ROOT="$RUNNER_FULL_ONLY" AS_BUILT_SYNC_CONTRACT_FILE="$RUNNER_FULL_ONLY/docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv" "$ROOT/tools/as-built-sync" status 2>&1 || true)"
+assert_contains "$full_only_status_output" "Active test wiring: 3/4 present"
+
+RUNNER_POLICY_DEFAULT="$TMP_DIR/runner-policy-default"
+copy_fixture "$RUNNER_FULL_ONLY" "$RUNNER_POLICY_DEFAULT"
+sed -i 's/^hook_mode\tfull|fast|minimal\tfast\t/hook_mode\tfull|fast|minimal\tfull\t/' "$RUNNER_POLICY_DEFAULT/docs/workflow/GIT_HOOKS_POLICY.tsv"
+run_check "$RUNNER_POLICY_DEFAULT" >/dev/null
+policy_default_status_output="$(AS_BUILT_SYNC_ROOT="$RUNNER_POLICY_DEFAULT" AS_BUILT_SYNC_CONTRACT_FILE="$RUNNER_POLICY_DEFAULT/docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv" "$ROOT/tools/as-built-sync" status)"
+assert_contains "$policy_default_status_output" "Active test wiring: 4/4 present"
+
+RUNNER_TRAILING_INVALID="$TMP_DIR/runner-trailing-invalid"
+copy_fixture "$RUNNER_WIRING" "$RUNNER_TRAILING_INVALID"
+cat >"$RUNNER_TRAILING_INVALID/docs/workflow/GIT_HOOK_CHECKS.tsv" <<'EOF'
+# check_id	modes	command	description
+sample_test	fast|bogus	./tools/sample_test.sh	Trailing invalid mode must not count as active wiring.
+EOF
+assert_fails_with "missing active test wiring for tools/sample_test.sh in .githooks/pre-commit" run_check "$RUNNER_TRAILING_INVALID"
+trailing_invalid_status_output="$(AS_BUILT_SYNC_ROOT="$RUNNER_TRAILING_INVALID" AS_BUILT_SYNC_CONTRACT_FILE="$RUNNER_TRAILING_INVALID/docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv" "$ROOT/tools/as-built-sync" status 2>&1 || true)"
+assert_contains "$trailing_invalid_status_output" "Active test wiring: 3/4 present"
 
 MISSING_BLOCK="$TMP_DIR/missing-block"
 copy_fixture "$BASE" "$MISSING_BLOCK"

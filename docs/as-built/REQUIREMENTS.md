@@ -94,6 +94,10 @@ This implemented work is additive and does not trade away any existing 7-day les
 - Clearly distinguish lesson-side `AGENTS.MD` from product-side `AGENT.md`.
 - Explain `docs/as-built/` as the design/as-built area for requirements, specification, and implementation plan.
 - Explain `docs/workflow/` as the work-state area for task tracking and handoff.
+- Explain Git hook policy documents as workflow controls:
+  - `docs/workflow/GIT_HOOKS_POLICY.tsv`,
+  - `docs/workflow/GIT_HOOK_CHECKS.tsv`,
+  - `learning/GIT_HOOK_SETTINGS.tsv`.
 - Explain `docs/memory/` as the memory/decision area, currently including `docs/memory/DEVELOPER_MEMORY.md`.
 - Explain failure memory as product-side `FAILURE_MEMORY.md` or failure-recovery records where the lesson uses them, without falsely claiming that a lesson-side `docs/memory/FAILURE_MEMORY.md` file exists.
 - Explain `skills/*/SKILL.md` as reusable agent procedures, not learner homework.
@@ -199,7 +203,30 @@ SYNC-ID: git_workflow_action_settings
 STATUS: implemented
 ARTIFACTS: docs/workflow/GIT_WORKFLOW_POLICY.tsv, learning/GIT_WORKFLOW_SETTINGS.tsv, learning/GIT_WORKFLOW_APPROVALS.tsv, tools/lib/git_workflow_policy.sh, tools/git-workflow, tools/menu, tools/dashboard, tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
 TESTS: tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
+
+SYNC-ID: git_hooks_policy
+STATUS: implemented
+ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
+TESTS: tools/test_git_hooks.sh
+
+SYNC-ID: learner_context_foundation
+STATUS: planned
+ARTIFACTS: learning/context/README.md,learning/context/AI_DRIVEN_DEVELOPMENT_FOUNDATION.md,learning/context/SECURITY_FOUNDATION.md,learning/context/LESSON_CONTEXT_MAP.tsv
+TESTS: tools/test_lesson_repository.sh
 ```
+
+## Planned Learner Context Foundation Requirements
+
+The lesson repository now has planned learner-context source documents for the next lesson-content implementation cycle.
+This is a documentation foundation only; runtime lesson output is not considered implemented until a separate implementation plan connects the context to the 7-day lesson, 14-day lesson, applied lessons, dashboards, prompts, and checks.
+
+- Provide a learner context directory at `learning/context/`.
+- Keep the source context in English while preserving the existing runtime/display-language model for learner-facing output.
+- Provide a main AI-driven development foundation text that explains purpose, dialogue, documents, Git, CI, tests, memory, skills, sub-agents, MCP/API, governance, security, quality, and free development.
+- Provide a security foundation that covers prompt injection, secrets, permissions, external APIs, dependencies, Git/CI safety, and staged 7-day, 14-day, and applied security learning.
+- Provide a machine-readable context map that future implementation can use to connect topics to lesson openings, per-topic explanations, recaps, and dashboard candidates.
+- Preserve the existing 7-day lesson, 14-day lesson, menu, dashboard, Git workflow, Git hooks, as-built sync, docs-tour, and product-repository cleanup behavior.
+- Do not mark runtime integration as complete until the next implementation plan adds tests and connects the context to lesson output.
 
 ## Implemented Git Workflow Policy Requirements
 
@@ -292,6 +319,33 @@ This implemented work is additive and does not trade away existing `branch_allow
 - Apply the same detailed settings to menu items 1 through 7.
 - Add tests for default values, valid changes, invalid value rejection, detailed-setting precedence, menu display, dashboard display, and preservation of existing lesson and product workflows.
 
+## Implemented Git Hooks Policy Requirements
+
+The lesson repository makes the existing pre-commit gate faster and easier to operate without weakening its safety.
+This implemented work is additive and does not trade away any existing 7-day lesson, 14-day lesson, menu, dashboard, Git workflow policy, CI, pre-commit, documentation route, sync-contract behavior, or repo-local skill behavior.
+
+- Keep the pre-commit workflow safe and serial by default.
+- Avoid a normal learner-facing `off` mode for Git hooks; disabling safety checks is outside the standard workflow.
+- Provide explicit Git hooks modes through `docs/workflow/GIT_HOOKS_POLICY.tsv` and `learning/GIT_HOOK_SETTINGS.tsv`:
+  - `full`: run coverage equivalent to the current required pre-commit checks.
+  - `fast`: use a cache to skip only checks that previously passed with unchanged relevant inputs.
+  - `minimal`: run only the smallest safe mechanical set required for local orientation, never as a replacement for full verification before completion.
+- Store the implemented check list in `docs/workflow/GIT_HOOK_CHECKS.tsv` so the runner does not hard-code the pre-commit command list.
+- Treat malformed `docs/workflow/GIT_HOOK_CHECKS.tsv` rows, including unknown or empty mode tokens, as fail-closed configuration errors.
+- Store hook cache data outside version control, under a Git-local cache area such as `.git/pre-commit-cache/`.
+- Treat missing, stale, or corrupted cache entries as cache misses that force the relevant check to run.
+- Build cache keys from reusable inputs such as hook mode, command identity, tool hashes, relevant file hashes, and staged or working-tree changes where practical.
+- Keep CI and completion verification on full or no-cache execution so local cache behavior cannot hide regressions.
+- Connect the implementation to existing settings, shared libraries, aggregate tests, CI, pre-commit, and repo-local skills instead of adding fixed one-off branches.
+- Keep existing pre-commit wiring checks active by recognizing the `tools/git-hooks` runner plus `docs/workflow/GIT_HOOK_CHECKS.tsv` as active wiring, not as inert text.
+- Keep new checks runnable as standalone commands and through the aggregate lesson repository test.
+- Do not depend on a specific product stack, a specific learner-facing phrase, or one narrow case.
+- Make the command surface learner-readable, including status, mode selection, cache clearing, normal run, no-cache run, and explicit mode run.
+- Keep failure behavior conservative: if the hook runner cannot prove a cached pass is valid, it must run the check or fail.
+- `tools/test_git_hooks.sh` must validate standalone policy and cache behavior: mode validation, invalid persisted settings, malformed check rows, invalid or empty check-row mode tokens, cache-hit and cache-miss behavior, cache invalidation, no-cache behavior, minimal-mode required checks, failing-check cache refusal, and safe cache clearing.
+- Full/no-cache coverage, aggregate-test wiring, CI wiring, and preservation of existing pre-commit behavior must be verified through `tools/git-hooks run --mode full --no-cache`, `.githooks/pre-commit`, `tools/test_lesson_repository.sh`, and the CI workflow definitions.
+- Require developer approval before changing the minimal-mode required check list or skipping Playwright-related checks through cache beyond the implemented fail-closed cache behavior.
+
 ## Mechanical Enforcement
 
 - 14-day progression requires approval receipts through `tools/lesson14 承認`.
@@ -314,6 +368,7 @@ This implemented work is additive and does not trade away existing `branch_allow
 - Menu prerequisites are checked by `tools/menu check <1|2|3|4|5|6>` and `tools/test_menu_prerequisites.sh`.
 - The learner-facing menu is checked by `tools/menu` and developer-memory requirement checks.
 - Git workflow policy settings are checked by `tools/git-workflow status`, `tools/git-workflow cleanup-plan`, and `tools/test_git_workflow_policy.sh`.
+- Git hooks policy settings are checked by `tools/git-hooks status`, `tools/test_git_hooks.sh`, and full/no-cache CI hook runs.
 - Dashboard and illustration entry points are checked by structure and developer-memory requirement checks.
 - Remediation remains complete only while the audit items above are implemented, synchronized into these as-built documents, and covered by mechanical checks that fail when the requirement is missing.
 - Remediation checks and implementations must remain refactorable, ecosystem-friendly, reusable, and general.

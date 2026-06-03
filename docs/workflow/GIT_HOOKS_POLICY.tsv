@@ -1,0 +1,2 @@
+# key	allowed_values	default_value	label	description
+hook_mode	full|fast|minimal	fast	Git hooks mode	Controls the local pre-commit hook mode while CI and final verification remain full or no-cache.

@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/git_hooks_policy.sh
+source "$ROOT/tools/lib/git_hooks_policy.sh"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  ./tools/git-hooks status
+  ./tools/git-hooks mode
+  ./tools/git-hooks mode <full|fast|minimal>
+  ./tools/git-hooks cache clear
+  ./tools/git-hooks run [--mode <full|fast|minimal>] [--no-cache]
+USAGE
+}
+
+cmd="${1:-status}"
+shift || true
+
+case "$cmd" in
+  status)
+    git_hooks_print_status
+    ;;
+  mode)
+    if [[ $# -eq 0 ]]; then
+      mode="$(git_hooks_mode)" || exit 1
+      printf 'Current Git hooks mode: %s\n' "$mode"
+    elif [[ $# -eq 1 ]]; then
+      git_hooks_write_mode "$1"
+      printf 'Git hooks mode recorded: %s\n' "$1"
+    else
+      usage >&2
+      exit 1
+    fi
+    ;;
+  cache)
+    subcmd="${1:-}"
+    if [[ "$subcmd" != "clear" || $# -ne 1 ]]; then
+      usage >&2
+      exit 1
+    fi
+    git_hooks_clear_cache
+    ;;
+  run)
+    mode="$(git_hooks_mode)" || exit 1
+    no_cache="false"
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --mode)
+          [[ $# -ge 2 ]] || {
+            printf '--mode requires a value.\n' >&2
+            exit 1
+          }
+          mode="$2"
+          shift 2
+          ;;
+        --no-cache)
+          no_cache="true"
+          shift
+          ;;
+        *)
+          usage >&2
+          exit 1
+          ;;
+      esac
+    done
+    git_hooks_run_checks "$mode" "$no_cache"
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 1
+    ;;
+esac

@@ -208,6 +208,7 @@ It preserves existing features without tradeoffs and follows the repository qual
 3. Explain design, workflow, and memory documents.
    - Explained `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md`.
    - Explained `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as a synchronized pair.
+   - Explained `docs/workflow/GIT_HOOKS_POLICY.tsv`, `docs/workflow/GIT_HOOK_CHECKS.tsv`, and `learning/GIT_HOOK_SETTINGS.tsv` as the Git hook policy and current local hook-mode controls.
    - Explained `docs/memory/DEVELOPER_MEMORY.md`.
    - Explained product-side `FAILURE_MEMORY.md` and failure-recovery records without implying a lesson-side `docs/memory/FAILURE_MEMORY.md` exists.
 
@@ -403,7 +404,48 @@ SYNC-ID: git_workflow_action_settings
 STATUS: implemented
 ARTIFACTS: docs/workflow/GIT_WORKFLOW_POLICY.tsv, learning/GIT_WORKFLOW_SETTINGS.tsv, learning/GIT_WORKFLOW_APPROVALS.tsv, tools/lib/git_workflow_policy.sh, tools/git-workflow, tools/menu, tools/dashboard, tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
 TESTS: tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
+
+SYNC-ID: git_hooks_policy
+STATUS: implemented
+ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
+TESTS: tools/test_git_hooks.sh
+
+SYNC-ID: learner_context_foundation
+STATUS: planned
+ARTIFACTS: learning/context/README.md,learning/context/AI_DRIVEN_DEVELOPMENT_FOUNDATION.md,learning/context/SECURITY_FOUNDATION.md,learning/context/LESSON_CONTEXT_MAP.tsv
+TESTS: tools/test_lesson_repository.sh
 ```
+
+## Planned Learner Context Foundation Plan
+
+This plan prepares the learner-facing context foundation only.
+It does not implement runtime lesson rendering yet.
+The next implementation plan should connect these files to lesson output, dashboards, prompts, and checks.
+
+1. Add context source documents under `learning/context/`.
+   - Add a directory README that explains the role of learner context and its synchronization boundary.
+   - Add the main AI-driven development foundation text.
+   - Add a staged security foundation.
+   - Add a machine-readable context-to-lesson map.
+
+2. Preserve source-language and display-language separation.
+   - Keep repository source documents in English.
+   - Let future runtime output translate or summarize according to the selected workflow display language.
+   - Do not hard-code Japanese-only lesson text into runtime behavior from this documentation step.
+
+3. Keep context separate from runtime implementation.
+   - Do not modify lesson state machines in this step.
+   - Do not change `tools/lesson`, `tools/lesson14`, dashboard behavior, or browser dashboard behavior in this step.
+   - Mark the sync ID as `planned` until runtime integration and targeted checks are implemented.
+
+4. Prepare future implementation connections.
+   - Use `LESSON_CONTEXT_MAP.tsv` as the future bridge from context topics to lesson openings, per-topic explanations, final recaps, security coverage, prompt examples, and dashboard candidates.
+   - Use the main foundation and security foundation as the source for learner-mode-specific rendering.
+   - Add future tests only when runtime integration is implemented.
+
+5. Synchronize document discovery.
+   - Update `guides/DOCUMENT_MAP.md` so learners and agents can find `learning/context/`.
+   - Synchronize the planned context foundation through the as-built sync contract and the five synchronized documents.
 
 ## Implemented Git Workflow Policy Implementation Plan
 
@@ -609,6 +651,71 @@ It must preserve existing Git policy settings, menu checks, dashboard output, cl
    - Replaced `ARTIFACTS: none` and `TESTS: none` with the implemented artifacts and tests.
    - Updated these five synchronized documents and the sync contract together.
 
+## Implemented Git Hooks Policy Implementation Plan
+
+This implementation makes `.githooks/pre-commit` faster while preserving the current safety model.
+The work is implemented through runtime artifacts, tests, and the `git_hooks_policy` sync record.
+
+1. Preserve the current safety baseline.
+   - Kept the existing `.githooks/pre-commit` check list as the functional baseline in `docs/workflow/GIT_HOOK_CHECKS.tsv`.
+   - Do not add a normal learner-facing `off` mode.
+   - Keep CI and completion verification full or no-cache.
+   - Do not remove existing checks, CI steps, sync-contract checks, or documentation routes.
+
+2. Define a reusable policy and settings layer.
+   - Added `docs/workflow/GIT_HOOKS_POLICY.tsv`.
+   - Added `docs/workflow/GIT_HOOK_CHECKS.tsv`.
+   - Added `learning/GIT_HOOK_SETTINGS.tsv`.
+   - Added shared shell helpers in `tools/lib/git_hooks_policy.sh`.
+   - Kept mode names and accepted values centralized so future tools, dashboard output, repo-local skills, and tests can reuse the same source.
+
+3. Add a hook runner command.
+   - Added `tools/git-hooks status`.
+   - Added `tools/git-hooks mode <full|fast|minimal>`.
+   - Added `tools/git-hooks cache clear`.
+   - Added `tools/git-hooks run`.
+   - Added `tools/git-hooks run --no-cache`.
+   - Added `tools/git-hooks run --mode <full|fast|minimal>`.
+   - Keep output learner-readable and suitable for agents to summarize.
+
+4. Implement conservative caching.
+   - Store cache data under an untracked Git-local directory such as `.git/pre-commit-cache/`.
+   - Include hook mode, command identity, relevant tool hashes, relevant input hashes, staged content, worktree changes, and Git status data.
+   - Disable cache use while untracked files are present.
+   - Treat missing, stale, corrupted, or unverifiable cache entries as misses.
+   - Never allow a cache hit to replace full/no-cache CI verification.
+
+5. Define mode behavior.
+   - `full` runs coverage equivalent to the current required pre-commit checks.
+   - `fast` uses the cache to avoid rerunning checks only when prior successful inputs still match.
+   - `minimal` runs a small required mechanical set for quick local feedback.
+   - Future changes to the minimal-mode check list require developer approval because it defines the lowest acceptable local safety gate.
+
+6. Connect to existing ecosystem surfaces.
+   - Updated `.githooks/pre-commit` to call `tools/git-hooks run`.
+   - Wired the dedicated hook test into `tools/test_lesson_repository.sh`.
+   - Added CI coverage for the hook test and for full/no-cache behavior.
+   - Added AGENTS routing and standard-check references for the hook command and test.
+   - Updated existing wiring checks and status output so runner-based hook dispatch is recognized as active pre-commit wiring for the current hook mode.
+
+7. Add standalone and aggregate tests.
+   - Added `tools/test_git_hooks.sh` for modes, invalid mode rejection, invalid persisted settings, malformed check rows, invalid or empty check-row mode tokens, cache hits, cache misses, invalidation, no-cache operation, minimal-mode required checks, failing-check cache refusal, and safe cache clearing.
+   - Confirm existing pre-commit checks still run in `full` through `tools/git-hooks run --mode full --no-cache`.
+   - Confirm aggregate tests, CI, and pre-commit include the new hook validation after implementation.
+   - Confirm existing 7-day, 14-day, Git workflow policy, menu, dashboard, docs-tour, product cleanup, sync-contract, and CI behavior remains available.
+
+8. Plan recovery behavior.
+   - If a cache bug is suspected, clear the cache and rerun with `--no-cache`.
+   - If hook-runner integration fails, restore the current serial `.githooks/pre-commit` command list while preserving the new tests for diagnosis.
+   - If minimal-mode scope conflicts with safety expectations, stop for developer approval.
+   - If CI behavior diverges from local hooks, keep CI on full/no-cache verification and fix local runner behavior.
+
+9. Synchronize after implementation.
+   - Moved `git_hooks_policy` from `planned` to `implemented`.
+   - Replaced `ARTIFACTS: none` and `TESTS: none` with the implemented files and tests.
+   - Updated these five synchronized documents and `docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv` together.
+   - Keep unrelated existing content unchanged.
+
 ## Verification Plan
 
 Run:
@@ -628,6 +735,9 @@ Run:
 ./tools/illustrations list
 ./tools/test_as_built_sync_contract.sh
 ./tools/test_git_workflow_policy.sh
+./tools/test_git_hooks.sh
+./tools/git-hooks run --mode full --no-cache
+.githooks/pre-commit
 ./tools/test_menu_prerequisites.sh
 ./tools/test_lesson_start_position.sh
 ./tools/test_lesson.sh

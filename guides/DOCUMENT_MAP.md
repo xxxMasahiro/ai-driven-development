@@ -9,6 +9,7 @@ The short version:
 - `docs/as-built/` describes what this lesson repository is meant to provide and how it is implemented.
 - `docs/workflow/` records current work state and restart context.
 - `docs/memory/` records stable maintainer intent and decisions.
+- `learning/context/` stores learner-facing source context that future lesson implementation can render in the selected display language.
 - `skills/*/SKILL.md` stores reusable agent procedures.
 - Product repositories have their own documents, such as `AGENT.md`, `TASK_TRACKER.md`, `HANDOFF.md`, and `FAILURE_MEMORY.md`.
 
@@ -74,6 +75,9 @@ The workflow documents live in `docs/workflow/`.
 | --- | --- |
 | `docs/workflow/TASK_TRACKER.md` | What is done, in progress, planned, or blocked |
 | `docs/workflow/HANDOFF.md` | How to restart the work safely later |
+| `docs/workflow/GIT_HOOKS_POLICY.tsv` | Which Git hook modes exist and which mode is the default |
+| `docs/workflow/GIT_HOOK_CHECKS.tsv` | Which checks run in each Git hook mode |
+| `learning/GIT_HOOK_SETTINGS.tsv` | The current local Git hook mode selected for this workspace |
 
 These two files should be treated as a pair.
 If one changes, check whether the other should change too.
@@ -84,6 +88,7 @@ The pair helps answer:
 - What changed recently?
 - What should happen next?
 - What should a future agent know before continuing?
+- Which Git checks run automatically before commit?
 
 ## Memory Documents
 
@@ -98,6 +103,21 @@ For example, a product-side `FAILURE_MEMORY.md` records failures, recovery steps
 
 This lesson repository does not currently have a lesson-side `docs/memory/FAILURE_MEMORY.md`.
 When the lesson discusses failure memory, it means product-side `FAILURE_MEMORY.md` or failure-recovery records used in lesson practice.
+
+## Learner Context Documents
+
+Learner context documents live in `learning/context/`.
+
+| File | Plain-language role |
+| --- | --- |
+| `learning/context/README.md` | Explains how learner context is organized and how future lesson work should use it |
+| `learning/context/AI_DRIVEN_DEVELOPMENT_FOUNDATION.md` | Provides the main conceptual text for AI-driven development lessons |
+| `learning/context/SECURITY_FOUNDATION.md` | Provides staged security context for 7-day, 14-day, and applied lessons |
+| `learning/context/LESSON_CONTEXT_MAP.tsv` | Maps context topics to lesson openings, per-topic explanations, recaps, and dashboard candidates |
+
+These documents are source context for lesson text.
+They are not proof that runtime lesson output has already changed.
+Future implementation work should connect this context to lesson commands, prompts, dashboards, and review material while preserving selected display-language behavior.
 
 ## Skills
 

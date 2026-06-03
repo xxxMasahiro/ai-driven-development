@@ -3,24 +3,4 @@ set -euo pipefail
 
 ROOT="$(git rev-parse --show-toplevel)"
 
-"$ROOT/tools/check_lesson_structure.sh"
-"$ROOT/tools/check_repository_boundary.sh" >/dev/null
-"$ROOT/tools/check_document_organization.sh"
-"$ROOT/tools/check_learner_display.sh"
-"$ROOT/tools/check_lesson14_structure.sh"
-"$ROOT/tools/check_lesson14_sync.sh"
-"$ROOT/tools/check_agents_skills.sh"
-"$ROOT/tools/check_as_built_docs.sh"
-"$ROOT/tools/check_as_built_sync_contract.sh"
-"$ROOT/tools/check_workflow_pair_sync.sh"
-"$ROOT/tools/check_review_protocol.sh"
-"$ROOT/tools/check_developer_memory_requirements.sh"
-"$ROOT/tools/test_docs_tour.sh"
-"$ROOT/tools/test_as_built_sync_contract.sh"
-"$ROOT/tools/test_git_workflow_policy.sh"
-"$ROOT/tools/test_menu_prerequisites.sh"
-"$ROOT/tools/test_product_gate_tools.sh"
-"$ROOT/tools/test_product_repository_cleanup.sh"
-"$ROOT/tools/test_lesson_playwright.sh"
-"$ROOT/tools/test_lesson.sh"
-"$ROOT/tools/test_lesson_repository.sh"
+"$ROOT/tools/git-hooks" run

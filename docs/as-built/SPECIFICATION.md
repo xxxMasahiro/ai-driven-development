@@ -99,6 +99,7 @@ It was added without replacing or weakening existing lesson flow, menu behavior,
 - The guide explains the `AGENTS.MD` invariant rules, document root table, routing table, and repo-local skills in non-engineer-friendly terms.
 - The guide explains `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md` as the design/as-built trio.
 - The guide explains `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as the paired progress and restart-context documents.
+- The guide, CLI tour, and dashboard docs view explain `docs/workflow/GIT_HOOKS_POLICY.tsv`, `docs/workflow/GIT_HOOK_CHECKS.tsv`, and `learning/GIT_HOOK_SETTINGS.tsv` as the Git hook policy and current local hook-mode controls.
 - The guide explains `docs/memory/DEVELOPER_MEMORY.md` as developer intent and stable preference memory.
 - The guide explains failure memory as product-side `FAILURE_MEMORY.md` or failure-recovery records when used by the lesson, without inventing a lesson-side file that does not exist.
 - `tools/docs-tour` provides `status`, `rules`, `design`, `workflow`, `memory`, `skills`, and `all` views.
@@ -214,7 +215,29 @@ SYNC-ID: git_workflow_action_settings
 STATUS: implemented
 ARTIFACTS: docs/workflow/GIT_WORKFLOW_POLICY.tsv, learning/GIT_WORKFLOW_SETTINGS.tsv, learning/GIT_WORKFLOW_APPROVALS.tsv, tools/lib/git_workflow_policy.sh, tools/git-workflow, tools/menu, tools/dashboard, tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
 TESTS: tools/test_git_workflow_policy.sh, tools/test_menu_prerequisites.sh
+
+SYNC-ID: git_hooks_policy
+STATUS: implemented
+ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
+TESTS: tools/test_git_hooks.sh
+
+SYNC-ID: learner_context_foundation
+STATUS: planned
+ARTIFACTS: learning/context/README.md,learning/context/AI_DRIVEN_DEVELOPMENT_FOUNDATION.md,learning/context/SECURITY_FOUNDATION.md,learning/context/LESSON_CONTEXT_MAP.tsv
+TESTS: tools/test_lesson_repository.sh
 ```
+
+### Planned Learner Context Foundation
+
+The learner context foundation is represented as source documentation under `learning/context/`.
+It is planned material for the next lesson-content implementation cycle and is not runtime lesson behavior yet.
+
+- `learning/context/README.md` defines the role, file structure, usage moments, and synchronization boundary for learner context.
+- `learning/context/AI_DRIVEN_DEVELOPMENT_FOUNDATION.md` provides the main conceptual lesson text for AI-driven development.
+- `learning/context/SECURITY_FOUNDATION.md` provides staged security learning content for 7-day, 14-day, and applied lessons.
+- `learning/context/LESSON_CONTEXT_MAP.tsv` maps context topics to lesson openings, per-topic deepening, final recaps, security coverage, prompt examples, and dashboard candidates.
+- `guides/DOCUMENT_MAP.md` links to the context directory so learners and agents can find it.
+- Runtime integration must be specified separately before lesson commands, lesson flows, prompts, dashboards, or browser views render this material.
 
 ### Implemented Git Workflow Policy
 
@@ -319,6 +342,42 @@ The feature remains additive: existing settings, command names, menu checks, das
 - Developer-responsibility auto-merge uses explicit gate evidence plus the actual repository monitor; the setting alone does not permit approval-free merge.
 - Branch deletion, worktree deletion, remote deletion, and product repository deletion remain behind explicit user confirmation regardless of merge settings.
 
+### Implemented Git Hooks Policy And Cache
+
+The implemented Git hooks policy keeps the current pre-commit safety model while adding mode selection and a conservative cache.
+The runtime behavior is implemented through a reusable hook runner and synchronized as `git_hooks_policy`.
+
+- Implemented modes:
+  - `full`: run the complete required pre-commit coverage and remain the completion/CI-equivalent local mode.
+  - `fast`: run the same logical checks as needed, but reuse successful results only when relevant inputs are unchanged.
+  - `minimal`: run core mechanical checks for quick local feedback; it remains insufficient for final completion by itself.
+- No normal `off` mode is part of the implemented learner-facing workflow.
+- Cache storage is Git-local and untracked, such as `.git/pre-commit-cache/`.
+- Cache lookup must fail closed:
+  - missing cache entries are misses,
+  - corrupted entries are misses,
+  - changed command identity is a miss,
+  - changed tool or input hashes are misses.
+- Cache keys include hook mode, command identity, relevant tool files, relevant document or state inputs, and Git diff or staged content where practical.
+- Cache is disabled while untracked files are present so untracked content cannot create a false cache hit.
+- Command surface:
+  - `tools/git-hooks status`,
+  - `tools/git-hooks mode <full|fast|minimal>`,
+  - `tools/git-hooks cache clear`,
+  - `tools/git-hooks run`,
+  - `tools/git-hooks run --no-cache`,
+  - `tools/git-hooks run --mode <full|fast|minimal>`.
+- `.githooks/pre-commit` delegates to `tools/git-hooks run`.
+- `docs/workflow/GIT_HOOK_CHECKS.tsv` stores the serial check list and mode membership.
+- `docs/workflow/GIT_HOOK_CHECKS.tsv` rows fail closed when required fields are missing, the field count is not exact, or a mode token is empty or outside the accepted policy modes.
+- `docs/workflow/GIT_HOOKS_POLICY.tsv` stores accepted hook modes and the default mode.
+- `learning/GIT_HOOK_SETTINGS.tsv` stores the current hook mode.
+- `tools/lib/git_hooks_policy.sh` provides reusable policy loading, mode validation, status output, cache-key generation, cache clearing, and serial check execution.
+- `tools/test_git_hooks.sh` validates standalone policy and cache behavior: mode parsing, invalid persisted settings, malformed check rows, invalid or empty check-row mode tokens, cache hit and miss behavior, invalidation, no-cache operation, minimal-mode required checks, failing-check cache refusal, and safe cache clearing.
+- Full/no-cache coverage, aggregate test wiring, CI wiring, and preservation of existing checks are validated by `tools/git-hooks run --mode full --no-cache`, `.githooks/pre-commit`, `tools/test_lesson_repository.sh`, and the CI workflow definitions.
+- Existing sync, AGENTS/skills, developer-memory, and status checks recognize `.githooks/pre-commit` -> `tools/git-hooks` -> `docs/workflow/GIT_HOOK_CHECKS.tsv` as active wiring while preserving direct-command detection; as-built active pre-commit wiring is mode-aware and only counts checks included in the current hook mode.
+- CI must not rely on local cache state; CI should run full or no-cache verification.
+
 ### Design Quality Constraints
 
 - Additions must preserve existing 7-day and 14-day behavior.
@@ -344,6 +403,7 @@ The feature remains additive: existing settings, command names, menu checks, das
 - `tools/test_product_repository_cleanup.sh` validates product repository cleanup status, plan, confirmation gates, boundary rejection, non-Git rejection, temporary local deletion, and fake-`gh` remote deletion behavior.
 - `tools/test_as_built_sync_contract.sh` validates complete synchronization, unknown sync IDs, mixed statuses, extra artifacts/tests, missing artifacts, inert wiring, and missing active test wiring.
 - `tools/test_git_workflow_policy.sh` validates Git workflow setting validation, permission decisions, repository monitoring, local/upstream sync detection, repository separation, and non-destructive cleanup planning.
+- `tools/test_git_hooks.sh` validates Git hooks mode settings, cache behavior, malformed configuration failure paths including invalid mode tokens, minimal-mode behavior, and no-cache behavior.
 - `tools/test_lesson_start_position.sh` validates learner-selected start positions.
 - `tools/test_lesson.sh` validates 7-day CLI behavior, including learning mode, workflow display language, product development language, and setup gating.
 - `tools/test_lesson14.sh` validates lesson14 CLI behavior.

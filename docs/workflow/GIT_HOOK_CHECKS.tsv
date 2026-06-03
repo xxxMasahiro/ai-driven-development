@@ -1,0 +1,23 @@
+# check_id	modes	command	description
+check_lesson_structure	full|fast|minimal	./tools/check_lesson_structure.sh	Validate required lesson files and lesson state structure.
+check_repository_boundary	full|fast|minimal	./tools/check_repository_boundary.sh	Validate the lesson repository is not nested with the product repository.
+check_document_organization	full|fast	./tools/check_document_organization.sh	Validate role-based Markdown document organization.
+check_learner_display	full|fast	./tools/check_learner_display.sh	Validate learner-facing display conventions.
+check_lesson14_structure	full|fast	./tools/check_lesson14_structure.sh	Validate the 14-step lesson structure.
+check_lesson14_sync	full|fast	./tools/check_lesson14_sync.sh	Validate the 14-step lesson synchronization state.
+check_agents_skills	full|fast|minimal	./tools/check_agents_skills.sh	Validate AGENTS.MD and repo-local skill wiring.
+check_as_built_docs	full|fast|minimal	./tools/check_as_built_docs.sh	Validate the as-built document set.
+check_as_built_sync_contract	full|fast|minimal	./tools/check_as_built_sync_contract.sh	Validate the five-document sync contract.
+check_workflow_pair_sync	full|fast|minimal	./tools/check_workflow_pair_sync.sh	Validate TASK_TRACKER and HANDOFF pair synchronization.
+check_review_protocol	full|fast	./tools/check_review_protocol.sh	Validate the sub-agent review protocol.
+check_developer_memory_requirements	full|fast|minimal	./tools/check_developer_memory_requirements.sh	Validate developer-memory requirements.
+test_docs_tour	full|fast	./tools/test_docs_tour.sh	Run documentation tour regression tests.
+test_as_built_sync_contract	full|fast	./tools/test_as_built_sync_contract.sh	Run sync-contract regression tests.
+test_git_workflow_policy	full|fast	./tools/test_git_workflow_policy.sh	Run Git workflow policy regression tests.
+test_git_hooks	full|fast	./tools/test_git_hooks.sh	Run Git hooks policy regression tests.
+test_menu_prerequisites	full|fast	./tools/test_menu_prerequisites.sh	Run menu prerequisite regression tests.
+test_product_gate_tools	full|fast	./tools/test_product_gate_tools.sh	Run product gate regression tests.
+test_product_repository_cleanup	full|fast	./tools/test_product_repository_cleanup.sh	Run product repository cleanup regression tests.
+test_lesson_playwright	full|fast	./tools/test_lesson_playwright.sh	Run lesson dashboard and illustration Playwright checks.
+test_lesson	full|fast	./tools/test_lesson.sh	Run 7-day lesson CLI regression tests.
+test_lesson_repository	full|fast	./tools/test_lesson_repository.sh	Run the lesson repository aggregate test.
