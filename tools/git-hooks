@@ -6,6 +6,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT/tools/lib/lesson_common.sh"
 # shellcheck source=tools/lib/git_hooks_policy.sh
 source "$ROOT/tools/lib/git_hooks_policy.sh"
+# shellcheck source=tools/lib/resource_guard.sh
+source "$ROOT/tools/lib/resource_guard.sh"
 
 usage() {
   cat <<'USAGE'
@@ -80,6 +82,15 @@ case "$cmd" in
           ;;
       esac
     done
+    case "$mode" in
+      full|fast)
+        if [[ "${RESOURCE_GUARD_SKIP_LOCAL_CHECK:-0}" == "1" ]]; then
+          printf 'Resource guard pre-check skipped for this environment.\n'
+        elif [[ -f "$(resource_guard_policy_file)" && -f "$(resource_guard_settings_file)" ]]; then
+          resource_guard_check_profile git-hooks-full
+        fi
+        ;;
+    esac
     git_hooks_run_checks "$mode" "$no_cache"
     ;;
   help|--help|-h)

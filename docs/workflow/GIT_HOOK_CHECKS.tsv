@@ -15,6 +15,8 @@ test_docs_tour	full|fast	./tools/test_docs_tour.sh	Run documentation tour regres
 test_as_built_sync_contract	full|fast	./tools/test_as_built_sync_contract.sh	Run sync-contract regression tests.
 test_git_workflow_policy	full|fast	./tools/test_git_workflow_policy.sh	Run Git workflow policy regression tests.
 test_git_hooks	full|fast	./tools/test_git_hooks.sh	Run Git hooks policy regression tests.
+test_resource_guard	full|fast	./tools/test_resource_guard.sh	Run resource guard policy and budget regression tests.
+test_resource_cleanup	full|fast	./tools/test_resource_cleanup.sh	Run resource guard safe cleanup regression tests.
 test_menu_prerequisites	full|fast	./tools/test_menu_prerequisites.sh	Run menu prerequisite regression tests.
 test_product_gate_tools	full|fast	./tools/test_product_gate_tools.sh	Run product gate regression tests.
 test_product_repository_cleanup	full|fast	./tools/test_product_repository_cleanup.sh	Run product repository cleanup regression tests.

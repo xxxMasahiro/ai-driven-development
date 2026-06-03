@@ -1,0 +1,10 @@
+# key	value	description
+memory_budget_percent	70	Operational memory budget as a percentage of total memory for this repository's heavy checks.
+swap_storage_percent	20	Maximum free-storage percentage to treat as the repository swap budget.
+swap_gib_limit	16	GiB cap for the repository swap budget.
+max_parallel_jobs	auto	Auto or a positive integer.
+resource_mode	automatic	automatic, serial, or parallel.
+available_memory_floor_percent	25	Serial fallback or parallel-mode safe stop is used when available memory drops below this percent of the repository memory budget.
+cleanup_safe_delete_enabled	true	Allow explicit repo-local safe cleanup when the command uses --safe.
+cleanup_older_than_hours	0	Delete safe cleanup targets regardless of age when zero; otherwise require target age to exceed this many hours.
+cleanup_require_explicit_safe	true	Require --safe before any cleanup deletion can occur.

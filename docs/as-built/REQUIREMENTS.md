@@ -35,6 +35,7 @@ The repository must help learners move from structured lessons into real product
 - Provide an illustration request and review-material structure for learner-requested educational PNG illustrations.
 - Support Role-Based Document Organization for role-specific Markdown files so design/as-built, workflow-state, and memory documents remain easy to find.
 - Keep As-Built Synchronization explicit across the requirements, specification, implementation plan, task tracker, and handoff documents.
+- Provide a resource-budgeted parallel execution guard for Git hooks, Playwright, CI, and aggregate checks without weakening existing serial verification paths.
 
 ## Implemented Remediation Requirements From Developer-Memory Audit
 
@@ -166,6 +167,68 @@ This implemented work is additive and does not trade away any existing `tools/ch
 - The sync-contract check and regression test are wired into `tools/check_as_built_docs.sh`, `tools/test_lesson_repository.sh`, `.githooks/pre-commit`, `.github/workflows/ci.yml`, and `.github/workflows/lesson14-ci.yml`.
 - Implementation must preserve refactorability, ecosystem fit, reusability, generality, and the no-existing-feature-tradeoff rule.
 
+## Implemented Resource-Budgeted Parallel Guard Requirements
+
+The lesson repository implements a conservative resource-budget guard for safe, optional parallel execution decisions around heavy verification work without trading away any existing 7-day lesson, 14-day lesson, Git hooks mode, CI check, pre-commit check, document route, dashboard behavior, or repository-boundary behavior.
+The implementation provides policy files, user settings, a shared resource library, a CLI command, Git hooks integration, Playwright worker integration, CI wiring, and standalone plus aggregate tests.
+
+- Let the user configure a repository memory budget as a percentage of total memory.
+- Let the user configure a repository swap budget from both a percentage of free storage and a GiB upper limit.
+- Calculate the effective repository swap budget as the smaller of the storage-percentage value and the GiB upper limit.
+- Let the user configure the available-memory floor that turns caution states into serial fallback or explicit parallel-mode safe stop.
+- Inspect the real local environment before heavy local checks, including memory, swap, disk free space, and active heavy processes where practical.
+- Allow limited parallel execution decisions only when the resource check passes and no active heavy-process caution is detected.
+- Keep serial execution available as the safe fallback.
+- Define explicit parallel mode as "parallel if safe, fail closed if caution prevents safe parallelism" rather than silently overriding resource safety.
+- Treat unknown heavy-work profiles as configuration errors instead of silently falling back to a different profile.
+- Treat the 90 percent safe-stop state as a failing gate for starting new heavy verification work, including job recommendation and Playwright wrapper entry points.
+- Monitor repository swap-budget usage in 10 percent increments.
+- Treat 50, 60, 70, 80, and 90 percent as escalating stages for notice, warning, strong warning, parallel-addition stop, and serial fallback or safe stop.
+- Avoid hidden OS mutation, `.wslconfig` writes, swap creation/deletion, `drop_caches`, privileged cleanup, arbitrary process killing, Docker/cgroups enforcement, or SafeFlow control-plane migration in the first implementation.
+- Keep the resource guard reusable across Git hooks, Playwright, aggregate checks, and future CI/local verification design.
+- Keep the new resource guard check runnable both standalone and from aggregate tests.
+
+## Implemented Resource Guard Safe Cleanup Requirements
+
+The lesson repository implements repo-local safe cleanup as an additive follow-up to the resource-budgeted parallel guard.
+The goal is to prevent Playwright reports, test result directories, marked Git hooks cache files, and repo-local temporary artifacts from accumulating while preserving all existing lesson, CI, Git hooks, Playwright, documentation, and sync-contract behavior.
+
+- Provide a cleanup workflow through the existing `tools/resource-guard` command.
+- Keep cleanup targets in `docs/workflow/RESOURCE_POLICY.tsv` rather than hard-coded command branches.
+- Keep cleanup settings in `learning/RESOURCE_SETTINGS.tsv` where user-facing resource behavior is already configured.
+- Make dry-run inspection the default cleanup behavior.
+- Require explicit `--safe` before any deletion occurs.
+- Limit deletion to policy-approved paths inside the lesson repository.
+- Reject repo-outside paths, path traversal, unsafe `.git` targets, and symlink escapes.
+- Allow the marked `.git/pre-commit-cache` directory to be cleaned only when its cache marker is valid.
+- Keep Playwright reports and test results cleanable without deleting global npm or Playwright caches.
+- Keep cleanup tests runnable both standalone and from aggregate tests.
+- Do not perform OS cache cleanup, `drop_caches`, swap mutation, `.wslconfig` mutation, Docker cleanup, process killing, or product repository deletion.
+- Preserve existing `resource-guard status`, `check`, `recommend-jobs`, and `monitor` behavior.
+
+## Planned Resource Guard Summary And Parallel CI Requirements
+
+The lesson repository must make resource guard behavior easier to understand and must use the existing resource guard decisions to improve verification speed without trading away safety, existing checks, or existing lesson behavior.
+This is planned implementation work synchronized from `docs/memory/DEVELOPER_MEMORY.md`; it is not runtime behavior until the implementation artifacts and tests are added.
+
+- Add a user-facing `./tools/resource-guard summary` command that explains memory budget, swap budget, current state, local profile-specific recommended jobs, and the distinction between local and CI parallelism.
+- Add `./tools/resource-guard summary --short` for a compact operational view.
+- Keep `status`, `monitor`, `recommend-jobs`, `check`, and `cleanup` unchanged as existing detailed or operational commands.
+- Use existing `docs/workflow/RESOURCE_POLICY.tsv` profiles and existing `resource_guard_recommended_jobs` calculations instead of adding a `target_parallel_jobs` setting.
+- Preserve the safety model where recommended jobs vary by workload profile; `git-hooks-full` may recommend four workers while Playwright and aggregate checks recommend fewer workers.
+- Implement local Git hooks parallel execution only for checks explicitly classified as safe to run in parallel.
+- Keep serial execution available for checks that modify shared state, require ordered output, or are not classified as parallel-safe.
+- Fall back to serial execution or stop safely when resource guard returns `serial`, `serial-fallback`, or `safe-stop`.
+- Keep logs separated per check and display them in deterministic check order.
+- Optimize GitHub Actions separately from local resource settings by splitting CI into runner-appropriate jobs rather than applying local `memory_budget_percent` directly to CI.
+- Keep all existing checks present; CI job splitting must not remove or weaken existing verification.
+- Require a CI workflow structure check so the split workflow mechanically verifies required job names, `needs` relationships, and required commands.
+- Ensure the final CI aggregate and full-hooks gate installs npm dependencies and Playwright dependencies before running aggregate repository tests or full hooks.
+- Preserve explicit local/CI separation: local Git hooks and Playwright may use resource guard recommendations, while CI full hooks must keep the CI-safe local-resource bypass behavior such as `RESOURCE_GUARD_SKIP_LOCAL_CHECK=1` or an equivalent documented mechanism.
+- Add standalone tests for summary output and Git hooks parallel execution, and wire them into aggregate, pre-commit, and CI verification.
+- Keep the `resource_guard_summary_parallel_ci` sync contract `planned` until actual runtime artifacts, runtime tests, and runtime evidence are added to the contract.
+- Keep the design configuration-driven, reusable, and independent of a specific product stack or single learner-facing phrase.
+
 ## As-Built Sync Contract Records
 
 ```text
@@ -208,6 +271,21 @@ SYNC-ID: git_hooks_policy
 STATUS: implemented
 ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
 TESTS: tools/test_git_hooks.sh
+
+SYNC-ID: resource_budget_parallel_guard
+STATUS: implemented
+ARTIFACTS: docs/workflow/RESOURCE_POLICY.tsv, learning/RESOURCE_SETTINGS.tsv, tools/lib/resource_guard.sh, tools/resource-guard, tools/test_resource_guard.sh, tools/git-hooks, tools/test_lesson_playwright.sh, playwright.config.js, .github/workflows/ci.yml, .github/workflows/lesson14-ci.yml
+TESTS: tools/test_resource_guard.sh
+
+SYNC-ID: resource_guard_safe_cleanup
+STATUS: implemented
+ARTIFACTS: docs/workflow/RESOURCE_POLICY.tsv, learning/RESOURCE_SETTINGS.tsv, tools/lib/resource_guard.sh, tools/resource-guard, tools/test_resource_cleanup.sh, tools/test_lesson_repository.sh, docs/workflow/GIT_HOOK_CHECKS.tsv, .github/workflows/ci.yml, .github/workflows/lesson14-ci.yml
+TESTS: tools/test_resource_cleanup.sh
+
+SYNC-ID: resource_guard_summary_parallel_ci
+STATUS: planned
+ARTIFACTS: docs/memory/DEVELOPER_MEMORY.md, docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
+TESTS: tools/check_as_built_sync_contract.sh
 
 SYNC-ID: learner_context_foundation
 STATUS: planned

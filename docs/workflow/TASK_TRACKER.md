@@ -8,6 +8,7 @@ The previous implemented change promotes the Git workflow policy into a shared m
 The previous implemented change added user-configurable Git workflow policy settings and the as-built sync contract that mechanically enforces synchronization across the three design/as-built documents and the two workflow-state documents.
 The current implemented Git workflow action settings split Git workflow behavior into detailed settings for commit, push, PR creation, PR CI monitoring, merge execution, developer-responsibility auto-merge, main CI monitoring, and local/remote sync monitoring.
 The current implemented Git hooks policy provides faster safe serial pre-commit operation through `full`, `fast`, and `minimal` modes, conservative Git-local caching, and a path-based local full/no-cache recommendation command.
+The current implemented resource-budgeted parallel guard provides safe optional parallel execution decisions for Git hooks, Playwright, CI, and aggregate checks through user-configured memory and swap budgets.
 The current planned learner context foundation prepares source documents under `learning/context/` for the next lesson-content implementation cycle; runtime lesson output has not been changed by that foundation step.
 The current planned learner context runtime integration separates learning context from workflow context; Free Development Mode remains a workflow, not a lesson.
 Safe product repository cleanup remains implemented for the external product repository created by the 7-day or 14-day lessons.
@@ -60,6 +61,11 @@ The implementation remains additive and keeps the existing 7-day lesson, 14-day 
 - Added `docs/workflow/GIT_HOOKS_POLICY.tsv`.
 - Added `docs/workflow/GIT_HOOK_CHECKS.tsv`.
 - Added `docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv`.
+- Added `docs/workflow/RESOURCE_POLICY.tsv`.
+- Added `learning/RESOURCE_SETTINGS.tsv`.
+- Added `tools/lib/resource_guard.sh`.
+- Added `tools/resource-guard status|check|recommend-jobs|monitor`.
+- Added `tools/test_resource_guard.sh`.
 - Added `learning/GIT_HOOK_SETTINGS.tsv`.
 - Added `tools/lib/git_hooks_policy.sh`.
 - Added `tools/git-hooks status|mode|cache|run`.
@@ -119,10 +125,68 @@ The following developer-memory remediation items are implemented and mechanicall
 - The implemented menu prerequisite control remains synchronized in the same five documents.
 - The implemented Git workflow policy behavior is synchronized in the same five documents.
 - The implemented Git hooks policy behavior is synchronized in the same five documents.
+- The implemented resource-budgeted parallel guard is synchronized in the same five documents as verification-performance safety behavior.
 - The planned learner context foundation is synchronized in the same five documents as documentation foundation work for the next implementation plan.
 - The planned learner context runtime integration is synchronized in the same five documents as the next runtime implementation plan.
 - The synchronization passes only when the implemented content is present in all five documents.
 - Preserve refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule while maintaining the implemented remediation.
+
+## Implemented Resource-Budgeted Parallel Guard Work
+
+Status: implemented.
+Runtime resource policy, user settings, command surface, Git hooks integration, Playwright worker integration, CI wiring, and tests are present.
+
+- [x] Add a resource policy source for warning thresholds, fallback stages, and reusable heavy-work profiles.
+- [x] Add a user settings source for memory percentage, swap storage percentage, swap GiB upper limit, maximum parallel jobs, mode, and available-memory floor.
+- [x] Add a shared resource guard library for memory, swap, disk, heavy-process, and budget calculations.
+- [x] Add a `tools/resource-guard` command with status, check, job recommendation, and monitor actions.
+- [x] Connect optional resource checks to Git hooks without changing `full`, `fast`, or `minimal` semantics.
+- [x] Enforce active-heavy-process fallback, explicit parallel-mode safe-stop, unknown-profile rejection, and safe-stop failure before new heavy verification work.
+- [x] Connect Playwright and aggregate checks conservatively, with serial fallback through worker recommendation, fail-closed safe-stop behavior, and CI dashboard checks routed through the shared wrapper.
+- [x] Keep CI checks intact while adding resource guard regression coverage and duplicate-run cancellation.
+- [x] Add standalone resource-guard tests and wire them into aggregate tests after implementation.
+- [x] Move `resource_budget_parallel_guard` to implemented after runtime artifacts and tests exist.
+
+## Implemented Resource Guard Safe Cleanup Work
+
+Status: implemented.
+Repo-local safe cleanup is available through `tools/resource-guard cleanup`.
+The implementation is additive to the existing resource guard and does not change the meaning of existing resource status, check, job recommendation, monitor, Git hooks, Playwright, CI, or lesson commands.
+
+- [x] Add cleanup defaults and cleanup targets to `docs/workflow/RESOURCE_POLICY.tsv`.
+- [x] Add cleanup user settings to `learning/RESOURCE_SETTINGS.tsv`.
+- [x] Add reusable cleanup planning, path validation, repo-boundary, symlink rejection, age filter, and safe-delete helpers to `tools/lib/resource_guard.sh`.
+- [x] Add `tools/resource-guard cleanup --dry-run`.
+- [x] Add `tools/resource-guard cleanup --safe`.
+- [x] Add `tools/resource-guard cleanup --safe --older-than <hours|Nh>`.
+- [x] Add `tools/resource-guard cleanup --profile <profile|all> --dry-run`.
+- [x] Add standalone cleanup regression coverage in `tools/test_resource_cleanup.sh`.
+- [x] Wire cleanup regression into `tools/test_lesson_repository.sh`.
+- [x] Wire cleanup regression into Git hooks policy and both GitHub Actions workflows.
+- [x] Move `resource_guard_safe_cleanup` to implemented after runtime artifacts and tests exist.
+
+## Planned Resource Guard Summary And Parallel CI Work
+
+Status: planned.
+The developer-approved proposal and implementation plan are recorded in `docs/memory/DEVELOPER_MEMORY.md`.
+Runtime implementation has not started yet.
+
+- [x] Record the proposal and implementation plan in developer memory.
+- [x] Synchronize this planned work into the five as-built/workflow documents.
+- [ ] Add `tools/resource-guard summary`.
+- [ ] Add `tools/resource-guard summary --short`.
+- [ ] Add summary helpers to `tools/lib/resource_guard.sh`.
+- [ ] Add `tools/test_resource_guard_summary.sh`.
+- [ ] Add `docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv`.
+- [ ] Add local Git hooks parallel runner support while preserving existing serial fallback behavior.
+- [ ] Add `tools/test_git_hooks_parallel.sh`.
+- [ ] Split GitHub Actions workflows into CI-runner-oriented jobs without removing existing checks.
+- [ ] Add required CI workflow structure checks for split workflow job names, `needs`, and required commands.
+- [ ] Ensure the final CI aggregate and full-hooks gate installs npm dependencies and Playwright dependencies before running aggregate repository tests or full hooks.
+- [ ] Preserve explicit local/CI separation, including CI-safe local-resource bypass behavior for CI full hooks.
+- [ ] Wire new tests into aggregate, pre-commit, and CI.
+- [ ] Update sync contract artifacts, tests, and runtime evidence from planning-only entries to actual runtime entries.
+- [ ] Move `resource_guard_summary_parallel_ci` to implemented only after runtime artifacts and tests pass.
 
 ## Implemented Documentation Map Synchronization
 
@@ -244,6 +308,21 @@ SYNC-ID: git_hooks_policy
 STATUS: implemented
 ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
 TESTS: tools/test_git_hooks.sh
+
+SYNC-ID: resource_budget_parallel_guard
+STATUS: implemented
+ARTIFACTS: docs/workflow/RESOURCE_POLICY.tsv, learning/RESOURCE_SETTINGS.tsv, tools/lib/resource_guard.sh, tools/resource-guard, tools/test_resource_guard.sh, tools/git-hooks, tools/test_lesson_playwright.sh, playwright.config.js, .github/workflows/ci.yml, .github/workflows/lesson14-ci.yml
+TESTS: tools/test_resource_guard.sh
+
+SYNC-ID: resource_guard_safe_cleanup
+STATUS: implemented
+ARTIFACTS: docs/workflow/RESOURCE_POLICY.tsv, learning/RESOURCE_SETTINGS.tsv, tools/lib/resource_guard.sh, tools/resource-guard, tools/test_resource_cleanup.sh, tools/test_lesson_repository.sh, docs/workflow/GIT_HOOK_CHECKS.tsv, .github/workflows/ci.yml, .github/workflows/lesson14-ci.yml
+TESTS: tools/test_resource_cleanup.sh
+
+SYNC-ID: resource_guard_summary_parallel_ci
+STATUS: planned
+ARTIFACTS: docs/memory/DEVELOPER_MEMORY.md, docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
+TESTS: tools/check_as_built_sync_contract.sh
 
 SYNC-ID: learner_context_foundation
 STATUS: planned

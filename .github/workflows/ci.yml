@@ -4,6 +4,10 @@ on:
   push:
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lesson-checks:
     runs-on: ubuntu-latest
@@ -18,6 +22,7 @@ jobs:
           bash -n tools/lib/document_paths.sh
           bash -n tools/lib/git_workflow_policy.sh
           bash -n tools/lib/git_hooks_policy.sh
+          bash -n tools/lib/resource_guard.sh
           bash -n tools/check_lesson_structure.sh
           bash -n tools/check_document_organization.sh
           bash -n tools/check_learner_display.sh
@@ -33,6 +38,8 @@ jobs:
           bash -n tools/test_as_built_sync_contract.sh
           bash -n tools/test_git_workflow_policy.sh
           bash -n tools/test_git_hooks.sh
+          bash -n tools/test_resource_guard.sh
+          bash -n tools/test_resource_cleanup.sh
           bash -n tools/test_lesson.sh
           bash -n tools/test_menu_prerequisites.sh
           bash -n tools/test_product_gate_tools.sh
@@ -43,6 +50,7 @@ jobs:
           bash -n tools/as-built-sync
           bash -n tools/git-workflow
           bash -n tools/git-hooks
+          bash -n tools/resource-guard
           bash -n tools/docs-tour
           bash -n tools/free-development
           bash -n tools/team-development
@@ -66,6 +74,8 @@ jobs:
           ./tools/test_as_built_sync_contract.sh
           ./tools/test_git_workflow_policy.sh
           ./tools/test_git_hooks.sh
+          ./tools/test_resource_guard.sh
+          ./tools/test_resource_cleanup.sh
           ./tools/test_product_repository_cleanup.sh
 
       - name: Repository boundary
@@ -119,8 +129,16 @@ jobs:
       - name: Git hooks policy regression
         run: ./tools/test_git_hooks.sh
 
+      - name: Resource guard regression
+        run: ./tools/test_resource_guard.sh
+
+      - name: Resource cleanup regression
+        run: ./tools/test_resource_cleanup.sh
+
       - name: Lesson aggregate test
         run: ./tools/test_lesson_repository.sh
 
       - name: Git hooks full no-cache regression
+        env:
+          RESOURCE_GUARD_SKIP_LOCAL_CHECK: "1"
         run: ./tools/git-hooks run --mode full --no-cache

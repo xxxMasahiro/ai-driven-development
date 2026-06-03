@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/resource_guard.sh
+source "$ROOT/tools/lib/resource_guard.sh"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  ./tools/resource-guard status [--profile <profile>]
+  ./tools/resource-guard check --profile <profile>
+  ./tools/resource-guard recommend-jobs --profile <profile> [--value-only]
+  ./tools/resource-guard monitor --profile <profile>
+  ./tools/resource-guard cleanup [--dry-run|--safe] [--profile <profile|all>] [--older-than <hours|Nh>]
+USAGE
+}
+
+profile="default"
+value_only="false"
+
+parse_profile_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --profile)
+        [[ $# -ge 2 ]] || {
+          printf '--profile requires a value.\n' >&2
+          exit 1
+        }
+        profile="$2"
+        shift 2
+        ;;
+      --value-only)
+        value_only="true"
+        shift
+        ;;
+      *)
+        usage >&2
+        exit 1
+        ;;
+    esac
+  done
+}
+
+cleanup_action="dry-run"
+cleanup_profile="all"
+cleanup_older_than_hours=""
+cleanup_safe_explicit="false"
+
+parse_cleanup_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --dry-run)
+        cleanup_action="dry-run"
+        shift
+        ;;
+      --safe)
+        cleanup_action="safe"
+        cleanup_safe_explicit="true"
+        shift
+        ;;
+      --profile)
+        [[ $# -ge 2 ]] || {
+          printf '--profile requires a value.\n' >&2
+          exit 1
+        }
+        cleanup_profile="$2"
+        shift 2
+        ;;
+      --older-than)
+        [[ $# -ge 2 ]] || {
+          printf '--older-than requires a value.\n' >&2
+          exit 1
+        }
+        cleanup_older_than_hours="$(resource_guard_cleanup_parse_hours "$2")"
+        shift 2
+        ;;
+      *)
+        usage >&2
+        exit 1
+        ;;
+    esac
+  done
+}
+
+cmd="${1:-status}"
+shift || true
+
+case "$cmd" in
+  status)
+    parse_profile_args "$@"
+    resource_guard_validate_policy
+    resource_guard_validate_settings
+    resource_guard_require_profile "$profile"
+    resource_guard_status_report "$profile"
+    ;;
+  check)
+    parse_profile_args "$@"
+    resource_guard_check_profile "$profile"
+    ;;
+  recommend-jobs)
+    parse_profile_args "$@"
+    resource_guard_validate_policy
+    resource_guard_validate_settings
+    resource_guard_require_profile "$profile"
+    jobs="$(resource_guard_recommended_jobs "$profile")"
+    if [[ "$value_only" == "true" ]]; then
+      printf '%s\n' "$jobs"
+    else
+      printf 'Recommended jobs for %s: %s\n' "$profile" "$jobs"
+      printf 'Decision: %s\n' "$(resource_guard_decision "$profile")"
+    fi
+    ;;
+  monitor)
+    parse_profile_args "$@"
+    resource_guard_validate_policy
+    resource_guard_validate_settings
+    resource_guard_require_profile "$profile"
+    usage_percent="$(resource_guard_swap_budget_usage_percent)"
+    printf 'Resource guard monitor\n'
+    printf 'Profile: %s\n' "$profile"
+    printf 'Repository swap-budget usage percent: %s\n' "$usage_percent"
+    printf 'Usage stage: %s\n' "$(resource_guard_usage_stage "$usage_percent")"
+    printf 'Decision: %s\n' "$(resource_guard_decision "$profile")"
+    ;;
+  cleanup)
+    parse_cleanup_args "$@"
+    resource_guard_cleanup_plan "$cleanup_action" "$cleanup_profile" "$cleanup_older_than_hours" "$cleanup_safe_explicit"
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 1
+    ;;
+esac

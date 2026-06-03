@@ -1,0 +1,26 @@
+# row_type	key	value	label	description
+default	memory_budget_percent	40	Memory budget percent	Operational memory budget as a percentage of total memory for this repository's heavy checks.
+default	swap_storage_percent	20	Swap storage percent	Maximum free-storage percentage to treat as the repository swap budget.
+default	swap_gib_limit	16	Swap GiB limit	GiB cap for the repository swap budget.
+default	max_parallel_jobs	auto	Maximum parallel jobs	Auto or a positive integer selected by the user.
+default	resource_mode	automatic	Resource mode	automatic, serial, or parallel.
+default	available_memory_floor_percent	25	Available memory floor percent	Serial fallback is recommended when available memory drops below this percent of the repository memory budget.
+default	cleanup_safe_delete_enabled	true	Cleanup safe delete enabled	Allow explicit repo-local safe cleanup when the command uses --safe.
+default	cleanup_older_than_hours	0	Cleanup older-than hours	Delete safe cleanup targets regardless of age when zero; otherwise require target age to exceed this many hours.
+default	cleanup_require_explicit_safe	true	Cleanup requires explicit safe flag	Require --safe before any cleanup deletion can occur.
+threshold	record_10	10	Record only	Record repository swap-budget usage at ten percent.
+threshold	record_20	20	Record only	Record repository swap-budget usage at twenty percent.
+threshold	record_30	30	Record only	Record repository swap-budget usage at thirty percent.
+threshold	record_40	40	Record only	Record repository swap-budget usage at forty percent.
+threshold	notice_50	50	Notice	Show a notice at fifty percent.
+threshold	warning_60	60	Warning	Show a warning at sixty percent.
+threshold	strong_warning_70	70	Strong warning	Show a strong warning at seventy percent.
+threshold	stop_new_parallel_80	80	Stop new parallel work	Do not start new heavy parallel work at eighty percent.
+threshold	serial_fallback_90	90	Serial fallback or safe stop	Return the next phase to serial execution or safe stop at ninety percent.
+profile	git-hooks-full	2048	Git hooks full verification	Estimated MiB budget per parallel job for full Git hooks verification.
+profile	playwright	4096	Playwright browser checks	Estimated MiB budget per parallel job for browser-based checks.
+profile	aggregate	4096	Aggregate lesson checks	Estimated MiB budget per parallel job for aggregate repository checks.
+profile	default	2048	Default heavy work	Estimated MiB budget per parallel job for unspecified heavy checks.
+cleanup_target	playwright-report	playwright-report	playwright	Repo-local Playwright HTML report directory.
+cleanup_target	playwright-results	test-results	playwright	Repo-local Playwright test result directory.
+cleanup_target	git-hooks-cache	.git/pre-commit-cache	git-hooks-full	Marked repo-local Git hooks cache directory.

@@ -9,6 +9,7 @@ if [[ ! -x "$ROOT/node_modules/.bin/playwright" ]]; then
   exit 1
 fi
 
-(cd "$ROOT" && npm run test:dashboard)
+workers="$("$ROOT/tools/resource-guard" recommend-jobs --profile playwright --value-only)"
+(cd "$ROOT" && PLAYWRIGHT_WORKERS="$workers" npm run test:dashboard)
 
 printf 'Lesson Playwright checks passed.\n'

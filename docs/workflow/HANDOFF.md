@@ -9,6 +9,7 @@ The implementation adds `docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv`, `tools/check
 The implemented Git workflow policy now applies at menu level for items 1 through 7 and preserves all existing Git sync, CI, menu, dashboard, cleanup, lesson, and as-built synchronization behavior.
 The current implemented Git workflow action settings separate Git workflow actions into detailed controls for commit, push, PR creation, PR CI monitoring, merge execution, developer-responsibility auto-merge, main CI monitoring, and local/remote sync monitoring while preserving existing broad Git settings and menu-wide Git policy behavior.
 The current implemented Git hooks policy provides faster safe serial pre-commit behavior with `full`, `fast`, and `minimal` modes, conservative Git-local caching, and a path-based recommendation for when local full/no-cache should be run before push.
+The current implemented resource-budgeted parallel guard captures the developer-approved implementation proposal for safe optional parallel execution based on user-configured memory and swap budgets; runtime policy, settings, CLI, Git hooks integration, Playwright worker recommendation, CI wiring, and tests are present.
 The current planned learner context foundation adds source documents under `learning/context/` for the next lesson-content implementation cycle; it does not yet change runtime lesson output.
 The current planned learner context runtime integration separates learning context from workflow context; Free Development Mode must remain a workflow and must not be implemented as a lesson.
 
@@ -109,11 +110,22 @@ learning/context/LESSON_CONTEXT_MAP.tsv
 
 ## Next Step
 
-Implement the planned learner context runtime integration after reviewing the synchronized plan.
-Connect `learning/context/LESSON_CONTEXT_MAP.tsv` to 7-day lesson output, 14-day lesson output, applied lesson guidance, final recaps, prompt display, security guidance, and dashboard review surfaces.
-Add a separate workflow context map for Free Development Mode, Product Improvement, External Integration, and lesson repository maintenance.
-Do not treat Free Development Mode as a lesson.
-Do not treat runtime rendering as complete until the follow-up implementation and its tests are added.
+The resource-budgeted parallel guard is implemented.
+The resource guard safe cleanup follow-up is implemented.
+The resource guard summary and local/CI parallelization improvement is planned as `resource_guard_summary_parallel_ci`.
+The next implementation cycle should choose explicitly between `resource_guard_summary_parallel_ci` and the remaining learner context runtime integration work.
+Do not perform `.wslconfig` writes, swap creation/deletion, privileged cleanup, arbitrary process killing, CI weakening, pre-commit weakening, or Git hooks mode semantic changes without developer approval.
+If resource guard behavior is changed later, preserve policy/settings-driven implementation, user-configurable available-memory floor, active-heavy-process fallback, explicit parallel-mode safe-stop, unknown-profile rejection, safe-stop failure for checks and job recommendations, standalone and aggregate tests, CI/pre-commit wiring, Playwright wrapper wiring, and existing Git hooks mode semantics.
+If cleanup behavior is changed later, preserve dry-run by default, explicit `--safe` deletion, repo-local path validation, symlink escape rejection, marked Git hooks cache validation, fixture-based tests, CI/pre-commit wiring, and the prohibition on OS cache, swap, Docker, process, product repository, and global cache cleanup without developer approval.
+If `resource_guard_summary_parallel_ci` is implemented next, preserve existing `status`, `monitor`, `recommend-jobs`, `check`, `cleanup`, Git hooks mode semantics, pre-commit behavior, and CI check coverage.
+Use resource guard recommendations for local Git hooks worker limits, but optimize GitHub Actions through CI-runner-oriented job splitting rather than applying local WSL memory settings to CI.
+Treat unclassified Git hook checks as serial until they are explicitly classified as parallel-safe.
+Keep per-check logs separated and replayed in deterministic definition order.
+The implementation must add required CI workflow structure verification for job names, `needs`, and required command coverage.
+The final CI `aggregate-and-full-hooks` job must install npm dependencies and Playwright dependencies before running aggregate repository tests or full hooks.
+CI full-hooks execution must keep the CI-safe local-resource bypass behavior such as `RESOURCE_GUARD_SKIP_LOCAL_CHECK=1` or an equivalent documented mechanism, while local Playwright and Git hooks may use resource guard recommendations.
+Before moving `resource_guard_summary_parallel_ci` to `implemented`, update the sync contract from planning-only artifacts and tests to actual runtime artifacts, runtime tests, and runtime evidence.
+Developer approval is required before changing `GIT_HOOK_CHECKS.tsv` columns, changing the meaning of `full`, `fast`, or `minimal`, making Playwright or aggregate checks more aggressive than resource guard recommends, reducing CI coverage for speed, or adding a CI-specific settings file.
 
 Implemented Git workflow policy scope:
 
@@ -211,6 +223,21 @@ SYNC-ID: git_hooks_policy
 STATUS: implemented
 ARTIFACTS: .githooks/pre-commit, docs/workflow/GIT_HOOKS_POLICY.tsv, docs/workflow/GIT_HOOK_CHECKS.tsv, docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv, learning/GIT_HOOK_SETTINGS.tsv, tools/lib/git_hooks_policy.sh, tools/git-hooks, tools/test_git_hooks.sh
 TESTS: tools/test_git_hooks.sh
+
+SYNC-ID: resource_budget_parallel_guard
+STATUS: implemented
+ARTIFACTS: docs/workflow/RESOURCE_POLICY.tsv, learning/RESOURCE_SETTINGS.tsv, tools/lib/resource_guard.sh, tools/resource-guard, tools/test_resource_guard.sh, tools/git-hooks, tools/test_lesson_playwright.sh, playwright.config.js, .github/workflows/ci.yml, .github/workflows/lesson14-ci.yml
+TESTS: tools/test_resource_guard.sh
+
+SYNC-ID: resource_guard_safe_cleanup
+STATUS: implemented
+ARTIFACTS: docs/workflow/RESOURCE_POLICY.tsv, learning/RESOURCE_SETTINGS.tsv, tools/lib/resource_guard.sh, tools/resource-guard, tools/test_resource_cleanup.sh, tools/test_lesson_repository.sh, docs/workflow/GIT_HOOK_CHECKS.tsv, .github/workflows/ci.yml, .github/workflows/lesson14-ci.yml
+TESTS: tools/test_resource_cleanup.sh
+
+SYNC-ID: resource_guard_summary_parallel_ci
+STATUS: planned
+ARTIFACTS: docs/memory/DEVELOPER_MEMORY.md, docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
+TESTS: tools/check_as_built_sync_contract.sh
 
 SYNC-ID: learner_context_foundation
 STATUS: planned
