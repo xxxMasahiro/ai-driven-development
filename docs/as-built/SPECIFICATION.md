@@ -58,7 +58,7 @@
   - building and extending paths,
   - lesson-maintenance paths.
 - The menu explicitly shows the progression from Free Development Mode to product improvement to external integration.
-- `tools/dashboard lesson` shows 14-day lesson status, 7-day lesson status, both lesson language settings, learning mode labels, helpdesk information, and developer-memory themes.
+- `tools/dashboard lesson` shows STEP 1-14 and STEP 1-7 lesson status, both lesson language settings, learning mode labels, helpdesk information, and developer-memory themes.
 - `tools/dashboard development` shows product repository status and workflow document presence when a product repository exists.
 - `tools/dashboard illustrations` shows illustration request and review records.
 - `tools/dashboard all` combines the lesson, development, and illustration views.
@@ -218,7 +218,7 @@ The resource-budgeted parallel guard is implemented as a conservative resource b
 - Git hooks integration keeps `minimal` lightweight and does not redefine `full`, `fast`, or `minimal`; resource checks run before `full` and `fast` paths when resource policy/settings files exist.
 - Playwright uses `PLAYWRIGHT_WORKERS`, and `tools/test_lesson_playwright.sh` obtains the local recommendation from `tools/resource-guard recommend-jobs --profile playwright` without hiding safe-stop failures.
 - CI integration preserves all required checks, adds direct resource guard regression coverage, routes Playwright dashboard checks through `tools/test_lesson_playwright.sh`, and uses workflow concurrency cancellation without treating CI runner resources as local WSL settings.
-- The implementation does not perform `.wslconfig` writes, swap creation or deletion, privileged cache cleanup, arbitrary process killing, Docker/cgroups enforcement, or SafeFlow control-plane migration.
+- The implementation does not perform `.wslconfig` writes, swap creation or deletion, privileged cache cleanup, arbitrary process killing, Docker/cgroups enforcement, or Security guard control-plane migration.
 
 ### Implemented Resource Guard Safe Cleanup
 
@@ -691,15 +691,15 @@ They are additive to the current as-built components and must not weaken or repl
 - Strengthened checks, product-gate tests, Playwright checks, and the aggregate lesson test are wired into CI and pre-commit without removing existing checks.
 - Free Development and Team Development tests cover success and failure paths, including missing product repository, dirty Git state, CI failure, Docker installed/not-installed paths, and status/start output.
 
-### Implemented SafeFlow Security Backfill
+### Implemented Security Guard Backfill
 
-SafeFlow security backfill is implemented as a repository-security invariant layer, not as a replacement for the existing lesson-context foundation.
+Security guard backfill is implemented as a repository-security invariant layer, not as a replacement for the existing lesson-context foundation.
 
 - `AGENTS.MD` contains explicit security invariants for untrusted text as data, prompt injection, secrets, least privilege, owner-layer fixes, destructive operations, dependency changes, Git/CI, and rejection of prompt-only security fixes.
 - `docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv` defines security surfaces and required evidence for prompt injection, secrets, destructive actions, dependency changes, Git/CI safety, and external service permissions.
 - `tools/check_security_invariants.sh` validates policy shape, required invariant IDs, evidence files, and evidence patterns.
 - `tools/test_security_invariants.sh` verifies success and failure paths for missing invariants and missing evidence.
-- The implementation is repo-local and non-networked. It does not mutate OS/WSL settings, create or delete swap, kill processes, enforce Docker/cgroups policy, or migrate to a SafeFlow control plane.
+- The implementation is repo-local and non-networked. It does not mutate OS/WSL settings, create or delete swap, kill processes, enforce Docker/cgroups policy, or migrate to a Security guard control plane.
 
 ### Implemented Product Security Workflow Gate
 
@@ -796,3 +796,23 @@ The default lesson-created product repository path is outside this repository:
 The boundary is checked by `tools/check_repository_boundary.sh --product-required`.
 Lesson-repository validation does not recreate that repository and does not depend on it.
 Real 7-day, 14-day, Free Development, and Team Development product workflows may require a product repository after the learner intentionally creates or selects one.
+
+## Planned Lesson Display Label Policy Specification
+
+SYNC-ID: lesson_display_label_policy
+STATUS: implemented
+ARTIFACTS: docs/workflow/LESSON_DISPLAY_LABELS.tsv,tools/lib/lesson_display_labels.sh,tools/lib/lesson_common.sh,tools/lib/lesson_runtime.sh,tools/menu,tools/dashboard,tools/learn,tools/helpdesk,tools/lesson14,tools/roadmap,tools/docs-tour,README.md,AGENTS.MD,index.md,index-14-days.md,ai-driven-task-tracker-scenario.md,guides/LESSON_14_DAYS.md,learning/ROADMAP.md,lesson/LESSON_FLOW_14_DAYS.tsv,prompts/PROMPTS.md,prompts/PROMPTS_14_DAYS.md,playbooks/AGENT_PLAYBOOK.md,playbooks/AGENT_PLAYBOOK_14_DAYS.md,tools/check_learner_display.sh,tools/test_menu_prerequisites.sh,tools/check_lesson14_sync.sh,tools/check_agents_skills.sh
+TESTS: tools/check_learner_display.sh,tools/test_menu_prerequisites.sh,tools/check_lesson14_sync.sh,tools/check_agents_skills.sh,tools/test_lesson14.sh
+
+This implemented policy defines separate categories for display labels, progress keys, internal aliases, and historical evidence.
+The policy is implemented before learner-facing STEP wording is considered complete.
+
+- Course display labels are learner-facing names for menu, dashboard, README, index, guides, prompts, playbooks, docs-tour surfaces, and normal CLI output.
+- Progress keys such as `Step N/7` and `Step N/14` remain valid for lesson flow, roadmap lookup, sync-gate matching, tests, and command diagnostics.
+- Internal compatibility names such as `7-day`, `14-day`, `lesson14`, `index-14-days.md`, `_14_DAYS`, and `dayN.*` remain valid in filenames, command names, TSV keys, tests, internal diagnostics, and compatibility guidance.
+- Historical records in `learning/LEARNING_TASK_TRACKER*.md`, `learning/LEARNING_HANDOFF*.md`, approvals, and helpdesk archives remain auditable and are not blanket-renamed.
+- New learner-facing output should avoid exposing `dayN.*` step IDs unless it is explicitly presenting a command ID or diagnostic value.
+- `tools/check_learner_display.sh` uses the display-label policy and active-surface checks to fail when old learner-facing labels appear in active learner surfaces.
+- `tools/menu`, `tools/dashboard`, `tools/roadmap`, `tools/lesson14`, `tools/learn`, and `tools/helpdesk` share or consume the same display-label boundary so new learner-facing output avoids old course labels and raw internal step IDs.
+- `tools/check_lesson14_sync.sh`, `tools/check_lesson14_structure.sh`, and `tools/test_lesson14.sh` must continue to protect the `Step N/14` sync-gate contract unless a later approved implementation separates sync keys from display labels mechanically.
+- The implementation adds `docs/workflow/LESSON_DISPLAY_LABELS.tsv` and `tools/lib/lesson_display_labels.sh` as the reusable display-label policy and shared helper.

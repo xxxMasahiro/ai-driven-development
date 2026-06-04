@@ -10,14 +10,14 @@ check_agents_skills	structure	parallel	Read-only AGENTS and skills validation ca
 check_as_built_docs	sync	parallel	Read-only as-built document validation can run in parallel.
 check_as_built_sync_contract	sync	parallel	Read-only as-built sync-contract validation can run in parallel.
 check_test_plan_coverage	sync	parallel	Read-only observe-only test-plan coverage validation can run in parallel.
-check_security_invariants	sync	parallel	Read-only SafeFlow security invariant validation can run in parallel.
+check_security_invariants	sync	parallel	Read-only Security guard invariant validation can run in parallel.
 check_workflow_pair_sync	sync	parallel	Read-only workflow pair synchronization validation can run in parallel.
 check_review_protocol	sync	parallel	Read-only review protocol validation can run in parallel.
 check_developer_memory_requirements	sync	parallel	Read-only developer-memory validation can run in parallel.
 test_docs_tour	regression	parallel	Documentation tour regression uses repository-local read checks and can run in parallel.
 test_as_built_sync_contract	regression	parallel	Sync-contract regression uses fixtures and can run in parallel.
 test_test_plan	regression	parallel	Observe-only test-plan regression uses fixtures and can run in parallel.
-test_security_invariants	regression	parallel	SafeFlow security invariant regression uses fixtures and can run in parallel.
+test_security_invariants	regression	parallel	Security guard invariant regression uses fixtures and can run in parallel.
 test_git_workflow_policy	regression	parallel	Git workflow policy regression uses fixtures and can run in parallel.
 test_git_hooks	regression	parallel	Git hooks policy regression uses fixtures and can run in parallel.
 test_resource_guard	regression	parallel	Resource guard regression uses fixtures and can run in parallel.

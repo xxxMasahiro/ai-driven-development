@@ -12,7 +12,7 @@ mkdir -p "$HOME/projects"
 fixture_copy_repo "$ROOT" "$work/lesson"
 cd "$work/lesson"
 
-./tools/lesson14 初期化 --confirm | grep '最初のセットアップ項目へ戻しました'
+./tools/lesson14 初期化 --confirm | grep 'STEP 1-14: 実践レッスンの実行状態を最初のセットアップ項目へ戻しました'
 
 ./tools/check_lesson_structure.sh
 ./tools/check_repository_boundary.sh >/dev/null
@@ -20,9 +20,9 @@ cd "$work/lesson"
 ./tools/check_lesson14_sync.sh
 ./tools/check_developer_memory_requirements.sh
 ./tools/lesson14 現在地 | grep './tools/lesson14 開始 setup.index'
-./tools/lesson14 一覧 | grep 'Step 14/14.*14日版レッスンを完了する'
+./tools/lesson14 一覧 | grep 'Step 14/14.*STEP 1-14: 実践レッスンを完了する'
 ./tools/roadmap 現在地 | grep './tools/lesson14 開始 setup.index'
-./tools/roadmap Step 14/14 | grep 'Step 14/14.*14日版レッスンを完了する'
+./tools/roadmap Step 14/14 | grep 'Step 14/14.*STEP 1-14: 実践レッスンを完了する'
 
 bad_duplicate="$work/bad-duplicate"
 fixture_copy_repo "$work/lesson" "$bad_duplicate"
@@ -41,7 +41,7 @@ grep 'empty flow field' /tmp/lesson14-empty-required.out >/dev/null
 bad_entry="$work/bad-entry"
 fixture_copy_repo "$work/lesson" "$bad_entry"
 tmp_flow="$(mktemp)"
-awk -F '\t' -v OFS='\t' '$1 !~ /^#/ && $2 == "setup.index" { $4 = "index.mdでレッスン全体と14日版の入口を確認する" } { print }' "$bad_entry/lesson/LESSON_FLOW_14_DAYS.tsv" > "$tmp_flow"
+awk -F '\t' -v OFS='\t' '$1 !~ /^#/ && $2 == "setup.index" { $4 = "index.mdでレッスン全体とSTEP 1-14の入口を確認する" } { print }' "$bad_entry/lesson/LESSON_FLOW_14_DAYS.tsv" > "$tmp_flow"
 mv "$tmp_flow" "$bad_entry/lesson/LESSON_FLOW_14_DAYS.tsv"
 (cd "$bad_entry" && ./tools/check_lesson14_sync.sh >/tmp/lesson14-bad-entry.out 2>&1 && exit 1 || true)
 grep '14-day setup index entry' /tmp/lesson14-bad-entry.out >/dev/null
@@ -77,19 +77,19 @@ grep '質問や気になる点' /tmp/lesson14-start-approval-required.out >/dev/
 ./tools/lesson14 承認 start setup.index "ユーザーがsetup.indexの開始を承認した"
 ./tools/lesson14 開始 setup.index | grep 'Started current step'
 
-./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した" >/tmp/lesson14-approval-required.out 2>&1 && exit 1 || true
+./tools/lesson14 通過 setup.index "STEP 1-14の目的と順番を確認した" >/tmp/lesson14-approval-required.out 2>&1 && exit 1 || true
 grep 'Approval required' /tmp/lesson14-approval-required.out >/dev/null
 
 ./tools/lesson14 承認 pass setup.index "ユーザーがsetup.indexの通過を承認した"
-./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した" >/tmp/lesson14-mode-required.out 2>&1 && exit 1 || true
+./tools/lesson14 通過 setup.index "STEP 1-14の目的と順番を確認した" >/tmp/lesson14-mode-required.out 2>&1 && exit 1 || true
 grep 'Learning mode is required' /tmp/lesson14-mode-required.out >/dev/null
 ./tools/lesson14 学習モード A | grep 'Learning mode recorded: A'
-./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した" >/tmp/lesson14-language-required.out 2>&1 && exit 1 || true
+./tools/lesson14 通過 setup.index "STEP 1-14の目的と順番を確認した" >/tmp/lesson14-language-required.out 2>&1 && exit 1 || true
 grep 'Workflow display language is required' /tmp/lesson14-language-required.out >/dev/null
 grep 'Product development language is required' /tmp/lesson14-language-required.out >/dev/null
 ./tools/lesson14 表示言語 ja | grep 'Workflow display language recorded: ja'
 ./tools/lesson14 開発言語 ja | grep 'Product development language recorded: ja'
-./tools/lesson14 通過 setup.index "14日版の目的と順番を確認した"
+./tools/lesson14 通過 setup.index "STEP 1-14の目的と順番を確認した"
 ./tools/lesson14 現在地 | grep './tools/lesson14 開始 setup.github-login'
 ./tools/lesson14 復習 setup.index | grep 'Revisit allowed'
 ./tools/lesson14 現在地 | grep './tools/lesson14 開始 setup.github-login'

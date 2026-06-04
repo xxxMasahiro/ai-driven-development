@@ -5,7 +5,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
-"$ROOT/tools/check_security_invariants.sh" | grep 'SafeFlow security invariant check passed'
+"$ROOT/tools/check_security_invariants.sh" | grep 'Security guard invariant check passed'
 
 mkdir -p "$tmp/docs/workflow"
 cat > "$tmp/AGENTS.MD" <<'DOC'
@@ -26,7 +26,7 @@ untrusted_text_as_data	agent_rules	implemented	AGENTS.MD	untrusted text as data	
 DOC
 
 LESSON_ROOT="$tmp" SAFEFLOW_SECURITY_POLICY_FILE="$tmp/docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv" "$ROOT/tools/check_security_invariants.sh" >/tmp/security-invariants-missing.out 2>&1 && exit 1 || true
-grep 'missing SafeFlow security invariant: prompt_injection_defense' /tmp/security-invariants-missing.out >/dev/null
+grep 'missing Security guard invariant: prompt_injection_defense' /tmp/security-invariants-missing.out >/dev/null
 
 cat > "$tmp/docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv" <<'DOC'
 # invariant_id	surface	status	evidence_file	evidence_pattern	description
@@ -42,7 +42,7 @@ no_prompt_only_security	agent_rules	implemented	AGENTS.MD	keyword-filter-only	Re
 DOC
 
 LESSON_ROOT="$tmp" SAFEFLOW_SECURITY_POLICY_FILE="$tmp/docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv" "$ROOT/tools/check_security_invariants.sh" >/tmp/security-invariants-pattern.out 2>&1 && exit 1 || true
-grep 'missing SafeFlow security evidence pattern for no_prompt_only_security' /tmp/security-invariants-pattern.out >/dev/null
+grep 'missing Security guard evidence pattern for no_prompt_only_security' /tmp/security-invariants-pattern.out >/dev/null
 
 cat > "$tmp/docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv" <<'DOC'
 # invariant_id	surface	status	evidence_file	evidence_pattern	description
@@ -58,7 +58,7 @@ no_prompt_only_security	agent_rules	implemented	AGENTS.MD	prompt-only	Reject wea
 DOC
 
 LESSON_ROOT="$tmp" SAFEFLOW_SECURITY_POLICY_FILE="$tmp/docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv" "$ROOT/tools/check_security_invariants.sh" >/tmp/security-invariants-path.out 2>&1 && exit 1 || true
-grep 'unsafe SafeFlow security evidence path for prompt_injection_defense' /tmp/security-invariants-path.out >/dev/null
+grep 'unsafe Security guard evidence path for prompt_injection_defense' /tmp/security-invariants-path.out >/dev/null
 
 pwned="$tmp/security-invariants-pwned"
 cat > "$tmp/docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv" <<DOC
@@ -75,10 +75,10 @@ no_prompt_only_security	agent_rules	implemented	AGENTS.MD	\$(touch "$pwned")	Rej
 DOC
 
 LESSON_ROOT="$tmp" SAFEFLOW_SECURITY_POLICY_FILE="$tmp/docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv" "$ROOT/tools/check_security_invariants.sh" >/tmp/security-invariants-shell.out 2>&1 && exit 1 || true
-grep 'missing SafeFlow security evidence pattern for no_prompt_only_security' /tmp/security-invariants-shell.out >/dev/null
+grep 'missing Security guard evidence pattern for no_prompt_only_security' /tmp/security-invariants-shell.out >/dev/null
 if [[ -e "$pwned" ]]; then
   printf 'unsafe shell execution occurred while checking security evidence pattern\n' >&2
   exit 1
 fi
 
-printf 'SafeFlow security invariant tests passed.\n'
+printf 'Security guard invariant tests passed.\n'

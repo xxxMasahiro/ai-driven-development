@@ -1,0 +1,3 @@
+# course_key	learner_label	short_label	internal_alias	status_command	start_command	config_file	description
+lesson_7	STEP 1-7: 基礎レッスン	STEP 1-7	7-day lesson	./tools/lesson status	./tools/lesson start	lesson/LESSON_CONFIG.tsv	基礎を短く一周する
+lesson_14	STEP 1-14: 実践レッスン	STEP 1-14	14-day lesson	./tools/lesson14 status	./tools/lesson14 start	lesson/LESSON_CONFIG_14_DAYS.tsv	GitHub、CI、E2E、PR、サブエージェント、スキル、MCPまで順番に体験する

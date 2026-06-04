@@ -108,9 +108,9 @@ require_pattern "tools/lib/lesson_common.sh" 'zh-TW' "shared language zh-TW supp
 require_pattern "AGENTS.MD" 'ja\|en\|ko\|zh-CN\|zh-TW\|es\|pt-BR\|fr\|de\|id\|vi\|th\|hi\|ar' "AGENTS supported language invariant"
 require_pattern "$DEVELOPER_MEMORY_DOC" 'Standard language choices should include' "developer memory expanded language choices"
 
-require_pattern "README.md" '7-day|7日版' "7-day entry"
-require_pattern "README.md" '14-day|14日版' "14-day entry"
-require_pattern "AGENTS.MD" '7日版か14日版' "version selection rule"
+require_pattern "README.md" 'STEP 1-7: 基礎レッスン' "STEP 1-7 entry"
+require_pattern "README.md" 'STEP 1-14: 実践レッスン' "STEP 1-14 entry"
+require_pattern "AGENTS.MD" 'STEP 1-7: 基礎レッスン.*STEP 1-14: 実践レッスン' "course selection rule"
 require_pattern "AGENTS.MD" '学習モード' "learning mode startup rule"
 require_pattern "AGENTS.MD" '既存機能とのトレードオフは一切禁止' "no existing-feature tradeoff rule"
 require_pattern "AGENTS.MD" 'リファクタリング性、エコシステム性、再利用性、汎用性' "implementation quality rule"

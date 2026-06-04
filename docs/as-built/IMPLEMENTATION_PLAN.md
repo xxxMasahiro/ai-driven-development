@@ -1167,14 +1167,14 @@ Remote CI verification should use GitHub Actions run status or PR checks after t
 - Approval is required before reducing duplicate CI coverage for speed.
 - Approval is required before adding a CI-specific settings file if the workflow structure alone is insufficient.
 
-## Implemented SafeFlow Security Backfill Implementation Plan
+## Implemented Security Guard Backfill Implementation Plan
 
 This implementation is synchronized from `docs/memory/DEVELOPER_MEMORY.md`.
 The sync ID is implemented because runtime artifacts, tests, Git hooks wiring, CI wiring, and pre-commit wiring are present.
 
 ### Implemented Scope
 
-- Added a SafeFlow security backfill sync scope that is separate from learner-context runtime integration.
+- Added a Security guard backfill sync scope that is separate from learner-context runtime integration.
 - Added repository-level security invariants to the agent rule layer.
 - Added `docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv` as a policy table for security surfaces, invariants, evidence, required checks, and status.
 - Added `tools/lib/security_invariants.sh`, `tools/check_security_invariants.sh`, and `tools/test_security_invariants.sh`.
@@ -1600,3 +1600,84 @@ The implementation cycle adds focused tests when new behavior is introduced:
 - Lesson repository test prints `Lesson repository test passed.`
 - Every implemented developer-memory audit item is synchronized into the five planning/workflow documents and backed by a mechanical check.
 - Planned developer-memory audit items are synchronized into the five planning/workflow documents without being described as runtime-implemented work.
+
+## Planned Lesson Display Label Policy Implementation Plan
+
+SYNC-ID: lesson_display_label_policy
+STATUS: implemented
+ARTIFACTS: docs/workflow/LESSON_DISPLAY_LABELS.tsv,tools/lib/lesson_display_labels.sh,tools/lib/lesson_common.sh,tools/lib/lesson_runtime.sh,tools/menu,tools/dashboard,tools/learn,tools/helpdesk,tools/lesson14,tools/roadmap,tools/docs-tour,README.md,AGENTS.MD,index.md,index-14-days.md,ai-driven-task-tracker-scenario.md,guides/LESSON_14_DAYS.md,learning/ROADMAP.md,lesson/LESSON_FLOW_14_DAYS.tsv,prompts/PROMPTS.md,prompts/PROMPTS_14_DAYS.md,playbooks/AGENT_PLAYBOOK.md,playbooks/AGENT_PLAYBOOK_14_DAYS.md,tools/check_learner_display.sh,tools/test_menu_prerequisites.sh,tools/check_lesson14_sync.sh,tools/check_agents_skills.sh
+TESTS: tools/check_learner_display.sh,tools/test_menu_prerequisites.sh,tools/check_lesson14_sync.sh,tools/check_agents_skills.sh,tools/test_lesson14.sh
+
+This plan is synchronized as `lesson_display_label_policy`.
+It is runtime-implemented.
+The implementation begins with display-policy separation rather than broad text replacement.
+
+### Implemented Change Targets
+
+- Added `docs/workflow/LESSON_DISPLAY_LABELS.tsv` as the reusable lesson display-label policy source.
+- Added `tools/lib/lesson_display_labels.sh` so menu, dashboard, roadmap, lesson14 reset/runtime, learning-record, and helpdesk output resolve labels consistently.
+- Updated `tools/menu` and `tools/dashboard` because they are the most visible learner entry points.
+- Updated `tools/roadmap`, `tools/lesson14`, `tools/learn`, and `tools/helpdesk` normal output so internal aliases remain command compatibility, not learner-facing labels.
+- Updated learner-facing README, AGENTS routing text, index files, guides, prompts, playbooks, roadmap text, and task-tracker scenario text so they no longer reproduce old duration labels.
+- Extended `tools/check_learner_display.sh` to detect learner-facing old labels and broader Day variants while allowing approved internal and historical contexts.
+- Updated `tools/test_menu_prerequisites.sh` so learner-facing label checks and internal compatibility checks are separate.
+
+### Implemented Order
+
+1. Defined the display-label policy and allowlist boundary.
+   - Added final course labels to `docs/workflow/LESSON_DISPLAY_LABELS.tsv`.
+   - Kept `Step N/14` as the current sync-gate key.
+
+2. Introduced shared label resolution.
+   - Avoided duplicating labels directly in menu, dashboard, roadmap, lesson14 reset/runtime, learn, and helpdesk commands.
+   - Kept the helper reusable for future browser dashboard work.
+
+3. Updated entry-point output.
+   - Changed menu and dashboard learner-facing course names.
+   - Preserved existing commands and compatibility paths.
+
+4. Updated learner-facing docs and prompt surfaces.
+   - Updated README, AGENTS.MD, index files, guides, prompts, playbooks, roadmap text, and scenario text only where they are active learner-facing guidance.
+   - Kept filenames and command names unchanged.
+
+5. Strengthened checks and tests.
+   - Added active-surface checks for old learner-facing labels.
+   - Covered the known gap where `tools/check_learner_display.sh` only detected narrower `Day N` style regressions.
+   - Kept internal compatibility checks for `tools/lesson14`, `index-14-days.md`, `Step N/14`, and `dayN.*`.
+
+6. Verified and iterated.
+   - Run the targeted checks first, then aggregate lesson validation.
+   - If a future check fails because it treats internal aliases as learner-facing labels, fix the policy boundary instead of weakening the check.
+
+### Verification Plan
+
+```bash
+git diff --check
+./tools/check_learner_display.sh
+./tools/test_menu_prerequisites.sh
+./tools/check_lesson14_sync.sh
+./tools/test_lesson14.sh
+./tools/check_agents_skills.sh
+./tools/check_developer_memory_requirements.sh
+./tools/as-built-sync status
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/test_lesson_repository.sh
+```
+
+### Recovery Plan
+
+- If Lesson14 sync gates fail, restore `Step N/14` as the machine key and move learner-facing changes behind display-label resolution.
+- If learner-display checks over-match historical records, add a policy-governed historical allowlist instead of editing past logs.
+- If internal compatibility checks fail, restore command names, filenames, TSV keys, and test expectations before retrying learner-facing display changes.
+- If AGENTS, skills, or developer-memory checks still require old course labels, split those checks into learner-facing label assertions and internal compatibility assertions.
+- If any existing-feature tradeoff appears necessary, stop and request developer approval with reason, impact, alternatives, and rollback path.
+
+### Developer Approval Gates
+
+- Approval is required before changing the final course display labels recorded in `docs/workflow/LESSON_DISPLAY_LABELS.tsv`.
+- Approval is required before changing the `Step N/14` sync-gate key contract.
+- Approval is required before bulk-editing historical learning logs.
+- Approval is required before changing `tools/lesson14`, `index-14-days.md`, `_14_DAYS` filenames, or `dayN.*` step IDs.
+- Approval is required before weakening learner-display checks or existing sync-gate checks.
+- Approval is required before accepting any existing-feature tradeoff.

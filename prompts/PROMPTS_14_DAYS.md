@@ -1,6 +1,6 @@
 # PROMPTS_14_DAYS.md
 
-このファイルは、14日版レッスンで使うコピペ用プロンプト集です。
+このファイルは、`STEP 1-14: 実践レッスン` で使うコピペ用プロンプト集です。
 既存の `prompts/PROMPTS.md` を置き換えず、拡張版として使います。
 
 ## 共通開始プロンプト
@@ -8,7 +8,7 @@
 ```text
 このリポジトリの index-14-days.md、learning/ROADMAP.md、lesson/LESSON_FLOW_14_DAYS.tsvを確認し、
 AGENTS.MDと必要なskills/*/SKILL.mdも確認したうえで、
-14日版レッスンを順番どおりに進めてください。
+STEP 1-14: 実践レッスンを順番どおりに進めてください。
 最初に学習モードA/B/Cを確認してください。
 選択後、setup.index通過前に tools/lesson14 学習モード <A|B|C> を実行してください。
 学習者が希望した場合は、レッスン途中でも tools/lesson14 学習モード <A|B|C> で切り替えてください。
@@ -33,7 +33,7 @@ AGENTS.MDと必要なskills/*/SKILL.mdも確認したうえで、
 ## 学習モード選択プロンプト
 
 ```text
-14日版を始める前に、学習モードを選んでください。
+STEP 1-14: 実践レッスンを始める前に、学習モードを選んでください。
 A: 詳細解説が必要
    表示名: じっくり説明
 B: 解説は補足程度
@@ -93,7 +93,7 @@ docs/as-built/REQUIREMENTS.md、docs/as-built/SPECIFICATION.md、docs/as-built/I
 ## Step 1/14
 
 ```text
-Step 1/14として、14日版ロードマップ、教材リポジトリと成果物リポジトリの境界、
+Step 1/14として、STEP 1-14ロードマップ、教材リポジトリと成果物リポジトリの境界、
 tools/lesson14、tools/roadmap、tools/helpdesk、tools/docs-tourの使い方を確認してください。
 文書が多く見える理由をguides/DOCUMENT_MAP.mdに沿って短く説明してください。
 最後にStep 1/14同期ゲートを通過できるか確認してください。

@@ -77,6 +77,24 @@ lesson_flow_file() {
   lesson_abs_path "$(lesson_config_get flow_file "lesson/LESSON_FLOW.tsv")"
 }
 
+lesson_flow_step_label() {
+  local flow_file="$1"
+  local step_id="$2"
+  awk -F '\t' -v step="$step_id" '
+    $1 !~ /^#/ && $2 == step {
+      if ($3 != "" && $4 != "") printf "%s: %s", $3, $4
+      else if ($4 != "") printf "%s", $4
+      else if ($3 != "") printf "%s", $3
+      else printf "%s", step
+      found = 1
+      exit
+    }
+    END {
+      if (!found) exit 1
+    }
+  ' "$flow_file"
+}
+
 lesson_state_file() {
   lesson_abs_path "$(lesson_config_get state_file "learning/LESSON_STATE.tsv")"
 }

@@ -49,16 +49,7 @@ current_lesson_step() {
     printf 'すべて完了'
     return
   fi
-  awk -F '\t' -v step="$current" '
-    $1 !~ /^#/ && $2 == step {
-      printf "%s / %s / %s", $2, $3, $4
-      found = 1
-      exit
-    }
-    END {
-      if (!found) printf "%s", step
-    }
-  ' "$FLOW"
+  lesson_flow_step_label "$FLOW" "$current" || printf '%s' "$current"
 }
 
 append_tracker() {

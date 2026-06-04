@@ -6,19 +6,26 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/lib/lesson_common.sh"
 # shellcheck source=tools/lib/git_workflow_policy.sh
 source "$SCRIPT_DIR/lib/git_workflow_policy.sh"
+# shellcheck source=tools/lib/lesson_display_labels.sh
+source "$SCRIPT_DIR/lib/lesson_display_labels.sh"
 
 show_menu() {
-  cat <<'MENU'
+  local lesson7_label lesson14_label lesson7_description lesson14_description
+  lesson7_label="$(lesson_display_label lesson_7)"
+  lesson14_label="$(lesson_display_label lesson_14)"
+  lesson7_description="$(lesson_display_description lesson_7)"
+  lesson14_description="$(lesson_display_description lesson_14)"
+  cat <<MENU
 メニュー
 
 【学ぶ】
-1. 7日間レッスン
-   基礎を短く一周する
+1. $lesson7_label
+   $lesson7_description
    入口: ./tools/lesson status
    開始前確認: ./tools/menu check 1
 
-2. 14日間レッスン
-   GitHub、CI、E2E、PR、サブエージェント、スキル、MCPまで学ぶ
+2. $lesson14_label
+   $lesson14_description
    入口: ./tools/lesson14 status
    開始前確認: ./tools/menu check 2
 
@@ -79,8 +86,8 @@ USAGE
 
 menu_item_name() {
   case "$1" in
-    1) printf '7日間レッスン' ;;
-    2) printf '14日間レッスン' ;;
+    1) lesson_display_label lesson_7 ;;
+    2) lesson_display_label lesson_14 ;;
     3) printf '応用レッスン' ;;
     4) printf '自由開発' ;;
     5) printf '成果物を改善' ;;

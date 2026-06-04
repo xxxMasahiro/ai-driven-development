@@ -8,4 +8,4 @@ source "$SCRIPT_DIR/lib/lesson_common.sh"
 source "$SCRIPT_DIR/lib/security_invariants.sh"
 
 security_invariants_validate
-printf 'SafeFlow security invariant check passed.\n'
+printf 'Security guard invariant check passed.\n'

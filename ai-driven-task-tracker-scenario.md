@@ -62,7 +62,7 @@
 エージェントの1ターンの基本形:
 
 ```text
-1. 現在のDayまたはStepを確認する
+1. 現在のStepを確認する
 2. 今扱うファイルの位置を必要に応じて示す
 3. 今やることを短く説明する
 4. 質問を1つだけ出す
@@ -84,7 +84,7 @@
 8. REQUIREMENTS.md
 9. SPECIFICATION.md
 10. IMPLEMENTATION_PLAN.md
-11. 今日進めるDayまたはStep
+11. 今日進めるStep
 ```
 
 まだファイルが存在しない初回は、`最初の一問一答シナリオ` から始めます。  
@@ -115,7 +115,7 @@
 | index.md | 学習者とエージェント | レッスン全体の入口、設定から体験開発への順番を示す |
 | github-login-setup-guide.md | 学習者とエージェント | GitHub接続設定を一問一答で確認する |
 | guides/LESSON_GUIDE.md | 学習者 | 今日やること、操作手順、確認ポイントだけを短く見る |
-| prompts/PROMPTS.md | 学習者とエージェント | コピペ用プロンプトをDay別に探す |
+| prompts/PROMPTS.md | 学習者とエージェント | コピペ用プロンプトをStep別に探す |
 | templates/TEMPLATES.md | エージェント | REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdなどの雛形を使う |
 | playbooks/AGENT_PLAYBOOK.md | エージェント | 進行順、分岐、再開、失敗復旧の判断を確認する |
 | lesson/LESSON_CONFIG.tsv | エージェント | リポジトリ名、配置、主要ファイル名の設定を確認する |
@@ -300,7 +300,7 @@ Markdownメモリー
 非エンジニア向けに説明する
 コピペで使えるプロンプトを用意する
 全体のフォルダ構成を適宜見せる
-毎日、小さく動く成果物を残す
+各Stepで、小さく動く成果物を残す
 迷ったら小さい方を選ぶ
 ```
 
@@ -394,8 +394,8 @@ LEARNING_HANDOFF.md: 学習者が次回どこから再開するか
 
 ```text
 レッスン開始時
-各Dayの開始時
-各Dayの完了時
+各Stepの開始時
+各Stepの完了時
 REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdを作成したとき
 3文書とTASK_TRACKER.md、HANDOFF.mdを同期したとき
 学習者がつまずいたとき
@@ -406,7 +406,7 @@ REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdを作成したとき
 記録する内容:
 
 ```text
-現在のDayまたはStep
+現在のStep
 学習者が理解したこと
 まだ不安なこと
 実行したプロンプト
@@ -435,7 +435,7 @@ REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdを作成したとき
 
 | ファイル | 目的 | 主な内容 |
 | --- | --- | --- |
-| LEARNING_TASK_TRACKER.md | 学習者の進捗管理 | Day別の理解度、完了、未完了、つまずき |
+| LEARNING_TASK_TRACKER.md | 学習者の進捗管理 | Step別の理解度、完了、未完了、つまずき |
 | LEARNING_HANDOFF.md | 学習の引き継ぎ | 現在位置、直近で学んだこと、次にやること、次回の一問 |
 
 学習用の2ファイルは、開発作業の成果物ではありません。  
@@ -448,7 +448,7 @@ REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdを作成したとき
 ```text
 レッスンの節目なので、学習進捗を記録します。
 tools/lesson 現在地で現在項目を確認してください。
-現在のDayまたはStep、理解できたこと、まだ不安なこと、
+現在のStep、理解できたこと、まだ不安なこと、
 実行したプロンプト、確認したファイル、次にやることを整理し、
 tools/learn 記録 "<内容>" で残す内容を作ってください。
 
@@ -895,7 +895,7 @@ AGENT.mdには、どの情報をどのファイルへ書くかを明記します
 
 ## 作業順
 
-## Day別計画
+## Step別計画
 
 ## 確認方法
 
@@ -911,7 +911,7 @@ AGENT.mdには、どの情報をどのファイルへ書くかを明記します
 
 ## 現在の学習位置
 
-## Day別進捗
+## Step別進捗
 
 ## 理解できたこと
 
@@ -1110,7 +1110,7 @@ REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdを確認し、
 
 ルール:
 - すぐにファイルを編集しないでください
-- まずtools/lessonが示す現在のDayまたはStepを優先してください
+- まずtools/lessonが示す現在のStepを優先してください
 - 不明点があれば質問を1つだけしてください
 - 更新が必要な場合は、更新案を先に提示してください
 ```
@@ -1171,9 +1171,9 @@ REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdを確認し、
 - 次に聞く質問を1つだけ提示してください
 ```
 
-#### Day別コピペ用プロンプト
+#### Step別コピペ用プロンプト
 
-実作業モードでは、各Dayで次のプロンプトを使います。  
+実作業モードでは、各Stepで次のプロンプトを使います。
 デモモードでは、プロンプトを実行せず、内容確認だけで進めます。
 
 ##### Step 1/7: 土台作成プロンプト
@@ -1404,18 +1404,18 @@ AI自動タスク生成
 ## 1週間の進行計画
 
 1日3時間を想定します。
-各Dayでは、一問一答で確認したあと、必要なプロンプトをエージェントが用意します。  
+各Stepでは、一問一答で確認したあと、必要なプロンプトをエージェントが用意します。
 ユーザーはそのプロンプトをコピペして実行し、結果を見ながら次へ進みます。
 また、作業の節目ではエージェントが全体のフォルダ構成を示し、今どのファイルを扱っているのかを確認します。
-各Dayの開始、完了、中断、再開では、エージェントが `tools/lesson` と `tools/learn` を使って学習進捗を機械的に記録できるようにします。  
+各Stepの開始、完了、中断、再開では、エージェントが `tools/lesson` と `tools/learn` を使って学習進捗を機械的に記録できるようにします。
 学習者は任意のタイミングで `現在地`、`記録`、`つまずき`、`中断`、`再開`、`理解` の短いコマンドを使って記録できます。
 
-各Dayの「一問一答の例」は質問候補です。  
+各Stepの「一問一答の例」は質問候補です。
 実際の会話では、この中から必要な質問を1つだけ出し、回答を待ってから次へ進みます。
 
-Day別に見せるフォルダ構成:
+Step別に見せるフォルダ構成:
 
-| Day | 主に見せる範囲 | 目的 |
+| Step | 主に見せる範囲 | 目的 |
 | --- | --- | --- |
 | Step 1/7 | `AGENT.md`、3文書、`TASK_TRACKER.md`、`HANDOFF.md` | 土台と記録先を理解する |
 | Step 2/7 | `index.html`、`SPECIFICATION.md` | 画面の骨組みを理解する |

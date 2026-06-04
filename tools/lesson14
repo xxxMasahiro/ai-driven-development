@@ -7,6 +7,8 @@ export LESSON_CONFIG="$ROOT/lesson/LESSON_CONFIG_14_DAYS.tsv"
 
 # shellcheck source=tools/lib/lesson_common.sh
 source "$SCRIPT_DIR/lib/lesson_common.sh"
+# shellcheck source=tools/lib/lesson_display_labels.sh
+source "$SCRIPT_DIR/lib/lesson_display_labels.sh"
 # shellcheck source=tools/lib/lesson_runtime.sh
 source "$SCRIPT_DIR/lib/lesson_runtime.sh"
 
@@ -59,9 +61,11 @@ lesson14_show_language_file() {
 }
 
 lesson14_reset_run() {
+  local lesson_label
+  lesson_label="$(lesson_display_label lesson_14)"
   local confirm="${1:-}"
   if [[ "$confirm" != "--confirm" ]]; then
-    printf '14日版レッスンの実行状態を最初からやり直す操作です。\n' >&2
+    printf '%sの実行状態を最初からやり直す操作です。\n' "$lesson_label" >&2
     printf '本当に初期化する場合は、次のコマンドを実行してください。\n' >&2
     printf './tools/lesson14 初期化 --confirm\n' >&2
     exit 1
@@ -81,8 +85,8 @@ lesson14_reset_run() {
   printf '# selected_at\tcode\tlabel\n' > "$LESSON14_WORKFLOW_LANGUAGE_FILE"
   printf '# selected_at\tcode\tlabel\n' > "$LESSON14_PRODUCT_LANGUAGE_FILE"
   {
-    printf '# Learning Task Tracker (14-day)\n\n'
-    printf 'This file records learner-visible progress for the 14-day lesson.\n'
+    printf '# Learning Task Tracker (%s)\n\n' "$lesson_label"
+    printf 'This file records learner-visible progress for %s.\n' "$lesson_label"
     printf '\n## Step Progress\n\n'
     local step_number
     for step_number in $(seq 1 14); do
@@ -90,11 +94,11 @@ lesson14_reset_run() {
     done
   } > "$LESSON_RUNTIME_TRACKER"
   {
-    printf '# Learning Handoff (14-day)\n\n'
-    printf 'Current step: Setup: index-14-days.mdでレッスン全体と14日版の入口を確認する\n'
-    printf 'Next question: index-14-days.mdから14日版レッスンを開始してよいですか？\n'
+    printf '# Learning Handoff (%s)\n\n' "$lesson_label"
+    printf 'Current step: Setup: index-14-days.mdでレッスン全体とSTEP 1-14の入口を確認する\n'
+    printf 'Next question: index-14-days.mdから%sを開始してよいですか？\n' "$lesson_label"
   } > "$LESSON_RUNTIME_HANDOFF"
-  printf '14日版レッスンの実行状態を最初のセットアップ項目へ戻しました。\n'
+  printf '%sの実行状態を最初のセットアップ項目へ戻しました。\n' "$lesson_label"
 }
 
 lesson14_require_learning_mode() {

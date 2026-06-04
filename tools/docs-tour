@@ -7,12 +7,15 @@ export LESSON_CONFIG
 
 # shellcheck source=tools/lib/lesson_common.sh
 source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/lesson_display_labels.sh
+source "$ROOT/tools/lib/lesson_display_labels.sh"
 # shellcheck source=tools/lib/document_paths.sh
 source "$ROOT/tools/lib/document_paths.sh"
 # shellcheck source=tools/lib/as_built_evidence.sh
 source "$ROOT/tools/lib/as_built_evidence.sh"
 
 DOC_MAP="$ROOT/guides/DOCUMENT_MAP.md"
+declare -A docs_tour_sync_status_cache=()
 
 print_section() {
   local title="$1"
@@ -59,7 +62,11 @@ file_presence() {
 sync_status() {
   local command="$1"
   local label="$2"
+  local cache_key="$command"
   local check_status=1
+  if [[ -n "${docs_tour_sync_status_cache[$cache_key]+set}" ]]; then
+    check_status="${docs_tour_sync_status_cache[$cache_key]}"
+  else
   case "$command" in
     tools/check_as_built_docs.sh)
       as_built_evidence_run_docs_check >/dev/null 2>&1 && check_status=0
@@ -71,6 +78,8 @@ sync_status() {
       "$ROOT/$command" >/dev/null 2>&1 && check_status=0
       ;;
   esac
+    docs_tour_sync_status_cache[$cache_key]="$check_status"
+  fi
   if [[ "$check_status" -eq 0 ]]; then
     printf '%s: synchronized\n' "$label"
   else
@@ -121,10 +130,14 @@ show_status() {
 
 show_rules() {
   print_section 'Rules And Routing'
+  local lesson_7_label
+  local lesson_14_label
+  lesson_7_label="$(lesson_display_short_label lesson_7)"
+  lesson_14_label="$(lesson_display_short_label lesson_14)"
   case "$(current_mode_code)" in
     A)
       printf 'AGENTS.MD is the lesson-side rulebook. It tells an agent what must not be broken, which document to read first, how to route learner intent, and which repo-local skill to use.\n'
-      printf 'The invariant rules protect existing 7-day and 14-day flows, approval gates, repository boundaries, and the no-existing-feature-tradeoff requirement.\n'
+      printf 'The invariant rules protect existing %s and %s flows, approval gates, repository boundaries, and the no-existing-feature-tradeoff requirement.\n' "$lesson_7_label" "$lesson_14_label"
       printf 'The document root table is a navigation map. The routing table connects user intent to files, skills, and commands.\n\n'
       ;;
     B)

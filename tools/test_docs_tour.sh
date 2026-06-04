@@ -3,6 +3,11 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+export CI_EVIDENCE_USE="${CI_EVIDENCE_USE:-1}"
+export CI_EVIDENCE_WRITE="${CI_EVIDENCE_WRITE:-1}"
+export CI_EVIDENCE_RUN_ID="${CI_EVIDENCE_RUN_ID:-test-docs-tour-$$}"
+export CI_EVIDENCE_SOURCE_JOB="${CI_EVIDENCE_SOURCE_JOB:-test_docs_tour}"
+
 require_file() {
   local file="$1"
   if [[ ! -f "$ROOT/$file" ]]; then

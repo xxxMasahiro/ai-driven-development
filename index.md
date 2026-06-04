@@ -1,8 +1,8 @@
-# AI駆動開発レッスン入口
+# AI駆動開発 STEP 1-7: 基礎レッスン入口
 
-このファイルは、7日版レッスンの入口です。
-14日版で進める場合は `index-14-days.md` を使います。
-学習者もエージェントも、学習開始前に7日版か14日版を選んでから進めます。
+このファイルは、`STEP 1-7: 基礎レッスン` の入口です。
+`STEP 1-14: 実践レッスン` で進める場合は `index-14-days.md` を使います。
+学習者もエージェントも、学習開始前にどちらのSTEPコースで進めるかを選んでから進めます。
 
 ## 全体の進む順番
 
@@ -18,7 +18,7 @@
 
 ## 学習モードと言語
 
-7日版でも、最初に学習モード、教材・ワークフローの表示言語、成果物リポジトリ側の開発言語を選びます。
+`STEP 1-7: 基礎レッスン` でも、最初に学習モード、教材・ワークフローの表示言語、成果物リポジトリ側の開発言語を選びます。
 `setup.index` は、この3つが記録されるまで通過できません。
 
 ```bash
@@ -56,9 +56,9 @@ C: 手順だけ
 | `lesson/LESSON_CONFIG.tsv` | リポジトリ名、配置、主要ファイル名の設定 |
 | `lesson/LESSON_FLOW.tsv` | レッスンの正しい通過順 |
 | `learning/LESSON_STATE.tsv` | 現在位置、完了済み、未解放の状態 |
-| `learning/LESSON_MODE.tsv` | 7日版の学習モード |
-| `learning/WORKFLOW_DISPLAY_LANGUAGE.tsv` | 7日版の教材・ワークフロー表示言語 |
-| `learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv` | 7日版の成果物開発言語 |
+| `learning/LESSON_MODE.tsv` | STEP 1-7の学習モード |
+| `learning/WORKFLOW_DISPLAY_LANGUAGE.tsv` | STEP 1-7の教材・ワークフロー表示言語 |
+| `learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv` | STEP 1-7の成果物開発言語 |
 | `learning/LEARNING_TASK_TRACKER.md` | 学習者の進捗記録 |
 | `learning/LEARNING_HANDOFF.md` | 次回再開用の学習引き継ぎ |
 | `tools/lesson` | 順番どおりの開始、通過、復習を制御する |

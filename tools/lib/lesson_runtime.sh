@@ -229,8 +229,16 @@ lesson_runtime_append_handoff() {
       printf '次に進める項目: %s\n' "$(lesson_runtime_step_label "$current")"
       printf '次回の最初の一問: %s を始めてよいですか？\n' "$(lesson_runtime_flow_field "$current" 4)"
     else
+      local lesson_label
+      lesson_label="$lesson_runtime_name"
+      if declare -F lesson_display_label >/dev/null; then
+        case "$lesson_runtime_name" in
+          lesson14) lesson_label="$(lesson_display_label lesson_14)" ;;
+          lesson) lesson_label="$(lesson_display_label lesson_7)" ;;
+        esac
+      fi
       printf '次に進める項目: すべて完了\n'
-      printf '次回の最初の一問: 14日版レッスン全体をふりかえりますか？\n'
+      printf '次回の最初の一問: %s全体をふりかえりますか？\n' "$lesson_label"
     fi
     printf '```\n'
   } >> "$lesson_runtime_handoff"

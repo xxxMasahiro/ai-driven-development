@@ -12,7 +12,7 @@ The current implemented resource-budgeted parallel guard provides safe optional 
 The current implemented test and CI safe time optimization first phase adds observe-only Test Plan Manifest behavior, Coverage Guard, Result Attestation, CI-safe Git hooks parallelism, and lightweight fixture-copy optimization while preserving full/no-cache verification.
 The current planned learner context foundation prepares source documents under `learning/context/` for the next lesson-content implementation cycle; runtime lesson output has not been changed by that foundation step.
 The current planned learner context runtime integration separates learning context from workflow context; Free Development Mode remains a workflow, not a lesson.
-The current implemented SafeFlow security backfill adds repository-level security invariants, a policy table, a reusable checker, standalone tests, aggregate-test wiring, Git hooks wiring, CI wiring, and pre-commit wiring.
+The current implemented Security guard backfill adds repository-level security invariants, a policy table, a reusable checker, standalone tests, aggregate-test wiring, Git hooks wiring, CI wiring, and pre-commit wiring.
 The current implemented product security workflow gate adds `tools/product-security status|preflight|advise|check|gate` for menu items 4, 5, and 6 while preserving their existing document, repository-boundary, Git sync, CI, and approval gates.
 Safe product repository cleanup remains implemented for the external product repository created by the 7-day or 14-day lessons.
 It also preserves the 7-day and 14-day learning-mode, workflow display language, product development language, and expanded language-list controls.
@@ -85,7 +85,7 @@ The implementation remains additive and keeps the existing 7-day lesson, 14-day 
 - Added as-built sync-contract enforcement and wired it into structure checks, as-built checks, aggregate tests, CI, and pre-commit.
 - Added Git workflow policy tests and wired them into structure checks, as-built checks, aggregate tests, CI, and pre-commit.
 - Added Git hooks policy tests and wired them into structure checks, aggregate tests, CI, and pre-commit.
-- Added SafeFlow security invariants, policy, checker, and tests.
+- Added Security guard invariants, policy, checker, and tests.
 - Added product-security policy, context map, command surface, gates, dashboard/menu visibility, and tests.
 - Documented implementation quality constraints: refactorability, ecosystem fit, reusability, and generality.
 - Preserved the no-tradeoff rule for existing features.
@@ -133,7 +133,7 @@ The following developer-memory remediation items are implemented and mechanicall
 - The implemented resource-budgeted parallel guard is synchronized in the same five documents as verification-performance safety behavior.
 - The planned learner context foundation is synchronized in the same five documents as documentation foundation work for the next implementation plan.
 - The planned learner context runtime integration is synchronized in the same five documents as the next runtime implementation plan.
-- The implemented SafeFlow security backfill is synchronized in the same five documents as repository-security invariant enforcement.
+- The implemented Security guard backfill is synchronized in the same five documents as repository-security invariant enforcement.
 - The implemented product security workflow gate is synchronized in the same five documents as menu 4/5/6 runtime security gate enforcement.
 - The synchronization passes only when the implemented content is present in all five documents.
 - Preserve refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule while maintaining the implemented remediation.
@@ -195,7 +195,7 @@ Runtime implementation is present for summary output, local Git hooks parallel e
 - [x] Update sync contract artifacts, tests, and runtime evidence from planning-only entries to actual runtime entries.
 - [x] Move `resource_guard_summary_parallel_ci` to implemented after runtime artifacts and tests pass locally.
 
-## Implemented SafeFlow Security Backfill Work
+## Implemented Security Guard Backfill Work
 
 Status: implemented.
 Repository-level security invariants, policy, checker, tests, aggregate wiring, Git hooks wiring, CI wiring, and pre-commit wiring are present.
@@ -647,6 +647,17 @@ The implemented verification sequence includes `./tools/check_as_built_sync_cont
 Real product operations testing remains available through `tools/test_production_operations.sh` when an external product repository is intentionally recreated.
 
 ## Remaining Work
+
+- Implemented sync ID `lesson_display_label_policy` for the STEP display-label cleanup.
+  The issue is not a global text replacement: learner-facing labels, `Step N/14` sync-gate keys, internal compatibility names, and historical records must be separated before implementation.
+  Added `docs/workflow/LESSON_DISPLAY_LABELS.tsv` and `tools/lib/lesson_display_labels.sh` so menu, dashboard, roadmap, lesson14 reset/runtime, learning-record, and helpdesk output use shared STEP display labels.
+  Updated learner-facing menu, dashboard, roadmap, lesson14 reset/runtime output, learn/helpdesk record labels, README, AGENTS routing text, index files, guides, prompts, playbooks, and scenario text while preserving `Step N/14` sync gates, internal aliases, and historical learning records.
+  Expanded `tools/check_learner_display.sh` and `tools/test_menu_prerequisites.sh` so active learner-facing old duration labels fail while internal compatibility names remain valid.
+
+SYNC-ID: lesson_display_label_policy
+STATUS: implemented
+ARTIFACTS: docs/workflow/LESSON_DISPLAY_LABELS.tsv,tools/lib/lesson_display_labels.sh,tools/lib/lesson_common.sh,tools/lib/lesson_runtime.sh,tools/menu,tools/dashboard,tools/learn,tools/helpdesk,tools/lesson14,tools/roadmap,tools/docs-tour,README.md,AGENTS.MD,index.md,index-14-days.md,ai-driven-task-tracker-scenario.md,guides/LESSON_14_DAYS.md,learning/ROADMAP.md,lesson/LESSON_FLOW_14_DAYS.tsv,prompts/PROMPTS.md,prompts/PROMPTS_14_DAYS.md,playbooks/AGENT_PLAYBOOK.md,playbooks/AGENT_PLAYBOOK_14_DAYS.md,tools/check_learner_display.sh,tools/test_menu_prerequisites.sh,tools/check_lesson14_sync.sh,tools/check_agents_skills.sh
+TESTS: tools/check_learner_display.sh,tools/test_menu_prerequisites.sh,tools/check_lesson14_sync.sh,tools/check_agents_skills.sh,tools/test_lesson14.sh
 
 - For `test_ci_final_gate_optimization_plan`, commit and push only after local checks pass; final reporting remains gated on remote `CI` and `Lesson14 CI` for the pushed commit.
 - For future test/CI acceleration work after `test_ci_full_pipeline_acceleration_plan`, start from a clean Git state, preserve required workflow names, and keep new plans non-authoritative until runtime changes and tests are complete.

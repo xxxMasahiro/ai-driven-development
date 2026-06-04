@@ -21,6 +21,7 @@ jobs:
       - name: Shell syntax
         run: |
           bash -n .githooks/pre-commit
+          bash -n tools/lib/lesson_display_labels.sh
           bash -n tools/lib/lesson_common.sh
           bash -n tools/lib/document_paths.sh
           bash -n tools/lib/git_workflow_policy.sh
@@ -97,6 +98,7 @@ jobs:
       - name: Lesson and document structure
         run: |
           ./tools/check_lesson_structure.sh
+          ./tools/check_lesson14_sync.sh
           ./tools/check_document_organization.sh
           ./tools/check_learner_display.sh
           ./tools/check_agents_skills.sh
@@ -163,6 +165,7 @@ jobs:
           ./tools/test_ci_final_gate.sh
           ./tools/test_ci_pipeline_acceleration.sh
           ./tools/test_menu_prerequisites.sh
+          ./tools/test_lesson14.sh
           ./tools/test_product_gate_tools.sh
           ./tools/test_product_repository_cleanup.sh
           ./tools/test_product_security.sh

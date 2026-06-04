@@ -11,6 +11,8 @@ export LESSON_CONFIG="${LESSON_CONFIG:-$DASHBOARD_LESSON14_CONFIG}"
 source "$ROOT/tools/lib/lesson_common.sh"
 # shellcheck source=tools/lib/document_paths.sh
 source "$ROOT/tools/lib/document_paths.sh"
+# shellcheck source=tools/lib/lesson_display_labels.sh
+source "$ROOT/tools/lib/lesson_display_labels.sh"
 PRODUCT_ROOT="${PRODUCT_ROOT:-$(lesson_product_repo_root)}"
 
 print_section() {
@@ -121,20 +123,26 @@ next_approval_status() {
 }
 
 show_lesson() {
+  local lesson7_label lesson14_label lesson7_short lesson14_short
+  lesson7_label="$(lesson_display_label lesson_7)"
+  lesson14_label="$(lesson_display_label lesson_14)"
+  lesson7_short="$(lesson_display_short_label lesson_7)"
+  lesson14_short="$(lesson_display_short_label lesson_14)"
   print_section 'Lesson Dashboard'
+  printf '%s status:\n' "$lesson14_label"
   LESSON_CONFIG="$DASHBOARD_LESSON14_CONFIG" "$ROOT/tools/lesson14" status || true
-  printf '\n7-day lesson status:\n'
+  printf '\n%s status:\n' "$lesson7_label"
   LESSON_CONFIG="$DASHBOARD_LESSON_CONFIG" "$ROOT/tools/lesson" status || true
   printf '\nLearning mode:\n'
-  printf '14-day: '
+  printf '%s: ' "$lesson14_short"
   LESSON_CONFIG="$DASHBOARD_LESSON14_CONFIG" "$ROOT/tools/lesson14" 学習モード || true
-  printf '7-day: '
+  printf '%s: ' "$lesson7_short"
   LESSON_CONFIG="$DASHBOARD_LESSON_CONFIG" "$ROOT/tools/lesson" 学習モード || true
   printf '\nLanguage settings:\n'
-  language_status "$ROOT/learning/WORKFLOW_DISPLAY_LANGUAGE_14_DAYS.tsv" "14-day Workflow display language"
-  language_status "$ROOT/learning/PRODUCT_DEVELOPMENT_LANGUAGE_14_DAYS.tsv" "14-day Product development language"
-  language_status "$ROOT/learning/WORKFLOW_DISPLAY_LANGUAGE.tsv" "7-day Workflow display language"
-  language_status "$ROOT/learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv" "7-day Product development language"
+  language_status "$ROOT/learning/WORKFLOW_DISPLAY_LANGUAGE_14_DAYS.tsv" "$lesson14_short Workflow display language"
+  language_status "$ROOT/learning/PRODUCT_DEVELOPMENT_LANGUAGE_14_DAYS.tsv" "$lesson14_short Product development language"
+  language_status "$ROOT/learning/WORKFLOW_DISPLAY_LANGUAGE.tsv" "$lesson7_short Workflow display language"
+  language_status "$ROOT/learning/PRODUCT_DEVELOPMENT_LANGUAGE.tsv" "$lesson7_short Product development language"
   printf '\nNext approval:\n'
   next_approval_status
   printf '\nSync-gate status:\n'

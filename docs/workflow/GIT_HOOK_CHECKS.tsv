@@ -9,14 +9,14 @@ check_agents_skills	full|fast|minimal	./tools/check_agents_skills.sh	Validate AG
 check_as_built_docs	full|fast|minimal	./tools/check_as_built_docs.sh	Validate the as-built document set.
 check_as_built_sync_contract	full|fast|minimal	./tools/check_as_built_sync_contract.sh	Validate the five-document sync contract.
 check_test_plan_coverage	full|fast|minimal	./tools/check_test_plan_coverage.sh	Validate observe-only test-plan policy and coverage guard.
-check_security_invariants	full|fast|minimal	./tools/check_security_invariants.sh	Validate SafeFlow security invariant coverage.
+check_security_invariants	full|fast|minimal	./tools/check_security_invariants.sh	Validate Security guard invariant coverage.
 check_workflow_pair_sync	full|fast|minimal	./tools/check_workflow_pair_sync.sh	Validate TASK_TRACKER and HANDOFF pair synchronization.
 check_review_protocol	full|fast	./tools/check_review_protocol.sh	Validate the sub-agent review protocol.
 check_developer_memory_requirements	full|fast|minimal	./tools/check_developer_memory_requirements.sh	Validate developer-memory requirements.
 test_docs_tour	full|fast	./tools/test_docs_tour.sh	Run documentation tour regression tests.
 test_as_built_sync_contract	full|fast	./tools/test_as_built_sync_contract.sh	Run sync-contract regression tests.
 test_test_plan	full|fast	./tools/test_test_plan.sh	Run observe-only test-plan regression tests.
-test_security_invariants	full|fast	./tools/test_security_invariants.sh	Run SafeFlow security invariant regression tests.
+test_security_invariants	full|fast	./tools/test_security_invariants.sh	Run Security guard invariant regression tests.
 test_git_workflow_policy	full|fast	./tools/test_git_workflow_policy.sh	Run Git workflow policy regression tests.
 test_git_hooks	full|fast	./tools/test_git_hooks.sh	Run Git hooks policy regression tests.
 test_resource_guard	full|fast	./tools/test_resource_guard.sh	Run resource guard policy and budget regression tests.

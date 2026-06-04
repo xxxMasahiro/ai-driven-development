@@ -20,6 +20,7 @@ jobs:
 
       - name: Shell syntax
         run: |
+          bash -n tools/lib/lesson_display_labels.sh
           bash -n tools/lib/lesson_runtime.sh
           bash -n tools/lib/document_paths.sh
           bash -n tools/lib/git_workflow_policy.sh
@@ -125,6 +126,7 @@ jobs:
           ./tools/check_security_invariants.sh
           ./tools/check_ci_workflow_structure.sh
           ./tools/test_ci_pipeline_acceleration.sh
+          ./tools/test_menu_prerequisites.sh
           printf 'Lesson14 CI keeps the policy-regression-tests job context; common policy regressions are provided by CI / policy-regression-tests for the same commit.\n'
 
   lesson14-cli-tests:

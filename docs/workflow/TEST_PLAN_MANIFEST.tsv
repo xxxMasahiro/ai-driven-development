@@ -27,9 +27,9 @@ tools/lib/test_plan.sh	critical	check_test_plan_coverage|test_test_plan	true	tru
 tools/check_test_plan_coverage.sh	high	check_test_plan_coverage|test_test_plan	true	true	none	false	Test plan coverage checker changes affect observe-only verification planning.
 tools/fixture-copy	high	test_fixture_copy|test_lesson_repository	true	true	none	false	Fixture-copy command changes affect temporary repository test setup.
 tools/lib/fixture_copy.sh	high	test_fixture_copy|test_lesson_repository	true	true	none	false	Fixture-copy helper changes affect temporary repository test setup.
-docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv	critical	check_security_invariants|test_security_invariants	true	true	same-run	false	SafeFlow security policy changes affect security invariant enforcement.
-tools/check_security_invariants.sh	critical	check_security_invariants|test_security_invariants	true	true	none	false	SafeFlow security checker changes affect security invariant enforcement.
-tools/lib/security_invariants.sh	critical	check_security_invariants|test_security_invariants	true	true	none	false	SafeFlow security helper changes affect security invariant enforcement.
+docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv	critical	check_security_invariants|test_security_invariants	true	true	same-run	false	Security guard policy changes affect security invariant enforcement.
+tools/check_security_invariants.sh	critical	check_security_invariants|test_security_invariants	true	true	none	false	Security guard checker changes affect security invariant enforcement.
+tools/lib/security_invariants.sh	critical	check_security_invariants|test_security_invariants	true	true	none	false	Security guard helper changes affect security invariant enforcement.
 docs/workflow/PRODUCT_SECURITY_POLICY.tsv	critical	test_product_security|test_product_gate_tools	true	true	same-run	false	Product security policy changes affect product workflow gates.
 learning/context/WORKFLOW_CONTEXT_MAP.tsv	high	test_product_security|test_product_gate_tools	true	true	same-run	false	Workflow context mapping changes affect product security and menu readiness.
 tools/product-security	critical	test_product_security|test_product_gate_tools	true	true	none	false	Product security command changes affect product workflow verification.

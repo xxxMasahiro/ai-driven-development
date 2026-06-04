@@ -9,7 +9,7 @@ docs/workflow/TEST_PLAN_MANIFEST.tsv	full-no-cache	Test plan manifest changes af
 docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv	full-no-cache	As-built sync-contract changes affect mechanical document synchronization.
 docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv	full-no-cache	Final-gate gap command changes affect CI-equivalent final verification.
 docs/workflow/FINAL_GATE_COVERAGE.tsv	full-no-cache	Final-gate coverage changes affect duplicate-test elimination safety.
-docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv	full-no-cache	SafeFlow security policy changes affect mechanical security validation.
+docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv	full-no-cache	Security guard policy changes affect mechanical security validation.
 docs/workflow/PRODUCT_SECURITY_POLICY.tsv	full-no-cache	Product security policy changes affect product workflow gates.
 learning/context/WORKFLOW_CONTEXT_MAP.tsv	full-no-cache	Workflow context mapping changes affect product security and menu readiness.
 docs/workflow/RESOURCE_POLICY.tsv	full-no-cache	Resource policy changes affect local verification behavior.
@@ -30,7 +30,7 @@ tools/check_test_plan_coverage.sh	full-no-cache	Test plan coverage checker chang
 tools/fixture-copy	full-no-cache	Fixture-copy command changes affect test runtime setup.
 tools/lib/fixture_copy.sh	full-no-cache	Fixture-copy helper changes affect test runtime setup.
 tools/product-security	full-no-cache	Product security gate changes affect product workflow verification.
-tools/lib/security_invariants.sh	full-no-cache	SafeFlow security helper changes affect mechanical security validation.
+tools/lib/security_invariants.sh	full-no-cache	Security guard helper changes affect mechanical security validation.
 tools/lib/product_security.sh	full-no-cache	Product security helper changes affect product workflow verification.
 tools/check_*.sh	full-no-cache	Checker changes affect mechanical verification behavior.
 tools/test_*.sh	full-no-cache	Regression-test changes affect aggregate and CI verification behavior.

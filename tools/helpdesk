@@ -3,6 +3,11 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+export LESSON_CONFIG="$ROOT/lesson/LESSON_CONFIG_14_DAYS.tsv"
+
+# shellcheck source=tools/lib/lesson_common.sh
+source "$SCRIPT_DIR/lib/lesson_common.sh"
+
 HELP_DESK="$ROOT/learning/HELP_DESK.md"
 STATE="$ROOT/learning/LESSON_STATE_14_DAYS.tsv"
 FLOW="$ROOT/lesson/LESSON_FLOW_14_DAYS.tsv"
@@ -27,7 +32,7 @@ current_label() {
     printf 'すべて完了'
     return
   fi
-  awk -F '\t' -v step="$step" '$1 !~ /^#/ && $2 == step { printf "%s / %s / %s", $2, $3, $4; exit }' "$FLOW"
+  lesson_flow_step_label "$FLOW" "$step" || printf '%s' "$step"
 }
 
 append_entry() {

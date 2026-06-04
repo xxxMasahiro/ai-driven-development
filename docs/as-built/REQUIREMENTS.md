@@ -184,7 +184,7 @@ The implementation provides policy files, user settings, a shared resource libra
 - Treat the 90 percent safe-stop state as a failing gate for starting new heavy verification work, including job recommendation and Playwright wrapper entry points.
 - Monitor repository swap-budget usage in 10 percent increments.
 - Treat 50, 60, 70, 80, and 90 percent as escalating stages for notice, warning, strong warning, parallel-addition stop, and serial fallback or safe stop.
-- Avoid hidden OS mutation, `.wslconfig` writes, swap creation/deletion, `drop_caches`, privileged cleanup, arbitrary process killing, Docker/cgroups enforcement, or SafeFlow control-plane migration in the first implementation.
+- Avoid hidden OS mutation, `.wslconfig` writes, swap creation/deletion, `drop_caches`, privileged cleanup, arbitrary process killing, Docker/cgroups enforcement, or Security guard control-plane migration in the first implementation.
 - Keep the resource guard reusable across Git hooks, Playwright, aggregate checks, and future CI/local verification design.
 - Keep the new resource guard check runnable both standalone and from aggregate tests.
 
@@ -475,17 +475,17 @@ This implemented work is additive and does not trade away any existing 7-day les
 - Full/no-cache coverage, aggregate-test wiring, CI wiring, and preservation of existing pre-commit behavior must be verified through `tools/git-hooks run --mode full --no-cache`, `.githooks/pre-commit`, `tools/test_lesson_repository.sh`, and the CI workflow definitions.
 - Require developer approval before changing the minimal-mode required check list or skipping Playwright-related checks through cache beyond the implemented fail-closed cache behavior.
 
-## Implemented SafeFlow Security Backfill Requirements
+## Implemented Security Guard Backfill Requirements
 
-The lesson repository must provide an implemented SafeFlow security backfill with runtime artifacts, standalone checks, aggregate-test wiring, Git hooks wiring, CI wiring, and pre-commit wiring.
+The lesson repository must provide an implemented Security guard backfill with runtime artifacts, standalone checks, aggregate-test wiring, Git hooks wiring, CI wiring, and pre-commit wiring.
 This implemented work is additive and must not trade away the existing 7-day lesson, 14-day lesson, applied lesson, Free Development Mode, Product Improvement, External Integration, lesson-maintenance behavior, menu behavior, dashboard behavior, Git workflow policy, Git hooks policy, CI, pre-commit, docs-tour, resource guard, or as-built sync-contract behavior.
 
 - Add security invariants to the lesson repository's agent rules so agent work treats untrusted text as data, resists prompt injection, protects secrets, requires least privilege for external APIs, and rejects UI-only, prompt-only, or keyword-filter-only security fixes as sufficient primary security controls.
 - Keep `learner_context_foundation` and `learner_context_runtime_integration` as planned context work until runtime lesson behavior is actually implemented.
-- Track SafeFlow security backfill as its own sync scope instead of merging it into learner-context work.
-- Require the SafeFlow security backfill policy to cover prompt injection, secrets, destructive operations, dependency changes, Git/CI safety, and external service permissions.
+- Track Security guard backfill as its own sync scope instead of merging it into learner-context work.
+- Require the Security guard backfill policy to cover prompt injection, secrets, destructive operations, dependency changes, Git/CI safety, and external service permissions.
 - Require mechanical checks for security invariants to be runnable standalone and from aggregate tests.
-- Keep the first implementation scoped to repository-local policy, documentation synchronization, and non-network checks; do not introduce SafeFlow control-plane migration, OS/WSL mutation, Docker/cgroups enforcement, swap mutation, process killing, or destructive cleanup.
+- Keep the first implementation scoped to repository-local policy, documentation synchronization, and non-network checks; do not introduce Security guard control-plane migration, OS/WSL mutation, Docker/cgroups enforcement, swap mutation, process killing, or destructive cleanup.
 - Require high-risk security findings to fail closed only when the check is high-confidence; warnings must remain distinct from blocking failures to avoid stopping safe existing workflows.
 
 ## Implemented Product Security Workflow Gate Requirements
@@ -508,7 +508,7 @@ The product-security gate must make Free Development, Product Improvement, and E
 The lesson repository should make local tests and remote CI faster without weakening safety, correctness, auditability, existing checks, or existing lesson behavior.
 The implemented first phase adds observe-only planning, fail-closed coverage validation, result attestation, CI-safe Git hooks parallelism, and lightweight fixture copying while preserving all existing required verification.
 
-- Preserve the existing 7-day lesson, 14-day lesson, menu, dashboard, Git workflow, Git hooks, product-security, SafeFlow security, as-built sync, pre-commit, Playwright, and CI guarantees.
+- Preserve the existing 7-day lesson, 14-day lesson, menu, dashboard, Git workflow, Git hooks, product-security, Security guard checks, as-built sync, pre-commit, Playwright, and CI guarantees.
 - Treat speed improvements as removal of duplicate work, redundant waiting, repeated setup, and repeated validation within the same verification path.
 - Do not remove required safety gates, do not make security or as-built checks optional, and do not let changed-only test selection become authoritative in CI until observe-only evidence proves it is safe.
 - Provide a Test Plan Manifest that can show which checks are required, which changes force full verification, and why each decision was made.
@@ -557,7 +557,7 @@ Runtime behavior is implemented through policy files, focused checks, CI workflo
 - Duplicated `policy-regression-tests` style work between `CI` and `Lesson14 CI` is reduced while preserving required workflow contexts and branch-protection compatibility.
 - The `Lesson14 CI` compatibility contexts stay present but avoid rerunning common heavy browser, aggregate, and full-hook work already covered by the main `CI` workflow for the same commit.
 - Changed-only CI remains observe-only until Coverage Guard, Result Attestation, full-CI comparison evidence, and developer approval prove that it can become authoritative safely.
-- Preserve the existing Step 1-7 lesson path, Step 1-14 lesson path, applied lesson, menu, dashboard, Git workflow policy, Git hooks policy, SafeFlow security checks, product-security checks, as-built sync, docs-tour, pre-commit, local full/no-cache verification, and remote CI behavior.
+- Preserve the existing Step 1-7 lesson path, Step 1-14 lesson path, applied lesson, menu, dashboard, Git workflow policy, Git hooks policy, Security guard checks, product-security checks, as-built sync, docs-tour, pre-commit, local full/no-cache verification, and remote CI behavior.
 - Require focused regression coverage through `tools/test_ci_pipeline_acceleration.sh`, which is standalone-callable and aggregate-callable.
 - Require developer approval before changing required workflow or job names, reducing full/no-cache scope, making changed-only CI authoritative, adding persistent verification-result cache, adding flaky quarantine, accepting an existing-feature tradeoff, or weakening any safety gate.
 
@@ -574,7 +574,7 @@ Runtime behavior is implemented through policy files, focused checks, CI workflo
 - Product repository cleanup is regression-tested with temporary local repositories and a fake `gh` command through `tools/test_product_repository_cleanup.sh`.
 - Product security workflow gates are regression-tested through `tools/test_product_security.sh` and existing product gate tests.
 - As-built document consistency is checked by `tools/check_as_built_docs.sh`.
-- SafeFlow security invariants are checked by `tools/check_security_invariants.sh` and `tools/test_security_invariants.sh`.
+- Security guard invariants are checked by `tools/check_security_invariants.sh` and `tools/test_security_invariants.sh`.
 - Sub-agent review protocol presence is checked by `tools/check_review_protocol.sh`.
 - Real product operations are checked by `tools/test_production_operations.sh` only when an external product repository exists.
 - Free Development Mode is gated by `tools/free-development gate`.
@@ -612,3 +612,23 @@ Runtime behavior is implemented through policy files, focused checks, CI workflo
 - `docs/workflow/TASK_TRACKER.md`, `docs/workflow/HANDOFF.md`, `docs/as-built/REQUIREMENTS.md`, `docs/as-built/SPECIFICATION.md`, and `docs/as-built/IMPLEMENTATION_PLAN.md` reflect the same as-built state.
 - `task-tracker-repository` remains outside this repository and may remain deleted unless a real product operations test is explicitly requested.
 - The developer-memory audit remains cleared only while all remediation requirements in this document are implemented or mechanically enforced.
+
+## Planned Lesson Display Label Policy Requirements
+
+SYNC-ID: lesson_display_label_policy
+STATUS: implemented
+ARTIFACTS: docs/workflow/LESSON_DISPLAY_LABELS.tsv,tools/lib/lesson_display_labels.sh,tools/lib/lesson_common.sh,tools/lib/lesson_runtime.sh,tools/menu,tools/dashboard,tools/learn,tools/helpdesk,tools/lesson14,tools/roadmap,tools/docs-tour,README.md,AGENTS.MD,index.md,index-14-days.md,ai-driven-task-tracker-scenario.md,guides/LESSON_14_DAYS.md,learning/ROADMAP.md,lesson/LESSON_FLOW_14_DAYS.tsv,prompts/PROMPTS.md,prompts/PROMPTS_14_DAYS.md,playbooks/AGENT_PLAYBOOK.md,playbooks/AGENT_PLAYBOOK_14_DAYS.md,tools/check_learner_display.sh,tools/test_menu_prerequisites.sh,tools/check_lesson14_sync.sh,tools/check_agents_skills.sh
+TESTS: tools/check_learner_display.sh,tools/test_menu_prerequisites.sh,tools/check_lesson14_sync.sh,tools/check_agents_skills.sh,tools/test_lesson14.sh
+
+The lesson repository separates learner-facing display labels from internal compatibility names before replacing old lesson-duration wording.
+This implemented work improves learner-facing clarity without weakening the existing Step 1-7 path, Step 1-14 path, Lesson14 sync gates, CI, pre-commit, as-built synchronization, skills, prompts, dashboard, or historical learning records.
+
+- Learner-facing menu and dashboard output must use a stable STEP-oriented course label such as `STEP 1-7: 基礎レッスン` and `STEP 1-14: 実践レッスン`.
+- Internal compatibility names must remain available, including `tools/lesson`, `tools/lesson14`, `index.md`, `index-14-days.md`, `_14_DAYS` files, `dayN.*` step IDs, and `check_lesson14_*` commands.
+- `Step N/14` must not be blindly renamed because it is also used as a Lesson14 sync-gate key.
+- Learner-facing documentation, prompts, playbooks, menu output, dashboard output, roadmap output, learning helpdesk output, and new learning records must not keep misleading `7日間レッスン`, `14日間レッスン`, or learner-facing `Day` wording.
+- Existing historical learning logs must not be bulk rewritten; new output should use the new display policy while old records remain auditable evidence.
+- The learner-display check must detect more than `Day N`; it must also catch learner-facing `Day別`, `各Day`, `DayまたはStep`, Markdown `| Day |` headings, and old course labels outside approved internal or historical contexts.
+- The learner-display check detects the active learner-surface regressions listed above while preserving approved internal and historical compatibility contexts.
+- Checks must distinguish learner-facing forbidden labels from allowed internal compatibility names instead of relying on a global string replacement.
+- Any display-label implementation must remain reusable, policy-driven, and independent of a specific product stack, language, or single hard-coded Japanese phrase.

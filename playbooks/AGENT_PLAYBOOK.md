@@ -22,7 +22,7 @@ tools/lesson 現在地で現在項目を確認してから質問する
 ## 1ターンの基本形
 
 ```text
-1. 現在のDayまたはStepを確認する
+1. 現在のStepを確認する
 2. tools/lesson 現在地で現在項目を確認する
 3. 必要に応じてtools/check_lesson_structure.shで構成を確認する
 4. 今扱うファイルの位置を必要に応じて示す
@@ -66,7 +66,7 @@ tools/lesson 現在地で現在項目を確認してから質問する
 11. REQUIREMENTS.md
 12. SPECIFICATION.md
 13. IMPLEMENTATION_PLAN.md
-14. 今日進めるDayまたはStep
+14. 今日進めるStep
 ```
 
 ## 回答分岐

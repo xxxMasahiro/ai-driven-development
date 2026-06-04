@@ -32,7 +32,7 @@ security_invariants_rows() {
     $1 ~ /^#/ { next }
     {
       if (NF != 6) {
-        printf "invalid SafeFlow security policy row: %s\n", $0 > "/dev/stderr"
+        printf "invalid Security guard policy row: %s\n", $0 > "/dev/stderr"
         invalid = 1
         next
       }
@@ -52,53 +52,53 @@ security_invariants_validate() {
   policy_file="$(security_invariants_policy_file)"
 
   if [[ ! -f "$policy_file" ]]; then
-    printf 'missing SafeFlow security policy: %s\n' "$policy_file" >&2
+    printf 'missing Security guard policy: %s\n' "$policy_file" >&2
     return 1
   fi
 
   row_count="$(security_invariants_rows | wc -l | awk '{ print $1 }')" || return 1
   if [[ "$row_count" -eq 0 ]]; then
-    printf 'SafeFlow security policy has no rows: %s\n' "$policy_file" >&2
+    printf 'Security guard policy has no rows: %s\n' "$policy_file" >&2
     return 1
   fi
 
   while IFS= read -r required_id; do
     if ! security_invariants_rows | awk -F '\t' -v id="$required_id" '$1 == id { found = 1 } END { exit found ? 0 : 1 }'; then
-      printf 'missing SafeFlow security invariant: %s\n' "$required_id" >&2
+      printf 'missing Security guard invariant: %s\n' "$required_id" >&2
       missing=1
     fi
   done < <(security_invariants_required_ids)
 
   while IFS=$'\t' read -r id surface status evidence_file pattern description; do
     if [[ -n "${seen_ids[$id]:-}" ]]; then
-      printf 'duplicate SafeFlow security invariant: %s\n' "$id" >&2
+      printf 'duplicate Security guard invariant: %s\n' "$id" >&2
       missing=1
     fi
     seen_ids[$id]=1
 
     if [[ "$status" != "implemented" ]]; then
-      printf 'SafeFlow security invariant is not implemented: %s\n' "$id" >&2
+      printf 'Security guard invariant is not implemented: %s\n' "$id" >&2
       missing=1
     fi
     if [[ -z "$surface" || -z "$evidence_file" || -z "$pattern" || -z "$description" ]]; then
-      printf 'invalid empty SafeFlow security invariant field: %s\n' "$id" >&2
+      printf 'invalid empty Security guard invariant field: %s\n' "$id" >&2
       missing=1
       continue
     fi
     if [[ "$evidence_file" == /* || "$evidence_file" == *"/../"* || "$evidence_file" == "../"* || "$evidence_file" == *"/.." || "$evidence_file" == ".." ]]; then
-      printf 'unsafe SafeFlow security evidence path for %s: %s\n' "$id" "$evidence_file" >&2
+      printf 'unsafe Security guard evidence path for %s: %s\n' "$id" "$evidence_file" >&2
       missing=1
       continue
     fi
 
     evidence_path="$LESSON_ROOT/$evidence_file"
     if [[ ! -f "$evidence_path" ]]; then
-      printf 'missing SafeFlow security evidence file for %s: %s\n' "$id" "$evidence_file" >&2
+      printf 'missing Security guard evidence file for %s: %s\n' "$id" "$evidence_file" >&2
       missing=1
       continue
     fi
     if ! grep -F -- "$pattern" "$evidence_path" >/dev/null; then
-      printf 'missing SafeFlow security evidence pattern for %s in %s: %s\n' "$id" "$evidence_file" "$pattern" >&2
+      printf 'missing Security guard evidence pattern for %s in %s: %s\n' "$id" "$evidence_file" "$pattern" >&2
       missing=1
     fi
   done < <(security_invariants_rows)

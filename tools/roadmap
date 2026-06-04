@@ -6,6 +6,8 @@ ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 FLOW="$ROOT/lesson/LESSON_FLOW_14_DAYS.tsv"
 STATE="$ROOT/learning/LESSON_STATE_14_DAYS.tsv"
 ROADMAP="$ROOT/learning/ROADMAP.md"
+# shellcheck source=tools/lib/lesson_display_labels.sh
+source "$ROOT/tools/lib/lesson_display_labels.sh"
 COMMAND="${1:-現在地}"
 ARG="${2:-}"
 
@@ -17,7 +19,7 @@ Usage:
   tools/roadmap Step 10
 
 Aliases:
-  status, show, day
+  status, show
 USAGE
 }
 
@@ -41,9 +43,9 @@ case "$COMMAND" in
   現在地|status)
     step="$(current_step)"
     if [[ -z "$step" ]]; then
-      printf '14日版レッスンはすべて完了しています。\n'
+      printf '%sはすべて完了しています。\n' "$(lesson_display_label lesson_14)"
     else
-      printf '14日版の現在地:\n'
+      printf '%sの現在地:\n' "$(lesson_display_label lesson_14)"
       step_row "$step"
     fi
     printf '\nロードマップ: %s\n' "$ROADMAP"

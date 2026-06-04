@@ -1,7 +1,7 @@
 # order	step_id	day	title	required_output
-001	setup.index	Setup	index-14-days.mdでレッスン全体と14日版の入口を確認する	14日版の目的と順番の了承
+001	setup.index	Setup	index-14-days.mdでレッスン全体とSTEP 1-14の入口を確認する	STEP 1-14の目的と順番の了承
 002	setup.github-login	Setup	github-login-setup-guide.mdでGitHub接続を確認する	github-loginまたはghでGitHub接続確認
-003	day1.roadmap	Step 1/14	14日間の学習ロードマップを確認する	ROADMAP.mdの現在地確認
+003	day1.roadmap	Step 1/14	STEP 1-14の学習ロードマップを確認する	ROADMAP.mdの現在地確認
 004	day1.lesson-controls	Step 1/14	lesson14、roadmap、helpdeskの使い方を確認する	拡張レッスン制御コマンドの理解
 005	day1.repository-boundary	Step 1/14	教材リポジトリと成果物リポジトリの境界を確認する	並列配置と誤配置防止の理解
 006	day1.sync-gate	Step 1/14	Step 1/14同期ゲートを通過する	学習記録と現在地の同期
@@ -56,4 +56,4 @@
 055	day14.final-sync	Step 14/14	3文書、TASK_TRACKER.md、HANDOFF.mdを最終同期する	全文書同期
 056	day14.release-readiness	Step 14/14	main CI、リモート同期、READMEを確認する	公開準備確認
 057	day14.retrospective	Step 14/14	学習ロードマップとヘルプデスクを見返してふりかえる	学習ふりかえり
-058	day14.complete	Step 14/14	14日版レッスンを完了する	完了判定と次の改善案
+058	day14.complete	Step 14/14	STEP 1-14: 実践レッスンを完了する	完了判定と次の改善案

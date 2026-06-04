@@ -60,10 +60,14 @@ printf '# selected_at\tmode\tdescription\n' > learning/LESSON_MODE_14_DAYS.tsv
 printf '# selected_at\tcode\tlabel\n' > learning/WORKFLOW_DISPLAY_LANGUAGE_14_DAYS.tsv
 printf '# selected_at\tcode\tlabel\n' > learning/PRODUCT_DEVELOPMENT_LANGUAGE_14_DAYS.tsv
 
-./tools/menu | grep '3\. 応用レッスン' >/dev/null
-./tools/menu | grep '3\. 発展・応用レッスン' >/dev/null && exit 1 || true
-./tools/menu | grep './tools/product-improvement status' >/dev/null
-./tools/menu | grep './tools/git-workflow status' >/dev/null
+menu_output="$(./tools/menu)"
+grep '1\. STEP 1-7: 基礎レッスン' <<<"$menu_output" >/dev/null
+grep '2\. STEP 1-14: 実践レッスン' <<<"$menu_output" >/dev/null
+grep '7日間レッスン\|14日間レッスン' <<<"$menu_output" >/dev/null && exit 1 || true
+grep '3\. 応用レッスン' <<<"$menu_output" >/dev/null
+grep '3\. 発展・応用レッスン' <<<"$menu_output" >/dev/null && exit 1 || true
+grep './tools/product-improvement status' <<<"$menu_output" >/dev/null
+grep './tools/git-workflow status' <<<"$menu_output" >/dev/null
 
 for item in 1 2 3 4 5 6; do
   ./tools/menu start "$item" --confirm >/tmp/menu-missing-prerequisite-"$item".out 2>&1 && exit 1 || true
@@ -126,8 +130,13 @@ done
 ./tools/menu readiness | grep 'Git developer auto-merge allowed: false' >/dev/null
 ./tools/menu readiness | grep 'Git main CI monitoring: auto' >/dev/null
 ./tools/menu readiness | grep 'Git sync monitoring: auto' >/dev/null
+./tools/menu readiness | grep '\[1\] STEP 1-7: 基礎レッスン' >/dev/null
+./tools/menu readiness | grep '\[2\] STEP 1-14: 実践レッスン' >/dev/null
 ./tools/menu readiness | grep '\[7\] 教材そのものを改善' >/dev/null
 dashboard_menu_output="$(./tools/dashboard menu)"
+grep 'STEP 1-7: 基礎レッスン' <<<"$dashboard_menu_output" >/dev/null
+grep 'STEP 1-14: 実践レッスン' <<<"$dashboard_menu_output" >/dev/null
+grep '7日間レッスン\|14日間レッスン' <<<"$dashboard_menu_output" >/dev/null && exit 1 || true
 grep 'Git commit automation: auto' <<<"$dashboard_menu_output" >/dev/null
 grep 'Git push automation: manual' <<<"$dashboard_menu_output" >/dev/null
 grep 'Git PR creation: manual' <<<"$dashboard_menu_output" >/dev/null
