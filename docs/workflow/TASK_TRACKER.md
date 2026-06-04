@@ -275,6 +275,24 @@ It targets the current `aggregate-and-full-hooks` bottleneck while preserving ex
 - [x] Pass local aggregate tests, full/no-cache hooks, pre-commit, and sub-agent verification.
 - [x] Keep remote `CI` / `Lesson14 CI` as required external completion gates before final reporting.
 
+## Planned Test And CI Full Pipeline Acceleration Work
+
+Status: planned; documentation synchronization only.
+This work records the next complete test/CI acceleration cycle after final-gate evidence reuse.
+It does not change runtime behavior until the next implementation cycle.
+
+- [x] Record the plan as `test_ci_full_pipeline_acceleration_plan` in the as-built sync contract.
+- [x] Synchronize the plan into the three as-built documents and the two workflow-state documents.
+- [ ] Resolve GitHub Actions Node 20 deprecation warnings without changing required check meanings.
+- [ ] Optimize Playwright setup through safe dependency/browser caching and fallback installs.
+- [ ] Expand full-hook parallelization only for mechanically proven independent checks.
+- [ ] Expand same-run evidence reuse for as-built, sync, documentation-tour, and related final-gate checks.
+- [ ] Reduce duplicated policy-regression work between `CI` and `Lesson14 CI` while preserving required contexts.
+- [ ] Split `aggregate-and-full-hooks` internals into evidence generation, evidence verification, and final-gap gate units.
+- [ ] Keep changed-only CI observe-only until proof and developer approval allow any authoritative behavior.
+- [ ] Add focused tests for each new behavior and keep them standalone plus aggregate-callable.
+- [ ] Pass local verification, remote `CI`, and remote `Lesson14 CI` after implementation.
+
 ## Implemented Documentation Map Synchronization
 
 The lesson now explains the repository's rule, routing, skill, design, workflow, and memory documents in a way that non-engineer learners can understand.
@@ -440,6 +458,11 @@ SYNC-ID: test_ci_final_gate_optimization_plan
 STATUS: implemented
 ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,docs/workflow/RESOURCE_POLICY.tsv,tools/lib/ci_evidence.sh,tools/lib/as_built_evidence.sh,tools/ci-evidence,tools/ci-final-gate,tools/git-hooks,tools/lib/git_hooks_policy.sh,tools/lib/resource_guard.sh,tools/check_as_built_sync_contract.sh,tools/as-built-sync,tools/docs-tour,tools/check_ci_workflow_structure.sh,tools/test_lesson_playwright.sh,tools/test_lesson_start_position.sh,tools/test_lesson14.sh,tools/test_lesson_repository.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_resource_cleanup.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/test_git_hooks_parallel.sh,tools/test_resource_cleanup.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/test_docs_tour.sh,tools/test_as_built_sync_contract.sh,tools/test_lesson_start_position.sh,tools/test_lesson14.sh
+
+SYNC-ID: test_ci_full_pipeline_acceleration_plan
+STATUS: planned
+ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/git-hooks,tools/ci-final-gate,tools/ci-evidence,tools/lib/ci_evidence.sh,tools/lib/as_built_evidence.sh,tools/lib/git_hooks_policy.sh,tools/lib/resource_guard.sh,tools/check_ci_workflow_structure.sh,tools/test_lesson_playwright.sh,tools/test_lesson_repository.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/check_test_plan_coverage.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/test_lesson_repository.sh
 ```
 
 ## Planned Learner Context Foundation Synchronization
@@ -623,4 +646,5 @@ Real product operations testing remains available through `tools/test_production
 ## Remaining Work
 
 - For `test_ci_final_gate_optimization_plan`, commit and push only after local checks pass; final reporting remains gated on remote `CI` and `Lesson14 CI` for the pushed commit.
+- For `test_ci_full_pipeline_acceleration_plan`, start implementation only after rechecking Git state and sync contract status. Keep the plan `planned` until runtime changes and tests are complete.
 - Translate remaining learner-facing Markdown files to English using the audit output from `tools/list_non_english_docs.sh`.

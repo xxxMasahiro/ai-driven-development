@@ -368,6 +368,11 @@ SYNC-ID: test_ci_final_gate_optimization_plan
 STATUS: implemented
 ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,docs/workflow/RESOURCE_POLICY.tsv,tools/lib/ci_evidence.sh,tools/lib/as_built_evidence.sh,tools/ci-evidence,tools/ci-final-gate,tools/git-hooks,tools/lib/git_hooks_policy.sh,tools/lib/resource_guard.sh,tools/check_as_built_sync_contract.sh,tools/as-built-sync,tools/docs-tour,tools/check_ci_workflow_structure.sh,tools/test_lesson_playwright.sh,tools/test_lesson_start_position.sh,tools/test_lesson14.sh,tools/test_lesson_repository.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_resource_cleanup.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/test_git_hooks_parallel.sh,tools/test_resource_cleanup.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/test_docs_tour.sh,tools/test_as_built_sync_contract.sh,tools/test_lesson_start_position.sh,tools/test_lesson14.sh
+
+SYNC-ID: test_ci_full_pipeline_acceleration_plan
+STATUS: planned
+ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/git-hooks,tools/ci-final-gate,tools/ci-evidence,tools/lib/ci_evidence.sh,tools/lib/as_built_evidence.sh,tools/lib/git_hooks_policy.sh,tools/lib/resource_guard.sh,tools/check_ci_workflow_structure.sh,tools/test_lesson_playwright.sh,tools/test_lesson_repository.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/check_test_plan_coverage.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/test_lesson_repository.sh
 ```
 
 ### Planned Learner Context Foundation
@@ -759,6 +764,23 @@ It does not make changed-only CI authoritative and does not remove standalone ag
 - If required check names or branch-protection expectations prevent workflow consolidation, the implementation must preserve the names and reduce internal duplicate work instead.
 - Cache or evidence mismatch, absence, parse failure, untrusted metadata, or changed input must rerun the relevant check or fail closed.
 - Cleanup coverage should include Playwright reports, test results, temporary fixtures, same-run evidence, and repo-local cache directories; it must not clean OS, global dependency, Docker, swap, process, product repository, or user-home caches without explicit approval.
+
+### Planned Test And CI Full Pipeline Acceleration Specification
+
+The next acceleration cycle is policy-driven and fail-closed.
+It must build on the existing Test Plan Manifest, Git hook check catalog, Git hook parallel groups, recommendation paths, final-gate gap commands, final-gate coverage map, CI evidence helpers, as-built evidence helpers, resource guard, local Git hook runner, and CI workflow structure checks.
+
+- GitHub Actions deprecation handling must update supported actions or runner usage without changing the required check meaning.
+- Playwright setup caching must cache dependencies and browser downloads only when the cache key includes dependency and Playwright-relevant inputs; stale or missing cache must install normally.
+- Full-hook parallel expansion must be controlled by `docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv` or equivalent policy data, not by hard-coded command names.
+- A check may run in parallel only when its inputs, outputs, temporary paths, logs, and side effects are classified as independent.
+- Same-run evidence reuse must remain scoped to the same command or workflow run and must reject mismatched command IDs, input hashes, policy hashes, repository-state hashes, or success status.
+- As-built, sync, docs-tour, final-gate, and similar documentation checks may reuse evidence only after their relevant documents, contract files, checker files, and command identities are included in the evidence metadata.
+- `CI` and `Lesson14 CI` may reduce duplicated common policy-regression work by separating common verification from lesson-specific verification while preserving required workflow/job contexts unless developer approval changes them.
+- The `aggregate-and-full-hooks` path may be split internally, but the externally required result must still prove aggregate coverage, full-hook coverage, final-gap coverage, and evidence validity.
+- GitHub Actions optimization must use runner-oriented job splitting, dependency caching, and evidence artifacts; it must not rely on local WSL memory limits as CI policy.
+- Changed-only CI remains observe-only until a future approved change makes it authoritative.
+- New implementation candidates such as `tools/ci-metrics`, `tools/test_ci_pipeline_acceleration.sh`, or additional workflow-structure assertions may be added during implementation, but they must be connected to the sync contract only after they exist and are testable.
 
 ## Product Repository Boundary
 
