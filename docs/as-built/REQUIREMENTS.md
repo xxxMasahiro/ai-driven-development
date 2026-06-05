@@ -223,7 +223,7 @@ This implementation is synchronized from `docs/memory/DEVELOPER_MEMORY.md` and i
 - Optimize GitHub Actions separately from local resource settings by splitting CI into runner-appropriate jobs rather than applying local `memory_budget_percent` directly to CI.
 - Keep all existing checks present; CI job splitting must not remove or weaken existing verification.
 - Require a CI workflow structure check so the split workflow mechanically verifies required job names, `needs` relationships, and required commands.
-- Ensure the final CI aggregate and full-hooks gate installs npm dependencies and Playwright dependencies before running aggregate repository tests or full hooks.
+- Ensure main CI aggregate/full-hooks jobs install npm dependencies and Playwright dependencies before running aggregate repository tests or full hooks.
 - Preserve explicit local/CI separation: local Git hooks and Playwright may use resource guard recommendations, while CI full hooks must keep the CI-safe local-resource bypass behavior such as `RESOURCE_GUARD_SKIP_LOCAL_CHECK=1` or an equivalent documented mechanism.
 - Provide standalone tests for summary output and Git hooks parallel execution, and wire them into aggregate, pre-commit, and CI verification.
 - Keep the `resource_guard_summary_parallel_ci` sync contract implemented with actual runtime artifacts, runtime tests, and runtime evidence.
@@ -566,7 +566,7 @@ Runtime behavior is implemented through policy files, focused checks, CI workflo
 The CI timing and approved auto-improvement cycle makes `aggregate-and-full-hooks` optimization evidence-driven before any future final-gate behavior change.
 This implemented work is additive and does not trade away the Step 1-7 lesson path, Step 1-14 lesson path, applied lesson, menu, dashboard, Git workflow policy, Git hooks policy, Security guard checks, product-security checks, as-built sync, docs-tour, pre-commit, local full/no-cache verification, or remote CI behavior.
 
-- Record per-check execution timing for `aggregate-and-full-hooks` in a machine-readable report.
+- Record per-check execution timing for the main `CI` final common aggregate/full-hooks checks in a machine-readable report.
 - Preserve learner/maintainer readability by showing check name, duration, exit status, mode, command identity, relevant input hash, and whether same-run evidence was used.
 - Store CI timing reports as workflow artifacts or same-run evidence files without storing secrets, tokens, private messages, environment dumps, or external service payloads.
 - Strengthen CI status checking so the agent can distinguish main `CI` from `Lesson14 CI`, can target the current commit SHA, can inspect job state, and does not report success while a required workflow is still running.
@@ -586,6 +586,27 @@ SYNC-ID: ci_timing_auto_improvement_plan
 STATUS: implemented
 ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/check_ci_status.sh,tools/check_ci_workflow_structure.sh,tools/lib/ci_timing.sh,tools/ci-timing,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/test_lesson_repository.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/check_as_built_sync_contract.sh
+
+## Implemented CI Aggregate And Full-Hooks Split Requirements
+
+The CI aggregate and full-hooks split shortens the main `CI` workflow wall time by running the lesson aggregate check and full Git hook regression as separate jobs after the same prerequisite gates pass.
+It must preserve strict final verification, existing workflow behavior, and current full/no-cache semantics.
+
+- Split only the main `CI` final common verification path into `lesson-aggregate`, `git-hooks-full-no-cache`, and `final-gate`.
+- Keep `Lesson14 CI` compatibility contexts intact so existing branch-protection and document routes remain valid.
+- Keep `tools/test_lesson_repository.sh --use-evidence --write-evidence` and `tools/git-hooks run --mode full --no-cache --jobs 4` authoritative; the split changes scheduling, not verification scope.
+- Require `final-gate` to depend on both split jobs, run even when a split prerequisite fails, and fail closed when a prerequisite result or same-run Git hook evidence is missing, stale, mismatched, or unavailable.
+- Preserve timing artifact output by collecting split timing parts, keeping each split job report in a non-colliding report file, and uploading the same final timing artifact pattern.
+- Use a stable Lesson14 compatibility marker for common split coverage instead of depending on learner-facing prose.
+- Do not add persistent verification-result cache, changed-only authoritative CI, Git hook group matrix splitting, flaky quarantine, or conditional full/no-cache skipping in this implementation.
+- Preserve the Step 1-7 lesson path, Step 1-14 lesson path, applied lesson, menu, dashboard, Git workflow policy, Git hooks policy, Security guard checks, product-security checks, as-built sync, docs-tour, pre-commit, local full/no-cache verification, and remote CI behavior.
+- Require focused structure and acceleration checks that are standalone-callable and aggregate-callable.
+- Require developer approval before changing required workflow contexts, reducing full/no-cache coverage, adding persistent cache semantics, making changed-only CI authoritative, or accepting any existing-feature tradeoff.
+
+SYNC-ID: ci_aggregate_full_hooks_split
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 
 ## Implemented Dashboard Control Center Data Layer Requirements
 

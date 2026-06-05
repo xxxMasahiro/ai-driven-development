@@ -229,7 +229,7 @@ jobs:
           include-hidden-files: true
           retention-days: 1
 
-  aggregate-and-full-hooks:
+  lesson-aggregate:
     runs-on: ubuntu-latest
     needs:
       - syntax-checks
@@ -267,19 +267,127 @@ jobs:
       - name: Lesson aggregate test
         env:
           CI_EVIDENCE_DIR: ${{ runner.temp }}/ci-evidence
-          CI_EVIDENCE_SOURCE_JOB: aggregate-and-full-hooks
+          CI_EVIDENCE_SOURCE_JOB: lesson-aggregate
           CI_EVIDENCE_PLAYWRIGHT_SOURCE_JOB: playwright-tests
           CI_TIMING_DIR: ${{ runner.temp }}/ci-timing
+          CI_TIMING_REPORT: ${{ runner.temp }}/ci-timing/lesson-aggregate.tsv
         run: ./tools/ci-timing run lesson_aggregate --display-name "Lesson aggregate test" --command-id "tools/test_lesson_repository.sh --use-evidence --write-evidence" --mode aggregate --evidence used --inputs AGENTS.MD docs learning lesson skills reviews templates tools .github/workflows package.json package-lock.json playwright.config.js tests -- ./tools/test_lesson_repository.sh --use-evidence --write-evidence
+
+      - name: Upload lesson aggregate timing
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-timing-part-lesson-aggregate-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ci-timing
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 7
+
+  git-hooks-full-no-cache:
+    runs-on: ubuntu-latest
+    needs:
+      - syntax-checks
+      - structure-docs-checks
+      - policy-regression-tests
+      - lesson-cli-tests
+      - playwright-tests
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-ms-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-ms-playwright-
+
+      - name: Download same-run Playwright evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-evidence-playwright-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ci-evidence
+
+      - name: Install browser test dependencies
+        run: ./tools/ci-playwright-setup
 
       - name: Git hooks full no-cache regression
         env:
           RESOURCE_GUARD_SKIP_LOCAL_CHECK: "1"
           CI_EVIDENCE_DIR: ${{ runner.temp }}/ci-evidence
-          CI_EVIDENCE_SOURCE_JOB: aggregate-and-full-hooks
+          CI_EVIDENCE_SOURCE_JOB: git-hooks-full-no-cache
           CI_EVIDENCE_PLAYWRIGHT_SOURCE_JOB: playwright-tests
           CI_TIMING_DIR: ${{ runner.temp }}/ci-timing
+          CI_TIMING_REPORT: ${{ runner.temp }}/ci-timing/git-hooks-full-no-cache.tsv
         run: ./tools/ci-timing run git_hooks_full_no_cache --display-name "Git hooks full no-cache regression" --command-id "tools/git-hooks run --mode full --no-cache --jobs 4" --mode full-no-cache --evidence recorded --inputs docs/workflow/GIT_HOOK_CHECKS.tsv docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv docs/workflow/GIT_HOOKS_POLICY.tsv docs/workflow/FINAL_GATE_COVERAGE.tsv docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv tools .github/workflows -- ./tools/git-hooks run --mode full --no-cache --jobs 4
+
+      - name: Upload Git hook evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-evidence-git-hooks-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ci-evidence
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 1
+
+      - name: Upload Git hooks timing
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-timing-part-git-hooks-full-no-cache-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ci-timing
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 7
+
+  final-gate:
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+    needs:
+      - lesson-aggregate
+      - git-hooks-full-no-cache
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Verify split prerequisites
+        env:
+          LESSON_AGGREGATE_RESULT: ${{ needs.lesson-aggregate.result }}
+          GIT_HOOKS_FULL_NO_CACHE_RESULT: ${{ needs.git-hooks-full-no-cache.result }}
+        run: |
+          if [[ "$LESSON_AGGREGATE_RESULT" != "success" || "$GIT_HOOKS_FULL_NO_CACHE_RESULT" != "success" ]]; then
+            printf 'Split prerequisite failed: lesson-aggregate=%s git-hooks-full-no-cache=%s\n' "$LESSON_AGGREGATE_RESULT" "$GIT_HOOKS_FULL_NO_CACHE_RESULT" >&2
+            exit 1
+          fi
+
+      - name: Download Git hook evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ci-evidence-git-hooks-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ci-evidence
+
+      - name: Final same-run evidence gate
+        env:
+          CI_FINAL_GATE_REQUIRE_HOOK_EVIDENCE: "1"
+          CI_EVIDENCE_DIR: ${{ runner.temp }}/ci-evidence
+          CI_EVIDENCE_EXPECT_SOURCE_JOB: git-hooks-full-no-cache
+        run: ./tools/ci-final-gate
+
+      - name: Download CI timing parts
+        if: always()
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ci-timing-part-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/ci-timing
+          merge-multiple: true
 
       - name: Upload CI timing report
         if: always()

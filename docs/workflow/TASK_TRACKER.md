@@ -14,7 +14,8 @@ The current planned learner context foundation prepares source documents under `
 The current planned learner context runtime integration separates learning context from workflow context; Free Development Mode remains a workflow, not a lesson.
 The current implemented Security guard backfill adds repository-level security invariants, a policy table, a reusable checker, standalone tests, aggregate-test wiring, Git hooks wiring, CI wiring, and pre-commit wiring.
 The current implemented product security workflow gate adds `tools/product-security status|preflight|advise|check|gate` for menu items 4, 5, and 6 while preserving their existing document, repository-boundary, Git sync, CI, and approval gates.
-The current implemented CI timing and approved auto-improvement cycle records measured `aggregate-and-full-hooks` timing, strengthens CI status targeting, provides read-only improvement proposals, and keeps future full/no-cache policy refinement developer-approved.
+The current implemented CI timing and approved auto-improvement cycle records measured final common aggregate/full-hooks timing, strengthens CI status targeting, provides read-only improvement proposals, and keeps future full/no-cache policy refinement developer-approved.
+The current implemented CI aggregate and full-hooks split runs main `CI` lesson aggregate and full/no-cache Git hook verification as separate jobs with a strict final gate; cache policy and full/no-cache semantics are unchanged.
 The current implemented dashboard control center data layer provides a read-only JSON source behind an AI-driven development control center; React/Vite UI and command execution are not implemented.
 Safe product repository cleanup remains implemented for the external product repository created by the 7-day or 14-day lessons.
 It also preserves the 7-day and 14-day learning-mode, workflow display language, product development language, and expanded language-list controls.
@@ -193,7 +194,7 @@ Runtime implementation is present for summary output, local Git hooks parallel e
 - [x] Add `tools/test_git_hooks_parallel.sh`.
 - [x] Split GitHub Actions workflows into CI-runner-oriented jobs without removing existing checks.
 - [x] Add required CI workflow structure checks for split workflow job names, `needs`, and required commands.
-- [x] Ensure the final CI aggregate and full-hooks gate installs npm dependencies and Playwright dependencies before running aggregate repository tests or full hooks.
+- [x] Ensure main CI aggregate/full-hooks jobs install npm dependencies and Playwright dependencies before running aggregate repository tests or full hooks.
 - [x] Preserve explicit local/CI separation, including CI-safe local-resource bypass behavior for CI full hooks.
 - [x] Wire new tests into aggregate, pre-commit, and CI.
 - [x] Update sync contract artifacts, tests, and runtime evidence from planning-only entries to actual runtime entries.
@@ -303,11 +304,11 @@ Runtime behavior is implemented through CI workflow wiring, policy rows, focused
 ## CI Timing And Approved Auto-Improvement Work
 
 Status: implemented.
-This cycle adds measured `aggregate-and-full-hooks` timing and proposal-only recommendations before any full/no-cache behavior changes.
+This cycle adds measured final common aggregate/full-hooks timing and proposal-only recommendations before any full/no-cache behavior changes.
 It preserves the current final-gate behavior and leaves generated improvements approval-gated.
 
 - [x] Synchronize the plan into the three as-built documents and the two workflow-state documents.
-- [x] Add machine-readable timing report support for `aggregate-and-full-hooks` checks through `tools/ci-timing`.
+- [x] Add machine-readable timing report support for final common aggregate/full-hooks checks through `tools/ci-timing`.
 - [x] Store timing reports as CI artifacts without secrets or raw environment data.
 - [x] Strengthen `tools/check_ci_status.sh` so required workflow identity, current commit SHA when available, run state, job state, and conclusion are not confused across `CI` and `Lesson14 CI`.
 - [x] Add read-only CI improvement proposal generation from measured evidence.
@@ -321,6 +322,32 @@ SYNC-ID: ci_timing_auto_improvement_plan
 STATUS: implemented
 ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/check_ci_status.sh,tools/check_ci_workflow_structure.sh,tools/lib/ci_timing.sh,tools/ci-timing,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/test_lesson_repository.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/check_as_built_sync_contract.sh
+
+## CI Aggregate And Full-Hooks Split Work
+
+Status: implemented locally; local verification and sub-agent review passed; pending commit, push, remote CI PASS, and local/remote sync confirmation.
+This cycle implements only the approved first timing-based acceleration candidate: split the main `CI` final common verification job into parallel lesson aggregate and full Git hook jobs with a strict final gate.
+Cache policy changes are out of scope for this cycle.
+
+- [x] Confirm scope: no persistent verification-result cache, no conditional full/no-cache skipping, no changed-only authoritative CI, no Git hook group matrix split, and no flaky quarantine.
+- [x] Preserve existing Step 1-7, Step 1-14, applied lesson, menu, dashboard, Git workflow, Git hooks, Security guard, product-security, docs-tour, as-built sync, pre-commit, local full/no-cache, and remote CI behavior.
+- [x] Add `ci_aggregate_full_hooks_split` to the as-built sync contract as `implemented`.
+- [x] Split main `CI` into `lesson-aggregate`, `git-hooks-full-no-cache`, and `final-gate`.
+- [x] Keep `Lesson14 CI` compatibility contexts unchanged.
+- [x] Keep `tools/test_lesson_repository.sh --use-evidence --write-evidence` and `tools/git-hooks run --mode full --no-cache --jobs 4` as the authoritative heavy checks.
+- [x] Require `final-gate` to always start, validate split prerequisite results, consume same-run Git hook evidence, and fail closed when evidence is missing or mismatched.
+- [x] Avoid timing artifact filename collisions by writing split timing reports to distinct files.
+- [x] Use a stable Lesson14 compatibility marker instead of a free-form prose dependency.
+- [x] Update `tools/check_ci_workflow_structure.sh` for the split job graph, evidence handoff, and timing artifact merge.
+- [x] Update `tools/test_ci_pipeline_acceleration.sh` so the split remains standalone and aggregate-callable.
+- [x] Run synchronization, structure, focused CI, aggregate, full/no-cache, and pre-commit verification.
+- [x] Complete sub-agent review and resolve findings.
+- [ ] Commit, push, confirm required remote `CI` and `Lesson14 CI`, and verify local/remote sync.
+
+SYNC-ID: ci_aggregate_full_hooks_split
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 
 ## Implemented Dashboard Control Center Data Layer Work
 

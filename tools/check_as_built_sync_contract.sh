@@ -308,7 +308,7 @@ lesson14_common_ci_reference() {
     lesson14_common_ci_reference_cache[$key]="1"
     return 0
   fi
-  if grep -Fq "common aggregate/full-hooks coverage is provided by CI / aggregate-and-full-hooks" "$lesson14_ci"; then
+  if grep -Fq "CI_COMMON_COVERAGE_SOURCE: ci-split-common-coverage" "$lesson14_ci"; then
     lesson14_common_ci_reference_cache[$key]="1"
     return 0
   fi

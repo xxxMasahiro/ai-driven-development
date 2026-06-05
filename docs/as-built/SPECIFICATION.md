@@ -792,7 +792,7 @@ It does not make any generated recommendation authoritative and does not change 
 
 - `tools/ci-timing run` wraps a command, preserves the wrapped command exit status, and appends one machine-readable TSV row.
 - `tools/lib/ci_timing.sh` stores timing output in `CI_TIMING_DIR` or the repository-local `.git/ci-timing` path with a marker file, refusing unsafe, symlinked, or unmarked non-empty timing directories.
-- Timing records are generated for the main `CI` workflow `aggregate-and-full-hooks` `Lesson aggregate test` and `Git hooks full no-cache regression` steps.
+- Timing records are generated for the main `CI` final common `Lesson aggregate test` and `Git hooks full no-cache regression` checks, including the current split `lesson-aggregate` and `git-hooks-full-no-cache` jobs.
 - A timing record includes check id, display name, command id, mode, start time, end time, duration seconds, exit status, command hash, relevant input hash, policy hash, repository-state hash, evidence-use status, workflow name, job name, run id, commit SHA, and creation time.
 - Timing output is machine-readable and uploaded as the `ci-timing-${{ github.run_id }}-${{ github.run_attempt }}` GitHub Actions artifact.
 - Timing output must not include secrets, tokens, private messages, full environment dumps, external service payloads, or raw logs that are not needed for duration analysis.
@@ -811,6 +811,28 @@ SYNC-ID: ci_timing_auto_improvement_plan
 STATUS: implemented
 ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/check_ci_status.sh,tools/check_ci_workflow_structure.sh,tools/lib/ci_timing.sh,tools/ci-timing,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/test_lesson_repository.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/check_as_built_sync_contract.sh
+
+### Implemented CI Aggregate And Full-Hooks Split Specification
+
+The implemented split keeps the same prerequisite gates and strict final checks while moving the two slow final common checks into independent jobs.
+The main `CI` workflow provides the active common verification; `Lesson14 CI` remains a compatibility workflow for Lesson14-specific and legacy context coverage.
+
+- `lesson-aggregate` depends on syntax, structure/docs, policy regressions, 7-day CLI, and Playwright evidence jobs.
+- `lesson-aggregate` downloads same-run Playwright evidence, sets `CI_EVIDENCE_SOURCE_JOB: lesson-aggregate`, writes timing to `lesson-aggregate.tsv`, records timing with `tools/ci-timing run lesson_aggregate`, and runs `tools/test_lesson_repository.sh --use-evidence --write-evidence`.
+- `git-hooks-full-no-cache` depends on the same prerequisite gates, downloads same-run Playwright evidence, sets `CI_EVIDENCE_SOURCE_JOB: git-hooks-full-no-cache`, records timing with `tools/ci-timing run git_hooks_full_no_cache`, and runs `tools/git-hooks run --mode full --no-cache --jobs 4`.
+- `git-hooks-full-no-cache` uploads the same-run Git hook evidence artifact for the current run attempt.
+- `git-hooks-full-no-cache` writes timing to `git-hooks-full-no-cache.tsv` so final artifact download cannot overwrite the lesson aggregate timing report.
+- `final-gate` depends on both split jobs, uses `if: ${{ always() }}` so the context is not skipped when a split prerequisite fails, validates both prerequisite results, downloads the same-run Git hook evidence artifact, sets `CI_FINAL_GATE_REQUIRE_HOOK_EVIDENCE: "1"` and `CI_EVIDENCE_EXPECT_SOURCE_JOB: git-hooks-full-no-cache`, and runs `tools/ci-final-gate`.
+- `final-gate` downloads timing-part artifacts with `merge-multiple: true` and uploads the final `ci-timing-${{ github.run_id }}-${{ github.run_attempt }}` timing report.
+- `Lesson14 CI` keeps the legacy compatibility `aggregate-and-full-hooks` job context and does not adopt the main `CI` split in this implementation.
+- `Lesson14 CI` declares the stable `CI_COMMON_COVERAGE_SOURCE: ci-split-common-coverage` compatibility marker so structure and sync checks do not depend on free-form prose.
+- The implementation must not introduce persistent verification-result cache, conditional full/no-cache skipping, changed-only authoritative behavior, or Git hook group matrix splitting.
+- `tools/check_ci_workflow_structure.sh` and `tools/test_ci_pipeline_acceleration.sh` mechanically verify the split structure, evidence handoff, no-cache semantics, and timing artifact wiring.
+
+SYNC-ID: ci_aggregate_full_hooks_split
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 
 ### Implemented Dashboard Control Center Data Layer Specification
 

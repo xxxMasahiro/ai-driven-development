@@ -1113,7 +1113,7 @@ It must not replace existing `status`, `monitor`, `recommend-jobs`, `check`, `cl
 9. Added Git hooks parallel regression tests for worker limits, serial fallback, failure reporting, output order, and unclassified serial fallback.
 10. Split GitHub Actions workflows into runner-oriented jobs while preserving all existing checks.
 11. Added required CI workflow structure checks to verify required job names, `needs`, and required commands.
-12. Ensured the final CI `aggregate-and-full-hooks` job installs npm dependencies and Playwright dependencies before running aggregate repository tests or full hooks.
+12. Ensured main CI aggregate/full-hooks jobs install npm dependencies and Playwright dependencies before running aggregate repository tests or full hooks.
 13. Preserved explicit local/CI separation, including CI-safe local-resource bypass behavior with `RESOURCE_GUARD_SKIP_LOCAL_CHECK=1` for CI full hooks.
 14. Wired new tests into aggregate, pre-commit, and CI.
 15. Updated `docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv` from planning-only artifacts and tests to actual runtime artifacts, runtime tests, and runtime evidence.
@@ -1601,7 +1601,7 @@ It is runtime-implemented for timing and proposal generation, while generated im
 ### Implemented Change Targets
 
 - Added reusable timing report support for final-gate and Git hooks checks through `tools/lib/ci_timing.sh` and `tools/ci-timing`.
-- Connected timing report output to CI artifact collection for the main `CI` workflow `aggregate-and-full-hooks` job.
+- Connected timing report output to CI artifact collection for the main `CI` final common aggregate and full-hooks checks.
 - Strengthened `tools/check_ci_status.sh` so workflow name, run id, commit SHA when available, run state, job state, and conclusion are checked without confusing `CI` and `Lesson14 CI`.
 - Added read-only CI improvement proposal generation through `tools/ci-timing propose`.
 - Kept same-run hash-evidence reuse recommendations gated by command identity, input hashes, policy hashes, repository-state hash, workflow/run identity, and success status.
@@ -1614,7 +1614,7 @@ It is runtime-implemented for timing and proposal generation, while generated im
    - `tools/lib/ci_timing.sh` records check id, display name, command id, mode, start time, end time, duration seconds, exit status, command hash, input hash, policy hash, repository-state hash, evidence-use state, workflow/job/run identity, and commit SHA.
    - `tools/test_ci_timing.sh` validates success recording, failure recording, marker safety, proposal generation, and read-only behavior.
 
-2. Attached timing report generation to `aggregate-and-full-hooks`.
+2. Attached timing report generation to the final common aggregate and full-hooks checks.
    - The `Lesson aggregate test` step runs through `tools/ci-timing run lesson_aggregate`.
    - The `Git hooks full no-cache regression` step runs through `tools/ci-timing run git_hooks_full_no_cache`.
    - The job uploads the timing report as `ci-timing-${{ github.run_id }}-${{ github.run_attempt }}`.
@@ -1669,6 +1669,71 @@ git diff --check
 - Approval is required before reducing or conditionally skipping `full no-cache`.
 - Approval is required before changing required workflow or job names.
 - Approval is required before caching verification results across commits, branches, workflow runs, repositories, or users.
+- Approval is required before accepting any existing-feature tradeoff.
+
+## Implemented CI Aggregate And Full-Hooks Split Implementation Plan
+
+SYNC-ID: ci_aggregate_full_hooks_split
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+This implementation applies the approved first CI acceleration candidate from the measured timing work: split the main `CI` final common verification job into parallelizable jobs and a strict final gate.
+It is intentionally limited to job scheduling and evidence handoff; it does not change cache policy, full/no-cache scope, or authoritative check coverage.
+
+### Implemented Change Targets
+
+- Replace the main `CI` workflow `aggregate-and-full-hooks` job with `lesson-aggregate`, `git-hooks-full-no-cache`, and `final-gate`.
+- Keep both split jobs behind the same prerequisite gates that previously fed the combined final job.
+- Keep `tools/test_lesson_repository.sh --use-evidence --write-evidence` in `lesson-aggregate`.
+- Keep `tools/git-hooks run --mode full --no-cache --jobs 4` in `git-hooks-full-no-cache`.
+- Upload same-run Git hook evidence from `git-hooks-full-no-cache` and require it in an always-started `final-gate` that validates split prerequisite results and expected evidence source before evidence verification.
+- Preserve timing reports by uploading split timing parts with distinct report filenames and merging them into the existing final timing artifact.
+- Update `tools/check_ci_workflow_structure.sh` and `tools/test_ci_pipeline_acceleration.sh` so the split is mechanically checked.
+- Keep `Lesson14 CI` compatibility contexts intact; a stable compatibility marker and structure checks may point at the main `CI` split without rerunning common heavy work.
+
+### Implemented Order
+
+1. Synchronized the approved scope into the as-built contract and the five synchronized documents.
+2. Updated the main `CI` workflow jobs and evidence/timing artifact handoff.
+3. Updated workflow structure checks to require the new job graph, no-cache command, evidence requirement, and timing-part merge.
+4. Updated the focused acceleration test to reject unsafe setup regressions and require the split wiring.
+5. Complete synchronization, structure, focused CI, aggregate, full/no-cache, and pre-commit verification before commit and push.
+6. Complete sub-agent review for requirements/specification consistency and CI implementation safety before final remote verification.
+
+### Verification Plan
+
+```bash
+git diff --check
+./tools/check_ci_workflow_structure.sh
+./tools/test_ci_pipeline_acceleration.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_test_plan_coverage.sh
+./tools/test_ci_timing.sh
+./tools/test_ci_evidence.sh
+./tools/test_ci_final_gate.sh
+./tools/test_lesson_repository.sh
+./tools/git-hooks run --mode full --no-cache --jobs 4
+.githooks/pre-commit
+./tools/check_ci_status.sh --required
+```
+
+### Recovery Plan
+
+- If the split job graph loses coverage, restore the combined final job and keep the timing evidence for a narrower redesign.
+- If split prerequisite results or same-run evidence cannot be validated in `final-gate`, fail closed and restore strict rerun behavior before reporting PASS.
+- If timing artifact merging fails, keep strict verification and fix artifact names or download patterns before push.
+- If required check contexts are affected, restore compatibility contexts and request developer approval before changing names.
+- If any existing-feature tradeoff appears necessary, stop and request developer approval with reason, impact, alternatives, and rollback path.
+
+### Developer Approval Gates
+
+- Approval is required before changing required workflow or job names beyond the approved main `CI` split.
+- Approval is required before reducing or conditionally skipping `full no-cache`.
+- Approval is required before adding persistent verification-result caching.
+- Approval is required before splitting Git hooks into a group matrix.
+- Approval is required before making changed-only CI authoritative.
 - Approval is required before accepting any existing-feature tradeoff.
 
 ## Implemented Dashboard Control Center Data Layer Implementation Plan

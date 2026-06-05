@@ -68,7 +68,9 @@ check_main_ci() {
     policy-regression-tests
     lesson-cli-tests
     playwright-tests
-    aggregate-and-full-hooks
+    lesson-aggregate
+    git-hooks-full-no-cache
+    final-gate
   )
 
   for job in "${required_jobs[@]}"; do
@@ -131,31 +133,72 @@ check_main_ci() {
   require_job_contains "$file" playwright-tests "./tools/test_lesson_playwright.sh --write-evidence"
   require_job_contains "$file" playwright-tests "actions/upload-artifact@v4"
   require_job_contains "$file" playwright-tests "include-hidden-files: true"
-  require_job_contains "$file" aggregate-and-full-hooks "needs:"
-  require_job_contains "$file" aggregate-and-full-hooks "- syntax-checks"
-  require_job_contains "$file" aggregate-and-full-hooks "- structure-docs-checks"
-  require_job_contains "$file" aggregate-and-full-hooks "- policy-regression-tests"
-  require_job_contains "$file" aggregate-and-full-hooks "- lesson-cli-tests"
-  require_job_contains "$file" aggregate-and-full-hooks "- playwright-tests"
-  require_job_contains "$file" aggregate-and-full-hooks "actions/setup-node@v6"
-  require_job_contains "$file" aggregate-and-full-hooks "actions/cache@v4"
-  require_job_contains "$file" aggregate-and-full-hooks "actions/download-artifact@v4"
-  require_job_contains "$file" aggregate-and-full-hooks "cache: npm"
-  require_job_contains "$file" aggregate-and-full-hooks "path: ~/.cache/ms-playwright"
-  require_job_contains "$file" aggregate-and-full-hooks "./tools/ci-playwright-setup"
-  reject_job_contains "$file" aggregate-and-full-hooks "npm install"
-  reject_job_contains "$file" aggregate-and-full-hooks "npx playwright install chromium"
-  require_job_contains "$file" aggregate-and-full-hooks "RESOURCE_GUARD_SKIP_LOCAL_CHECK: \"1\""
-  require_job_contains "$file" aggregate-and-full-hooks 'CI_EVIDENCE_DIR: ${{ runner.temp }}/ci-evidence'
-  require_job_contains "$file" aggregate-and-full-hooks "CI_EVIDENCE_SOURCE_JOB: aggregate-and-full-hooks"
-  require_job_contains "$file" aggregate-and-full-hooks "CI_EVIDENCE_PLAYWRIGHT_SOURCE_JOB: playwright-tests"
-  require_job_contains "$file" aggregate-and-full-hooks 'CI_TIMING_DIR: ${{ runner.temp }}/ci-timing'
-  require_job_contains "$file" aggregate-and-full-hooks "./tools/ci-timing run lesson_aggregate"
-  require_job_contains "$file" aggregate-and-full-hooks "./tools/test_lesson_repository.sh --use-evidence --write-evidence"
-  require_job_contains "$file" aggregate-and-full-hooks "./tools/ci-timing run git_hooks_full_no_cache"
-  require_job_contains "$file" aggregate-and-full-hooks "./tools/git-hooks run --mode full --no-cache --jobs 4"
-  require_job_contains "$file" aggregate-and-full-hooks "Upload CI timing report"
-  require_job_contains "$file" aggregate-and-full-hooks 'ci-timing-${{ github.run_id }}-${{ github.run_attempt }}'
+  require_job_contains "$file" lesson-aggregate "needs:"
+  require_job_contains "$file" lesson-aggregate "- syntax-checks"
+  require_job_contains "$file" lesson-aggregate "- structure-docs-checks"
+  require_job_contains "$file" lesson-aggregate "- policy-regression-tests"
+  require_job_contains "$file" lesson-aggregate "- lesson-cli-tests"
+  require_job_contains "$file" lesson-aggregate "- playwright-tests"
+  require_job_contains "$file" lesson-aggregate "actions/setup-node@v6"
+  require_job_contains "$file" lesson-aggregate "actions/cache@v4"
+  require_job_contains "$file" lesson-aggregate "actions/download-artifact@v4"
+  require_job_contains "$file" lesson-aggregate "cache: npm"
+  require_job_contains "$file" lesson-aggregate "path: ~/.cache/ms-playwright"
+  require_job_contains "$file" lesson-aggregate "./tools/ci-playwright-setup"
+  reject_job_contains "$file" lesson-aggregate "npm install"
+  reject_job_contains "$file" lesson-aggregate "npx playwright install chromium"
+  require_job_contains "$file" lesson-aggregate 'CI_EVIDENCE_DIR: ${{ runner.temp }}/ci-evidence'
+  require_job_contains "$file" lesson-aggregate "CI_EVIDENCE_SOURCE_JOB: lesson-aggregate"
+  require_job_contains "$file" lesson-aggregate "CI_EVIDENCE_PLAYWRIGHT_SOURCE_JOB: playwright-tests"
+  require_job_contains "$file" lesson-aggregate 'CI_TIMING_DIR: ${{ runner.temp }}/ci-timing'
+  require_job_contains "$file" lesson-aggregate 'CI_TIMING_REPORT: ${{ runner.temp }}/ci-timing/lesson-aggregate.tsv'
+  require_job_contains "$file" lesson-aggregate "./tools/ci-timing run lesson_aggregate"
+  require_job_contains "$file" lesson-aggregate "./tools/test_lesson_repository.sh --use-evidence --write-evidence"
+  require_job_contains "$file" lesson-aggregate "Upload lesson aggregate timing"
+  require_job_contains "$file" lesson-aggregate 'ci-timing-part-lesson-aggregate-${{ github.run_id }}-${{ github.run_attempt }}'
+  require_job_contains "$file" git-hooks-full-no-cache "needs:"
+  require_job_contains "$file" git-hooks-full-no-cache "- syntax-checks"
+  require_job_contains "$file" git-hooks-full-no-cache "- structure-docs-checks"
+  require_job_contains "$file" git-hooks-full-no-cache "- policy-regression-tests"
+  require_job_contains "$file" git-hooks-full-no-cache "- lesson-cli-tests"
+  require_job_contains "$file" git-hooks-full-no-cache "- playwright-tests"
+  require_job_contains "$file" git-hooks-full-no-cache "actions/setup-node@v6"
+  require_job_contains "$file" git-hooks-full-no-cache "actions/cache@v4"
+  require_job_contains "$file" git-hooks-full-no-cache "actions/download-artifact@v4"
+  require_job_contains "$file" git-hooks-full-no-cache "cache: npm"
+  require_job_contains "$file" git-hooks-full-no-cache "path: ~/.cache/ms-playwright"
+  require_job_contains "$file" git-hooks-full-no-cache "./tools/ci-playwright-setup"
+  reject_job_contains "$file" git-hooks-full-no-cache "npm install"
+  reject_job_contains "$file" git-hooks-full-no-cache "npx playwright install chromium"
+  require_job_contains "$file" git-hooks-full-no-cache "RESOURCE_GUARD_SKIP_LOCAL_CHECK: \"1\""
+  require_job_contains "$file" git-hooks-full-no-cache 'CI_EVIDENCE_DIR: ${{ runner.temp }}/ci-evidence'
+  require_job_contains "$file" git-hooks-full-no-cache "CI_EVIDENCE_SOURCE_JOB: git-hooks-full-no-cache"
+  require_job_contains "$file" git-hooks-full-no-cache "CI_EVIDENCE_PLAYWRIGHT_SOURCE_JOB: playwright-tests"
+  require_job_contains "$file" git-hooks-full-no-cache 'CI_TIMING_DIR: ${{ runner.temp }}/ci-timing'
+  require_job_contains "$file" git-hooks-full-no-cache 'CI_TIMING_REPORT: ${{ runner.temp }}/ci-timing/git-hooks-full-no-cache.tsv'
+  require_job_contains "$file" git-hooks-full-no-cache "./tools/ci-timing run git_hooks_full_no_cache"
+  require_job_contains "$file" git-hooks-full-no-cache "./tools/git-hooks run --mode full --no-cache --jobs 4"
+  require_job_contains "$file" git-hooks-full-no-cache "Upload Git hook evidence"
+  require_job_contains "$file" git-hooks-full-no-cache "Upload Git hooks timing"
+  require_job_contains "$file" git-hooks-full-no-cache 'ci-evidence-git-hooks-${{ github.run_id }}-${{ github.run_attempt }}'
+  require_job_contains "$file" git-hooks-full-no-cache 'ci-timing-part-git-hooks-full-no-cache-${{ github.run_id }}-${{ github.run_attempt }}'
+  require_job_contains "$file" final-gate "needs:"
+  require_job_contains "$file" final-gate 'if: ${{ always() }}'
+  require_job_contains "$file" final-gate "- lesson-aggregate"
+  require_job_contains "$file" final-gate "- git-hooks-full-no-cache"
+  require_job_contains "$file" final-gate "Verify split prerequisites"
+  require_job_contains "$file" final-gate 'LESSON_AGGREGATE_RESULT: ${{ needs.lesson-aggregate.result }}'
+  require_job_contains "$file" final-gate 'GIT_HOOKS_FULL_NO_CACHE_RESULT: ${{ needs.git-hooks-full-no-cache.result }}'
+  require_job_contains "$file" final-gate "Split prerequisite failed:"
+  require_job_contains "$file" final-gate "actions/download-artifact@v4"
+  require_job_contains "$file" final-gate "CI_FINAL_GATE_REQUIRE_HOOK_EVIDENCE: \"1\""
+  require_job_contains "$file" final-gate 'CI_EVIDENCE_DIR: ${{ runner.temp }}/ci-evidence'
+  require_job_contains "$file" final-gate "CI_EVIDENCE_EXPECT_SOURCE_JOB: git-hooks-full-no-cache"
+  require_job_contains "$file" final-gate "./tools/ci-final-gate"
+  require_job_contains "$file" final-gate "Download CI timing parts"
+  require_job_contains "$file" final-gate "merge-multiple: true"
+  require_job_contains "$file" final-gate "Upload CI timing report"
+  require_job_contains "$file" final-gate 'ci-timing-${{ github.run_id }}-${{ github.run_attempt }}'
 }
 
 check_lesson14_ci() {
@@ -237,6 +280,7 @@ check_lesson14_ci() {
   require_job_contains "$file" lesson14-final-gate "./tools/test_lesson14.sh"
   require_job_contains "$file" lesson14-final-gate "./tools/check_ci_workflow_structure.sh"
   require_job_contains "$file" aggregate-and-full-hooks "needs:"
+  require_job_contains "$file" aggregate-and-full-hooks "CI_COMMON_COVERAGE_SOURCE: ci-split-common-coverage"
   require_job_contains "$file" aggregate-and-full-hooks "- syntax-checks"
   require_job_contains "$file" aggregate-and-full-hooks "- lesson14-structure-sync"
   require_job_contains "$file" aggregate-and-full-hooks "- policy-regression-tests"
@@ -248,7 +292,7 @@ check_lesson14_ci() {
   require_job_contains "$file" aggregate-and-full-hooks "./tools/check_lesson14_sync.sh"
   require_job_contains "$file" aggregate-and-full-hooks "./tools/test_lesson_start_position.sh"
   require_job_contains "$file" aggregate-and-full-hooks "./tools/check_ci_workflow_structure.sh"
-  require_job_contains "$file" aggregate-and-full-hooks "common aggregate/full-hooks coverage is provided by CI / aggregate-and-full-hooks"
+  require_job_contains "$file" aggregate-and-full-hooks 'common coverage marker: %s'
   reject_job_contains "$file" aggregate-and-full-hooks "./tools/test_lesson_repository.sh"
   reject_job_contains "$file" aggregate-and-full-hooks "./tools/git-hooks run --mode full --no-cache"
 }

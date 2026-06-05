@@ -184,6 +184,8 @@ jobs:
 
   aggregate-and-full-hooks:
     runs-on: ubuntu-latest
+    env:
+      CI_COMMON_COVERAGE_SOURCE: ci-split-common-coverage
     needs:
       - syntax-checks
       - lesson14-structure-sync
@@ -201,4 +203,4 @@ jobs:
           ./tools/check_lesson14_sync.sh
           ./tools/test_lesson_start_position.sh
           ./tools/check_ci_workflow_structure.sh
-          printf 'Lesson14 CI keeps the aggregate-and-full-hooks job context; common aggregate/full-hooks coverage is provided by CI / aggregate-and-full-hooks for the same commit.\n'
+          printf 'Lesson14 CI keeps the aggregate-and-full-hooks compatibility context; common coverage marker: %s\n' "$CI_COMMON_COVERAGE_SOURCE"
