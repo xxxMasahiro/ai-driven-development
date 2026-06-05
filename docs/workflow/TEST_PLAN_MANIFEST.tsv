@@ -4,6 +4,7 @@ AGENTS.MD	critical	check_agents_skills|check_security_invariants|check_as_built_
 .githooks/	critical	test_git_hooks|check_as_built_sync_contract	true	true	none	false	Pre-commit dispatcher changes affect local safety gates.
 docs/workflow/TEST_PLAN_MANIFEST.tsv	critical	check_test_plan_coverage|test_test_plan	true	true	same-run	false	Test plan policy changes affect observe-only verification planning.
 docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv	critical	check_as_built_sync_contract|test_as_built_sync_contract	true	true	same-run	false	As-built sync-contract changes affect mechanical document synchronization.
+docs/workflow/DASHBOARD_DATA_SCHEMA.tsv	high	test_dashboard_schema|test_dashboard_data|test_lesson_repository	true	true	same-run	false	Dashboard schema changes affect control-center data safety boundaries.
 docs/as-built/	high	check_as_built_docs|check_as_built_sync_contract	true	true	same-run	false	As-built document changes affect synchronized requirements, specification, and implementation plans.
 docs/workflow/TASK_TRACKER.md	high	check_workflow_pair_sync|check_as_built_sync_contract	true	true	same-run	false	Workflow-state changes must preserve tracker and handoff synchronization.
 docs/workflow/HANDOFF.md	high	check_workflow_pair_sync|check_as_built_sync_contract	true	true	same-run	false	Workflow-state changes must preserve tracker and handoff synchronization.
@@ -36,6 +37,8 @@ docs/workflow/PRODUCT_SECURITY_POLICY.tsv	critical	test_product_security|test_pr
 learning/context/WORKFLOW_CONTEXT_MAP.tsv	high	test_product_security|test_product_gate_tools	true	true	same-run	false	Workflow context mapping changes affect product security and menu readiness.
 tools/product-security	critical	test_product_security|test_product_gate_tools	true	true	none	false	Product security command changes affect product workflow verification.
 tools/lib/product_security.sh	critical	test_product_security|test_product_gate_tools	true	true	none	false	Product security helper changes affect product workflow verification.
+tools/dashboard-data	high	test_dashboard_data|test_lesson_repository	true	true	none	false	Dashboard JSON producer changes affect control-center data safety boundaries.
+tools/lib/dashboard_data.sh	high	test_dashboard_data|test_lesson_repository	true	true	none	false	Dashboard data helper changes affect JSON escaping, state vocabulary, source tracking, and command previews.
 package.json	critical	test_lesson_playwright|test_lesson_repository	true	true	dependency	false	Dependency changes affect browser and aggregate verification.
 package-lock.json	critical	test_lesson_playwright|test_lesson_repository	true	true	dependency	false	Lockfile changes affect dependency reproducibility.
 playwright.config.js	critical	test_lesson_playwright	true	true	dependency	false	Playwright configuration changes affect browser verification.

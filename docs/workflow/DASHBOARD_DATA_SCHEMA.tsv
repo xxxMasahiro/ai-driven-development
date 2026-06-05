@@ -1,0 +1,48 @@
+# section	field_path	status	type	allowed_values	source_group	requirement
+metadata	schema_version	implemented	string	semver-like	dashboard-data	Stable schema version required before React or other consumers read dashboard data.
+metadata	generated_at	implemented	string	iso8601	dashboard-data	Generation time must identify when the read-only snapshot was produced.
+metadata	source_files	implemented	array	relative-path-list	dashboard-data	Source files must identify existing TSV, Markdown, policy, and settings files using relative paths without raw logs, remote URLs, or unnecessary absolute paths.
+metadata	source_commands	implemented	array	command-id-list	dashboard-data	Source commands must identify existing read-only commands used to build the snapshot without requiring prose parsing.
+metadata	warnings	implemented	array	string	dashboard-data	Non-fatal conditions must be visible without failing the whole snapshot.
+metadata	partial_failures[].source	implemented	string	source-id	dashboard-data	Each partial failure must identify the unavailable or optional source.
+metadata	partial_failures[].status	implemented	enum	optional|failed|unknown	dashboard-data	Each partial failure must use the fixed status vocabulary subset for non-authoritative failures.
+metadata	partial_failures[].reason	implemented	string	safe-text	dashboard-data	Each partial failure must explain why the source was unavailable without raw logs or secrets.
+metadata	partial_failures[].required_command	implemented	string	command-preview	dashboard-data	Each partial failure may identify the manual follow-up command needed for authoritative validation.
+summary	summary.mode	implemented	enum	learning|development|maintenance|unknown	dashboard-data	The home summary must classify the current control-center context without making it a new source of truth.
+summary	summary.next_safe_action	implemented	string	command-or-explanation	dashboard-data	The snapshot must explain the next safe action without executing it.
+summary	summary.guidance_items[].surface	implemented	enum	lesson|workflow	dashboard-data	Each concise guidance item must identify whether it belongs to the lesson surface or workflow surface.
+summary	summary.guidance_items[].audience	implemented	enum	non_engineer|engineer|all	dashboard-data	Guidance must distinguish plain-language learner help from practical engineering workflow advice where needed.
+summary	summary.guidance_items[].priority	implemented	enum	info|attention|action	dashboard-data	Guidance must classify whether the point is informational, a caution, or a suggested next action.
+summary	summary.guidance_items[].message	implemented	string	safe-text	dashboard-data	Guidance messages must stay concise and safe for display without raw logs, secrets, or external payloads.
+summary	summary.guidance_items[].related_command	implemented	string	command-preview	dashboard-data	Guidance may point to an existing dashboard or check command without executing it.
+summary	summary.blocking_items[].source	implemented	string	source-id	dashboard-data	Each blocker must identify the required source or gate that prevents safe progress.
+summary	summary.blocking_items[].status	implemented	enum	missing|failed|blocked|approval_required|unknown	dashboard-data	Required blockers must stay separate from optional partial failures.
+summary	summary.blocking_items[].reason	implemented	string	safe-text	dashboard-data	Each blocker must explain the condition without raw logs or secrets.
+summary	summary.blocking_items[].required_command	implemented	string	command-preview	dashboard-data	Each blocker may identify the manual follow-up command needed to unblock progress.
+lessons	lessons.step_1_7	implemented	object	status-object	lesson-runtime	STEP 1-7 data must come from existing lesson state and settings sources.
+lessons	lessons.step_1_14	implemented	object	status-object	lesson-runtime	STEP 1-14 data must come from existing lesson14 state and settings sources.
+lessons	lessons.advanced	implemented	object	status-object	menu-prerequisite	Applied lesson data must reuse existing menu prerequisite and team-development status sources.
+development	development.product_repository.status	implemented	enum	missing|ready|failed|unknown|optional	product-gate	Product repository state must come from existing repository-boundary and product workflow sources.
+development	development.documents.status	implemented	enum	missing|ready|failed|unknown	product-gate	Product document state must come from existing document and workflow-pair checks.
+development	development.git_sync_status	implemented	enum	passed|failed|blocked|unknown|optional|cached	git-workflow	Product Git sync state must remain separate from Git policy readiness.
+development	development.ci_status	implemented	enum	passed|failed|blocked|unknown|optional|cached	ci-evidence	Product CI state must be optional or evidence-backed unless a required check is requested.
+maintenance	maintenance.as_built_sync_status	implemented	enum	passed|failed|blocked|unknown|cached	as-built-sync	Maintenance sync state must come from existing as-built sync checks.
+maintenance	maintenance.workflow_pair_status	implemented	enum	passed|failed|blocked|unknown	workflow-state	Workflow pair state must come from existing TASK_TRACKER/HANDOFF pair checks.
+maintenance	maintenance.developer_memory_status	implemented	enum	missing|ready|failed|unknown	developer-memory	Developer memory state must come from existing document routes and checks.
+maintenance	maintenance.skills_status	implemented	enum	missing|ready|failed|unknown	repo-local-skills	Repo-local skill state must come from existing skill and AGENTS checks.
+git_workflow	git_workflow.policy_status	implemented	enum	missing|ready|failed|unknown	git-workflow	Git policy file/readiness must remain separate from gate passage.
+git_workflow	git_workflow.settings_status	implemented	enum	missing|ready|failed|unknown	git-workflow	Git workflow settings readiness must remain separate from policy readiness and approval.
+git_workflow	git_workflow.gate_status	implemented	enum	passed|failed|blocked|unknown|optional|cached	git-workflow	Git workflow gate results must not be inferred from policy readiness.
+git_workflow	git_workflow.approval_status	implemented	enum	approval_required|ready|unknown	git-workflow	Git operation approval must remain separate from policy and gate state.
+security	security.policy_status	implemented	enum	missing|ready|failed|unknown	product-security	Security policy readiness must remain separate from product gate passage.
+security	security.gate_status	implemented	enum	passed|failed|blocked|unknown|optional|cached	product-security	Product-security gate results must not be inferred from policy readiness.
+security	security.dangerous_action_approval	implemented	enum	approval_required|blocked|unknown	product-security	Dangerous operations must require explicit approval before execution is considered.
+actions	actions.command_previews[].intent	implemented	string	safe-text	dashboard-data	Command previews must explain the intended outcome.
+actions	actions.command_previews[].target	implemented	string	safe-target	dashboard-data	Command previews must identify the target repository, file, workflow, or service without unnecessary sensitive detail.
+actions	actions.command_previews[].risk_level	implemented	enum	low|medium|high|critical	dashboard-data	Command previews must classify risk before any future execution pathway is considered.
+actions	actions.command_previews[].requires_approval	implemented	boolean	true|false	dashboard-data	Command previews must explicitly identify whether developer approval is required.
+actions	actions.command_previews[].approval_gate_id	implemented	string	approval-gate-id	dashboard-data	Command previews for risky operations must identify the approval gate or state unknown.
+actions	actions.command_previews[].argv	implemented	array	argv-list	dashboard-data	Command previews should preserve command tokens without shell interpretation when possible.
+actions	actions.command_previews[].command_text	implemented	string	command-preview	dashboard-data	Command previews may show manual command text but must not execute it.
+actions	actions.command_previews[].execution_mode	implemented	enum	preview_only|manual_after_approval	dashboard-data	The initial dashboard must remain preview_only for dangerous operations.
+actions	actions.command_previews[].non_executable	implemented	boolean	true	dashboard-data	Initial dashboard command previews must be explicitly non-executable.

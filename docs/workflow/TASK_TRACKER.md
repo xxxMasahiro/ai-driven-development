@@ -15,6 +15,7 @@ The current planned learner context runtime integration separates learning conte
 The current implemented Security guard backfill adds repository-level security invariants, a policy table, a reusable checker, standalone tests, aggregate-test wiring, Git hooks wiring, CI wiring, and pre-commit wiring.
 The current implemented product security workflow gate adds `tools/product-security status|preflight|advise|check|gate` for menu items 4, 5, and 6 while preserving their existing document, repository-boundary, Git sync, CI, and approval gates.
 The current implemented CI timing and approved auto-improvement cycle records measured `aggregate-and-full-hooks` timing, strengthens CI status targeting, provides read-only improvement proposals, and keeps future full/no-cache policy refinement developer-approved.
+The current implemented dashboard control center data layer provides a read-only JSON source behind an AI-driven development control center; React/Vite UI and command execution are not implemented.
 Safe product repository cleanup remains implemented for the external product repository created by the 7-day or 14-day lessons.
 It also preserves the 7-day and 14-day learning-mode, workflow display language, product development language, and expanded language-list controls.
 The shared standard language list remains `ja`, `en`, `ko`, `zh-CN`, `zh-TW`, `es`, `pt-BR`, `fr`, `de`, `id`, `vi`, `th`, `hi`, and `ar`, while `zh` remains a `zh-CN` alias and `custom` remains available.
@@ -137,6 +138,7 @@ The following developer-memory remediation items are implemented and mechanicall
 - The implemented Security guard backfill is synchronized in the same five documents as repository-security invariant enforcement.
 - The implemented product security workflow gate is synchronized in the same five documents as menu 4/5/6 runtime security gate enforcement.
 - The implemented CI timing and approved auto-improvement cycle is synchronized in the same five documents as the evidence-driven CI optimization proposal mechanism.
+- The implemented dashboard control center data layer is synchronized in the same five documents as the read-only dashboard data implementation.
 - The synchronization passes only when the implemented content is present in all five documents.
 - Preserve refactorability, ecosystem fit, reusable design, generality, and the no-existing-feature-tradeoff rule while maintaining the implemented remediation.
 
@@ -319,6 +321,50 @@ SYNC-ID: ci_timing_auto_improvement_plan
 STATUS: implemented
 ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/check_ci_status.sh,tools/check_ci_workflow_structure.sh,tools/lib/ci_timing.sh,tools/ci-timing,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/test_lesson_repository.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/check_as_built_sync_contract.sh
+
+## Implemented Dashboard Control Center Data Layer Work
+
+Status: implemented.
+The runtime implementation provides a read-only data layer before any React/Vite or browser UI work.
+The implementation keeps the existing `tools/dashboard` CLI as a human-readable compatibility surface and adds a stable JSON source for an AI-driven development control center.
+Future React/Vite mechanics must remain hidden behind the dashboard control-center surface so ordinary users do not need to see Vite commands, dev-server URLs, package scripts, or frontend internals.
+The intended future user path is one action: open the dashboard/control center through the provided entry point while maintained tooling handles setup, Vite startup, URL selection, JSON loading, and checks.
+The intended future UI is dual-audience: non-engineers should see lesson content/progress/management clearly, and intermediate or senior engineers should see practical workflow content/progress/management, gate, evidence, blocker, approval, and next-action state without losing operational detail.
+The dashboard must preserve the repository's two first-class surfaces, lessons and workflows, as separate but coordinated control-panel areas.
+
+- [x] Add `docs/workflow/DASHBOARD_DATA_SCHEMA.tsv` as the implemented source for field paths, source groups, state vocabulary, and safety requirements.
+- [x] Add `tools/test_dashboard_schema.sh` as a standalone and aggregate-callable schema drift guard.
+- [x] Add reusable dashboard-data helpers under `tools/lib/`.
+- [x] Add `tools/dashboard-data` as a read-only JSON producer.
+- [x] Add concise lesson/workflow guidance items to the read-only dashboard summary contract.
+- [x] Represent all-steps-completed lesson state as `passed` instead of `unknown`.
+- [x] Add `tools/test_dashboard_data.sh` as a standalone-callable and aggregate-callable focused test.
+- [x] Wire the focused test into aggregate validation, Git hooks, pre-commit, CI, and the sync contract after runtime artifacts exist.
+- [x] Add `dashboard_control_center_data_layer` to the as-built sync contract as `implemented`.
+- [x] Synchronize the implemented work across the three as-built documents and the two workflow-state documents.
+- [ ] Add a React/Vite read-only UI only after the JSON schema and tests are stable and approved.
+- [ ] When the React/Vite UI is approved, expose it through the dashboard control center rather than through Vite-specific learner-facing workflow.
+- [ ] Keep the future non-engineer workflow to a single dashboard/control-center entry action.
+- [ ] Keep workflow status practical for intermediate and senior engineers; do not collapse gates, evidence, blockers, approvals, and next operational actions into vague learner-only labels.
+- [ ] Keep lesson status and workflow status visually and structurally distinct in future control-panel navigation and grouping.
+
+Implemented constraints:
+
+- Do not parse `tools/dashboard` prose in a browser.
+- Do not make the dashboard a new source of truth.
+- Do not expose Vite startup, dev-server URLs, package scripts, or frontend internals as the ordinary dashboard workflow.
+- Do not require ordinary users to run multiple setup, server, URL, data, or verification commands to access the control center.
+- Do not make workflow management so simplified that engineers lose gate, evidence, blocker, approval, or next-action detail needed for real work.
+- Do not hard-code UI-only hints; keep concise guidance available through the dashboard data contract.
+- Do not merge lesson progress and workflow progress into an ambiguous single status surface.
+- Do not run push, PR creation, merge, cleanup, deletion, OAuth/API, external integration, or other dangerous actions from the initial dashboard.
+- Do not mix `policy ready`, `settings ready`, `gate passed`, `approval required`, `optional`, `cached`, or `unknown` state.
+- Do not add fixed product-stack branches or current-wording-only checks.
+
+SYNC-ID: dashboard_control_center_data_layer
+STATUS: implemented
+ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_lesson_repository.sh,tools/check_lesson_structure.sh,tools/check_lesson14_structure.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_test_plan_coverage.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 
 ## Implemented Documentation Map Synchronization
 

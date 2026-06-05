@@ -1671,6 +1671,123 @@ git diff --check
 - Approval is required before caching verification results across commits, branches, workflow runs, repositories, or users.
 - Approval is required before accepting any existing-feature tradeoff.
 
+## Implemented Dashboard Control Center Data Layer Implementation Plan
+
+SYNC-ID: dashboard_control_center_data_layer
+STATUS: implemented
+ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_lesson_repository.sh,tools/check_lesson_structure.sh,tools/check_lesson14_structure.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_test_plan_coverage.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+This implementation adds the read-only JSON data layer behind an AI-driven development control center.
+The first runtime phase creates the data layer before any React or browser UI work.
+The current synchronized state includes the schema source, shared dashboard-data helpers, `tools/dashboard-data`, focused tests, aggregate wiring, Git hooks wiring, CI syntax and policy wiring, and no browser UI dependency or UI action execution.
+
+### Implemented Change Targets
+
+- Keep `docs/workflow/DASHBOARD_DATA_SCHEMA.tsv` as the implemented source for JSON fields, source groups, allowed state vocabulary, and safety requirements.
+- Keep `tools/test_dashboard_schema.sh` as the standalone and aggregate-callable schema drift guard.
+- Add `tools/lib/dashboard_data.sh` for reusable JSON escaping, status vocabulary validation, source tracking, partial failure collection, and command-preview construction.
+- Add `tools/dashboard-data` as the read-only JSON producer.
+- Add `tools/test_dashboard_data.sh` as a standalone-callable and aggregate-callable focused regression test.
+- Connect the focused test through `tools/test_lesson_repository.sh`, Git hooks, pre-commit, CI, and the sync contract after the runtime artifacts exist.
+- Keep `tools/dashboard` human-readable and backward-compatible unless the developer approves a separate JSON mode.
+- Keep future React/Vite mechanics hidden behind the dashboard control-center surface so ordinary users do not have to understand Vite commands, dev-server URLs, package scripts, or frontend internals.
+- Design the future UI/UX so non-engineer users perform one action only: open the dashboard/control center through the provided entry point, with setup, Vite startup, URL discovery, JSON data loading, and check orchestration handled by maintained tooling.
+- Design the future control panel for two audiences: plain-language lesson content/progress/management for non-engineers, and precise workflow content/progress/management, gate, evidence, and next-action detail for intermediate and senior engineers doing practical work.
+- Treat lessons and workflows as two first-class repository surfaces: future UI work must group, label, and prioritize them separately while keeping both surfaces easy to scan, understand, and operate.
+
+### Implemented Phase Summary
+
+1. Synchronized the plan first.
+   - Recorded the sync ID in the as-built sync contract and the five synchronized documents.
+   - Kept runtime artifacts out of the contract until they were created.
+   - Validated the schema through `tools/test_dashboard_schema.sh`.
+
+2. Stabilize the JSON contract.
+   - Confirm the required top-level fields, nested sections, concise guidance items, completed-lesson representation, state vocabulary, and source attribution.
+   - Keep `policy ready`, `settings ready`, `gate passed`, `approval required`, `optional`, `cached`, and `unknown` as separate concepts.
+
+3. Implement reusable helpers.
+   - Put reusable JSON and dashboard-data helpers under `tools/lib/`.
+   - Reuse existing lesson, menu prerequisite, Git workflow, product-security, resource, CI evidence, and as-built sources instead of copying logic into the UI.
+
+4. Implement the read-only CLI.
+   - Add `tools/dashboard-data` to emit JSON only.
+   - Keep optional or slow checks as `partial_failures` with required follow-up commands rather than failing the entire snapshot.
+   - Do not execute dangerous operations; only preview command intent, target, risk, and approval requirement.
+
+5. Add focused tests.
+   - Validate JSON syntax, schema version, source files, concise guidance items, completed-lesson representation, allowed state vocabulary, partial failures, policy/gate separation, command-preview safety, and secret-like data redaction.
+   - Use fixtures where possible so tests do not depend on a specific product stack, current wording, network availability, or live GitHub state.
+
+6. Wire the checks after runtime implementation.
+   - Added the focused dashboard-data test to aggregate validation, Git hooks, pre-commit, CI, and the as-built sync contract only after the test and runtime files existed.
+   - Preserve current full/no-cache, CI, lesson, product-security, resource, Git workflow, docs-tour, and as-built checks.
+
+7. Defer React/Vite.
+   - Introduce React/Vite only after the JSON contract and tests are stable.
+   - Keep the initial browser dashboard read-only and driven by JSON, not by parsing CLI prose.
+   - Present any future React/Vite UI through the dashboard control center; keep Vite startup and build mechanics out of the ordinary learner-facing workflow.
+   - Preserve the one-action user path: open the control center, without asking ordinary users to run npm scripts, choose ports, paste URLs, or invoke data/check commands manually.
+   - Preserve practical workflow depth: future UI work must not flatten gates, evidence, blockers, approvals, or next operational actions into vague learner-only status labels.
+   - Preserve the lesson/workflow split in navigation and status hierarchy so the control panel does not confuse learning progress with operational workflow progress.
+
+### Document Synchronization Policy
+
+- Requirements describe what the data layer must and must not do.
+- Specification defines the JSON contract, state vocabulary, source boundaries, and safety rules.
+- Implementation plan records phase order, future files, tests, recovery, and approval gates.
+- `docs/workflow/TASK_TRACKER.md` records current implemented state and next implementation tasks.
+- `docs/workflow/HANDOFF.md` records restart context, approval-sensitive decisions, and recovery rules.
+- The five synchronized documents must share the same `SYNC-ID`, `STATUS`, `ARTIFACTS`, and `TESTS` values, while keeping prose role-specific.
+
+### Verification Plan
+
+Current runtime verification:
+
+```bash
+git diff --check
+./tools/test_dashboard_data.sh
+./tools/test_dashboard_schema.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_ci_workflow_structure.sh
+./tools/check_workflow_pair_sync.sh
+./tools/test_lesson_repository.sh
+```
+
+Full completion verification:
+
+```bash
+./tools/test_dashboard_data.sh
+./tools/test_dashboard_schema.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_ci_workflow_structure.sh
+./tools/test_lesson_repository.sh
+./tools/git-hooks run --mode full --no-cache
+.githooks/pre-commit
+```
+
+### Recovery Plan
+
+- If document synchronization fails, fix the five `SYNC-ID` blocks and contract row before changing runtime files.
+- If JSON generation fails, keep `tools/dashboard-data` read-only and return valid JSON with `partial_failures` where safe.
+- If a source command is slow, flaky, or network-dependent, make it optional or evidence-backed instead of blocking the dashboard snapshot.
+- If secret-like data, raw logs, absolute paths, or external payloads leak into JSON, fail the focused test and redact at the owner data layer.
+- If the browser UI starts duplicating source-of-truth logic, move the logic back to shared CLI/helper code.
+- If any existing-feature tradeoff appears necessary, stop, do not accept the tradeoff, and redesign around alternatives that preserve existing behavior.
+
+### Developer Approval Gates
+
+- Approval is required before choosing `tools/dashboard --format json` instead of a separate `tools/dashboard-data` command.
+- Runtime dashboard data-layer implementation was developer-approved for this cycle; further scope expansion still requires approval.
+- Approval is required before adding React/Vite dependencies or changing package scripts.
+- Approval is required before adding command execution buttons or any operation beyond read-only command previews.
+- Approval is required before making live network, CI, or GitHub status authoritative for dashboard rendering.
+- Approval is required before changing existing `tools/dashboard` output semantics.
+- Approval is required before selecting among redesign alternatives when an apparent existing-feature tradeoff is encountered; accepting the tradeoff is not allowed.
+
 ## Acceptance Criteria
 
 - Existing 7-day and 14-day flows still pass structure checks.

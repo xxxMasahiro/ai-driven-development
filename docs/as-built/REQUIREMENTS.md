@@ -587,6 +587,43 @@ STATUS: implemented
 ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/check_ci_status.sh,tools/check_ci_workflow_structure.sh,tools/lib/ci_timing.sh,tools/ci-timing,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/test_lesson_repository.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/check_as_built_sync_contract.sh
 
+## Implemented Dashboard Control Center Data Layer Requirements
+
+The implemented dashboard control center data layer provides a read-only, stable JSON contract for an AI-driven development control center before any React or browser UI is introduced.
+It must make the current learning, development, maintenance, Git workflow, and Security guard state understandable without turning the dashboard into a new source of truth.
+
+- Preserve `tools/dashboard`, `tools/menu`, `tools/lesson`, `tools/lesson14`, existing checks, existing CI, pre-commit, repo-local skills, document routes, and as-built synchronization behavior.
+- Keep existing CLI, TSV, Markdown, policy files, and check commands as the source of truth.
+- Provide the generic JSON data layer through `tools/dashboard-data` and shared `tools/lib/dashboard_data.sh` helpers rather than by parsing current CLI prose in a browser.
+- Keep future React/Vite mechanics behind the dashboard control-center surface: learners and ordinary users should see a simple dashboard entry point, not Vite commands, dev-server details, package scripts, or implementation internals.
+- Require the future control-center UI/UX to be understandable for non-engineers: the ordinary user action is only to open the dashboard/control center through the provided entry point, while setup, Vite startup, URL selection, JSON data loading, and check orchestration remain hidden behind maintained tooling.
+- Require a dual-audience control-panel model: show lesson content, lesson progress, and lesson management in plain language for non-engineers, while also showing workflow content, workflow progress, workflow management, gates, evidence, and next operational actions with enough precision for intermediate and senior engineers to use in practical work.
+- Preserve the repository's two-sided nature as a strict dashboard invariant: lesson state and workflow state must be visually and structurally distinguishable, easy to scan, easy to understand, and easy to operate without collapsing one side into the other.
+- Distinguish lesson-in-progress, lesson-missing, lesson-unknown, and all-steps-completed states so completed 7-day or 14-day lesson state is not shown as unknown.
+- Expose stable metadata such as schema version, generation time, source files, warnings, partial failures, current mode, concise guidance items, blockers, and next safe action.
+- Separate `policy ready`, `settings ready`, `gate passed`, `approval required`, optional evidence, cached evidence, and unknown state so the UI cannot imply that a policy check is a completed safety gate.
+- Keep the first control-center dashboard read-only: it may explain state and preview commands, but it must not run push, PR creation, merge, cleanup, deletion, external integration, OAuth/API, or other dangerous actions.
+- Treat Markdown, logs, CLI output, generated content, and external output as untrusted text-as-data before display.
+- Avoid storing or emitting secrets, tokens, private messages, full environment dumps, unnecessary raw logs, or external service payloads in dashboard JSON.
+- Keep CI and GitHub status optional or evidence-based unless a required check explicitly asks for live validation.
+- Require the dashboard schema check and dashboard-data checks to be standalone-callable and aggregate-callable.
+- Avoid fixed one-off product-stack branches, UI-only security decisions, route-name-only checks, or text matching that only works for the current wording.
+- Require developer approval before adding action execution from the UI, changing existing dashboard semantics, introducing React/Vite dependencies, or making network-dependent status authoritative.
+
+Non-Goals:
+
+- Do not replace `tools/dashboard` or existing command-line workflows.
+- Do not move Security guard, Resource guard, Git workflow, CI evidence, or lesson progression logic into React.
+- Do not make Vite startup, dev-server URLs, or frontend build tooling part of the ordinary learner-facing dashboard workflow.
+- Do not require learners or non-engineer users to run multiple setup, server, URL, data, or verification commands just to access the control center.
+- Do not implement dangerous operations, live external integrations, or credential flows from the initial control-center UI.
+- Do not reduce full/no-cache, CI, pre-commit, as-built, lesson, product-security, or repository-boundary coverage for convenience.
+
+SYNC-ID: dashboard_control_center_data_layer
+STATUS: implemented
+ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_lesson_repository.sh,tools/check_lesson_structure.sh,tools/check_lesson14_structure.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_test_plan_coverage.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
 ## Mechanical Enforcement
 
 - 14-day progression requires approval receipts through `tools/lesson14 承認`.

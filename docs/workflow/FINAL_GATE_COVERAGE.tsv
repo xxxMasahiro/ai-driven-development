@@ -25,11 +25,14 @@ as_built_evidence_run_sync_contract_check	hook	check_as_built_sync_contract	Aggr
 ./tools/test_fixture_copy.sh	hook	test_fixture_copy	Aggregate fixture-copy coverage is provided by the matching Git hook row.
 ./tools/test_ci_evidence.sh	hook	test_ci_evidence	Aggregate CI evidence coverage is provided by the matching Git hook row.
 ./tools/test_ci_timing.sh	hook	test_ci_timing	Aggregate CI timing coverage is provided by the matching Git hook row.
+./tools/test_dashboard_schema.sh	hook	test_dashboard_schema	Aggregate dashboard schema coverage is provided by the matching Git hook row.
+./tools/test_dashboard_data.sh	hook	test_dashboard_data	Aggregate dashboard data coverage is provided by the matching Git hook row.
 ./tools/test_ci_final_gate.sh	hook	test_ci_final_gate	Aggregate CI final gate coverage is provided by the matching Git hook row.
 ./tools/test_ci_pipeline_acceleration.sh	hook	test_ci_pipeline_acceleration	Aggregate CI pipeline acceleration coverage is provided by the matching Git hook row.
 ./tools/check_ci_workflow_structure.sh	hook	check_ci_workflow_structure	Aggregate CI workflow structure coverage is provided by the matching Git hook row.
 ./tools/menu	gap	menu_status	Aggregate menu rendering coverage is provided by a final-gap command.
 ./tools/dashboard all	gap	dashboard_all	Aggregate dashboard rendering coverage is provided by a final-gap command.
+./tools/dashboard-data	gap	dashboard_data	Aggregate dashboard data rendering coverage is provided by a final-gap command.
 ./tools/as-built-sync status	gap	as_built_sync_status	Aggregate as-built sync status coverage is provided by a final-gap command.
 ./tools/illustrations list	gap	illustrations_list	Aggregate illustration list coverage is provided by a final-gap command.
 ./tools/git-hooks status	gap	git_hooks_status	Aggregate Git hooks status coverage is provided by a final-gap command.

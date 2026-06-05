@@ -1,0 +1,321 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DASHBOARD_LESSON_CONFIG="${DASHBOARD_LESSON_CONFIG:-$ROOT/lesson/LESSON_CONFIG.tsv}"
+DASHBOARD_LESSON14_CONFIG="${DASHBOARD_LESSON14_CONFIG:-$ROOT/lesson/LESSON_CONFIG_14_DAYS.tsv}"
+export LESSON_CONFIG="${LESSON_CONFIG:-$DASHBOARD_LESSON14_CONFIG}"
+
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/lesson_display_labels.sh
+source "$ROOT/tools/lib/lesson_display_labels.sh"
+# shellcheck source=tools/lib/git_workflow_policy.sh
+source "$ROOT/tools/lib/git_workflow_policy.sh"
+# shellcheck source=tools/lib/product_security.sh
+source "$ROOT/tools/lib/product_security.sh"
+# shellcheck source=tools/lib/dashboard_data.sh
+source "$ROOT/tools/lib/dashboard_data.sh"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  ./tools/dashboard-data
+
+Print a read-only JSON snapshot for the dashboard control-center data layer.
+USAGE
+}
+
+case "${1:-}" in
+  ""|json)
+    ;;
+  -h|--help|help)
+    usage
+    exit 0
+    ;;
+  *)
+    printf 'unknown command: %s\n' "$1" >&2
+    usage >&2
+    exit 1
+    ;;
+esac
+
+PRODUCT_ROOT="$(lesson_product_repo_root)"
+PRODUCT_NAME="$(lesson_product_repo_name)"
+
+source_files=(
+  "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv"
+  "docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv"
+  "docs/workflow/TEST_PLAN_MANIFEST.tsv"
+  "docs/workflow/GIT_HOOK_CHECKS.tsv"
+  "docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv"
+  "docs/workflow/FINAL_GATE_COVERAGE.tsv"
+  "docs/workflow/GIT_WORKFLOW_POLICY.tsv"
+  "docs/workflow/PRODUCT_SECURITY_POLICY.tsv"
+  "learning/context/WORKFLOW_CONTEXT_MAP.tsv"
+  "learning/GIT_WORKFLOW_SETTINGS.tsv"
+  "lesson/LESSON_CONFIG.tsv"
+  "lesson/LESSON_CONFIG_14_DAYS.tsv"
+  "learning/LESSON_STATE.tsv"
+  "learning/LESSON_STATE_14_DAYS.tsv"
+  "docs/workflow/TASK_TRACKER.md"
+  "docs/workflow/HANDOFF.md"
+  "docs/memory/DEVELOPER_MEMORY.md"
+)
+
+source_commands=(
+  "tools/dashboard-data"
+)
+
+partial_failures=()
+blocking_items=()
+guidance_items=(
+  "$(dashboard_json_guidance_item "lesson" "non_engineer" "info" "Review the current step and setup choices before starting or passing the next lesson step." "./tools/dashboard lesson")"
+  "$(dashboard_json_guidance_item "workflow" "engineer" "attention" "Treat optional, cached, or unknown workflow status as non-authoritative until the listed check runs." "./tools/dashboard development")"
+  "$(dashboard_json_guidance_item "workflow" "all" "action" "Review gates, blockers, approvals, evidence, and command previews before operational actions." "./tools/dashboard all")"
+)
+
+add_partial_failure() {
+  dashboard_data_add_partial_failure partial_failures "$1" "$2" "$3" "$4"
+}
+
+add_blocking_item() {
+  dashboard_data_add_blocking_item blocking_items "$1" "$2" "$3" "$4"
+}
+
+require_source_file() {
+  local relpath="$1"
+  local source="$2"
+  if [[ ! -f "$ROOT/$relpath" ]]; then
+    add_blocking_item "$source" "missing" "Required dashboard data source file is missing." "Restore $relpath, then run ./tools/check_lesson_structure.sh"
+  fi
+}
+
+for relpath in "${source_files[@]}"; do
+  require_source_file "$relpath" "$relpath"
+done
+
+add_partial_failure "product_git_sync_live" "optional" "Live product Git sync is not executed by the read-only dashboard snapshot." "./tools/check_git_sync.sh --product --required"
+add_partial_failure "product_ci_live" "optional" "Live CI or GitHub status is optional and is not authoritative in this snapshot." "./tools/check_ci_status.sh --product --required"
+add_partial_failure "as_built_sync_live" "optional" "As-built sync validation is reported as a manual follow-up command instead of blocking JSON generation." "./tools/check_as_built_sync_contract.sh"
+add_partial_failure "workflow_pair_live" "optional" "Workflow pair validation is reported as a manual follow-up command instead of blocking JSON generation." "./tools/check_workflow_pair_sync.sh"
+add_partial_failure "git_workflow_gate_live" "optional" "Git workflow gates are not inferred from policy readiness in the read-only snapshot." "./tools/git-workflow check"
+add_partial_failure "product_security_gate_live" "optional" "Product-security gate passage is not inferred from policy readiness in the read-only snapshot." "./tools/product-security gate --context product-improvement"
+
+lesson_object() {
+  local label="$1"
+  local config_file="$2"
+  local state_file
+  local status="unknown"
+  local current_step=""
+  local learning_mode_status
+  local workflow_language_status
+  local product_language_status
+  local source_state_file
+
+  state_file="$(dashboard_data_lesson_state_file_from_config "$config_file")"
+  source_state_file="$(dashboard_data_relative_path "$state_file")"
+  if [[ ! -f "$state_file" ]]; then
+    status="missing"
+  elif current_step="$(dashboard_data_current_lesson_step "$state_file" 2>/dev/null)"; then
+    status="ready"
+  elif dashboard_data_lesson_all_completed "$state_file"; then
+    status="passed"
+    current_step="all steps completed"
+  else
+    status="unknown"
+  fi
+  learning_mode_status="$(dashboard_data_lesson_setting_state "$config_file" learning_mode)"
+  workflow_language_status="$(dashboard_data_lesson_setting_state "$config_file" workflow_language)"
+  product_language_status="$(dashboard_data_lesson_setting_state "$config_file" product_language)"
+
+  printf '{"label":'
+  dashboard_json_string "$label"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"current_step":'
+  dashboard_json_string "${current_step:-unknown}"
+  printf ',"learning_mode_status":'
+  dashboard_json_string "$learning_mode_status"
+  printf ',"workflow_language_status":'
+  dashboard_json_string "$workflow_language_status"
+  printf ',"product_language_status":'
+  dashboard_json_string "$product_language_status"
+  printf ',"source_state_file":'
+  dashboard_json_string "$source_state_file"
+  printf '}'
+}
+
+advanced_lesson_object() {
+  local learning_mode_status workflow_language_status product_language_status status
+  learning_mode_status="$(dashboard_data_latest_menu_setting_state learning_mode)"
+  workflow_language_status="$(dashboard_data_latest_menu_setting_state workflow_language)"
+  product_language_status="$(dashboard_data_latest_menu_setting_state product_language)"
+  if [[ "$learning_mode_status" == "ready" && "$workflow_language_status" == "ready" && "$product_language_status" == "ready" ]]; then
+    status="ready"
+  else
+    status="missing"
+  fi
+
+  printf '{"label":'
+  dashboard_json_string "Applied lesson"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"learning_mode_status":'
+  dashboard_json_string "$learning_mode_status"
+  printf ',"workflow_language_status":'
+  dashboard_json_string "$workflow_language_status"
+  printf ',"product_language_status":'
+  dashboard_json_string "$product_language_status"
+  printf ',"learner_approval_status":'
+  dashboard_json_string "approval_required"
+  printf '}'
+}
+
+product_documents_status() {
+  local file
+  [[ -d "$PRODUCT_ROOT/.git" ]] || { printf 'unknown'; return; }
+  for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md TASK_TRACKER.md HANDOFF.md; do
+    [[ -f "$PRODUCT_ROOT/$file" ]] || { printf 'missing'; return; }
+  done
+  printf 'ready'
+}
+
+skills_status() {
+  local skill_files=("$ROOT"/skills/*/SKILL.md)
+  if [[ -e "${skill_files[0]}" ]]; then
+    printf 'ready'
+  else
+    printf 'missing'
+  fi
+}
+
+summary_mode() {
+  if [[ -d "$PRODUCT_ROOT/.git" ]]; then
+    printf 'development'
+  elif dashboard_data_current_lesson_step "$ROOT/learning/LESSON_STATE_14_DAYS.tsv" >/dev/null 2>&1 || dashboard_data_current_lesson_step "$ROOT/learning/LESSON_STATE.tsv" >/dev/null 2>&1; then
+    printf 'learning'
+  elif [[ -d "$ROOT/.git" ]]; then
+    printf 'maintenance'
+  else
+    printf 'unknown'
+  fi
+}
+
+command_previews=(
+  "$(dashboard_json_command_preview "Validate dashboard JSON data" "lesson repository" "low" "false" "none" "./tools/test_dashboard_data.sh" "preview_only" "true" "./tools/test_dashboard_data.sh")"
+  "$(dashboard_json_command_preview "Check product Git synchronization" "configured product repository" "low" "false" "none" "./tools/check_git_sync.sh --product --required" "preview_only" "true" "./tools/check_git_sync.sh" "--product" "--required")"
+  "$(dashboard_json_command_preview "Check product CI status" "configured product repository" "medium" "false" "none" "./tools/check_ci_status.sh --product --required" "preview_only" "true" "./tools/check_ci_status.sh" "--product" "--required")"
+  "$(dashboard_json_command_preview "Preview Git push approval boundary" "current Git repository" "high" "true" "git_workflow_push_approval" "./tools/git-workflow approve push \"User approved push\"" "preview_only" "true" "./tools/git-workflow" "approve" "push" "User approved push")"
+  "$(dashboard_json_command_preview "Preview PR creation approval boundary" "current Git repository" "high" "true" "git_workflow_pr_approval" "./tools/git-workflow approve pr \"User approved PR creation\"" "preview_only" "true" "./tools/git-workflow" "approve" "pr" "User approved PR creation")"
+  "$(dashboard_json_command_preview "Preview merge approval boundary" "current Git repository" "critical" "true" "git_workflow_merge_approval" "./tools/git-workflow approve merge \"User approved merge\"" "preview_only" "true" "./tools/git-workflow" "approve" "merge" "User approved merge")"
+  "$(dashboard_json_command_preview "Preview product cleanup plan" "configured product repository" "critical" "true" "product_repository_cleanup_confirmation" "./tools/product-repository-cleanup plan" "preview_only" "true" "./tools/product-repository-cleanup" "plan")"
+)
+
+printf '{\n'
+printf '  "schema_version": '
+dashboard_json_string "$(dashboard_data_schema_version)"
+printf ',\n'
+printf '  "generated_at": '
+dashboard_json_string "$(dashboard_data_generated_at)"
+printf ',\n'
+printf '  "source_files": '
+dashboard_json_string_array "${source_files[@]}"
+printf ',\n'
+printf '  "source_commands": '
+dashboard_json_string_array "${source_commands[@]}"
+printf ',\n'
+printf '  "warnings": [],\n'
+printf '  "partial_failures": '
+dashboard_json_raw_array "${partial_failures[@]}"
+printf ',\n'
+printf '  "summary": {\n'
+printf '    "mode": '
+dashboard_json_string "$(summary_mode)"
+printf ',\n'
+printf '    "next_safe_action": '
+dashboard_json_string "Review blocking_items and run the listed required commands manually before treating optional or gate status as authoritative."
+printf ',\n'
+printf '    "guidance_items": '
+dashboard_json_raw_array "${guidance_items[@]}"
+printf ',\n'
+printf '    "blocking_items": '
+dashboard_json_raw_array "${blocking_items[@]}"
+printf '\n'
+printf '  },\n'
+printf '  "lessons": {\n'
+printf '    "step_1_7": '
+lesson_object "$(lesson_display_label lesson_7)" "$DASHBOARD_LESSON_CONFIG"
+printf ',\n'
+printf '    "step_1_14": '
+lesson_object "$(lesson_display_label lesson_14)" "$DASHBOARD_LESSON14_CONFIG"
+printf ',\n'
+printf '    "advanced": '
+advanced_lesson_object
+printf '\n'
+printf '  },\n'
+printf '  "development": {\n'
+printf '    "product_repository": {"status": '
+if [[ -d "$PRODUCT_ROOT/.git" ]]; then
+  dashboard_json_string "ready"
+else
+  dashboard_json_string "missing"
+fi
+printf ',"configured_name": '
+dashboard_json_string "$PRODUCT_NAME"
+printf '},\n'
+printf '    "documents": {"status": '
+dashboard_json_string "$(product_documents_status)"
+printf '},\n'
+printf '    "git_sync_status": '
+dashboard_json_string "unknown"
+printf ',\n'
+printf '    "ci_status": '
+dashboard_json_string "optional"
+printf '\n'
+printf '  },\n'
+printf '  "maintenance": {\n'
+printf '    "as_built_sync_status": '
+dashboard_json_string "unknown"
+printf ',\n'
+printf '    "workflow_pair_status": '
+dashboard_json_string "unknown"
+printf ',\n'
+printf '    "developer_memory_status": '
+dashboard_json_string "$(dashboard_data_file_state "docs/memory/DEVELOPER_MEMORY.md")"
+printf ',\n'
+printf '    "skills_status": '
+dashboard_json_string "$(skills_status)"
+printf '\n'
+printf '  },\n'
+printf '  "git_workflow": {\n'
+printf '    "policy_status": '
+dashboard_json_string "$(dashboard_data_git_policy_status)"
+printf ',\n'
+printf '    "settings_status": '
+dashboard_json_string "$(dashboard_data_git_settings_status)"
+printf ',\n'
+printf '    "gate_status": '
+dashboard_json_string "unknown"
+printf ',\n'
+printf '    "approval_status": '
+dashboard_json_string "approval_required"
+printf '\n'
+printf '  },\n'
+printf '  "security": {\n'
+printf '    "policy_status": '
+dashboard_json_string "$(dashboard_data_product_security_policy_status)"
+printf ',\n'
+printf '    "gate_status": '
+dashboard_json_string "unknown"
+printf ',\n'
+printf '    "dangerous_action_approval": '
+dashboard_json_string "approval_required"
+printf '\n'
+printf '  },\n'
+printf '  "actions": {\n'
+printf '    "command_previews": '
+dashboard_json_raw_array "${command_previews[@]}"
+printf '\n'
+printf '  }\n'
+printf '}\n'

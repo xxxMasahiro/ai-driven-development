@@ -812,6 +812,78 @@ STATUS: implemented
 ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/check_ci_status.sh,tools/check_ci_workflow_structure.sh,tools/lib/ci_timing.sh,tools/ci-timing,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/test_lesson_repository.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_timing.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_evidence.sh,tools/test_ci_final_gate.sh,tools/test_git_hooks_parallel.sh,tools/check_as_built_sync_contract.sh
 
+### Implemented Dashboard Control Center Data Layer Specification
+
+The implemented data layer defines the stable machine-readable contract for a future AI-driven development control center.
+The contract is read-only and is separate from the existing learner-facing CLI dashboard.
+`docs/workflow/DASHBOARD_DATA_SCHEMA.tsv` records the implemented field paths, allowed states, source groups, and safety requirements for the runtime JSON producer.
+
+The runtime command is `tools/dashboard-data`; extending `tools/dashboard` with a JSON mode remains a separate developer-approved change.
+The existing `tools/dashboard all` output remains a human-readable compatibility surface and must not become the browser parsing contract.
+Any later React/Vite consumer must present the control center as a simple dashboard-backed experience; Vite commands, dev-server URLs, package scripts, and frontend implementation details are not part of the ordinary learner-facing workflow.
+For non-engineer users, the intended interaction is a single dashboard/control-center entry action; maintained tooling must absorb setup, Vite startup, URL selection, JSON data loading, and verification orchestration.
+The future UI should use a layered control-panel model: lesson content, lesson progress, and lesson management need plain-language summaries, while workflow content, workflow progress, workflow management, gates, evidence, partial failures, and next operational actions need precise status detail that remains useful to intermediate and senior engineers.
+The repository has two first-class surfaces, lessons and workflows; any future control panel must keep those surfaces distinguishable in navigation, grouping, labels, and status hierarchy while keeping both easy to scan, understand, and operate.
+
+Implemented top-level JSON fields:
+
+- `schema_version`: stable version for consumers.
+- `generated_at`: snapshot generation time.
+- `source_files`: source file references used to build the snapshot.
+- `source_commands`: read-only command identities used to build the snapshot.
+- `warnings`: non-fatal warnings.
+- `partial_failures`: optional lookup failures, slow command failures, unavailable evidence, or skipped live checks.
+- `summary`: current control-center mode, concise guidance items, next safe action, and blocking items.
+- `lessons`: STEP 1-7, STEP 1-14, and applied lesson status from existing lesson/menu sources.
+- `development`: product repository, product documents, Git sync, and CI status from existing product workflow sources.
+- `maintenance`: as-built sync, workflow pair, developer-memory, and repo-local skill state from existing maintenance checks.
+- `git_workflow`: Git workflow policy and action-setting state from existing Git workflow settings.
+- `security`: product-security and dangerous-operation readiness from existing policy and gate sources.
+- `actions`: command previews that explain intent, target, risk, approval requirement, and manual command text without running the command.
+
+Allowed state vocabulary:
+
+```text
+missing
+ready
+passed
+failed
+blocked
+unknown
+approval_required
+optional
+cached
+```
+
+The implemented data layer keeps these concepts as separate fields:
+
+- policy readiness versus gate passage;
+- settings readiness versus user approval;
+- cached or same-run evidence versus required live validation;
+- optional dashboard lookup failure versus required check failure;
+- command preview versus command execution.
+
+Partial failure entries must identify at least the source, non-authoritative failure status, safe reason, and optional required follow-up command.
+Command preview entries must identify intent, target, risk level, approval requirement, command text, and execution mode.
+The initial execution mode for dangerous operations is preview-only.
+
+Data sources must be existing reusable sources where available, including lesson state/settings files, menu prerequisite helpers, Git workflow settings, product-security policy, as-built sync contract, and shared `tools/lib/dashboard_data.sh` helpers.
+The implementation must prefer structured TSV/settings reads or reusable helper calls over brittle parsing of prose output.
+Lesson status objects must distinguish an active current step from all-steps-completed state; when every state row is completed, the dashboard data uses `status: "passed"` with `current_step: "all steps completed"` instead of `unknown`.
+If a source is unavailable or too slow for the dashboard snapshot, the JSON producer should return a valid snapshot with a `partial_failures` entry and a `required_command` or equivalent manual next check.
+
+Security specification:
+
+- Treat Markdown, CLI output, logs, generated text, external responses, and user text as untrusted text-as-data.
+- Do not emit secrets, tokens, private messages, full environment dumps, raw CI logs, credential material, or unnecessary absolute paths.
+- Do not rely on route names, UI-only checks, keyword filters, or prompt text as the owner-layer safety control.
+- Keep dangerous operations as command previews requiring explicit developer approval before any later execution feature is considered.
+
+SYNC-ID: dashboard_control_center_data_layer
+STATUS: implemented
+ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_lesson_repository.sh,tools/check_lesson_structure.sh,tools/check_lesson14_structure.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_test_plan_coverage.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
 ## Product Repository Boundary
 
 The default lesson-created product repository path is outside this repository:
