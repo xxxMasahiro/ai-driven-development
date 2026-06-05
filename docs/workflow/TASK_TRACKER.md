@@ -337,6 +337,7 @@ Cache policy changes are out of scope for this cycle.
 - [x] Keep `tools/test_lesson_repository.sh --use-evidence --write-evidence` and `tools/git-hooks run --mode full --no-cache --jobs 4` as the authoritative heavy checks.
 - [x] Require `final-gate` to always start, validate split prerequisite results, consume same-run Git hook evidence, and fail closed when evidence is missing or mismatched.
 - [x] Avoid timing artifact filename collisions by writing split timing reports to distinct files.
+- [x] Prevent split-job `CI_TIMING_REPORT` paths from leaking into nested timing self-tests.
 - [x] Use a stable Lesson14 compatibility marker instead of a free-form prose dependency.
 - [x] Update `tools/check_ci_workflow_structure.sh` for the split job graph, evidence handoff, and timing artifact merge.
 - [x] Update `tools/test_ci_pipeline_acceleration.sh` so the split remains standalone and aggregate-callable.
@@ -346,8 +347,8 @@ Cache policy changes are out of scope for this cycle.
 
 SYNC-ID: ci_aggregate_full_hooks_split
 STATUS: implemented
-ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
-TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/ci-timing,tools/test_ci_timing.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_timing.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 
 ## Implemented Dashboard Control Center Data Layer Work
 

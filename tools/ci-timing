@@ -96,7 +96,10 @@ case "$cmd" in
     }
     start_epoch="$(date +%s)"
     set +e
-    "$@"
+    (
+      unset CI_TIMING_REPORT
+      "$@"
+    )
     exit_status="$?"
     set -e
     end_epoch="$(date +%s)"

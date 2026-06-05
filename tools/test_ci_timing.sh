@@ -65,6 +65,22 @@ fi
 grep -F 'failing_fixture' "$report" >/dev/null
 awk -F '\t' '$1 == "failing_fixture" && $8 == "7" { found = 1 } END { exit found ? 0 : 1 }' "$report"
 
+custom_report="$TMP_DIR/custom-report.tsv"
+LESSON_ROOT="$TEST_REPO" \
+CI_TIMING_DIR="$TIMING_DIR" \
+CI_TIMING_REPORT="$custom_report" \
+CI_EVIDENCE_RUN_ID="timing-run-report-leak" \
+GITHUB_WORKFLOW="Timing Test" \
+GITHUB_JOB="aggregate-and-full-hooks" \
+"$ROOT/tools/ci-timing" run report_scope_fixture \
+  --display-name "Report Scope Fixture" \
+  --command-id "report-scope-fixture-v1" \
+  --mode aggregate \
+  --inputs input.txt \
+  -- bash -c '[[ -z "${CI_TIMING_REPORT:-}" ]]'
+[[ -f "$custom_report" ]]
+grep -F 'report_scope_fixture' "$custom_report" >/dev/null
+
 run_timing run evidence_fixture \
   --display-name "Evidence Fixture" \
   --command-id "evidence-fixture-v1" \

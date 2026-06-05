@@ -597,6 +597,7 @@ It must preserve strict final verification, existing workflow behavior, and curr
 - Keep `tools/test_lesson_repository.sh --use-evidence --write-evidence` and `tools/git-hooks run --mode full --no-cache --jobs 4` authoritative; the split changes scheduling, not verification scope.
 - Require `final-gate` to depend on both split jobs, run even when a split prerequisite fails, and fail closed when a prerequisite result or same-run Git hook evidence is missing, stale, mismatched, or unavailable.
 - Preserve timing artifact output by collecting split timing parts, keeping each split job report in a non-colliding report file, and uploading the same final timing artifact pattern.
+- Keep `CI_TIMING_REPORT` scoped to the timing wrapper so aggregate tests that include timing self-tests cannot inherit a parent job's report path.
 - Use a stable Lesson14 compatibility marker for common split coverage instead of depending on learner-facing prose.
 - Do not add persistent verification-result cache, changed-only authoritative CI, Git hook group matrix splitting, flaky quarantine, or conditional full/no-cache skipping in this implementation.
 - Preserve the Step 1-7 lesson path, Step 1-14 lesson path, applied lesson, menu, dashboard, Git workflow policy, Git hooks policy, Security guard checks, product-security checks, as-built sync, docs-tour, pre-commit, local full/no-cache verification, and remote CI behavior.
@@ -605,8 +606,8 @@ It must preserve strict final verification, existing workflow behavior, and curr
 
 SYNC-ID: ci_aggregate_full_hooks_split
 STATUS: implemented
-ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
-TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/ci-timing,tools/test_ci_timing.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_timing.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 
 ## Implemented Dashboard Control Center Data Layer Requirements
 

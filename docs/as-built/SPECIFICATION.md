@@ -822,6 +822,7 @@ The main `CI` workflow provides the active common verification; `Lesson14 CI` re
 - `git-hooks-full-no-cache` depends on the same prerequisite gates, downloads same-run Playwright evidence, sets `CI_EVIDENCE_SOURCE_JOB: git-hooks-full-no-cache`, records timing with `tools/ci-timing run git_hooks_full_no_cache`, and runs `tools/git-hooks run --mode full --no-cache --jobs 4`.
 - `git-hooks-full-no-cache` uploads the same-run Git hook evidence artifact for the current run attempt.
 - `git-hooks-full-no-cache` writes timing to `git-hooks-full-no-cache.tsv` so final artifact download cannot overwrite the lesson aggregate timing report.
+- `tools/ci-timing run` unsets `CI_TIMING_REPORT` only for the wrapped child command after reading it for the wrapper report path, preventing nested timing tests from writing to or deleting the parent job report.
 - `final-gate` depends on both split jobs, uses `if: ${{ always() }}` so the context is not skipped when a split prerequisite fails, validates both prerequisite results, downloads the same-run Git hook evidence artifact, sets `CI_FINAL_GATE_REQUIRE_HOOK_EVIDENCE: "1"` and `CI_EVIDENCE_EXPECT_SOURCE_JOB: git-hooks-full-no-cache`, and runs `tools/ci-final-gate`.
 - `final-gate` downloads timing-part artifacts with `merge-multiple: true` and uploads the final `ci-timing-${{ github.run_id }}-${{ github.run_attempt }}` timing report.
 - `Lesson14 CI` keeps the legacy compatibility `aggregate-and-full-hooks` job context and does not adopt the main `CI` split in this implementation.
@@ -831,8 +832,8 @@ The main `CI` workflow provides the active common verification; `Lesson14 CI` re
 
 SYNC-ID: ci_aggregate_full_hooks_split
 STATUS: implemented
-ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
-TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/ci-timing,tools/test_ci_timing.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_timing.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 
 ### Implemented Dashboard Control Center Data Layer Specification
 

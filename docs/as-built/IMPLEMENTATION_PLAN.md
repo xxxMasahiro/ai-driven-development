@@ -1675,8 +1675,8 @@ git diff --check
 
 SYNC-ID: ci_aggregate_full_hooks_split
 STATUS: implemented
-ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
-TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/check_as_built_sync_contract.sh,tools/ci-timing,tools/test_ci_timing.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_ci_timing.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 
 This implementation applies the approved first CI acceleration candidate from the measured timing work: split the main `CI` final common verification job into parallelizable jobs and a strict final gate.
 It is intentionally limited to job scheduling and evidence handoff; it does not change cache policy, full/no-cache scope, or authoritative check coverage.
@@ -1689,6 +1689,7 @@ It is intentionally limited to job scheduling and evidence handoff; it does not 
 - Keep `tools/git-hooks run --mode full --no-cache --jobs 4` in `git-hooks-full-no-cache`.
 - Upload same-run Git hook evidence from `git-hooks-full-no-cache` and require it in an always-started `final-gate` that validates split prerequisite results and expected evidence source before evidence verification.
 - Preserve timing reports by uploading split timing parts with distinct report filenames and merging them into the existing final timing artifact.
+- Keep `CI_TIMING_REPORT` local to `tools/ci-timing` report recording and out of the wrapped command environment.
 - Update `tools/check_ci_workflow_structure.sh` and `tools/test_ci_pipeline_acceleration.sh` so the split is mechanically checked.
 - Keep `Lesson14 CI` compatibility contexts intact; a stable compatibility marker and structure checks may point at the main `CI` split without rerunning common heavy work.
 
