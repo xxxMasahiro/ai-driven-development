@@ -194,6 +194,20 @@ if (data.security.gate_status === data.security.policy_status) {
 if (data.lessons.step_1_14.status === 'unknown' && data.lessons.step_1_14.current_step === 'unknown') {
   fail('completed or inactive STEP 1-14 state must not collapse to unknown without checking completion');
 }
+for (const lessonPath of ['lessons.step_1_7', 'lessons.step_1_14', 'lessons.advanced']) {
+  const lesson = requireField(lessonPath);
+  if (!Array.isArray(lesson.points) || !Array.isArray(lesson.warnings)) {
+    fail(`${lessonPath} must expose structured points and warnings arrays`);
+  }
+  if (typeof lesson.next_learning_action !== 'string' || lesson.next_learning_action.length === 0) {
+    fail(`${lessonPath} must expose a structured next learning action`);
+  }
+  for (const item of [...lesson.points, ...lesson.warnings, lesson.next_learning_action]) {
+    if (/\/home\/|\/tmp\/|gh[pousr]_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}/.test(item)) {
+      fail(`${lessonPath} leaked unsafe lesson guidance text`);
+    }
+  }
+}
 
 const previews = requireField('actions.command_previews');
 if (!Array.isArray(previews) || previews.length === 0) {

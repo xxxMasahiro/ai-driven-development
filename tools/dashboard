@@ -265,6 +265,10 @@ case "${1:-all}" in
   illustrations)
     show_illustrations
     ;;
+  control-center)
+    shift || true
+    "$ROOT/tools/dashboard-control-center" open "$@"
+    ;;
   all)
     show_menu
     printf '\n'
@@ -277,7 +281,7 @@ case "${1:-all}" in
     show_illustrations
     ;;
   *)
-    printf 'Usage: ./tools/dashboard <menu|lesson|docs|development|illustrations|all>\n' >&2
+    printf 'Usage: ./tools/dashboard <menu|lesson|docs|development|illustrations|all|control-center>\n' >&2
     exit 1
     ;;
 esac

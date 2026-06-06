@@ -20,8 +20,17 @@ summary	summary.blocking_items[].status	implemented	enum	missing|failed|blocked|
 summary	summary.blocking_items[].reason	implemented	string	safe-text	dashboard-data	Each blocker must explain the condition without raw logs or secrets.
 summary	summary.blocking_items[].required_command	implemented	string	command-preview	dashboard-data	Each blocker may identify the manual follow-up command needed to unblock progress.
 lessons	lessons.step_1_7	implemented	object	status-object	lesson-runtime	STEP 1-7 data must come from existing lesson state and settings sources.
+lessons	lessons.step_1_7.points	implemented	array	safe-text-list	lesson-runtime	STEP 1-7 concise lesson points must come from structured lesson state/settings, not CLI prose.
+lessons	lessons.step_1_7.warnings	implemented	array	safe-text-list	lesson-runtime	STEP 1-7 lesson warnings must come from structured missing/unknown state, not CLI prose.
+lessons	lessons.step_1_7.next_learning_action	implemented	string	safe-text	lesson-runtime	STEP 1-7 next learning action must be a read-only explanation derived from structured lesson state/settings.
 lessons	lessons.step_1_14	implemented	object	status-object	lesson-runtime	STEP 1-14 data must come from existing lesson14 state and settings sources.
+lessons	lessons.step_1_14.points	implemented	array	safe-text-list	lesson-runtime	STEP 1-14 concise lesson points must come from structured lesson state/settings, not CLI prose.
+lessons	lessons.step_1_14.warnings	implemented	array	safe-text-list	lesson-runtime	STEP 1-14 lesson warnings must come from structured missing/unknown state, not CLI prose.
+lessons	lessons.step_1_14.next_learning_action	implemented	string	safe-text	lesson-runtime	STEP 1-14 next learning action must be a read-only explanation derived from structured lesson state/settings.
 lessons	lessons.advanced	implemented	object	status-object	menu-prerequisite	Applied lesson data must reuse existing menu prerequisite and team-development status sources.
+lessons	lessons.advanced.points	implemented	array	safe-text-list	menu-prerequisite	Applied lesson concise points must come from structured menu prerequisite state, not CLI prose.
+lessons	lessons.advanced.warnings	implemented	array	safe-text-list	menu-prerequisite	Applied lesson warnings must come from structured missing/approval state, not CLI prose.
+lessons	lessons.advanced.next_learning_action	implemented	string	safe-text	menu-prerequisite	Applied lesson next learning action must be a read-only explanation derived from structured menu prerequisite state.
 development	development.product_repository.status	implemented	enum	missing|ready|failed|unknown|optional	product-gate	Product repository state must come from existing repository-boundary and product workflow sources.
 development	development.documents.status	implemented	enum	missing|ready|failed|unknown	product-gate	Product document state must come from existing document and workflow-pair checks.
 development	development.git_sync_status	implemented	enum	passed|failed|blocked|unknown|optional|cached	git-workflow	Product Git sync state must remain separate from Git policy readiness.

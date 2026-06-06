@@ -42,9 +42,11 @@ aggregate_evidence_inputs=(
   templates
   tools
   .github/workflows
+  dashboard-control-center
   package.json
   package-lock.json
   playwright.config.js
+  vite.config.mjs
   tests
 )
 
@@ -100,6 +102,7 @@ WORKFLOW_PAIR_SINGLE_FILE_REASON="aggregate test may run while remediation docum
 ./tools/dashboard-data >/dev/null
 ./tools/test_dashboard_schema.sh
 ./tools/test_dashboard_data.sh
+./tools/test_dashboard_control_center.sh
 ./tools/test_ci_final_gate.sh
 ./tools/test_ci_pipeline_acceleration.sh
 ./tools/check_ci_workflow_structure.sh

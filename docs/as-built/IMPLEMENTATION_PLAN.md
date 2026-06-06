@@ -1855,61 +1855,61 @@ Full completion verification:
 - Approval is required before changing existing `tools/dashboard` output semantics.
 - Approval is required before selecting among redesign alternatives when an apparent existing-feature tradeoff is encountered; accepting the tradeoff is not allowed.
 
-## Planned Dashboard Control Center React UI Implementation Plan
+## Implemented Dashboard Control Center React UI Implementation Plan
 
 SYNC-ID: dashboard_control_center_react_ui_plan
-STATUS: planned
-ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,tools/dashboard-data,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh
-TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_ci_workflow_structure.sh
+STATUS: implemented
+ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/dashboard-data,package.json,package-lock.json,vite.config.mjs,dashboard-control-center/index.html,dashboard-control-center/src/main.jsx,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/styles.css,tools/dashboard,tools/dashboard-control-center,tools/test_dashboard_control_center.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_lesson_playwright.sh,tools/test_lesson_repository.sh,tools/check_lesson_structure.sh,tools/check_lesson14_structure.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml,tests/fixtures/dashboard-control-center.json,tests/playwright/dashboard-control-center.spec.js
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_lesson_playwright.sh,tools/check_test_plan_coverage.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_ci_workflow_structure.sh
 
-This planned implementation turns the implemented read-only dashboard JSON layer into a browser control center in a later approved runtime step.
-This sync step records the proposal and plan only; it does not add dependencies, package scripts, Vite runtime files, or browser UI code.
+This implementation turns the implemented read-only dashboard JSON layer into a browser control center after developer approval for React/Vite dependencies, package scripts, runtime files, maintained entry tooling, and browser test wiring.
+It remains additive and does not replace `tools/dashboard`, parse `tools/dashboard` prose, run UI actions, make frontend state authoritative, or weaken existing lessons, checks, CI, pre-commit, docs, or sync behavior.
 
-### Planned Change Targets
+### Implemented Change Targets
 
-- Add a React/Vite browser UI only after developer approval for dependency and package-script changes.
+- Added a React/Vite browser UI after developer approval for dependency and package-script changes.
 - Keep `tools/dashboard-data` as the data contract and keep `tools/dashboard` as the human-readable CLI compatibility surface.
-- Add reusable frontend adapters for dashboard JSON so components consume schema fields and state vocabulary rather than current prose wording.
-- Add control-center sections for summary, lessons, workflows, maintenance, security, and action previews.
-- Keep the initial UI read-only and preview-only for commands.
-- Add a maintained dashboard entry point that hides Vite startup, URL selection, JSON loading, and check orchestration from ordinary users.
-- Add future browser/layout tests that are standalone-callable and aggregate-callable after runtime UI artifacts exist.
+- Added reusable frontend adapters for dashboard JSON so components consume schema fields and state vocabulary rather than current prose wording.
+- Added control-center sections for summary, lessons, workflows, maintenance, security, and action previews.
+- Kept the initial UI read-only and preview-only for commands.
+- Added `tools/dashboard control-center` and `tools/dashboard-control-center` as the maintained dashboard entry tooling.
+- Added standalone-callable and aggregate-callable browser/layout checks through `tools/test_dashboard_control_center.sh`.
 
-### Planned Implementation Order
+### Implemented Order
 
-1. Keep this planned sync separate from the implemented data-layer sync.
+1. Kept the UI sync separate from the implemented data-layer sync.
    - Preserve `dashboard_control_center_data_layer` as implemented.
-   - Add `dashboard_control_center_react_ui_plan` as planned.
+   - Mark `dashboard_control_center_react_ui_plan` as implemented only after runtime files and tests exist.
 
-2. Confirm approval gates before runtime work.
-   - Obtain developer approval before adding React/Vite dependencies, package scripts, dev-server wrappers, generated assets, or browser test wiring.
-   - Stop if any existing-feature tradeoff appears necessary.
+2. Confirmed approval gates before runtime work.
+   - Added React/Vite dependencies, package scripts, browser runtime files, generated build output rules, and browser test wiring under the developer-approved implementation request.
+   - Stopped and corrected review findings where data/schema or sync boundaries were incomplete.
 
-3. Introduce the frontend contract layer.
-   - Build adapters around dashboard JSON fields, source attribution, allowed status values, guidance items, blockers, and command previews.
+3. Introduced the frontend contract layer.
+   - Built adapters around dashboard JSON fields, source attribution, allowed status values, guidance items, blockers, and command previews.
    - Keep adapter logic generic over the schema instead of special-casing the current product stack or current display text.
-   - If lesson points, warnings, or next learning actions are needed beyond existing JSON fields, extend and test the dashboard data schema before UI implementation.
+   - Extended and tested the dashboard data schema/producer for lesson points, warnings, and next learning actions before treating them as UI fields.
 
-4. Implement read-only UI sections.
+4. Implemented read-only UI sections.
    - Summary: mode, concise guidance, blockers, next safe action.
    - Lessons: 7-day, 14-day, applied lesson progress, points, warnings, and next learning action.
    - Workflows: product/workflow state, Git sync, CI, gates, evidence, approvals, blockers, and next operational action.
    - Maintenance and security: as-built sync, workflow pair sync, developer-memory, repo-local skills, policy/gate separation, and preview-only command guidance.
 
-5. Hide Vite mechanics behind maintained tooling.
+5. Hid Vite mechanics behind maintained tooling.
    - Ordinary users get a single dashboard/control-center entry action.
-   - Maintained tooling handles server startup, URL selection, JSON generation, and check orchestration.
+   - Maintained tooling handles server startup, URL selection, JSON generation, and check orchestration without requiring ordinary users to invoke npm scripts or parse Vite details.
 
-6. Add runtime checks after artifacts exist.
-   - Add focused UI rendering/layout checks that can run standalone.
-   - Wire them into aggregate tests, Git hooks, pre-commit, CI, and sync contract only after the files exist.
+6. Added runtime checks after artifacts exist.
+   - Added focused UI rendering/layout checks that run standalone.
+   - Wired them into aggregate tests, Git hooks, pre-commit, CI, final-gate coverage, and sync contract after the files exist.
 
 ### Document Synchronization Policy
 
 - Requirements describe purpose, problems, scope, non-scope, existing-feature impact, document updates, tests, and risks.
-- Specification describes the UI sections, data handling, UX constraints, and planned verification boundaries.
+- Specification describes the UI sections, data handling, UX constraints, and implemented verification boundaries.
 - Implementation plan describes change targets, order, verification, recovery, and approval gates.
-- `docs/workflow/TASK_TRACKER.md` records planned state and future task boundaries.
+- `docs/workflow/TASK_TRACKER.md` records implemented state and remaining approval-only boundaries.
 - `docs/workflow/HANDOFF.md` records restart context and safety-sensitive decisions.
 
 ### Verification Method For This Sync
@@ -1918,6 +1918,8 @@ This sync step records the proposal and plan only; it does not add dependencies,
 git diff --check
 ./tools/test_dashboard_schema.sh
 ./tools/test_dashboard_data.sh
+./tools/test_dashboard_control_center.sh
+./tools/test_lesson_playwright.sh
 ./tools/check_as_built_sync_contract.sh
 ./tools/check_as_built_docs.sh
 ./tools/check_ci_workflow_structure.sh
@@ -1931,7 +1933,7 @@ After commit and push, required remote `CI` and `Lesson14 CI` must pass, and loc
 ### Recovery Plan
 
 - If sync checks fail, correct the five document blocks and contract row before changing runtime scope.
-- If dashboard schema/data tests fail, fix the data-layer contract or this plan so future UI work remains contract-driven.
+- If dashboard schema/data/UI tests fail, fix the data-layer contract, UI adapter, or this plan so the UI remains contract-driven.
 - If future frontend work duplicates owner-layer checks, move the logic back to shared CLI/helper code.
 - If future UI hides workflow gates, evidence, blockers, approvals, or next actions, redesign the component model before implementation.
 - If Vite mechanics leak into ordinary user workflow, keep the UI behind maintained tooling and update the entry plan.
@@ -1939,11 +1941,193 @@ After commit and push, required remote `CI` and `Lesson14 CI` must pass, and loc
 
 ### Developer Approval Gates
 
-- Approval is required before adding React/Vite dependencies, package scripts, dev-server wrappers, or browser runtime files.
+- Approval has been used for the initial React/Vite dependencies, package scripts, maintained entry tooling, browser runtime files, and browser test wiring.
 - Approval is required before adding action execution from the UI.
 - Approval is required before making live network, CI, or GitHub status authoritative for rendering.
 - Approval is required before changing existing `tools/dashboard` semantics or replacing `tools/dashboard-data`.
 - Approval is required before accepting any design alternative that would weaken existing lessons, workflows, checks, CI, pre-commit, docs, or sync behavior.
+
+## Implemented Dashboard Control Center Information Architecture Implementation Plan
+
+SYNC-ID: dashboard_control_center_information_architecture
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,vite.config.mjs,dashboard-control-center/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
+TESTS: tools/test_dashboard_control_center.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
+
+This implemented follow-up organizes the dashboard wall-bouncing conclusions into a scoped UI improvement.
+It preserves the implemented dashboard JSON data layer, the initial read-only React/Vite UI, existing lessons, CI, checks, document routes, Git hooks, pre-commit, and owner-layer safety logic.
+
+### Implemented Change Targets
+
+- `dashboard-control-center/mock-categorized-dashboard.png`
+  - Keep the generated mock as a visual design reference for category navigation, Overview-first information hierarchy, and Safety Actions isolation.
+- `dashboard-control-center/src/App.jsx`
+  - Replace the one-page vertical section stack with category navigation and Overview-first rendering.
+  - Keep lessons, development workflow, maintenance sync, security, and command previews as separate render surfaces.
+  - Keep command previews visible only in Safety Actions and only as preview-only/non-executable data.
+- `dashboard-control-center/src/i18n.js`
+  - Add reusable fixed-label localization for `en` and `ja` with English fallback.
+  - Keep data-derived text out of browser translation.
+  - Add locale-aware generated-time and relative-age formatting.
+- `dashboard-control-center/src/styles.css`
+  - Rework layout to match the mock direction with a sidebar, status strip, overview grid, category health cards, compact cards, and responsive constraints.
+- `tests/playwright/dashboard-control-center.spec.js`
+  - Update browser tests to verify categorized navigation, Overview-first behavior, Safety Actions command isolation, fixed-label localization, no command-execution buttons, redaction, and mobile layout.
+- `tools/test_dashboard_control_center.sh`
+  - Keep the check as the standalone and aggregate entry point for the React/Vite control-center regression.
+
+### Implemented Order
+
+1. Organize the proposal.
+   - Purpose: make the dashboard understandable and scannable without weakening read-only safety.
+   - Problems: one-page overload, command previews too visible on first screen, English-only fixed labels, and weak snapshot freshness cues.
+   - Scope: categories, `en`/`ja` fixed UI labels, snapshot generated time and age, and Safety Actions isolation.
+   - Non-scope: automatic updates, command execution, live authoritative CI/Git, and broad localization.
+
+2. Preserve owner-layer and data boundaries.
+   - Leave `tools/dashboard-data` and the dashboard JSON schema as the data boundary.
+   - Do not parse `tools/dashboard` prose.
+   - Do not move Git, CI, Security guard, approval, or gate truth into React.
+
+3. Implement category UI.
+   - Add Overview, Lessons, Development Workflow, Maintenance Sync, and Safety Actions navigation.
+   - Render Overview by default.
+   - Move command previews out of Overview and into Safety Actions.
+
+4. Implement fixed-label localization.
+   - Detect the browser language through `navigator.languages`.
+   - Use `ja` labels for Japanese device language and English otherwise.
+   - Preserve technical/data text as source data.
+
+5. Implement snapshot freshness display.
+   - Show `generated_at` formatted with browser locale APIs.
+   - Show relative snapshot age as display context, not as an authoritative stale gate.
+
+6. Update tests and synchronization.
+   - Update Playwright tests to assert behavior and boundaries rather than a single wording stack.
+   - Sync the new implementation through the as-built contract, requirements, specification, implementation plan, task tracker, and handoff.
+
+### Document Synchronization Policy
+
+- Requirements record the implementation proposal: purpose, problems, target scope, non-scope, existing-feature impact, required document updates, tests, and risks.
+- Specification records the implemented category, localization, safety, data-boundary, visual, and verification behavior.
+- Implementation plan records changed files, order, document sync, verification, recovery, and approval-gate boundaries.
+- `docs/workflow/TASK_TRACKER.md` records completed work and intentionally deferred future phases.
+- `docs/workflow/HANDOFF.md` records restart context and safety-sensitive constraints for the next agent.
+
+### Verification Method
+
+```bash
+git diff --check
+./tools/test_dashboard_schema.sh
+./tools/test_dashboard_data.sh
+./tools/test_dashboard_control_center.sh
+./tools/test_lesson_playwright.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_test_plan_coverage.sh
+./tools/check_ci_workflow_structure.sh
+./tools/test_lesson_repository.sh
+./tools/git-hooks run --mode full --no-cache --jobs 4
+.githooks/pre-commit
+./tools/ci-final-gate
+```
+
+### Failure Recovery
+
+- If UI tests fail, inspect whether the failure is layout/navigation behavior, localization behavior, data-boundary behavior, or Playwright selector ambiguity; fix the implementation or test intent without weakening safety assertions.
+- If as-built sync fails, update the contract and all five synchronized documents to the same sync ID, status, artifacts, and tests.
+- If existing dashboard, lesson, CI, Git hooks, pre-commit, schema, or data tests fail, treat it as a regression and restore existing behavior before proceeding.
+- If a fix appears to require browser command execution, live authoritative CI/Git status, broad localization, or existing-feature tradeoff, stop and request developer approval.
+
+### Developer Approval Boundaries
+
+- Automatic updates, polling, WebSocket/live updates, browser-triggered checks, command execution, live authoritative CI/Git status, broader multi-language coverage, data-schema localization fields, and any change to existing `tools/dashboard` semantics remain separate future phases.
+- Existing-feature tradeoffs are not allowed and cannot be approved as a normal implementation choice.
+
+## Implemented Dashboard Control Center Visual Polish Implementation Plan
+
+SYNC-ID: dashboard_control_center_visual_polish
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,dashboard-control-center/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
+TESTS: tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
+
+This implementation refines the categorized dashboard to look closer to the generated mock while preserving the existing information architecture, read-only safety, data contract, tests, CI, pre-commit, and document routes.
+
+### Change Targets
+
+- `dashboard-control-center/src/App.jsx`
+  - Add display structure needed for mock-like health cards, category shortcut cards, and sidebar metadata.
+  - Keep navigation, Safety Actions, and command-preview behavior unchanged.
+- `dashboard-control-center/src/i18n.js`
+  - Add fixed UI labels for visual-polish elements such as Explore Pages and last-updated context.
+- `dashboard-control-center/src/styles.css`
+  - Tune the sidebar, status strip, overview grid, health cards, Explore Pages cards, spacing, borders, subtle depth, and responsive layout.
+- `tests/playwright/dashboard-control-center.spec.js`
+  - Add structure-oriented visual assertions for segmented status, desktop 2x2 health cards, Explore Pages cards, mobile stability, and safety isolation.
+- Synchronized documents
+  - Add a separate sync ID so visual polish remains distinct from data, React UI, and information architecture layers.
+
+### Implementation Order
+
+1. Preserve current safety boundaries.
+   - Do not add command execution, polling, live CI/Git authority, schema changes, or new dependencies.
+   - Keep command previews only under Safety Actions.
+
+2. Adjust markup for reusable visual components.
+   - Add sidebar generated-time context.
+   - Add compact health-card body and status-ring structure.
+   - Add Explore Pages shortcut cards using the existing category model.
+
+3. Apply CSS polish.
+   - Convert the top status area into a segmented strip.
+   - Use a 2x2 health-card grid on desktop.
+   - Tune card density, borders, shadows, typography scale, and responsive breakpoints.
+   - Preserve 8px card radii and stable dimensions.
+
+4. Update tests.
+   - Keep existing read-only and localization tests.
+   - Add layout structure assertions without pixel-perfect image matching.
+   - Keep `tools/test_dashboard_control_center.sh` as the standalone and aggregate entry point.
+
+5. Verify and review.
+   - Run targeted UI tests first, then sync checks and aggregate checks.
+   - Use sub-agent review for requirements/spec/plan alignment, UI/visual fit, safety boundaries, and test sufficiency.
+
+### Document Synchronization Policy
+
+- Requirements capture purpose, problems, target scope, non-scope, existing impact, tests, and risks.
+- Specification captures visual behavior, layout constraints, safety constraints, and verification behavior.
+- Implementation plan captures file targets, order, verification, recovery, and approval gates.
+- `TASK_TRACKER.md` captures completed work and deferred future phases.
+- `HANDOFF.md` captures restart context and the boundary between mock-aligned polish and future live/action work.
+
+### Verification Method
+
+```bash
+git diff --check
+./tools/test_dashboard_control_center.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_test_plan_coverage.sh
+./tools/check_ci_workflow_structure.sh
+./tools/test_lesson_repository.sh
+./tools/git-hooks run --mode full --no-cache --jobs 4
+.githooks/pre-commit
+./tools/ci-final-gate
+```
+
+### Failure Recovery
+
+- If visual tests fail, distinguish layout regression from brittle selectors; fix structure or tests without weakening safety checks.
+- If mobile overflow appears, reduce fixed widths and preserve responsive constraints.
+- If Japanese labels overflow, adjust layout or wrapping rather than hard-coding language-specific branches.
+- If visual polish hides safety details or creates command-like affordances, restore the previous read-only category behavior and redesign.
+- If sync checks fail, fix the contract and all five synchronized documents before further runtime changes.
+
+### Developer Approval Boundaries
+
+- Automatic refresh, broad localization, live CI/Git authority, UI-triggered checks, command execution, new dependencies, and any existing-feature tradeoff remain outside this phase.
 
 ## Acceptance Criteria
 

@@ -108,6 +108,8 @@ required_files=(
   "tools/test_lesson_playwright.sh"
   "tools/test_dashboard_schema.sh"
   "tools/test_dashboard_data.sh"
+  "tools/test_dashboard_control_center.sh"
+  "tools/dashboard-control-center"
   "tools/test_lesson14.sh"
   "illustrations/README.md"
   "illustrations/lesson14/index.tsv"
@@ -157,6 +159,8 @@ executable_files=(
   "tools/test_lesson_playwright.sh"
   "tools/test_dashboard_schema.sh"
   "tools/test_dashboard_data.sh"
+  "tools/test_dashboard_control_center.sh"
+  "tools/dashboard-control-center"
   "tools/test_lesson14.sh"
 )
 

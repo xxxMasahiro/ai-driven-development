@@ -64,6 +64,7 @@ jobs:
           bash -n tools/test_ci_timing.sh
           bash -n tools/test_dashboard_schema.sh
           bash -n tools/test_dashboard_data.sh
+          bash -n tools/test_dashboard_control_center.sh
           bash -n tools/test_ci_final_gate.sh
           bash -n tools/test_ci_pipeline_acceleration.sh
           bash -n tools/test_lesson_start_position.sh
@@ -89,6 +90,7 @@ jobs:
           bash -n tools/resource-guard
           bash -n tools/docs-tour
           bash -n tools/dashboard-data
+          bash -n tools/dashboard-control-center
           bash -n tools/free-development
           bash -n tools/team-development
           bash -n tools/external-integration
@@ -219,6 +221,9 @@ jobs:
           CI_EVIDENCE_DIR: ${{ runner.temp }}/ci-evidence
           CI_EVIDENCE_SOURCE_JOB: playwright-tests
         run: ./tools/test_lesson_playwright.sh --write-evidence
+
+      - name: Dashboard control-center browser checks
+        run: ./tools/test_dashboard_control_center.sh
 
       - name: Upload Playwright evidence
         uses: actions/upload-artifact@v4

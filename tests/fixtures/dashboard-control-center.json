@@ -1,0 +1,137 @@
+{
+  "schema_version": "0.1.0",
+  "generated_at": "2026-06-05T00:00:00Z",
+  "source_files": [
+    "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv",
+    "learning/LESSON_STATE.tsv"
+  ],
+  "source_commands": [
+    "tools/dashboard-data"
+  ],
+  "warnings": [
+    "TOKEN=abcdefghijklmnop should be redacted before display."
+  ],
+  "partial_failures": [
+    {
+      "source": "ci_live",
+      "status": "optional",
+      "reason": "Live CI is not authoritative in this fixture.",
+      "required_command": "./tools/check_ci_status.sh --required"
+    }
+  ],
+  "summary": {
+    "mode": "maintenance",
+    "next_safe_action": "Review the listed blockers and previews before continuing.",
+    "guidance_items": [
+      {
+        "surface": "lesson",
+        "audience": "non_engineer",
+        "priority": "info",
+        "message": "Review the current lesson step.",
+        "related_command": "./tools/dashboard lesson"
+      },
+      {
+        "surface": "workflow",
+        "audience": "engineer",
+        "priority": "attention",
+        "message": "Confirm gates and evidence before operations.",
+        "related_command": "./tools/dashboard development"
+      }
+    ],
+    "blocking_items": [
+      {
+        "source": "approval",
+        "status": "approval_required",
+        "reason": "A high-risk operation requires approval.",
+        "required_command": "./tools/git-workflow status"
+      }
+    ]
+  },
+  "lessons": {
+    "foundation": {
+      "label": "Foundation Lesson",
+      "status": "ready",
+      "current_step": "step.current",
+      "learning_mode_status": "ready",
+      "workflow_language_status": "ready",
+      "product_language_status": "missing",
+      "source_state_file": "learning/LESSON_STATE.tsv",
+      "points": [
+        "Keep lesson progress separate from workflow gates."
+      ],
+      "warnings": [
+        "One lesson setting is missing."
+      ],
+      "next_learning_action": "Select the missing setting before passing the step."
+    },
+    "extended": {
+      "label": "Extended Lesson",
+      "status": "passed",
+      "current_step": "all steps completed",
+      "learning_mode_status": "ready",
+      "workflow_language_status": "ready",
+      "product_language_status": "ready",
+      "source_state_file": "learning/LESSON_STATE_14_DAYS.tsv"
+    }
+  },
+  "development": {
+    "product_repository": {
+      "status": "ready",
+      "configured_name": "example-product"
+    },
+    "documents": {
+      "status": "ready"
+    },
+    "git_sync_status": "unknown",
+    "ci_status": "optional"
+  },
+  "maintenance": {
+    "as_built_sync_status": "cached",
+    "workflow_pair_status": "unknown",
+    "developer_memory_status": "ready",
+    "skills_status": "ready"
+  },
+  "git_workflow": {
+    "policy_status": "ready",
+    "settings_status": "ready",
+    "gate_status": "unknown",
+    "approval_status": "approval_required"
+  },
+  "security": {
+    "policy_status": "ready",
+    "gate_status": "unknown",
+    "dangerous_action_approval": "approval_required"
+  },
+  "actions": {
+    "command_previews": [
+      {
+        "intent": "Validate dashboard data",
+        "target": "lesson repository",
+        "risk_level": "low",
+        "requires_approval": false,
+        "approval_gate_id": "none",
+        "argv": [
+          "./tools/test_dashboard_data.sh"
+        ],
+        "command_text": "./tools/test_dashboard_data.sh",
+        "execution_mode": "preview_only",
+        "non_executable": true
+      },
+      {
+        "intent": "Preview merge boundary",
+        "target": "current Git repository",
+        "risk_level": "critical",
+        "requires_approval": true,
+        "approval_gate_id": "git_workflow_merge_approval",
+        "argv": [
+          "./tools/git-workflow",
+          "approve",
+          "merge"
+        ],
+        "command_text": "./tools/git-workflow approve merge",
+        "execution_mode": "preview_only",
+        "non_executable": true
+      }
+    ]
+  }
+}

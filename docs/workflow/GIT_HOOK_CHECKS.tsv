@@ -28,6 +28,7 @@ test_ci_evidence	full|fast	./tools/test_ci_evidence.sh	Run same-run CI evidence 
 test_ci_timing	full|fast	./tools/test_ci_timing.sh	Run CI timing report and proposal regression tests.
 test_dashboard_schema	full|fast	./tools/test_dashboard_schema.sh	Run dashboard control-center schema regression tests.
 test_dashboard_data	full|fast	./tools/test_dashboard_data.sh	Run dashboard control-center JSON data regression tests.
+test_dashboard_control_center	full|fast	./tools/test_dashboard_control_center.sh	Run dashboard control-center React/Vite regression tests.
 test_ci_final_gate	full|fast	./tools/test_ci_final_gate.sh	Run same-run final-gate regression tests.
 test_ci_pipeline_acceleration	full|fast	./tools/test_ci_pipeline_acceleration.sh	Run full pipeline CI acceleration regression tests.
 check_ci_workflow_structure	full|fast	./tools/check_ci_workflow_structure.sh	Validate required CI workflow job splitting and final gates.

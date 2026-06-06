@@ -1,0 +1,106 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+RUNTIME_DIR="$ROOT/.dashboard-control-center"
+DATA_FILE="$RUNTIME_DIR/dashboard-data.json"
+DEFAULT_PORT="${DASHBOARD_CONTROL_CENTER_PORT:-5173}"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  ./tools/dashboard-control-center snapshot [--output <file>]
+  ./tools/dashboard-control-center build
+  ./tools/dashboard-control-center check
+  ./tools/dashboard-control-center open
+
+Maintained entry point for the read-only browser dashboard control center.
+USAGE
+}
+
+require_node_tools() {
+  if [[ ! -x "$ROOT/node_modules/.bin/vite" || ! -x "$ROOT/node_modules/.bin/playwright" ]]; then
+    printf 'Dashboard control-center dependencies are not installed.\n' >&2
+    printf 'Run npm install before using this tool.\n' >&2
+    return 1
+  fi
+}
+
+write_snapshot() {
+  local output="$1"
+  local output_dir
+  output_dir="$(dirname "$output")"
+  mkdir -p "$output_dir"
+  "$ROOT/tools/dashboard-data" >"$output"
+}
+
+build_control_center() {
+  require_node_tools
+  (cd "$ROOT" && npm run dashboard:build)
+}
+
+run_check() {
+  "$ROOT/tools/test_dashboard_control_center.sh"
+}
+
+open_control_center() {
+  if [[ $# -ne 0 ]]; then
+    usage >&2
+    exit 1
+  fi
+  if ! [[ "$DEFAULT_PORT" =~ ^[1-9][0-9]*$ ]]; then
+    printf 'configured dashboard control-center port must be a positive integer.\n' >&2
+    exit 1
+  fi
+
+  require_node_tools
+  write_snapshot "$DATA_FILE"
+  printf 'Dashboard control center is opening through maintained tooling.\n'
+  (
+    cd "$ROOT"
+    DASHBOARD_CONTROL_CENTER_DATA_FILE="$DATA_FILE" "$ROOT/node_modules/.bin/vite" --host 127.0.0.1 --port "$DEFAULT_PORT" --open / --clearScreen false
+  ) 2>&1 | sed -E '/Local:|Network:|ready in|VITE|press h \+ enter/d'
+}
+
+cmd="${1:-open}"
+shift || true
+
+case "$cmd" in
+  snapshot)
+    output="$DATA_FILE"
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        --output)
+          [[ $# -ge 2 ]] || {
+            printf -- '--output requires a value.\n' >&2
+            exit 1
+          }
+          output="$2"
+          shift 2
+          ;;
+        *)
+          usage >&2
+          exit 1
+          ;;
+      esac
+    done
+    write_snapshot "$output"
+    printf 'Dashboard control-center data snapshot written: %s\n' "$output"
+    ;;
+  build)
+    build_control_center
+    ;;
+  check)
+    run_check
+    ;;
+  open)
+    open_control_center "$@"
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 1
+    ;;
+esac

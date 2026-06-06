@@ -29,6 +29,7 @@ test_ci_evidence	regression	parallel	Same-run evidence regression uses fixtures 
 test_ci_timing	regression	parallel	CI timing regression uses fixtures and can run in parallel.
 test_dashboard_schema	regression	parallel	Dashboard schema regression validates repository-local TSV schema and can run in parallel.
 test_dashboard_data	regression	parallel	Dashboard data regression validates repository-local JSON output and can run in parallel.
+test_dashboard_control_center	heavy	heavy	React/Vite dashboard control-center regression uses browser tooling and its own resource controls.
 test_ci_final_gate	regression	parallel	Final-gate regression uses fixtures and can run in parallel.
 test_ci_pipeline_acceleration	regression	parallel	CI pipeline acceleration regression is read-only and can run in parallel.
 check_ci_workflow_structure	regression	parallel	CI workflow structure validation is read-only and can run in parallel.

@@ -111,7 +111,10 @@ lesson_object() {
   local learning_mode_status
   local workflow_language_status
   local product_language_status
-  local source_state_file
+	  local source_state_file
+	  local points=()
+	  local warnings=()
+	  local next_learning_action
 
   state_file="$(dashboard_data_lesson_state_file_from_config "$config_file")"
   source_state_file="$(dashboard_data_relative_path "$state_file")"
@@ -125,11 +128,31 @@ lesson_object() {
   else
     status="unknown"
   fi
-  learning_mode_status="$(dashboard_data_lesson_setting_state "$config_file" learning_mode)"
-  workflow_language_status="$(dashboard_data_lesson_setting_state "$config_file" workflow_language)"
-  product_language_status="$(dashboard_data_lesson_setting_state "$config_file" product_language)"
+	  learning_mode_status="$(dashboard_data_lesson_setting_state "$config_file" learning_mode)"
+	  workflow_language_status="$(dashboard_data_lesson_setting_state "$config_file" workflow_language)"
+	  product_language_status="$(dashboard_data_lesson_setting_state "$config_file" product_language)"
+	  points+=("$label lesson status is $status.")
+	  points+=("Current lesson step is ${current_step:-unknown}.")
+	  if [[ "$learning_mode_status" != "ready" ]]; then
+	    warnings+=("Learning mode setting is $learning_mode_status.")
+	  fi
+	  if [[ "$workflow_language_status" != "ready" ]]; then
+	    warnings+=("Workflow display language setting is $workflow_language_status.")
+	  fi
+	  if [[ "$product_language_status" != "ready" ]]; then
+	    warnings+=("Product development language setting is $product_language_status.")
+	  fi
+	  if [[ "$status" == "missing" ]]; then
+	    next_learning_action="Restore the lesson state source before continuing."
+	  elif [[ "$learning_mode_status" != "ready" || "$workflow_language_status" != "ready" || "$product_language_status" != "ready" ]]; then
+	    next_learning_action="Select missing lesson settings before passing the next lesson step."
+	  elif [[ "$status" == "passed" ]]; then
+	    next_learning_action="Review completed lesson progress or continue with the workflow surface."
+	  else
+	    next_learning_action="Review the current step and obtain the required approval before passing it."
+	  fi
 
-  printf '{"label":'
+	  printf '{"label":'
   dashboard_json_string "$label"
   printf ',"status":'
   dashboard_json_string "$status"
@@ -141,23 +164,48 @@ lesson_object() {
   dashboard_json_string "$workflow_language_status"
   printf ',"product_language_status":'
   dashboard_json_string "$product_language_status"
-  printf ',"source_state_file":'
-  dashboard_json_string "$source_state_file"
-  printf '}'
-}
+	  printf ',"source_state_file":'
+	  dashboard_json_string "$source_state_file"
+	  printf ',"points":'
+	  dashboard_json_string_array "${points[@]}"
+	  printf ',"warnings":'
+	  dashboard_json_string_array "${warnings[@]}"
+	  printf ',"next_learning_action":'
+	  dashboard_json_string "$next_learning_action"
+	  printf '}'
+	}
 
 advanced_lesson_object() {
-  local learning_mode_status workflow_language_status product_language_status status
+	  local learning_mode_status workflow_language_status product_language_status status
+	  local points=()
+	  local warnings=()
+	  local next_learning_action
   learning_mode_status="$(dashboard_data_latest_menu_setting_state learning_mode)"
   workflow_language_status="$(dashboard_data_latest_menu_setting_state workflow_language)"
   product_language_status="$(dashboard_data_latest_menu_setting_state product_language)"
-  if [[ "$learning_mode_status" == "ready" && "$workflow_language_status" == "ready" && "$product_language_status" == "ready" ]]; then
-    status="ready"
-  else
-    status="missing"
-  fi
+	  if [[ "$learning_mode_status" == "ready" && "$workflow_language_status" == "ready" && "$product_language_status" == "ready" ]]; then
+	    status="ready"
+	  else
+	    status="missing"
+	  fi
+	  points+=("Applied lesson prerequisite status is $status.")
+	  points+=("Learner approval is required before starting applied lesson work.")
+	  if [[ "$learning_mode_status" != "ready" ]]; then
+	    warnings+=("Learning mode setting is $learning_mode_status.")
+	  fi
+	  if [[ "$workflow_language_status" != "ready" ]]; then
+	    warnings+=("Workflow display language setting is $workflow_language_status.")
+	  fi
+	  if [[ "$product_language_status" != "ready" ]]; then
+	    warnings+=("Product development language setting is $product_language_status.")
+	  fi
+	  if [[ "$status" == "ready" ]]; then
+	    next_learning_action="Request learner approval before starting the applied lesson workflow."
+	  else
+	    next_learning_action="Select missing shared menu settings before starting the applied lesson workflow."
+	  fi
 
-  printf '{"label":'
+	  printf '{"label":'
   dashboard_json_string "Applied lesson"
   printf ',"status":'
   dashboard_json_string "$status"
@@ -167,10 +215,16 @@ advanced_lesson_object() {
   dashboard_json_string "$workflow_language_status"
   printf ',"product_language_status":'
   dashboard_json_string "$product_language_status"
-  printf ',"learner_approval_status":'
-  dashboard_json_string "approval_required"
-  printf '}'
-}
+	  printf ',"learner_approval_status":'
+	  dashboard_json_string "approval_required"
+	  printf ',"points":'
+	  dashboard_json_string_array "${points[@]}"
+	  printf ',"warnings":'
+	  dashboard_json_string_array "${warnings[@]}"
+	  printf ',"next_learning_action":'
+	  dashboard_json_string "$next_learning_action"
+	  printf '}'
+	}
 
 product_documents_status() {
   local file

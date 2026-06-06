@@ -39,10 +39,15 @@ tools/product-security	critical	test_product_security|test_product_gate_tools	tr
 tools/lib/product_security.sh	critical	test_product_security|test_product_gate_tools	true	true	none	false	Product security helper changes affect product workflow verification.
 tools/dashboard-data	high	test_dashboard_data|test_lesson_repository	true	true	none	false	Dashboard JSON producer changes affect control-center data safety boundaries.
 tools/lib/dashboard_data.sh	high	test_dashboard_data|test_lesson_repository	true	true	none	false	Dashboard data helper changes affect JSON escaping, state vocabulary, source tracking, and command previews.
-package.json	critical	test_lesson_playwright|test_lesson_repository	true	true	dependency	false	Dependency changes affect browser and aggregate verification.
-package-lock.json	critical	test_lesson_playwright|test_lesson_repository	true	true	dependency	false	Lockfile changes affect dependency reproducibility.
+dashboard-control-center/	critical	test_dashboard_control_center|test_lesson_repository	true	true	dependency	false	React/Vite dashboard control-center changes affect browser control-center behavior.
+vite.config.mjs	critical	test_dashboard_control_center|test_lesson_repository	true	true	dependency	false	Vite configuration changes affect dashboard control-center data serving and browser verification.
+tools/dashboard-control-center	critical	test_dashboard_control_center|test_lesson_repository	true	true	none	false	Dashboard control-center entry tooling changes affect data generation and Vite startup boundaries.
+package.json	critical	test_dashboard_control_center|test_lesson_playwright|test_lesson_repository	true	true	dependency	false	Dependency changes affect browser and aggregate verification.
+package-lock.json	critical	test_dashboard_control_center|test_lesson_playwright|test_lesson_repository	true	true	dependency	false	Lockfile changes affect dependency reproducibility.
 playwright.config.js	critical	test_lesson_playwright	true	true	dependency	false	Playwright configuration changes affect browser verification.
+tests/playwright/dashboard-control-center.spec.js	high	test_dashboard_control_center|test_lesson_repository	true	true	none	false	Dashboard control-center Playwright changes affect categorized browser control-center verification.
 tests/playwright/	high	test_lesson_playwright	true	true	none	false	Playwright test changes affect browser verification.
+tests/fixtures/	high	test_dashboard_control_center|test_lesson_repository	true	true	none	false	Browser fixture changes affect dashboard control-center verification.
 tools/test_*.sh	high	test_lesson_repository	true	true	none	false	Regression-test changes require aggregate verification.
 tools/check_*.sh	high	test_lesson_repository	true	true	none	false	Checker changes require aggregate verification.
 tools/test_lesson_start_position.sh	high	test_lesson_start_position|test_lesson_repository	true	true	none	false	Lesson start-position regression changes affect free lesson navigation coverage.

@@ -20,6 +20,8 @@ tools/ci-final-gate	full-no-cache	Final-gate runner changes affect CI-equivalent
 tools/ci-evidence	full-no-cache	CI evidence command changes affect same-run verification reuse.
 tools/ci-timing	full-no-cache	CI timing command changes affect timing evidence and improvement proposal reporting.
 tools/ci-playwright-setup	full-no-cache	Playwright setup changes affect browser dependency reproducibility and CI runtime.
+dashboard-control-center/	full-no-cache	React/Vite dashboard control-center changes need CI-equivalent local verification before push.
+vite.config.mjs	full-no-cache	Vite configuration changes affect dashboard control-center data serving and browser verification.
 tools/lib/ci_evidence.sh	full-no-cache	CI evidence helper changes affect same-run verification reuse.
 tools/lib/ci_timing.sh	full-no-cache	CI timing helper changes affect timing evidence and proposal classification.
 tools/lib/as_built_evidence.sh	full-no-cache	As-built evidence helper changes affect same-run sync-check reuse.

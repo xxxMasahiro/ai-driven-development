@@ -12,6 +12,8 @@ Thumbs.db
 node_modules/
 test-results/
 playwright-report/
+dist/
+.dashboard-control-center/
 
 # The learner's product repository must be a sibling of this lesson repository,
 # not a child directory. This ignore is defensive; the structure checker also

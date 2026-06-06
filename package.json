@@ -2,9 +2,19 @@
   "name": "ai-driven-development-lesson",
   "private": true,
   "scripts": {
-    "test:dashboard": "playwright test"
+    "dashboard:build": "vite build",
+    "dashboard:dev": "vite",
+    "test:dashboard": "playwright test tests/playwright/dashboard.spec.js",
+    "test:dashboard-control-center": "playwright test tests/playwright/dashboard-control-center.spec.js"
   },
   "devDependencies": {
-    "@playwright/test": "^1.56.0"
+    "@playwright/test": "^1.56.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.16"
+  },
+  "dependencies": {
+    "lucide-react": "^1.17.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   }
 }

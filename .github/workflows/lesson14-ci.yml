@@ -68,6 +68,7 @@ jobs:
           bash -n tools/test_ci_timing.sh
           bash -n tools/test_dashboard_schema.sh
           bash -n tools/test_dashboard_data.sh
+          bash -n tools/test_dashboard_control_center.sh
           bash -n tools/test_ci_final_gate.sh
           bash -n tools/test_ci_pipeline_acceleration.sh
           bash -n tools/test_lesson_start_position.sh
@@ -93,6 +94,7 @@ jobs:
           bash -n tools/resource-guard
           bash -n tools/docs-tour
           bash -n tools/dashboard-data
+          bash -n tools/dashboard-control-center
           bash -n tools/free-development
           bash -n tools/team-development
           bash -n tools/external-integration

@@ -908,12 +908,12 @@ STATUS: implemented
 ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_lesson_repository.sh,tools/check_lesson_structure.sh,tools/check_lesson14_structure.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_test_plan_coverage.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 
-### Planned Dashboard Control Center React UI Specification
+### Implemented Dashboard Control Center React UI Specification
 
-The planned React/Vite UI is a read-only browser consumer for the implemented dashboard JSON data layer.
+The implemented React/Vite UI is a read-only browser consumer for the implemented dashboard JSON data layer.
 It must treat `tools/dashboard-data` and `docs/workflow/DASHBOARD_DATA_SCHEMA.tsv` as the contract boundary, and it must not parse learner-facing CLI prose or move existing CLI, policy, evidence, Git, CI, Security guard, Resource guard, or lesson progression logic into React.
 
-Planned surface model:
+Implemented surface model:
 
 - A top control-center summary that shows current mode, concise guidance, blockers, and next safe action from the dashboard JSON.
 - A lesson area for STEP 1-7, STEP 1-14, and applied lesson state, with progress, current step or all-steps-completed state, lesson points, warnings, and next learning action in plain language.
@@ -921,7 +921,7 @@ Planned surface model:
 - A maintenance area for as-built sync, workflow pair sync, developer-memory state, repo-local skill state, and relevant documentation routes.
 - A security/action-preview area that clearly separates policy readiness, settings readiness, gate passage, approval requirement, cached or same-run evidence, optional lookup failures, and unknown state.
 
-Planned data handling:
+Implemented data handling:
 
 - UI data adapters must consume structured JSON fields and allowed state values rather than current prose labels.
 - UI data adapters must not synthesize lesson points, warnings, or next learning actions from CLI prose; if those fields are needed, the dashboard JSON schema and producer must be extended first.
@@ -929,23 +929,127 @@ Planned data handling:
 - Secret-like values, raw logs, private messages, full environment dumps, credential material, and unnecessary absolute paths must stay out of the UI data path.
 - Command previews may explain intent, target, risk, approval requirement, and manual command text, but the initial UI execution mode remains preview-only.
 
-Planned UX constraints:
+Implemented UX constraints:
 
-- Ordinary users should access the control center through a maintained dashboard entry point; they should not need to run npm scripts, choose ports, paste URLs, start Vite manually, or invoke JSON/check commands manually.
+- Ordinary users access the control center through a maintained dashboard entry point; they should not need to run npm scripts, choose ports, start Vite manually, or invoke JSON/check commands manually.
 - The UI must keep lesson status and workflow status visibly distinct in navigation, grouping, labels, density, and status hierarchy.
 - It must provide concise notes and points near lesson/workflow cards without turning the UI into a tutorial wall or hiding operational detail from engineers.
 - It must not use frontend-only state to decide safety, gate passage, approval, or CI truth.
 
-Planned verification:
+Implemented verification:
 
 - Keep `tools/test_dashboard_schema.sh` and `tools/test_dashboard_data.sh` as the contract guards.
-- Future UI tests should validate rendering against generic dashboard JSON fixtures, state vocabulary coverage, lesson/workflow separation, command-preview safety, secret-like redaction, and responsive layout.
-- Future browser tests should be standalone-callable and aggregate-callable, and should connect through existing Playwright, Git hooks, pre-commit, CI, and as-built synchronization routes after runtime artifacts exist.
+- `tools/test_dashboard_control_center.sh` validates snapshot generation through `tools/dashboard-data`, React/Vite build output, browser rendering against a generic dashboard JSON fixture, state vocabulary coverage, lesson/workflow separation, command-preview safety, secret-like redaction, and responsive layout.
+- Browser tests are standalone-callable and aggregate-callable, and connect through existing Playwright, Git hooks, pre-commit, CI, and as-built synchronization routes.
 
 SYNC-ID: dashboard_control_center_react_ui_plan
-STATUS: planned
-ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,tools/dashboard-data,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh
-TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_ci_workflow_structure.sh
+STATUS: implemented
+ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/dashboard-data,package.json,package-lock.json,vite.config.mjs,dashboard-control-center/index.html,dashboard-control-center/src/main.jsx,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/styles.css,tools/dashboard,tools/dashboard-control-center,tools/test_dashboard_control_center.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_lesson_playwright.sh,tools/test_lesson_repository.sh,tools/check_lesson_structure.sh,tools/check_lesson14_structure.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml,tests/fixtures/dashboard-control-center.json,tests/playwright/dashboard-control-center.spec.js
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_lesson_playwright.sh,tools/check_test_plan_coverage.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_ci_workflow_structure.sh
+
+### Implemented Dashboard Control Center Information Architecture Specification
+
+The categorized dashboard control center is an implemented UI follow-up to the read-only React/Vite control center.
+It keeps the dashboard JSON producer authoritative and changes only the browser information architecture, fixed UI labels, visual hierarchy, and tests.
+
+Implemented category model:
+
+- The dashboard opens on Overview by default.
+- A persistent category navigation exposes:
+  - Overview,
+  - Lessons,
+  - Development Workflow,
+  - Maintenance Sync,
+  - Safety Actions.
+- Overview shows snapshot state, mode, generated time, relative age, read-only state, blocker count, next safe action, guidance, blockers, partial failures, warnings, and category-health cards.
+- Lessons shows lesson cards for all structured lesson entries present in JSON, including status, current step, settings readiness, points, warnings, and next learning action.
+- Development Workflow combines `development` and `git_workflow` JSON sections without flattening them into lesson state.
+- Maintenance Sync shows `maintenance` JSON fields and source-boundary counts for source files, source commands, and read-only state.
+- Safety Actions shows security status and command previews; command previews are not shown on the default Overview page.
+
+Implemented localization model:
+
+- Fixed UI chrome uses browser device language when supported.
+- The first implemented locale set is `en` and `ja`; unsupported languages fall back to English.
+- English remains the default.
+- Technical identifiers and data-originated text remain unmodified in the browser when translation would risk changing meaning:
+  - command text,
+  - file paths,
+  - gate IDs,
+  - source file names,
+  - source command names,
+  - dashboard JSON guidance or warning prose,
+  - product/repository identifiers.
+- Dates and relative snapshot age use standard browser `Intl` APIs for the selected locale.
+
+Implemented safety and data boundaries:
+
+- The UI remains read-only.
+- Navigation is category selection only and does not execute repository commands.
+- There are no command-execution buttons.
+- Command preview text is displayed only when `execution_mode` is `preview_only` and `non_executable` is true.
+- Secret-like strings and unnecessary absolute paths continue to be redacted or normalized by the dashboard data display helpers.
+- Frontend category-health summaries are scan aids only; they are not used as safety, approval, Git, CI, or gate truth.
+- The implementation does not add automatic polling, live status authority, WebSocket updates, or browser-triggered command execution.
+
+Implemented visual model:
+
+- The UI follows the generated mock's high-level structure: left category navigation, top snapshot strip, Overview first screen, category health cards, and command previews isolated under Safety Actions.
+- The implementation is not a pixel-copy of the generated PNG; repository constraints, real dashboard schema, responsive behavior, accessibility, and safety boundaries take priority.
+- Cards keep compact operational density, 8px radii, stable grid dimensions, and responsive constraints.
+- The palette uses restrained neutrals with distinct blue, teal, green, amber, and red state accents rather than a one-note color theme.
+
+Implemented verification:
+
+- `tools/test_dashboard_control_center.sh` still validates snapshot generation, data-source boundaries, Vite data validation, build output, and Playwright rendering.
+- Playwright coverage now checks categorized navigation, Overview-first behavior, command-preview isolation, no buttons, Safety Actions preview visibility, secret-like redaction, desktop/mobile layout, and `en`/`ja` fixed-label localization.
+- Existing dashboard schema/data tests remain active so the UI does not become a source of truth.
+
+SYNC-ID: dashboard_control_center_information_architecture
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,vite.config.mjs,dashboard-control-center/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
+TESTS: tools/test_dashboard_control_center.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
+
+### Implemented Dashboard Control Center Visual Polish Specification
+
+The visual-polish layer refines the categorized read-only dashboard to more closely follow `dashboard-control-center/mock-categorized-dashboard.png`.
+It is a frontend-only visual and layout layer over the existing dashboard JSON contract.
+
+Implemented visual model:
+
+- The sidebar keeps the category navigation persistent on desktop and compact on smaller viewports.
+- The sidebar includes read-only and last-updated context so the control-center state remains visible outside the main content.
+- The snapshot status area is a segmented operational strip instead of disconnected cards.
+- Overview keeps a clear two-column desktop composition: next safe action and issue lists on the left, category health on the right.
+- Category health cards use a 2x2 desktop layout with compact status rings and status pills.
+- Overview includes an Explore Pages section with shortcut cards for the five dashboard categories.
+- Cards keep 8px radii, restrained borders, subtle depth, stable dimensions, and responsive wrapping.
+- The palette remains neutral and operational with distinct state accents rather than a single dominant hue.
+
+Implemented layout constraints:
+
+- Desktop should show the health-card area as two columns when the viewport has enough width.
+- Mobile and narrow tablet layouts collapse without horizontal overflow.
+- Text must wrap within cards, pills, and navigation items without covering adjacent content.
+- Visual affordances must distinguish navigation links from executable actions; no command execution buttons are added.
+
+Implemented safety constraints:
+
+- Visual polish must not change the read-only data boundary.
+- Command previews remain isolated to Safety Actions.
+- The dashboard still renders untrusted text as data and preserves secret-like redaction.
+- Health cards, shortcut cards, and status rings are scan aids only; they do not become authoritative gate, approval, CI, Git, or Security truth.
+
+Implemented verification:
+
+- Playwright checks assert the visual structure rather than exact screenshot pixels.
+- Coverage includes segmented status items, desktop 2x2 health-card placement, Explore Pages shortcut cards, mobile no-overflow behavior, localized fixed labels, Safety Actions isolation, and absence of command-execution buttons.
+- Existing dashboard data and schema checks remain the owner-layer contract tests.
+
+SYNC-ID: dashboard_control_center_visual_polish
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,dashboard-control-center/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
+TESTS: tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
 
 ## Product Repository Boundary
 
