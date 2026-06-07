@@ -858,6 +858,9 @@ Current restart context:
 - English remains the repository-standard data language; fixed UI labels and known control-center source/intent labels display through the resolved UI locale.
 - The control-panel UI locale resolver is separate from user-selected lesson display language and workflow/product language settings.
 - The browser remains read-only; no route may execute shell, Git, GitHub, CI, or `tools/*` commands.
+- Current follow-up tightening keeps the same sync ID and improves mock parity for page-specific header icons, first-row decision-summary bullets/count badges/safe links, active sidebar category context, workflow icon glyph consistency, maintenance/safety card icon containers, failure severity glyphs, and compact display-only command preview grouping.
+- Do not add Japanese-only runtime literals when continuing this work; add fixed UI labels through `dashboard-control-center/src/i18n.js` and keep source evidence as sanitized data.
+- Do not extend `docs/workflow/DASHBOARD_DATA_SCHEMA.tsv` unless future live-data integration needs new producer-owned fields; this follow-up intentionally uses the existing snapshot shape.
 
 Planned verification entry points:
 

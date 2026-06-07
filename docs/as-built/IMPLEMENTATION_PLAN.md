@@ -2417,6 +2417,8 @@ The approved detail mock images are treated as the UI/UX source of truth for hie
 - `dashboard-control-center/src/i18n.js` adds fixed decision-summary labels, page judgments, must-review labels, display-only labels, known source/intent display labels, and locale-resolution support that does not mix UI locale with lesson/workflow language settings.
 - `dashboard-control-center/src/styles.css` adds category-colored detail summaries, mock-aligned panels/rows/tables, centered risk/status pills, responsive constraints, severity rails, command/reference chips, and read-only banners.
 - `tests/playwright/dashboard-control-center.spec.js` verifies the implemented detail structure and safety boundaries through `tools/test_dashboard_control_center.sh`.
+- The follow-up tightening keeps the same sync ID and artifacts while refining the category header icon presentation, first-row decision-summary content model, active sidebar category icon, workflow category icon glyph, maintenance/safety card icon containers, failure severity icons, and command-preview section grouping.
+- Additional translated UI strings are added only through `dashboard-control-center/src/i18n.js`; React runtime code does not add Japanese-only literals and does not use lesson/workflow language settings as the dashboard UI locale.
 
 ### Implementation Order Completed
 
@@ -2431,6 +2433,7 @@ The approved detail mock images are treated as the UI/UX source of truth for hie
 9. Refactored Safety Actions detail into safety status cards, Partial Failures table, and display-only Command Preview cards.
 10. Updated Playwright assertions for detail summaries, icon consistency, readable labels, safety boundaries, centered short pills, and desktop/mobile no-overflow.
 11. Targeted checks and final verification are run after synchronization before completion reporting.
+12. Tighten mock parity for the approved detail-page references by adding decision-summary bullets, count badges, safe links, page-specific icon chrome, distinct safety severity glyphs, and compact read-only command preview grouping without changing the data schema or browser read-only boundary.
 
 ### Document Synchronization Policy
 

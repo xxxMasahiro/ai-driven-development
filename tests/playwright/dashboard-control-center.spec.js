@@ -164,11 +164,13 @@ test.describe("English dashboard control center", () => {
     await expect(page.getByRole("heading", { name: "Lessons" })).toBeVisible();
     await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
     await expectCenteredSvg(page.locator(".decision-summary__icon"));
+    await expectCenteredSvg(page.locator(".detail-page-header__icon"));
     await expect(page.getByText("What this page checks")).toBeVisible();
     await expect(page.getByText("Current judgment")).toBeVisible();
     await expect(page.getByText("Must review")).toBeVisible();
     await expect(page.getByText("Next safe check")).toBeVisible();
-    await expect(page.getByText("Foundation Lesson")).toBeVisible();
+    await expect(page.locator(".decision-summary__cta", { hasText: "Open workflow page" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Foundation Lesson" })).toBeVisible();
     await expect(page.locator(".lesson-panel")).toHaveCount(2);
     await expect(page.locator(".lesson-panel").first().locator(".lesson-row__label", { hasText: "Points" })).toBeVisible();
     await expect(page.locator(".lesson-panel").first().locator(".lesson-row__label", { hasText: "Warnings" })).toBeVisible();
@@ -178,6 +180,7 @@ test.describe("English dashboard control center", () => {
     await expect(page.getByRole("heading", { name: "Development Workflow" })).toBeVisible();
     await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
     await expectCenteredSvg(page.locator(".decision-summary__icon"));
+    await expectCenteredSvg(page.locator(".detail-page-header__icon"));
     await expect(page.getByRole("heading", { name: "Must Review First" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Ready Items" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Product Repository" })).toBeVisible();
@@ -185,13 +188,17 @@ test.describe("English dashboard control center", () => {
     await expect(page.getByText(/Development\.Product Repository/)).toHaveCount(0);
     await expect(page.getByText("development.git.sync.status")).toHaveCount(0);
     await expect(page.getByText("git_sync")).toBeVisible();
-    await expect(page.locator("[data-workflow-category-icon='true']")).toHaveCount(3);
+    await expect(page.locator("[data-workflow-category-icon='true']")).toHaveCount(5);
+    await expect(page.locator(".decision-summary__cta", { hasText: "Open safety page" })).toBeVisible();
     await expect(page.locator(".detail-row")).toHaveCount(8);
 
     await navigation.getByRole("link", { name: /Maintenance Sync/ }).click();
     await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
     await expectCenteredSvg(page.locator(".decision-summary__icon"));
+    await expectCenteredSvg(page.locator(".detail-page-header__icon"));
+    await expectCenteredSvg(page.locator(".detail-card__icon"));
     await expect(page.getByRole("heading", { name: "Manual Confirmation Flow" })).toBeVisible();
+    await expect(page.locator(".decision-summary__cta", { hasText: "Open confirmation flow" })).toBeVisible();
     await expect(page.locator(".confirmation-row")).toHaveCount(3);
     await expect(page.getByText("product_git_sync_live")).toHaveCount(0);
     await expect(page.getByText("git_sync.live")).toBeVisible();
@@ -201,7 +208,10 @@ test.describe("English dashboard control center", () => {
     await expect(page.getByRole("heading", { name: "Safety Actions" })).toBeVisible();
     await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
     await expectCenteredSvg(page.locator(".decision-summary__icon"));
+    await expectCenteredSvg(page.locator(".detail-page-header__icon"));
+    await expectCenteredSvg(page.locator(".detail-card__icon"));
     await expect(page.getByRole("heading", { name: "Partial Failures" })).toBeVisible();
+    await expect(page.locator(".decision-summary__cta", { hasText: "Open Partial Failures" })).toBeVisible();
     await expect(page.getByText("Security gate violation")).toBeVisible();
     await expect(page.getByText("security_gate")).toHaveCount(0);
     await expect(page.getByText("safety.gate.blocked")).toBeVisible();
@@ -339,7 +349,7 @@ test.describe("Japanese dashboard control center", () => {
     await navigation.getByRole("link", { name: /レッスン/ }).click();
     await expect(page.getByLabel("詳細ページ判断サマリー")).toBeVisible();
     await expect(page.getByText("このページで確認すること")).toBeVisible();
-    await expect(page.getByText("Foundation Lesson")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Foundation Lesson" })).toBeVisible();
 
     await navigation.getByRole("link", { name: /開発ワークフロー/ }).click();
     await expect(page.getByLabel("詳細ページ判断サマリー")).toBeVisible();

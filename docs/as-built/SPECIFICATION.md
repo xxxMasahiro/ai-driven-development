@@ -1246,8 +1246,10 @@ Implemented shared detail-page structure:
   - current judgment;
   - must-review items;
   - next safe check.
+- Decision-summary cells may render compact bullet lists, count badges, safe in-page or category links, and tone-specific emphasis when that information is derived from existing dashboard snapshot state.
 - Decision summary text comes from fixed localized UI labels and existing dashboard data, not fixture-specific branches.
 - Category color and icon identity must continue from the Overview into the detail page.
+- Category header icons and card icons use per-category presentation rules rather than one generic rounded-square treatment, while keeping all decorative icons hidden from assistive labels.
 - Decorative icons remain `aria-hidden` unless they are part of an accessible label.
 - The UI locale resolver can consume future `summary.display_locale`, `summary.ui_locale`, or `summary.environment_locale` hints before falling back to browser languages.
 - Lesson/workflow language settings remain user-selected workflow state fields and are not used as the control-panel UI locale.
@@ -1257,6 +1259,7 @@ Implemented icon behavior:
 - The workflow category uses one centralized branching workflow icon component that matches the approved mock icon wherever the workflow category itself appears.
 - The same workflow icon component is reused for navigation, Overview health cards, Explore Pages, workflow detail page header, and workflow category summary rows.
 - Workflow item rows may use more specific icons for repository, documents, sync, CI, policy, settings, gate, and approval while keeping the category icon language consistent.
+- Safety status and Partial Failures severity rows use distinct glyphs for failure, block, warning, gate, and approval states instead of a single generic alert icon.
 
 Implemented page behavior:
 
@@ -1281,6 +1284,7 @@ Implemented page behavior:
   - explains what is stopped, why it is stopped, and what approval is needed;
   - makes Partial Failures a scannable severity table distinct from manual follow-ups and Command Previews;
   - labels Command Previews as display-only and keeps preview cards visually non-executable with command chips, not buttons;
+  - groups display-only command previews as a compact read-only section rather than a set of action controls;
   - emphasizes failed, blocked, approval-required, and critical states without adding action controls.
 
 Implemented layout behavior:

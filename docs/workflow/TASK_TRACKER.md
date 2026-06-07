@@ -934,6 +934,8 @@ Implemented work:
 - Kept English as the repository-standard data language while displaying fixed UI labels and known control-center source/intent labels through the resolved UI locale.
 - Kept lesson/workflow language settings separate from the control-panel UI locale resolver.
 - Preserve live snapshot sync, last-known-good behavior, Safety Actions isolation, existing category navigation, and all 7-day/14-day flows.
+- Follow-up tightening keeps the approved mock images as the UI/UX source references and refines page-specific header icons, first-row decision-summary bullets and badges, active sidebar category context, workflow icon glyph consistency, maintenance/safety icon containers, failure severity glyphs, and compact read-only command preview grouping.
+- The follow-up does not change the dashboard data schema, producer ownership, live snapshot sync, command-preview safety boundary, UI-locale resolver, 7-day flow, 14-day flow, CI policy, or pre-commit policy.
 
 Planned verification entry points:
 

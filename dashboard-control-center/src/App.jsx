@@ -1,16 +1,20 @@
 import {
   AlertTriangle,
   ArrowRightCircle,
+  BadgeAlert,
   BookOpen,
   BookMarked,
   Brain,
   CalendarDays,
   CheckCircle2,
   ChevronRight,
+  ChevronsRight,
   CircleAlert,
   CircleDashed,
   CircleHelp,
+  CircleX,
   ClipboardCheck,
+  ClipboardList,
   Clock,
   Code2,
   Compass,
@@ -22,6 +26,7 @@ import {
   FileJson,
   FileSearch,
   FileText,
+  Flag,
   Folder,
   GitBranch,
   Globe2,
@@ -31,16 +36,17 @@ import {
   KeyRound,
   ListChecks,
   Lock,
-  Network,
   RefreshCw,
   Scale,
   ShieldAlert,
   ShieldCheck,
   Settings,
   User,
+  UserCheck,
   TerminalSquare,
   Target,
   Waypoints,
+  Workflow,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -59,13 +65,13 @@ import { createTranslator, formatDateTime, formatRelativeAge, resolveLocale } fr
 const stateIcons = {
   ready: CheckCircle2,
   passed: CheckCircle2,
-  failed: AlertTriangle,
-  blocked: AlertTriangle,
-  missing: CircleDashed,
-  unknown: CircleDashed,
-  optional: CircleDashed,
-  cached: CircleDashed,
-  approval_required: Lock,
+  failed: CircleX,
+  blocked: BadgeAlert,
+  missing: CircleHelp,
+  unknown: CircleHelp,
+  optional: Info,
+  cached: RefreshCw,
+  approval_required: CircleAlert,
 };
 
 const reviewStates = new Set(["failed", "blocked", "approval_required", "missing", "unknown", "optional", "cached"]);
@@ -83,7 +89,7 @@ const statePriority = {
 };
 
 function WorkflowCategoryIcon(props) {
-  return <Network {...props} data-workflow-category-icon="true" />;
+  return <Workflow {...props} data-workflow-category-icon="true" />;
 }
 
 const navigation = [
@@ -341,15 +347,29 @@ function DetailPageHeader({ tone, Icon, title, subtitle, data, locale, t, action
 function DetailDecisionSummary({ tone, items, t }) {
   return (
     <section className={`decision-summary decision-summary--${tone}`} aria-label={t("detail.summaryAria")}>
-      {items.map(({ Icon, label, value, detail }) => (
-        <article className="decision-summary__item" key={label}>
+      {items.map(({ Icon, label, value, detail, points = [], badge, cta, tone: itemTone }) => (
+        <article className={itemTone ? `decision-summary__item decision-summary__item--${itemTone}` : "decision-summary__item"} key={label}>
           <span className="decision-summary__icon">
             <Icon aria-hidden="true" size={24} />
           </span>
           <div>
             <span>{label}</span>
             <strong>{value}</strong>
+            {badge ? <em>{badge}</em> : null}
             {detail ? <p>{detail}</p> : null}
+            {points.length ? (
+              <ul className="decision-summary__points">
+                {points.map((point, index) => (
+                  <li key={`${displayText(point)}-${index}`}>{displayText(point)}</li>
+                ))}
+              </ul>
+            ) : null}
+            {cta ? (
+              <a className="decision-summary__cta" href={cta.href}>
+                {cta.label}
+                <ArrowRightCircle aria-hidden="true" size={16} />
+              </a>
+            ) : null}
           </div>
         </article>
       ))}
@@ -856,7 +876,7 @@ function workflowItemSummary(id, value, t) {
 function maintenanceItemMeta(id, t) {
   const map = {
     as_built_sync_status: { title: t("maintenance.item.asBuilt"), note: t("maintenance.note.asBuilt"), Icon: RefreshCw },
-    workflow_pair_status: { title: t("maintenance.item.workflowPair"), note: t("maintenance.note.workflowPair"), Icon: GitBranch },
+    workflow_pair_status: { title: t("maintenance.item.workflowPair"), note: t("maintenance.note.workflowPair"), Icon: Waypoints },
     developer_memory_status: { title: t("maintenance.item.developerMemory"), note: t("maintenance.note.developerMemory"), Icon: Brain },
     skills_status: { title: t("maintenance.item.skills"), note: t("maintenance.note.skills"), Icon: BookMarked },
   };
@@ -866,8 +886,8 @@ function maintenanceItemMeta(id, t) {
 function safetyItemMeta(id, t) {
   const map = {
     policy_status: { title: t("security.item.policy"), note: t("security.note.policy"), Icon: ShieldCheck },
-    gate_status: { title: t("security.item.gate"), note: t("security.note.gate"), Icon: KeyRound },
-    dangerous_action_approval: { title: t("security.item.approval"), note: t("security.note.approval"), Icon: User },
+    gate_status: { title: t("security.item.gate"), note: t("security.note.gate"), Icon: Flag },
+    dangerous_action_approval: { title: t("security.item.approval"), note: t("security.note.approval"), Icon: UserCheck },
   };
   return map[id] || { title: displayKey(id), note: t("security.note.default"), Icon: ShieldCheck };
 }
@@ -890,6 +910,49 @@ function lessonPrimaryAttentionText(lesson, t) {
     return t("detail.lesson.stateMissing");
   }
   return t("detail.lesson.warningCallout");
+}
+
+function lessonReviewPoints(lessonEntries, t) {
+  const points = [];
+  for (const [id, lesson] of lessonEntries) {
+    const title = displayText(lesson?.label, displayKey(id));
+    const missing = [
+      lesson?.learning_mode_status,
+      lesson?.workflow_language_status,
+      lesson?.product_language_status,
+      lesson?.status,
+    ].filter((value) => value !== undefined && value !== null && value !== "" && isReviewState(value)).length;
+    const warningsKey = pickFirst(lesson || {}, ["warnings", "lesson_warnings"]);
+    const warningCount = warningsKey ? asArray(lesson[warningsKey]).length : 0;
+    if (missing) {
+      points.push(`${title}: ${t("detail.lesson.missingSettings")}`);
+    }
+    if (warningCount) {
+      points.push(`${title}: ${warningCount} ${t("detail.lesson.warningsUnit")}`);
+    }
+  }
+  return points.length ? points.slice(0, 4) : [t("summary.none")];
+}
+
+function itemTitles(items, fallback, limit = 4) {
+  const titles = items.map((item) => displayText(item.title, "")).filter(Boolean);
+  return titles.length ? titles.slice(0, limit) : [fallback];
+}
+
+function sourceStatusSummary(value, t) {
+  const details = value && typeof value === "object" ? value : { status: value };
+  const nonStatus = objectEntries(details).filter(([key, fieldValue]) => key !== "status" && displayText(fieldValue, ""));
+  if (nonStatus.length) {
+    return nonStatus
+      .slice(0, 2)
+      .map(([key, fieldValue]) => `${displayKey(key)}: ${displayText(fieldValue)}`)
+      .join(" / ");
+  }
+  return stateLabel(valueState(value), t);
+}
+
+function statusSummaryBadge(count, label, t) {
+  return count ? `${label}: ${count}` : t("summary.none");
 }
 
 function countWithUnit(count, unitKey, t) {
@@ -963,7 +1026,6 @@ function LessonCard({ id, lesson, t }) {
           <BookOpen aria-hidden="true" size={26} />
         </span>
         <div>
-          <span className="item-card__kicker">{displayKey(id)}</span>
           <h3>{displayText(lesson.label, displayKey(id))}</h3>
         </div>
             <StatusPill value={visualState} t={t} label={progressLabel} />
@@ -997,6 +1059,7 @@ function LessonSection({ lessons, data, locale, t }) {
   const metric = data.summary?.category_metrics?.lessons;
   const attentionCount = lessonEntries.reduce((sum, [, lesson]) => sum + lessonAttentionCount(lesson || {}), 0);
   const nextAction = attentionCount ? t("detail.lessons.nextSafe") : firstLessonNextAction(lessonEntries) || t("detail.lessons.nextSafe");
+  const reviewPoints = lessonReviewPoints(lessonEntries, t);
   return (
     <section className="view-surface view-surface--lessons" id="lessons" aria-labelledby="lesson-heading">
       <DetailPageHeader tone="lessons" Icon={BookOpen} title={t("lessons.title")} subtitle={t("lessons.description")} data={data} locale={locale} t={t} headingId="lesson-heading" />
@@ -1005,9 +1068,9 @@ function LessonSection({ lessons, data, locale, t }) {
         t={t}
         items={[
           { Icon: Target, label: t("detail.checks"), value: t("detail.lessons.checks"), detail: t("detail.lessons.checksDetail") },
-          { Icon: CheckCircle2, label: t("detail.currentJudgment"), value: attentionCount ? t("detail.judgment.needsReview") : t("detail.judgment.ready"), detail: attentionCount ? `${attentionCount} ${t("detail.itemsNeedReview")}` : t("detail.noRequiredReview") },
-          { Icon: Eye, label: t("detail.mustReview"), value: attentionCount ? `${attentionCount} ${t("detail.items")}` : t("summary.none"), detail: t("detail.lessons.mustReview") },
-          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: nextAction, detail: t("detail.lessons.nextSafeDetail") },
+          { Icon: CheckCircle2, label: t("detail.currentJudgment"), value: attentionCount ? t("detail.judgment.needsReview") : t("detail.judgment.ready"), detail: attentionCount ? t("detail.lessons.notReadyDetail") : t("detail.noRequiredReview"), badge: statusSummaryBadge(attentionCount, t("detail.itemsNeedReview"), t), tone: attentionCount ? "warning" : "ready" },
+          { Icon: Eye, label: t("detail.mustReview"), value: attentionCount ? t("detail.lessons.mustReview") : t("summary.none"), points: reviewPoints },
+          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: nextAction, detail: t("detail.lessons.nextSafeDetail"), cta: { href: "#workflow", label: t("detail.openWorkflowPage") } },
         ]}
       />
       <div className="lesson-grid">
@@ -1050,9 +1113,9 @@ function WorkflowSection({ development, gitWorkflow, data, locale, t }) {
         t={t}
         items={[
           { Icon: WorkflowCategoryIcon, label: t("detail.checks"), value: t("detail.workflow.checks"), detail: t("detail.workflow.checksDetail") },
-          { Icon: CheckCircle2, label: t("detail.currentJudgment"), value: reviewItems.length ? t("detail.judgment.conditional") : t("detail.judgment.ready"), detail: `${reviewItems.length} ${t("detail.itemsNeedReview")}` },
-          { Icon: ListChecks, label: t("detail.mustReview"), value: approvalItems ? `${approvalItems} ${t("detail.approvals")}` : `${reviewItems.length} ${t("detail.items")}`, detail: t("detail.workflow.mustReview") },
-          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: t("detail.workflow.nextSafe"), detail: t("detail.workflow.nextSafeDetail") },
+          { Icon: CheckCircle2, label: t("detail.currentJudgment"), value: reviewItems.length ? t("detail.judgment.conditional") : t("detail.judgment.ready"), detail: reviewItems.length ? t("detail.workflow.reviewDetail") : t("detail.workflow.noReviewDetail"), badge: statusSummaryBadge(reviewItems.length, t("detail.itemsNeedReview"), t), tone: reviewItems.length ? "warning" : "ready" },
+          { Icon: ListChecks, label: t("detail.mustReview"), value: approvalItems ? `${approvalItems} ${t("detail.approvals")}` : `${reviewItems.length} ${t("detail.items")}`, detail: t("detail.workflow.mustReview"), points: itemTitles(reviewItems, t("detail.noRequiredReview")) },
+          { Icon: WorkflowCategoryIcon, label: t("detail.nextSafeCheck"), value: t("detail.workflow.nextSafe"), detail: t("detail.workflow.nextSafeDetail"), cta: { href: "#safety", label: t("detail.openSafetyPage") } },
         ]}
       />
       <DetailSection id="workflow-review" title={t("detail.mustReviewPrioritySection")} Icon={CircleAlert} className="detail-section--priority">
@@ -1171,14 +1234,25 @@ function MaintenanceSection({ maintenance, data, locale, t }) {
         t={t}
         items={[
           { Icon: CircleHelp, label: t("detail.checks"), value: t("detail.maintenance.checks"), detail: t("detail.maintenance.checksDetail") },
-          { Icon: Scale, label: t("detail.currentJudgment"), value: reviewCount ? t("detail.judgment.usableWithFollowup") : t("detail.judgment.ready"), detail: `${manualFollowups.length} ${t("summary.manualFollowups")}` },
-          { Icon: Eye, label: t("detail.mustReview"), value: `${reviewCount} ${t("detail.items")}`, detail: t("detail.maintenance.mustReview") },
-          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: t("detail.maintenance.nextSafe"), detail: t("detail.maintenance.nextSafeDetail") },
+          { Icon: Scale, label: t("detail.currentJudgment"), value: reviewCount ? t("detail.judgment.usableWithFollowup") : t("detail.judgment.ready"), detail: t("detail.maintenance.reviewDetail"), badge: statusSummaryBadge(manualFollowups.length, t("summary.manualFollowups"), t), tone: reviewCount ? "warning" : "ready" },
+          { Icon: Eye, label: t("detail.mustReview"), value: `${reviewCount} ${t("detail.items")}`, detail: t("detail.maintenance.mustReview"), points: itemTitles(maintenanceItems, t("summary.none")) },
+          { Icon: ChevronsRight, label: t("detail.nextSafeCheck"), value: t("detail.maintenance.nextSafe"), detail: t("detail.maintenance.nextSafeDetail"), cta: { href: "#maintenance-confirmation", label: t("detail.openConfirmationFlow") } },
         ]}
       />
       <div className="detail-list detail-list--status detail-list--maintenance">
         {maintenanceItems.map((item) => (
-          <DetailStatusCard id={item.id} value={item.value} title={item.title} key={item.id} t={t} Icon={item.Icon} tone="maintenance" note={item.note} />
+          <DetailStatusCard
+            id={item.id}
+            value={item.value}
+            title={item.title}
+            technicalKey={item.technicalKey}
+            key={item.id}
+            t={t}
+            Icon={item.Icon}
+            tone="maintenance"
+            note={item.note}
+            footer={<span className="detail-card__footer-line">{sourceStatusSummary(item.value, t)}</span>}
+          />
         ))}
       </div>
       <DetailSection id="maintenance-confirmation" title={t("maintenance.confirmationFlow")} Icon={FileCheck2}>
@@ -1221,10 +1295,12 @@ function SafetyFailuresTable({ items, t }) {
           failures.map((item, index) => {
             const severity = failureSeverity(item.status);
             const reasonHint = sourceReasonHint(item.source, t);
+            const state = normalizeState(item.status);
+            const SeverityIcon = state === "failed" ? CircleX : state === "blocked" ? BadgeAlert : AlertTriangle;
             return (
               <article className={`failure-row failure-row--${severity}`} key={`${displayText(item.source)}-${index}`}>
                 <div className="failure-row__severity">
-                  {severity === "critical" ? <CircleAlert aria-hidden="true" size={22} /> : <AlertTriangle aria-hidden="true" size={22} />}
+                  <SeverityIcon aria-hidden="true" size={22} />
                 </div>
                 <div className="failure-row__item">
                   <strong>{sourceLabel(item.source, t)}</strong>
@@ -1287,14 +1363,26 @@ function SecuritySection({ security, partialFailures, data, locale, t }) {
         t={t}
         items={[
           { Icon: Target, label: t("detail.checks"), value: t("detail.security.checks"), detail: t("detail.security.checksDetail") },
-          { Icon: AlertTriangle, label: t("detail.currentJudgment"), value: failureCount ? t("detail.judgment.blocked") : t("detail.judgment.ready"), detail: `${failureCount} ${t("summary.partialFailures")}` },
-          { Icon: FileSearch, label: t("detail.mustReview"), value: approvalCount ? `${approvalCount} ${t("detail.approvals")}` : `${failureCount} ${t("detail.items")}`, detail: t("detail.security.mustReview") },
-          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: t("detail.security.nextSafe"), detail: t("detail.security.nextSafeDetail") },
+          { Icon: BadgeAlert, label: t("detail.currentJudgment"), value: failureCount ? t("detail.judgment.blocked") : t("detail.judgment.ready"), detail: failureCount ? t("detail.security.blockedDetail") : t("detail.noRequiredReview"), badge: statusSummaryBadge(failureCount, t("summary.partialFailures"), t), tone: failureCount ? "danger" : "ready" },
+          { Icon: FileSearch, label: t("detail.mustReview"), value: approvalCount ? `${approvalCount} ${t("detail.approvals")}` : `${failureCount} ${t("detail.items")}`, detail: t("detail.security.mustReview"), points: [t("summary.partialFailures"), t("security.item.approval"), t("actions.title")] },
+          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: t("detail.security.nextSafe"), detail: t("detail.security.nextSafeDetail"), cta: { href: "#partial-failures-heading", label: t("detail.openPartialFailures") } },
         ]}
       />
       <div className="detail-list detail-list--status detail-list--safety">
         {securityItems.map((item) => (
-          <DetailStatusCard id={item.id} value={item.value} visualState={item.state} title={item.title} key={item.id} t={t} Icon={item.Icon} tone="safety" note={item.note} />
+          <DetailStatusCard
+            id={item.id}
+            value={item.value}
+            visualState={item.state}
+            title={item.title}
+            technicalKey={item.technicalKey}
+            key={item.id}
+            t={t}
+            Icon={item.Icon}
+            tone="safety"
+            note={item.note}
+            footer={<span className="detail-card__footer-line">{sourceStatusSummary(item.value, t)}</span>}
+          />
         ))}
       </div>
       <SafetyFailuresTable items={partialFailures} t={t} />
@@ -1393,10 +1481,12 @@ function SourceBoundary({ data, t }) {
 
 function Sidebar({ activeView, t, data, locale, loaded }) {
   const generated = loaded && data.generated_at ? formatDateTime(data.generated_at, locale) : "";
+  const activeNavigation = navigation.find((item) => item.id === activeView) || navigation[0];
+  const BrandIcon = activeNavigation.Icon;
   return (
-    <aside className="app-sidebar" aria-label={t("aria.categories")}>
+    <aside className={`app-sidebar app-sidebar--${activeView}`} aria-label={t("aria.categories")}>
       <div className="brand">
-        <FileJson aria-hidden="true" size={28} />
+        <BrandIcon aria-hidden="true" size={30} />
         <div>
           <strong>{t("app.title")}</strong>
           <span>{t("app.eyebrow")}</span>

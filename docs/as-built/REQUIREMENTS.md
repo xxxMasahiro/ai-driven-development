@@ -1064,6 +1064,9 @@ Implemented scope:
 - Kept risk/status pill content centered for short and localized labels.
 - Preserved English as the repository-standard data language while using the existing translator boundary to display fixed UI labels and known control-center source/intent labels in the viewer's resolved UI locale.
 - Kept lesson/workflow language settings as user-selected state fields, not as the UI locale resolver.
+- Tightened the detail pages against the approved mocks so the active category icon, page header, first-row decision summary, status-card icon containers, failure severity icons, and display-only command-preview grouping read like the visual source references instead of generic data panels.
+- Expanded the first-row decision summaries to support concise bullets, count badges, and safe in-page/category links so non-engineer users can identify what is checked, what can be decided, and where to look next without relying on external explanation.
+- Kept all added user-facing labels behind the existing UI locale translator boundary; no Japanese-only runtime literals are added, and source evidence remains displayed as sanitized data.
 
 Non-scope:
 
