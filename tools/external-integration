@@ -4,6 +4,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=tools/lib/lesson_common.sh
 source "$SCRIPT_DIR/lib/lesson_common.sh"
+# shellcheck source=tools/lib/product_repository_authority.sh
+source "$SCRIPT_DIR/lib/product_repository_authority.sh"
 
 COMMAND="${1:-status}"
 
@@ -26,8 +28,8 @@ check_scope_docs() {
   product_root="$(lesson_product_repo_root)"
   missing=0
   for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md; do
-    if [[ ! -s "$product_root/$file" ]]; then
-      printf 'missing external-integration scope document: %s\n' "$product_root/$file" >&2
+    if [[ ! -s "$product_root/docs/product/$file" && ! -s "$product_root/$file" ]]; then
+      printf 'missing external-integration scope document: docs/product/%s or %s\n' "$file" "$file" >&2
       missing=1
     fi
   done
@@ -63,6 +65,8 @@ PROMPT
     lesson_menu_require_settings "External Integration"
     "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
     check_scope_docs
+    "$LESSON_ROOT/tools/product-scaffold-check" check --context external-integration --product-type integration
+    product_repository_authority_gate "$(lesson_product_repo_root)" external-integration integration
     "$LESSON_ROOT/tools/product-security" gate --context external-integration
     "$LESSON_ROOT/tools/check_workflow_pair_sync.sh" --product
     "$LESSON_ROOT/tools/check_git_sync.sh" --product --required

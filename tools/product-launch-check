@@ -1,0 +1,304 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/product_repository_authority.sh
+source "$ROOT/tools/lib/product_repository_authority.sh"
+
+COMMAND="${1:-check}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+REPO=""
+LAUNCH_MODE="auto"
+PROFILE="generic"
+CONTEXT="free-development"
+PRODUCT_TYPE="all"
+FAILURES=()
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  tools/product-launch-check check [--repo <path>] [--launch direct-index|auto] [--profile generic|task-tracker] [--context <context>] [--product-type <type>]
+
+This command is read-only. It validates that the product repository exposes the
+declared launch path and that a direct index.html launch does not depend on
+browser module loading semantics that are incompatible with file:// opening.
+USAGE
+}
+
+fail() {
+  FAILURES+=("$1")
+}
+
+has_pattern() {
+  local file="$1"
+  local pattern="$2"
+  [[ -f "$file" ]] || return 1
+  grep -Eiq "$pattern" "$file"
+}
+
+readme_declares_direct_index() {
+  local readme="$1"
+  has_pattern "$readme" '(^|[^[:alnum:]_])index\.html([^[:alnum:]_]|$)|file://'
+}
+
+readme_declares_server_launch() {
+  local readme="$1"
+  has_pattern "$readme" 'npm run|localhost|https?://|dev server|development server|python3 -m http\.server|serve '
+}
+
+script_sources() {
+  local index_file="$1"
+  grep -Eio "<script[^>]+src=[\"'][^\"' >]+[\"'][^>]*>" "$index_file" \
+    | sed -E "s/.*src=[\"']([^\"' >]+)[\"'].*/\1/" \
+    | grep -Ev '^(https?:)?//|^https?://' || true
+}
+
+package_script_exists() {
+  local repo="$1"
+  local script_name="$2"
+  local package_json="$repo/package.json"
+  [[ -f "$package_json" ]] || return 1
+  node -e '
+const fs = require("fs");
+const packageJson = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
+process.exit(packageJson.scripts && packageJson.scripts[process.argv[2]] ? 0 : 1);
+' "$package_json" "$script_name"
+}
+
+readme_npm_script_names() {
+  local readme="$1"
+  grep -Eo 'npm[[:space:]]+run[[:space:]]+[A-Za-z0-9:_-]+' "$readme" | awk '{ print $3 }' | sort -u || true
+}
+
+manifest_entrypoint_path() {
+  local repo="$1"
+  local context="$2"
+  local product_type="$3"
+  local manifest="$repo/ops/PRODUCT_MANIFEST.tsv"
+  local row authority_id required_mode contexts product_types path path_role validation_rule dashboard_group description
+  [[ -s "$manifest" ]] || return 1
+  while IFS= read -r row; do
+    authority_id="$(product_repository_authority_tsv_field "$row" 1)"
+    required_mode="$(product_repository_authority_tsv_field "$row" 2)"
+    contexts="$(product_repository_authority_tsv_field "$row" 3)"
+    product_types="$(product_repository_authority_tsv_field "$row" 4)"
+    path="$(product_repository_authority_tsv_field "$row" 5)"
+    path_role="$(product_repository_authority_tsv_field "$row" 6)"
+    validation_rule="$(product_repository_authority_tsv_field "$row" 7)"
+    dashboard_group="$(product_repository_authority_tsv_field "$row" 8)"
+    description="$(product_repository_authority_tsv_field "$row" 9)"
+    [[ "$path_role" == "entrypoint" ]] || continue
+    product_repository_authority_required_for_context "$required_mode" "$contexts" "$product_types" "$context" "$product_type" || continue
+    product_repository_authority_path_safe_relative "$path" || return 1
+    printf '%s\n' "$path"
+    return 0
+  done < <(product_repository_authority_manifest_rows "$manifest")
+  return 1
+}
+
+relative_script_path() {
+  local src="$1"
+  src="${src%%\?*}"
+  src="${src%%#*}"
+  src="${src#./}"
+  printf '%s\n' "$src"
+}
+
+file_has_submit_handler() {
+  local file="$1"
+  [[ -f "$file" ]] || return 1
+  grep -Eq 'addEventListener[[:space:]]*\([^)]*submit|onsubmit[[:space:]]*=' "$file" \
+    && grep -Eq 'preventDefault[[:space:]]*\(|return[[:space:]]+false' "$file"
+}
+
+inline_index_has_submit_handler() {
+  local index_file="$1"
+  grep -Eiq 'addEventListener[[:space:]]*\([^)]*submit|onsubmit[[:space:]]*=' "$index_file" \
+    && grep -Eiq 'preventDefault[[:space:]]*\(|return[[:space:]]+false' "$index_file"
+}
+
+direct_index_has_submit_handler() {
+  local repo="$1"
+  local index_file="$2"
+  local src relpath index_rel index_dir
+
+  if inline_index_has_submit_handler "$index_file"; then
+    return 0
+  fi
+
+  index_rel="${index_file#$repo/}"
+  index_dir="$(dirname "$index_rel")"
+  while IFS= read -r src; do
+    [[ -n "$src" ]] || continue
+    relpath="$(relative_script_path "$src")"
+    if [[ "$index_dir" != "." && "$relpath" != /* ]]; then
+      relpath="$index_dir/$relpath"
+    fi
+    relpath="${relpath#/}"
+    if [[ ! -f "$repo/$relpath" ]]; then
+      fail "index.html references a local script that is missing: $relpath"
+      continue
+    fi
+    if file_has_submit_handler "$repo/$relpath"; then
+      return 0
+    fi
+  done < <(script_sources "$index_file")
+
+  return 1
+}
+
+check_task_tracker_profile() {
+  local repo="$1"
+  local index_file="$2"
+
+  if ! has_pattern "$index_file" '<form|id=["'\'']task-form["'\'']'; then
+    fail "task-tracker launch page must expose a task input form."
+  fi
+  if ! has_pattern "$index_file" 'name=["'\'']title["'\'']|id=["'\''][^"'\'']*(task-title|title)[^"'\'']*["'\'']|placeholder=["'\''][^"'\'']*(task|タスク)[^"'\'']*["'\'']'; then
+    fail "task-tracker launch page must expose a task title input."
+  fi
+  if ! has_pattern "$index_file" 'id=["'\''][^"'\'']*(task-list|tasks|taskList|list)[^"'\'']*["'\'']|<ul|<ol'; then
+    fail "task-tracker launch page must expose a visible task list."
+  fi
+  if ! direct_index_has_submit_handler "$repo" "$index_file"; then
+    fail "task-tracker launch page must attach a submit handler that prevents form navigation."
+  fi
+}
+
+run_check() {
+  local repo="$1"
+  local launch_mode="$2"
+  local profile="$3"
+  local context="$4"
+  local product_type="$5"
+  local readme index_file entrypoint_path direct_required="false"
+  local script_name
+
+  if [[ ! -d "$repo" ]]; then
+    fail "configured product repository is missing."
+  elif [[ ! -d "$repo/.git" ]]; then
+    fail "configured product path is not a Git repository."
+  fi
+
+  readme="$repo/README.md"
+  if [[ ! -f "$readme" ]]; then
+    fail "README.md is required to declare the product launch path."
+  fi
+
+  if [[ "$launch_mode" == "direct-index" ]]; then
+    direct_required="true"
+  elif [[ "$launch_mode" == "auto" && -f "$readme" ]]; then
+    if readme_declares_direct_index "$readme" && ! readme_declares_server_launch "$readme"; then
+      direct_required="true"
+    fi
+  else
+    fail "unsupported launch mode: $launch_mode"
+  fi
+
+  if [[ "$direct_required" == "true" ]]; then
+    entrypoint_path="$(manifest_entrypoint_path "$repo" "$context" "$product_type" 2>/dev/null || printf 'index.html')"
+    index_file="$repo/$entrypoint_path"
+    if [[ ! -f "$index_file" ]]; then
+      fail "direct index launch requires the manifest entrypoint to exist: $entrypoint_path"
+    else
+      if [[ "$entrypoint_path" != *.html ]]; then
+        fail "direct index launch requires an HTML manifest entrypoint."
+      fi
+      if grep -Eiq '<script[^>]+type=["'\'']module["'\'']' "$index_file"; then
+        fail "direct index launch cannot depend on type=\"module\" scripts."
+      fi
+      if ! grep -Eiq '<script[^>]*(src=|>)' "$index_file"; then
+        fail "direct index launch requires browser-side behavior to be attached from index.html."
+      fi
+      case "$profile" in
+        generic) ;;
+        task-tracker) check_task_tracker_profile "$repo" "$index_file" ;;
+        *) fail "unsupported product profile: $profile" ;;
+      esac
+    fi
+  elif [[ -f "$readme" ]] && readme_declares_server_launch "$readme"; then
+    while IFS= read -r script_name; do
+      [[ -n "$script_name" ]] || continue
+      if ! package_script_exists "$repo" "$script_name"; then
+        fail "server launch README references missing npm script: $script_name"
+      fi
+    done < <(readme_npm_script_names "$readme")
+    if [[ -z "$(readme_npm_script_names "$readme")" ]]; then
+      fail "server launch README must declare a concrete npm run script."
+    fi
+    entrypoint_path="$(manifest_entrypoint_path "$repo" "$context" "$product_type" 2>/dev/null || true)"
+    if [[ -z "$entrypoint_path" || ! -e "$repo/$entrypoint_path" ]]; then
+      fail "server launch requires a valid manifest entrypoint authority."
+    fi
+  fi
+
+  if [[ "${#FAILURES[@]}" -gt 0 ]]; then
+    printf 'Product launch check failed.\n' >&2
+    local failure
+    for failure in "${FAILURES[@]}"; do
+      printf '%s\n' "- $failure" >&2
+    done
+    return 1
+  fi
+
+  printf 'Product launch check passed.\n'
+  printf 'Launch mode: %s\n' "$launch_mode"
+  printf 'Product profile: %s\n' "$profile"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --repo)
+      REPO="${2:-}"
+      shift 2
+      ;;
+    --launch)
+      LAUNCH_MODE="${2:-}"
+      shift 2
+      ;;
+    --profile)
+      PROFILE="${2:-}"
+      shift 2
+      ;;
+    --context)
+      CONTEXT="${2:-}"
+      shift 2
+      ;;
+    --product-type)
+      PRODUCT_TYPE="${2:-}"
+      shift 2
+      ;;
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    *)
+      printf 'unknown option: %s\n' "$1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$REPO" ]]; then
+  REPO="$(lesson_product_repo_root)"
+fi
+
+case "$COMMAND" in
+  check|status|現在地)
+    run_check "$REPO" "$LAUNCH_MODE" "$PROFILE" "$CONTEXT" "$PRODUCT_TYPE"
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    printf 'unknown command: %s\n' "$COMMAND" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

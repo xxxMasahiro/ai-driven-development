@@ -118,7 +118,10 @@ else
 fi
 ./tools/test_menu_prerequisites.sh
 ./tools/test_product_gate_tools.sh
+./tools/test_product_launch_check.sh
+./tools/test_product_scaffold_check.sh
 ./tools/test_product_repository_cleanup.sh
+./tools/test_product_repository_authority.sh
 ./tools/test_product_security.sh
 ./tools/test_lesson_start_position.sh
 ./tools/test_lesson.sh

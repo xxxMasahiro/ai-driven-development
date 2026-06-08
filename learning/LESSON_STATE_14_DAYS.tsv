@@ -1,59 +1,59 @@
 # order	step_id	status	started_at	completed_at
-001	setup.index	completed	2026-06-02 05:10:07	2026-06-02 05:11:40
-002	setup.github-login	completed	2026-06-02 05:11:40	2026-06-02 05:17:51
-003	day1.roadmap	completed	2026-06-02 05:17:51	2026-06-02 05:21:56
-004	day1.lesson-controls	completed	2026-06-02 05:21:56	2026-06-02 05:29:47
-005	day1.repository-boundary	completed	2026-06-02 05:29:47	2026-06-02 05:36:14
-006	day1.sync-gate	completed	2026-06-02 05:36:14	2026-06-02 05:40:35
-007	day2.git-basics	completed	2026-06-02 05:40:35	2026-06-02 05:54:12
-008	day2.github-connection	completed	2026-06-02 05:54:12	2026-06-02 06:17:35
-009	day2.remote-sync	completed	2026-06-02 06:17:35	2026-06-02 06:25:47
-010	day2.sync-gate	completed	2026-06-02 06:25:47	2026-06-02 06:32:58
-011	day3.product-repo	completed	2026-06-02 06:32:58	2026-06-02 06:36:05
-012	day3.memory-docs	completed	2026-06-02 06:36:05	2026-06-02 06:51:48
-013	day3.initial-commit	completed	2026-06-02 06:51:48	2026-06-02 06:53:51
-014	day3.sync-gate	completed	2026-06-02 06:53:51	2026-06-02 06:56:32
-015	day4.requirements	completed	2026-06-02 06:56:32	2026-06-02 07:28:17
-016	day4.specification	completed	2026-06-02 07:28:17	2026-06-02 07:30:07
-017	day4.implementation-plan	completed	2026-06-02 07:30:07	2026-06-02 07:33:12
-018	day4.sync-gate	completed	2026-06-02 07:33:12	2026-06-02 07:43:12
-019	day5.initial-tracker-handoff	completed	2026-06-02 07:43:12	2026-06-02 07:50:25
-020	day5.main-ci	completed	2026-06-02 07:50:25	2026-06-02 07:57:53
-021	day5.remote-push	completed	2026-06-02 07:57:53	2026-06-02 08:03:03
-022	day5.sync-gate	completed	2026-06-02 08:03:03	2026-06-02 08:05:34
-023	day6.screen-structure	completed	2026-06-02 08:05:34	2026-06-02 08:10:25
-024	day6.accessibility-copy	completed	2026-06-02 08:10:25	2026-06-02 08:37:34
-025	day6.local-check	completed	2026-06-02 08:37:34	2026-06-02 08:39:08
-026	day6.sync-gate	completed	2026-06-02 08:39:08	2026-06-02 08:46:04
-027	day7.task-add-behavior	completed	2026-06-02 08:46:04	2026-06-02 09:04:13
-028	day7.validation	completed	2026-06-02 09:04:13	2026-06-02 09:08:29
-029	day7.unit-check	completed	2026-06-02 09:08:29	2026-06-02 09:16:01
-030	day7.sync-gate	completed	2026-06-02 09:16:01	2026-06-02 09:21:21
-031	day8.handoff-stop	completed	2026-06-02 09:21:21	2026-06-02 09:31:08
-032	day8.handoff-resume	completed	2026-06-02 09:31:08	2026-06-02 09:36:34
-033	day8.tracker-update	completed	2026-06-02 09:36:34	2026-06-02 09:41:12
-034	day8.sync-gate	completed	2026-06-02 09:41:12	2026-06-02 09:43:08
-035	day9.work-branch	completed	2026-06-02 09:43:08	2026-06-02 09:48:42
-036	day9.pr-ci	completed	2026-06-02 09:48:42	2026-06-02 09:54:48
-037	day9.merge-sync	completed	2026-06-02 09:54:48	2026-06-02 10:01:45
-038	day9.sync-gate	completed	2026-06-02 10:01:45	2026-06-02 10:05:53
-039	day10.playwright-install	completed	2026-06-02 10:05:53	2026-06-02 10:26:36
-040	day10.e2e-test	completed	2026-06-02 10:26:36	2026-06-02 10:38:19
-041	day10.e2e-local-run	completed	2026-06-02 10:38:19	2026-06-02 10:43:50
-042	day10.sync-gate	completed	2026-06-02 10:43:50	2026-06-02 10:49:20
-043	day11.e2e-ci	completed	2026-06-02 10:49:20	2026-06-02 10:57:41
-044	day11.failure-learning	completed	2026-06-02 10:57:41	2026-06-02 11:05:06
-045	day11.docs-sync	completed	2026-06-02 11:05:06	2026-06-02 11:09:54
-046	day11.sync-gate	completed	2026-06-02 11:09:54	2026-06-02 11:12:15
-047	day12.subagents-plan	completed	2026-06-02 11:12:15	2026-06-02 11:47:17
-048	day12.subagents-review	completed	2026-06-02 11:47:17	2026-06-02 11:56:37
-049	day12.findings-fix	completed	2026-06-02 11:56:37	2026-06-02 12:03:51
-050	day12.sync-gate	completed	2026-06-02 12:03:51	2026-06-02 12:06:30
-051	day13.skill-create	completed	2026-06-02 12:06:30	2026-06-02 12:12:04
-052	day13.skill-use	completed	2026-06-02 12:12:04	2026-06-02 12:28:42
-053	day13.mcp-minimal	completed	2026-06-02 12:28:42	2026-06-02 12:36:27
-054	day13.sync-gate	completed	2026-06-02 12:36:27	2026-06-02 12:51:08
-055	day14.final-sync	completed	2026-06-02 12:51:08	2026-06-02 13:06:00
-056	day14.release-readiness	completed	2026-06-02 13:06:00	2026-06-02 13:32:58
-057	day14.retrospective	completed	2026-06-02 13:32:58	2026-06-02 13:41:16
-058	day14.complete	completed	2026-06-02 13:41:16	2026-06-02 13:43:07
+001	setup.index	completed	2026-06-07 17:21:44	2026-06-07 17:21:45
+002	setup.github-login	completed	2026-06-07 17:21:45	2026-06-07 17:21:47
+003	day1.roadmap	completed	2026-06-07 17:21:47	2026-06-07 17:21:50
+004	day1.lesson-controls	completed	2026-06-07 17:21:50	2026-06-07 17:21:52
+005	day1.repository-boundary	completed	2026-06-07 17:21:52	2026-06-07 17:21:55
+006	day1.sync-gate	completed	2026-06-07 17:21:55	2026-06-07 17:21:57
+007	day2.git-basics	completed	2026-06-07 17:21:57	2026-06-07 17:22:46
+008	day2.github-connection	completed	2026-06-07 17:22:46	2026-06-07 17:22:49
+009	day2.remote-sync	completed	2026-06-07 17:22:49	2026-06-07 17:22:51
+010	day2.sync-gate	completed	2026-06-07 17:22:51	2026-06-07 17:22:54
+011	day3.product-repo	completed	2026-06-07 17:22:54	2026-06-07 17:26:12
+012	day3.memory-docs	completed	2026-06-07 17:26:12	2026-06-07 17:26:14
+013	day3.initial-commit	completed	2026-06-07 17:26:14	2026-06-07 17:26:16
+014	day3.sync-gate	completed	2026-06-07 17:26:16	2026-06-07 17:26:19
+015	day4.requirements	completed	2026-06-07 17:26:19	2026-06-08 00:22:32
+016	day4.specification	completed	2026-06-08 00:22:32	2026-06-08 00:22:35
+017	day4.implementation-plan	completed	2026-06-08 00:22:35	2026-06-08 00:22:37
+018	day4.sync-gate	completed	2026-06-08 00:22:37	2026-06-08 00:22:39
+019	day5.initial-tracker-handoff	completed	2026-06-08 00:22:39	2026-06-08 00:28:14
+020	day5.main-ci	completed	2026-06-08 00:28:14	2026-06-08 01:07:27
+021	day5.remote-push	completed	2026-06-08 01:07:27	2026-06-08 01:08:49
+022	day5.sync-gate	completed	2026-06-08 01:08:49	2026-06-08 01:09:53
+023	day6.screen-structure	completed	2026-06-08 01:09:53	2026-06-08 01:24:14
+024	day6.accessibility-copy	completed	2026-06-08 01:24:14	2026-06-08 01:24:36
+025	day6.local-check	completed	2026-06-08 01:24:36	2026-06-08 01:25:00
+026	day6.sync-gate	completed	2026-06-08 01:25:00	2026-06-08 01:26:16
+027	day7.task-add-behavior	completed	2026-06-08 01:26:16	2026-06-08 01:27:04
+028	day7.validation	completed	2026-06-08 01:27:04	2026-06-08 01:27:21
+029	day7.unit-check	completed	2026-06-08 01:27:21	2026-06-08 01:27:44
+030	day7.sync-gate	completed	2026-06-08 01:27:44	2026-06-08 01:28:01
+031	day8.handoff-stop	completed	2026-06-08 01:28:01	2026-06-08 04:12:57
+032	day8.handoff-resume	completed	2026-06-08 04:12:57	2026-06-08 04:13:14
+033	day8.tracker-update	completed	2026-06-08 04:13:14	2026-06-08 04:13:33
+034	day8.sync-gate	completed	2026-06-08 04:13:33	2026-06-08 04:13:50
+035	day9.work-branch	completed	2026-06-08 04:13:50	2026-06-08 04:19:53
+036	day9.pr-ci	completed	2026-06-08 04:19:53	2026-06-08 04:20:11
+037	day9.merge-sync	completed	2026-06-08 04:20:11	2026-06-08 04:20:35
+038	day9.sync-gate	completed	2026-06-08 04:20:35	2026-06-08 04:20:54
+039	day10.playwright-install	completed	2026-06-08 04:20:54	2026-06-08 04:25:46
+040	day10.e2e-test	completed	2026-06-08 04:25:46	2026-06-08 04:30:53
+041	day10.e2e-local-run	completed	2026-06-08 04:30:53	2026-06-08 04:31:08
+042	day10.sync-gate	completed	2026-06-08 04:31:08	2026-06-08 04:31:41
+043	day11.e2e-ci	completed	2026-06-08 04:31:41	2026-06-08 04:36:20
+044	day11.failure-learning	completed	2026-06-08 04:36:20	2026-06-08 04:37:37
+045	day11.docs-sync	completed	2026-06-08 04:37:37	2026-06-08 04:42:54
+046	day11.sync-gate	completed	2026-06-08 04:42:54	2026-06-08 04:43:45
+047	day12.subagents-plan	current	2026-06-08 04:43:45	
+048	day12.subagents-review	locked		
+049	day12.findings-fix	locked		
+050	day12.sync-gate	locked		
+051	day13.skill-create	locked		
+052	day13.skill-use	locked		
+053	day13.mcp-minimal	locked		
+054	day13.sync-gate	locked		
+055	day14.final-sync	locked		
+056	day14.release-readiness	locked		
+057	day14.retrospective	locked		
+058	day14.complete	locked		

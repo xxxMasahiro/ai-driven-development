@@ -62,6 +62,14 @@ mv "$tmp_gates" "$bad_day14_gate/lesson/SYNC_GATES_14_DAYS.tsv"
 (cd "$bad_day14_gate" && ./tools/check_lesson14_sync.sh >/tmp/lesson14-bad-day14-gate.out 2>&1 && exit 1 || true)
 grep 'Step 14/14 must use required git sync check' /tmp/lesson14-bad-day14-gate.out >/dev/null
 
+bad_day14_launch_gate="$work/bad-day14-launch-gate"
+fixture_copy_repo "$work/lesson" "$bad_day14_launch_gate"
+tmp_gates="$(mktemp)"
+awk -F '\t' -v OFS='\t' '$1 !~ /^#/ && $1 == "Step 14/14" { $6 = "tools/check_git_sync.sh --product --required && tools/check_ci_status.sh --product --required" } { print }' "$bad_day14_launch_gate/lesson/SYNC_GATES_14_DAYS.tsv" > "$tmp_gates"
+mv "$tmp_gates" "$bad_day14_launch_gate/lesson/SYNC_GATES_14_DAYS.tsv"
+(cd "$bad_day14_launch_gate" && ./tools/check_lesson14_sync.sh >/tmp/lesson14-bad-day14-launch-gate.out 2>&1 && exit 1 || true)
+grep 'Step 14/14 must use product launch check' /tmp/lesson14-bad-day14-launch-gate.out >/dev/null
+
 ./tools/lesson14 通過 day2.git-basics "future step" >/tmp/lesson14-future.out 2>&1 && exit 1 || true
 grep 'locked' /tmp/lesson14-future.out >/dev/null
 
@@ -250,8 +258,35 @@ product_repo="$HOME/projects/task-tracker-repository"
 mkdir -p "$product_repo"
 cd "$product_repo"
 git init -b main >/dev/null
-printf 'task tracker\n' > README.md
-git add README.md
+cat > README.md <<'DOC'
+# Task Tracker
+
+Open `index.html` directly to use the completed product.
+DOC
+cat > index.html <<'HTML'
+<!doctype html>
+<html lang="en">
+  <body>
+    <form id="task-form">
+      <input id="task-title" name="title" />
+      <button type="submit">Add Task</button>
+    </form>
+    <ul id="task-list"></ul>
+    <script src="app.js"></script>
+  </body>
+</html>
+HTML
+cat > app.js <<'JS'
+const form = document.querySelector("#task-form");
+const list = document.querySelector("#task-list");
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const item = document.createElement("li");
+  item.textContent = document.querySelector("#task-title").value;
+  list.appendChild(item);
+});
+JS
+git add README.md index.html app.js
 git -c user.name=Test -c user.email=test@example.com commit -m initial-product >/dev/null
 
 gate_required="$work/gate-required"

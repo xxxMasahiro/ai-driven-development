@@ -14,6 +14,8 @@ source "$ROOT/tools/lib/lesson_display_labels.sh"
 source "$ROOT/tools/lib/git_workflow_policy.sh"
 # shellcheck source=tools/lib/product_security.sh
 source "$ROOT/tools/lib/product_security.sh"
+# shellcheck source=tools/lib/product_repository_authority.sh
+source "$ROOT/tools/lib/product_repository_authority.sh"
 # shellcheck source=tools/lib/dashboard_data.sh
 source "$ROOT/tools/lib/dashboard_data.sh"
 
@@ -42,6 +44,59 @@ esac
 
 PRODUCT_ROOT="$(lesson_product_repo_root)"
 PRODUCT_NAME="$(lesson_product_repo_name)"
+SELECTED_MENU_ID="${DASHBOARD_SELECTED_MENU_ID:-step_1_14}"
+
+dashboard_selected_workflow_context() {
+  local menu_id="$1"
+  local lookup_id kind
+  if [[ "$menu_id" == "lesson-repository-improvement" ]]; then
+    lookup_id="lesson-maintenance"
+  else
+    lookup_id="$menu_id"
+  fi
+  kind="$(dashboard_data_workflow_context_map_field "$lookup_id" workflow_kind 2>/dev/null || printf 'unknown')"
+  case "$kind" in
+    lesson) printf 'lesson' ;;
+    maintenance) printf 'lesson-maintenance' ;;
+    workflow) printf '%s' "$lookup_id" ;;
+    *) printf 'unknown' ;;
+  esac
+}
+
+dashboard_context_product_repo_required() {
+  local menu_id="$1"
+  if [[ "$menu_id" == "lesson-repository-improvement" ]]; then
+    menu_id="lesson-maintenance"
+  fi
+  dashboard_data_workflow_context_map_field "$menu_id" product_repo_required 2>/dev/null || printf 'false'
+}
+
+dashboard_context_safety_summary() {
+  local menu_id="$1"
+  if [[ "$menu_id" == "lesson-repository-improvement" ]]; then
+    menu_id="lesson-maintenance"
+  fi
+  dashboard_data_workflow_context_map_field "$menu_id" safety_summary 2>/dev/null || printf 'Context metadata is unavailable.'
+}
+
+dashboard_validate_selected_menu_id() {
+  case "$1" in
+    step_1_7|step_1_14|advanced|free-development|product-improvement|external-integration|lesson-repository-improvement|unknown)
+      return 0
+      ;;
+  esac
+  return 1
+}
+
+if ! dashboard_validate_selected_menu_id "$SELECTED_MENU_ID"; then
+  SELECTED_MENU_ID="unknown"
+fi
+SELECTED_WORKFLOW_CONTEXT="$(dashboard_selected_workflow_context "$SELECTED_MENU_ID")"
+PRODUCT_AUTHORITY_CONTEXT="$SELECTED_WORKFLOW_CONTEXT"
+case "$PRODUCT_AUTHORITY_CONTEXT" in
+  free-development|product-improvement|external-integration|lesson-maintenance) ;;
+  *) PRODUCT_AUTHORITY_CONTEXT="lesson-maintenance" ;;
+esac
 
 source_files=(
   "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv"
@@ -52,6 +107,8 @@ source_files=(
   "docs/workflow/FINAL_GATE_COVERAGE.tsv"
   "docs/workflow/GIT_WORKFLOW_POLICY.tsv"
   "docs/workflow/PRODUCT_SECURITY_POLICY.tsv"
+  "docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv"
+  "docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv"
   "learning/context/WORKFLOW_CONTEXT_MAP.tsv"
   "learning/GIT_WORKFLOW_SETTINGS.tsv"
   "lesson/LESSON_CONFIG.tsv"
@@ -65,6 +122,7 @@ source_files=(
 
 source_commands=(
   "tools/dashboard-data"
+  "tools/product-repository-authority status --json"
 )
 
 partial_failures=()
@@ -88,6 +146,37 @@ add_blocking_item() {
   dashboard_data_add_blocking_item blocking_items "$1" "$2" "$3" "$4"
 }
 
+add_selected_context_partial_failures() {
+  local context_json="$1"
+  local line source status reason required_command partial_status
+  while IFS=$'\t' read -r source status reason required_command; do
+    [[ -n "${source:-}" ]] || continue
+    case "$status" in
+      failed) partial_status="failed" ;;
+      blocked) partial_status="blocked" ;;
+      *) partial_status="unknown" ;;
+    esac
+    add_partial_failure "$source" "$partial_status" "$reason" "$required_command"
+  done < <(
+    DASHBOARD_SELECTED_CONTEXT_JSON="$context_json" node -e '
+const data = JSON.parse(process.env.DASHBOARD_SELECTED_CONTEXT_JSON || "{}");
+const blockers = Array.isArray(data.blockers) ? data.blockers : [];
+const clean = (value, fallback) =>
+  String(value ?? fallback)
+    .replace(/[\t\r\n]+/g, " ")
+    .trim() || fallback;
+for (const blocker of blockers) {
+  if (!blocker || typeof blocker !== "object" || Array.isArray(blocker)) continue;
+  const source = clean(blocker.source, "unknown");
+  const status = clean(blocker.status, "unknown");
+  const reason = clean(blocker.reason, "Current selected context has a blocking condition.");
+  const requiredCommand = clean(blocker.required_command, "./tools/dashboard all");
+  process.stdout.write(`${source}\t${status}\t${reason}\t${requiredCommand}\n`);
+}
+'
+  )
+}
+
 require_source_file() {
   local relpath="$1"
   local source="$2"
@@ -105,18 +194,27 @@ add_manual_followup "product_ci_live" "optional" "Live CI or GitHub status is op
 add_manual_followup "as_built_sync_live" "optional" "As-built sync validation is reported as a manual follow-up command instead of blocking JSON generation." "./tools/check_as_built_sync_contract.sh"
 add_manual_followup "workflow_pair_live" "optional" "Workflow pair validation is reported as a manual follow-up command instead of blocking JSON generation." "./tools/check_workflow_pair_sync.sh"
 add_manual_followup "git_workflow_gate_live" "optional" "Git workflow gates are not inferred from policy readiness in the read-only snapshot." "./tools/git-workflow check"
-add_manual_followup "product_security_gate_live" "optional" "Product-security gate passage is not inferred from policy readiness in the read-only snapshot." "./tools/product-security gate --context product-improvement"
+add_manual_followup "product_security_gate_live" "optional" "Product-security gate passage is not inferred from policy readiness in the read-only snapshot." "./tools/product-security gate --context $PRODUCT_AUTHORITY_CONTEXT"
+add_manual_followup "product_authority_evidence_refresh" "optional" "Product authority reads existing manifests and evidence only; collect fresh product evidence outside the dashboard when needed." "./tools/product-repository-authority status --json --context $PRODUCT_AUTHORITY_CONTEXT"
 
 lesson_status() {
   local config_file="$1"
   local state_file current_step
+  local learning_mode_status workflow_language_status product_language_status
   state_file="$(dashboard_data_lesson_state_file_from_config "$config_file")"
+  learning_mode_status="$(dashboard_data_lesson_setting_state "$config_file" learning_mode)"
+  workflow_language_status="$(dashboard_data_lesson_setting_state "$config_file" workflow_language)"
+  product_language_status="$(dashboard_data_lesson_setting_state "$config_file" product_language)"
   if [[ ! -f "$state_file" ]]; then
     printf 'missing'
-  elif current_step="$(dashboard_data_current_lesson_step "$state_file" 2>/dev/null)"; then
-    printf 'ready'
   elif dashboard_data_lesson_all_completed "$state_file"; then
     printf 'passed'
+  elif current_step="$(dashboard_data_current_lesson_step "$state_file" 2>/dev/null)"; then
+    if [[ "$learning_mode_status" == "ready" && "$workflow_language_status" == "ready" && "$product_language_status" == "ready" ]]; then
+      printf 'ready'
+    else
+      printf 'missing'
+    fi
   else
     printf 'unknown'
   fi
@@ -138,19 +236,23 @@ lesson_object() {
 
   state_file="$(dashboard_data_lesson_state_file_from_config "$config_file")"
   source_state_file="$(dashboard_data_relative_path "$state_file")"
+  learning_mode_status="$(dashboard_data_lesson_setting_state "$config_file" learning_mode)"
+  workflow_language_status="$(dashboard_data_lesson_setting_state "$config_file" workflow_language)"
+  product_language_status="$(dashboard_data_lesson_setting_state "$config_file" product_language)"
   if [[ ! -f "$state_file" ]]; then
     status="missing"
-  elif current_step="$(dashboard_data_current_lesson_step "$state_file" 2>/dev/null)"; then
-    status="ready"
   elif dashboard_data_lesson_all_completed "$state_file"; then
     status="passed"
     current_step="all steps completed"
+  elif current_step="$(dashboard_data_current_lesson_step "$state_file" 2>/dev/null)"; then
+    if [[ "$learning_mode_status" == "ready" && "$workflow_language_status" == "ready" && "$product_language_status" == "ready" ]]; then
+      status="ready"
+    else
+      status="missing"
+    fi
   else
     status="unknown"
   fi
-	  learning_mode_status="$(dashboard_data_lesson_setting_state "$config_file" learning_mode)"
-	  workflow_language_status="$(dashboard_data_lesson_setting_state "$config_file" workflow_language)"
-	  product_language_status="$(dashboard_data_lesson_setting_state "$config_file" product_language)"
 	  points+=("$label lesson status is $status.")
 	  points+=("Current lesson step is ${current_step:-unknown}.")
 	  if [[ "$learning_mode_status" != "ready" ]]; then
@@ -262,9 +364,419 @@ product_documents_status() {
   local file
   [[ -d "$PRODUCT_ROOT/.git" ]] || { printf 'unknown'; return; }
   for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md TASK_TRACKER.md HANDOFF.md; do
-    [[ -f "$PRODUCT_ROOT/$file" ]] || { printf 'missing'; return; }
+    if [[ "$file" == TASK_TRACKER.md || "$file" == HANDOFF.md ]]; then
+      [[ -f "$PRODUCT_ROOT/docs/workflow/$file" || -f "$PRODUCT_ROOT/$file" ]] || { printf 'missing'; return; }
+    else
+      [[ -f "$PRODUCT_ROOT/docs/product/$file" || -f "$PRODUCT_ROOT/$file" ]] || { printf 'missing'; return; }
+    fi
   done
   printf 'ready'
+}
+
+dashboard_product_authority_status_for_context() {
+  local context="$1"
+  local json status
+  json="$(product_repository_authority_json "$PRODUCT_ROOT" "$context" "all")"
+  status="$(dashboard_json_get_field "$json" status 2>/dev/null || printf 'unknown')"
+  dashboard_data_allowed_state "$status" || status="unknown"
+  printf '%s' "$status"
+}
+
+dashboard_target_repository_path_state() {
+  local menu_id="${1:-$SELECTED_MENU_ID}"
+  local requires_product_repo
+  requires_product_repo="$(dashboard_context_product_repo_required "$menu_id")"
+  case "$menu_id" in
+    lesson-repository-improvement)
+      if [[ -d "$ROOT/.git" ]]; then
+        printf 'configured'
+      else
+        printf 'unknown'
+      fi
+      ;;
+    *)
+      if [[ "$requires_product_repo" != "true" ]]; then
+        printf 'not_applicable'
+      elif [[ -d "$PRODUCT_ROOT/.git" ]]; then
+        printf 'configured'
+      elif [[ -e "$PRODUCT_ROOT" ]]; then
+        printf 'unknown'
+      else
+        printf 'missing'
+      fi
+      ;;
+  esac
+}
+
+dashboard_target_repository_name() {
+  local menu_id="${1:-$SELECTED_MENU_ID}"
+  case "$menu_id" in
+    lesson-repository-improvement)
+      basename "$ROOT"
+      ;;
+    *)
+      printf '%s' "$PRODUCT_NAME"
+      ;;
+  esac
+}
+
+dashboard_selected_current_step_id() {
+  local menu_id="${1:-$SELECTED_MENU_ID}"
+  case "$menu_id" in
+    step_1_7)
+      dashboard_data_current_lesson_step "$(dashboard_data_lesson_state_file_from_config "$DASHBOARD_LESSON_CONFIG")" 2>/dev/null || printf 'completed_or_unavailable'
+      ;;
+    step_1_14)
+      dashboard_data_current_lesson_step "$(dashboard_data_lesson_state_file_from_config "$DASHBOARD_LESSON14_CONFIG")" 2>/dev/null || printf 'completed_or_unavailable'
+      ;;
+    advanced)
+      printf 'advanced.start'
+      ;;
+    free-development)
+      printf 'free-development.workflow'
+      ;;
+    product-improvement)
+      printf 'product-improvement.workflow'
+      ;;
+    external-integration)
+      printf 'external-integration.workflow'
+      ;;
+    lesson-repository-improvement)
+      printf 'lesson-repository-improvement.workflow'
+      ;;
+    *)
+      printf 'unknown'
+      ;;
+  esac
+}
+
+dashboard_json_selected_next_safe_action() {
+  local menu_id="$1"
+  local status="$2"
+  printf '{"title":'
+  dashboard_json_string "Review selected context"
+  printf ',"description":'
+  dashboard_json_string "$(dashboard_context_safety_summary "$menu_id")"
+  printf ',"target":'
+  dashboard_json_string "$menu_id"
+  printf ',"expected_result":'
+  dashboard_json_string "Current workflow state is understood before operational action."
+  printf ',"risk_level":'
+  dashboard_json_string "low"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"source":'
+  dashboard_json_string "selected_context"
+  printf '}'
+}
+
+dashboard_json_selected_context() {
+  local menu_id="$1"
+  local workflow_context="$2"
+  local target_name="$3"
+  local path_state="$4"
+  local current_step_id="$5"
+  local current_step_label="$6"
+  local current_step_index="$7"
+  local current_step_total="$8"
+  local updated_at="$9"
+  local git_status="${10}"
+  local ci_status="${11}"
+  local security_status="${12}"
+  local evidence_status="${13}"
+  local next_safe_action_json="${14}"
+  local blockers_json="${15}"
+
+  printf '{"menu_id":'
+  dashboard_json_string "$menu_id"
+  printf ',"workflow_context":'
+  dashboard_json_string "$workflow_context"
+  printf ',"target_repository":{"name":'
+  dashboard_json_string "$target_name"
+  printf ',"path_state":'
+  dashboard_json_string "$path_state"
+  printf '},"product_type":'
+  dashboard_json_string "all"
+  printf ',"current_step_id":'
+  dashboard_json_string "$current_step_id"
+  printf ',"current_step_label":'
+  dashboard_json_string "$current_step_label"
+  printf ',"current_step_index":%d' "$current_step_index"
+  printf ',"current_step_total":%d' "$current_step_total"
+  printf ',"updated_at":'
+  dashboard_json_string "$updated_at"
+  printf ',"git_status":'
+  dashboard_json_string "$git_status"
+  printf ',"ci_status":'
+  dashboard_json_string "$ci_status"
+  printf ',"security_status":'
+  dashboard_json_string "$security_status"
+  printf ',"evidence_status":'
+  dashboard_json_string "$evidence_status"
+  printf ',"next_safe_action":'
+  printf '%s' "$next_safe_action_json"
+  printf ',"blockers":'
+  printf '%s' "$blockers_json"
+  printf '}'
+}
+
+dashboard_authority_axis_status() {
+  local authority_json="$1"
+  local axis_prefix="$2"
+  local fallback_status="$3"
+  DASHBOARD_AUTHORITY_JSON="$authority_json" DASHBOARD_AXIS_PREFIX="$axis_prefix" DASHBOARD_AXIS_FALLBACK="$fallback_status" node <<'NODE'
+const allowed = new Set([
+  "missing",
+  "ready",
+  "passed",
+  "failed",
+  "blocked",
+  "unknown",
+  "approval_required",
+  "optional",
+  "cached",
+  "not_run",
+  "stale",
+  "manual_required",
+]);
+const priority = {
+  failed: 0,
+  blocked: 1,
+  stale: 2,
+  not_run: 3,
+  unknown: 4,
+  manual_required: 5,
+  approval_required: 6,
+  missing: 7,
+  optional: 8,
+  cached: 9,
+  ready: 10,
+  passed: 11,
+};
+function normalize(value, fallback = "unknown") {
+  const text = String(value ?? fallback).trim() || fallback;
+  return allowed.has(text) ? text : "unknown";
+}
+function matches(source, prefix) {
+  return source === prefix || source.startsWith(`${prefix}.`);
+}
+let data = {};
+try {
+  data = JSON.parse(process.env.DASHBOARD_AUTHORITY_JSON || "{}");
+} catch (_error) {
+  data = {};
+}
+const prefix = String(process.env.DASHBOARD_AXIS_PREFIX || "");
+const fallback = normalize(process.env.DASHBOARD_AXIS_FALLBACK, "unknown");
+const statuses = [];
+for (const blocker of Array.isArray(data.product_operation_blockers) ? data.product_operation_blockers : []) {
+  const source = String(blocker?.source ?? "");
+  if (matches(source, prefix)) {
+    statuses.push(normalize(blocker.status));
+  }
+}
+const items = Array.isArray(data.evidence_summary?.items) ? data.evidence_summary.items : [];
+for (const item of items) {
+  const source = String(item?.source_id ?? "");
+  if (!matches(source, prefix)) continue;
+  let status = normalize(item.status);
+  const required = item.required_in_context === true;
+  const freshness = String(item.freshness_state ?? "unknown");
+  const authority = String(item.authority ?? "unknown");
+  if (status === "passed" && freshness === "stale") {
+    status = "stale";
+  }
+  if (required && status === "passed" && (freshness !== "current" || authority !== "authoritative")) {
+    status = "not_run";
+  }
+  statuses.push(status);
+}
+if (!statuses.length) {
+  process.stdout.write(fallback);
+  process.exit(0);
+}
+statuses.sort((left, right) => (priority[left] ?? 99) - (priority[right] ?? 99));
+process.stdout.write(statuses[0]);
+NODE
+}
+
+dashboard_json_available_context() {
+  local menu_id="$1"
+  local workflow_context="$2"
+  local target_repository_name="$3"
+  local status="$4"
+  printf '{"menu_id":'
+  dashboard_json_string "$menu_id"
+  printf ',"workflow_context":'
+  dashboard_json_string "$workflow_context"
+  printf ',"target_repository_name":'
+  dashboard_json_string "$target_repository_name"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf '}'
+}
+
+dashboard_context_authority_json_for_menu() {
+  local menu_id="$1"
+  case "$menu_id" in
+    free-development) printf '%s' "$free_development_authority_json" ;;
+    product-improvement) printf '%s' "$product_improvement_authority_json" ;;
+    external-integration) printf '%s' "$external_integration_authority_json" ;;
+    lesson-repository-improvement) printf '%s' "$lesson_maintenance_authority_json" ;;
+    *) printf '%s' "$product_authority_json" ;;
+  esac
+}
+
+dashboard_context_status_for_menu() {
+  local menu_id="$1"
+  case "$menu_id" in
+    step_1_7) printf '%s' "$lesson_7_status" ;;
+    step_1_14) printf '%s' "$lesson_14_status" ;;
+    advanced) printf '%s' "$advanced_status" ;;
+    free-development) printf '%s' "$free_development_authority_status" ;;
+    product-improvement) printf '%s' "$product_improvement_authority_status" ;;
+    external-integration) printf '%s' "$external_integration_authority_status" ;;
+    lesson-repository-improvement)
+      if [[ "$as_built_sync_status" == "ready" && "$workflow_pair_status" == "ready" && "$developer_memory_status" == "ready" && "$skills_status_value" == "ready" ]]; then
+        printf 'ready'
+      else
+        printf 'unknown'
+      fi
+      ;;
+    *) printf 'unknown' ;;
+  esac
+}
+
+dashboard_context_blockers_for_menu() {
+  local menu_id="$1"
+  local authority_json
+  case "$(dashboard_selected_workflow_context "$menu_id")" in
+    free-development|product-improvement|external-integration)
+      authority_json="$(dashboard_context_authority_json_for_menu "$menu_id")"
+      dashboard_json_get_field "$authority_json" product_operation_blockers 2>/dev/null || printf '[]'
+      ;;
+    *)
+      printf '[]'
+      ;;
+  esac
+}
+
+dashboard_context_git_status_for_menu() {
+  local authority_json
+  case "$(dashboard_selected_workflow_context "$1")" in
+    free-development|product-improvement|external-integration)
+      authority_json="$(dashboard_context_authority_json_for_menu "$1")"
+      dashboard_authority_axis_status "$authority_json" "product.git" "unknown"
+      ;;
+    *) printf 'manual_required' ;;
+  esac
+}
+
+dashboard_context_ci_status_for_menu() {
+  local authority_json
+  case "$(dashboard_selected_workflow_context "$1")" in
+    free-development|product-improvement|external-integration)
+      authority_json="$(dashboard_context_authority_json_for_menu "$1")"
+      dashboard_authority_axis_status "$authority_json" "product.ci" "optional"
+      ;;
+    *) printf 'manual_required' ;;
+  esac
+}
+
+dashboard_context_security_status_for_menu() {
+  local authority_json
+  case "$(dashboard_selected_workflow_context "$1")" in
+    free-development|product-improvement|external-integration)
+      if [[ "$security_policy_status" != "ready" ]]; then
+        printf '%s' "$security_policy_status"
+      else
+        authority_json="$(dashboard_context_authority_json_for_menu "$1")"
+        dashboard_authority_axis_status "$authority_json" "product.security" "unknown"
+      fi
+      ;;
+    *) printf 'manual_required' ;;
+  esac
+}
+
+dashboard_context_evidence_status_for_menu() {
+  local menu_id="$1"
+  case "$(dashboard_selected_workflow_context "$menu_id")" in
+    free-development|product-improvement|external-integration) dashboard_context_status_for_menu "$menu_id" ;;
+    lesson|maintenance) printf 'manual_required' ;;
+    *) printf 'unknown' ;;
+  esac
+}
+
+dashboard_context_step_total_for_menu() {
+  local menu_id="$1"
+  local state_file
+  case "$menu_id" in
+    step_1_7)
+      state_file="$(dashboard_data_lesson_state_file_from_config "$DASHBOARD_LESSON_CONFIG")"
+      dashboard_data_lesson_step_total "$state_file"
+      ;;
+    step_1_14)
+      state_file="$(dashboard_data_lesson_state_file_from_config "$DASHBOARD_LESSON14_CONFIG")"
+      dashboard_data_lesson_step_total "$state_file"
+      ;;
+    *) printf '0' ;;
+  esac
+}
+
+dashboard_context_step_index_for_menu() {
+  local menu_id="$1"
+  local state_file
+  case "$menu_id" in
+    step_1_7)
+      state_file="$(dashboard_data_lesson_state_file_from_config "$DASHBOARD_LESSON_CONFIG")"
+      dashboard_data_lesson_current_step_index "$state_file"
+      ;;
+    step_1_14)
+      state_file="$(dashboard_data_lesson_state_file_from_config "$DASHBOARD_LESSON14_CONFIG")"
+      dashboard_data_lesson_current_step_index "$state_file"
+      ;;
+    *) printf '0' ;;
+  esac
+}
+
+dashboard_json_context_for_menu() {
+  local menu_id="$1"
+  local workflow_context target_name path_state current_step_id current_step_label step_index step_total
+  local status git_status_value ci_status_value security_status_value evidence_status next_action_status next_action_json blockers_json
+  workflow_context="$(dashboard_selected_workflow_context "$menu_id")"
+  target_name="$(dashboard_target_repository_name "$menu_id")"
+  path_state="$(dashboard_target_repository_path_state "$menu_id")"
+  current_step_id="$(dashboard_selected_current_step_id "$menu_id")"
+  current_step_label="$current_step_id"
+  step_index="$(dashboard_context_step_index_for_menu "$menu_id")"
+  step_total="$(dashboard_context_step_total_for_menu "$menu_id")"
+  status="$(dashboard_context_status_for_menu "$menu_id")"
+  git_status_value="$(dashboard_context_git_status_for_menu "$menu_id")"
+  ci_status_value="$(dashboard_context_ci_status_for_menu "$menu_id")"
+  security_status_value="$(dashboard_context_security_status_for_menu "$menu_id")"
+  evidence_status="$(dashboard_context_evidence_status_for_menu "$menu_id")"
+  next_action_status="$status"
+  if [[ "$next_action_status" == "ready" || "$next_action_status" == "passed" ]]; then
+    next_action_status="manual_required"
+  fi
+  next_action_json="$(dashboard_json_selected_next_safe_action "$menu_id" "$next_action_status")"
+  blockers_json="$(dashboard_context_blockers_for_menu "$menu_id")"
+  dashboard_json_selected_context \
+    "$menu_id" \
+    "$workflow_context" \
+    "$target_name" \
+    "$path_state" \
+    "$current_step_id" \
+    "$current_step_label" \
+    "$step_index" \
+    "$step_total" \
+    "$generated_at" \
+    "$git_status_value" \
+    "$ci_status_value" \
+    "$security_status_value" \
+    "$evidence_status" \
+    "$next_action_json" \
+    "$blockers_json"
 }
 
 skills_status() {
@@ -289,13 +801,15 @@ summary_mode() {
 }
 
 command_previews=(
-  "$(dashboard_json_command_preview "Validate dashboard JSON data" "lesson repository" "low" "false" "none" "./tools/test_dashboard_data.sh" "preview_only" "true" "./tools/test_dashboard_data.sh")"
+  "$(dashboard_json_command_preview "Low-risk check" "selected context" "low" "false" "none" "npm test" "preview_only" "true" "npm" "test")"
+  "$(dashboard_json_command_preview "E2E test review" "selected context" "medium" "false" "none" "npm run test:e2e" "preview_only" "true" "npm" "run" "test:e2e")"
   "$(dashboard_json_command_preview "Check product Git synchronization" "configured product repository" "low" "false" "none" "./tools/check_git_sync.sh --product --required" "preview_only" "true" "./tools/check_git_sync.sh" "--product" "--required")"
   "$(dashboard_json_command_preview "Check product CI status" "configured product repository" "medium" "false" "none" "./tools/check_ci_status.sh --product --required" "preview_only" "true" "./tools/check_ci_status.sh" "--product" "--required")"
-  "$(dashboard_json_command_preview "Preview Git push approval boundary" "current Git repository" "high" "true" "git_workflow_push_approval" "./tools/git-workflow approve push \"User approved push\"" "preview_only" "true" "./tools/git-workflow" "approve" "push" "User approved push")"
-  "$(dashboard_json_command_preview "Preview PR creation approval boundary" "current Git repository" "high" "true" "git_workflow_pr_approval" "./tools/git-workflow approve pr \"User approved PR creation\"" "preview_only" "true" "./tools/git-workflow" "approve" "pr" "User approved PR creation")"
-  "$(dashboard_json_command_preview "Preview merge approval boundary" "current Git repository" "critical" "true" "git_workflow_merge_approval" "./tools/git-workflow approve merge \"User approved merge\"" "preview_only" "true" "./tools/git-workflow" "approve" "merge" "User approved merge")"
-  "$(dashboard_json_command_preview "Preview product cleanup plan" "configured product repository" "critical" "true" "product_repository_cleanup_confirmation" "./tools/product-repository-cleanup plan" "preview_only" "true" "./tools/product-repository-cleanup" "plan")"
+)
+
+command_preview_groups=(
+  "$(dashboard_json_command_preview_group "safe_checks" "Low-risk checks" "low" 2)"
+  "$(dashboard_json_command_preview_group "evidence_checks" "Evidence checks" "medium" 2)"
 )
 
 schema_version="$(dashboard_data_schema_version)"
@@ -314,6 +828,38 @@ fi
 documents_status="$(product_documents_status)"
 git_sync_status="unknown"
 ci_status="optional"
+security_policy_status="$(dashboard_data_product_security_policy_status)"
+security_gate_status="unknown"
+dangerous_action_approval_status="approval_required"
+free_development_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "free-development" "all")"
+product_improvement_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "product-improvement" "all")"
+external_integration_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "external-integration" "all")"
+lesson_maintenance_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "lesson-maintenance" "all")"
+case "$PRODUCT_AUTHORITY_CONTEXT" in
+  free-development) product_authority_json="$free_development_authority_json" ;;
+  product-improvement) product_authority_json="$product_improvement_authority_json" ;;
+  external-integration) product_authority_json="$external_integration_authority_json" ;;
+  lesson-maintenance) product_authority_json="$lesson_maintenance_authority_json" ;;
+  *) product_authority_json="$lesson_maintenance_authority_json" ;;
+esac
+product_authority_status="$(dashboard_json_get_field "$product_authority_json" status 2>/dev/null || printf 'unknown')"
+dashboard_data_allowed_state "$product_authority_status" || product_authority_status="unknown"
+product_authority_blockers_json="$(dashboard_json_get_field "$product_authority_json" product_operation_blockers 2>/dev/null || printf '[]')"
+case "$product_authority_blockers_json" in
+  \[*\]) ;;
+  *) product_authority_blockers_json="[]" ;;
+esac
+free_development_authority_status="$(dashboard_json_get_field "$free_development_authority_json" status 2>/dev/null || printf 'unknown')"
+product_improvement_authority_status="$(dashboard_json_get_field "$product_improvement_authority_json" status 2>/dev/null || printf 'unknown')"
+external_integration_authority_status="$(dashboard_json_get_field "$external_integration_authority_json" status 2>/dev/null || printf 'unknown')"
+lesson_maintenance_authority_status="$(dashboard_json_get_field "$lesson_maintenance_authority_json" status 2>/dev/null || printf 'unknown')"
+
+git_sync_status="$(dashboard_authority_axis_status "$product_authority_json" "product.git" "unknown")"
+ci_status="$(dashboard_authority_axis_status "$product_authority_json" "product.ci" "optional")"
+security_gate_status="$(dashboard_authority_axis_status "$product_authority_json" "product.security" "$security_gate_status")"
+if [[ "$security_policy_status" != "ready" ]]; then
+  security_gate_status="$security_policy_status"
+fi
 
 as_built_sync_status="unknown"
 workflow_pair_status="unknown"
@@ -325,9 +871,28 @@ git_settings_status="$(dashboard_data_git_settings_status)"
 git_gate_status="unknown"
 git_approval_status="approval_required"
 
-security_policy_status="$(dashboard_data_product_security_policy_status)"
-security_gate_status="unknown"
-dangerous_action_approval_status="approval_required"
+selected_context_json="$(dashboard_json_context_for_menu "$SELECTED_MENU_ID")"
+contexts_by_menu_json="$(
+  dashboard_json_raw_object \
+    "step_1_7" "$(dashboard_json_context_for_menu "step_1_7")" \
+    "step_1_14" "$(dashboard_json_context_for_menu "step_1_14")" \
+    "advanced" "$(dashboard_json_context_for_menu "advanced")" \
+    "free-development" "$(dashboard_json_context_for_menu "free-development")" \
+    "product-improvement" "$(dashboard_json_context_for_menu "product-improvement")" \
+    "external-integration" "$(dashboard_json_context_for_menu "external-integration")" \
+    "lesson-repository-improvement" "$(dashboard_json_context_for_menu "lesson-repository-improvement")"
+)"
+available_contexts=(
+  "$(dashboard_json_available_context "step_1_7" "$(dashboard_selected_workflow_context "step_1_7")" "$(dashboard_target_repository_name "step_1_7")" "$(dashboard_context_status_for_menu "step_1_7")")"
+  "$(dashboard_json_available_context "step_1_14" "$(dashboard_selected_workflow_context "step_1_14")" "$(dashboard_target_repository_name "step_1_14")" "$(dashboard_context_status_for_menu "step_1_14")")"
+  "$(dashboard_json_available_context "advanced" "$(dashboard_selected_workflow_context "advanced")" "$(dashboard_target_repository_name "advanced")" "$(dashboard_context_status_for_menu "advanced")")"
+  "$(dashboard_json_available_context "free-development" "$(dashboard_selected_workflow_context "free-development")" "$(dashboard_target_repository_name "free-development")" "$(dashboard_context_status_for_menu "free-development")")"
+  "$(dashboard_json_available_context "product-improvement" "$(dashboard_selected_workflow_context "product-improvement")" "$(dashboard_target_repository_name "product-improvement")" "$(dashboard_context_status_for_menu "product-improvement")")"
+  "$(dashboard_json_available_context "external-integration" "$(dashboard_selected_workflow_context "external-integration")" "$(dashboard_target_repository_name "external-integration")" "$(dashboard_context_status_for_menu "external-integration")")"
+  "$(dashboard_json_available_context "lesson-repository-improvement" "$(dashboard_selected_workflow_context "lesson-repository-improvement")" "$(dashboard_target_repository_name "lesson-repository-improvement")" "$(dashboard_context_status_for_menu "lesson-repository-improvement")")"
+)
+
+add_selected_context_partial_failures "$selected_context_json"
 
 if [[ "${#blocking_items[@]}" -gt 0 ]]; then
   primary_action_status="blocked"
@@ -349,25 +914,61 @@ primary_action_json="$(
 category_metric_lessons="$(dashboard_json_category_metric "lessons" "Lesson Health" "items" "$lesson_7_status" "$lesson_14_status" "$advanced_status")"
 category_metric_workflow="$(
   dashboard_json_category_metric "workflow" "Workflow Health" "steps" \
-    "$product_repository_status" "$documents_status" "$git_sync_status" "$ci_status" \
-    "$git_policy_status" "$git_settings_status" "$git_gate_status" "$git_approval_status"
+    "$product_repository_status" "$product_authority_status" "$documents_status" "$git_sync_status" "$ci_status" \
+    "$git_gate_status" "$git_approval_status"
 )"
 category_metric_maintenance="$(
   dashboard_json_category_metric "maintenance" "Maintenance Health" "items" \
-    "$as_built_sync_status" "$workflow_pair_status" "$developer_memory_status" "$skills_status_value"
+    "$as_built_sync_status" "$workflow_pair_status"
 )"
 category_metric_security="$(
   dashboard_json_category_metric "security" "Security Health" "checks" \
-    "$security_policy_status" "$security_gate_status" "$dangerous_action_approval_status"
+    "$security_gate_status" "$dangerous_action_approval_status"
 )"
 category_metric_overview="$(
   dashboard_json_category_metric "overview" "Overview" "items" \
     "$lesson_7_status" "$lesson_14_status" "$advanced_status" \
-    "$product_repository_status" "$documents_status" "$git_sync_status" "$ci_status" \
-    "$git_policy_status" "$git_settings_status" "$git_gate_status" "$git_approval_status" \
-    "$as_built_sync_status" "$workflow_pair_status" "$developer_memory_status" "$skills_status_value" \
-    "$security_policy_status" "$security_gate_status" "$dangerous_action_approval_status"
+    "$product_repository_status" "$product_authority_status" "$documents_status" "$git_sync_status" "$ci_status" \
+    "$git_gate_status" "$git_approval_status" \
+    "$as_built_sync_status" "$workflow_pair_status" \
+    "$security_gate_status" "$dangerous_action_approval_status"
 )"
+
+git_operation_rows=(
+  "$(dashboard_json_operation_row "push" "Push" "$git_settings_status" "auto" "Push policy and settings are read from Git workflow configuration.")"
+  "$(dashboard_json_operation_row "pull_request" "PR creation" "$git_settings_status" "auto" "Pull request creation follows the configured Git workflow.")"
+  "$(dashboard_json_operation_row "pr_ci" "PR CI" "$ci_status" "auto" "PR CI status is evidence-backed or manual-required.")"
+  "$(dashboard_json_operation_row "main_ci" "Main CI" "$ci_status" "auto" "Main CI status is evidence-backed or manual-required.")"
+  "$(dashboard_json_operation_row "sync_check" "Sync check" "$git_sync_status" "auto" "Git sync is read-only snapshot data.")"
+  "$(dashboard_json_operation_row "merge" "Merge" "$git_approval_status" "gated" "Merge remains gated by approval policy.")"
+)
+
+workflow_recent_run_rows=(
+  "$(dashboard_json_workflow_run_row "ci-main" "$generated_at" "CI run" "main" "Current snapshot CI evidence" "$ci_status" "CI evidence")"
+  "$(dashboard_json_workflow_run_row "git-sync" "$generated_at" "Git sync" "main" "Current snapshot Git synchronization evidence" "$git_sync_status" "Git sync evidence")"
+  "$(dashboard_json_workflow_run_row "product-authority" "$generated_at" "Product evidence" "$PRODUCT_AUTHORITY_CONTEXT" "Product authority and manifest evidence" "$product_authority_status" "Product authority")"
+  "$(dashboard_json_workflow_run_row "security-gate" "$generated_at" "Security gate" "$PRODUCT_AUTHORITY_CONTEXT" "Product security gate snapshot" "$security_gate_status" "Security gate")"
+  "$(dashboard_json_workflow_run_row "next-step" "$generated_at" "Next step" "$SELECTED_MENU_ID" "$(dashboard_selected_current_step_id "$SELECTED_MENU_ID")" "manual_required" "Selected context")"
+)
+
+maintenance_evidence_rows=(
+  "$(dashboard_json_evidence_row "dashboard_data_schema" "Dashboard data schema" "required" "$as_built_sync_status" "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv")"
+  "$(dashboard_json_evidence_row "product_authority_evidence" "Product authority evidence" "required" "$product_authority_status" "docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv")"
+  "$(dashboard_json_evidence_row "git_workflow_settings" "Git workflow settings" "required" "$git_settings_status" "learning/GIT_WORKFLOW_SETTINGS.tsv")"
+  "$(dashboard_json_evidence_row "security_policy" "Security policy" "required" "$security_policy_status" "docs/workflow/PRODUCT_SECURITY_POLICY.tsv")"
+  "$(dashboard_json_evidence_row "developer_memory" "Developer memory" "required" "$developer_memory_status" "docs/memory/DEVELOPER_MEMORY.md")"
+  "$(dashboard_json_evidence_row "workflow_pair" "Workflow pair" "required" "$workflow_pair_status" "docs/workflow/TASK_TRACKER.md")"
+)
+
+security_approvals=(
+  "$(dashboard_json_security_item "dangerous_action_approval" "Dangerous action approval" "$dangerous_action_approval_status" "Dangerous operations require explicit approval before execution." "$generated_at")"
+  "$(dashboard_json_security_item "git_workflow_approval" "Git workflow approval" "$git_approval_status" "Push, PR, and merge approval states are tracked separately." "$generated_at")"
+)
+
+dangerous_operations=(
+  "$(dashboard_json_security_item "merge" "Merge" "$git_approval_status" "Merge is gated and must stay outside the dashboard UI." "$generated_at")"
+  "$(dashboard_json_security_item "cleanup" "Product cleanup" "$dangerous_action_approval_status" "Cleanup is preview-only until an explicit external approval path is used." "$generated_at")"
+)
 
 lesson_7_json="$(lesson_object "$(lesson_display_label lesson_7)" "$DASHBOARD_LESSON_CONFIG")"
 lesson_14_json="$(lesson_object "$(lesson_display_label lesson_14)" "$DASHBOARD_LESSON14_CONFIG")"
@@ -393,10 +994,18 @@ content_seed="$(
     "$lesson_7_json" \
     "$lesson_14_json" \
     "$advanced_lesson_json" \
+    "$selected_context_json" \
+    "$contexts_by_menu_json" \
+    "${available_contexts[*]}" \
     "$product_repository_status" \
     "$documents_status" \
     "$git_sync_status" \
     "$ci_status" \
+    "$product_authority_json" \
+    "$free_development_authority_status" \
+    "$product_improvement_authority_status" \
+    "$external_integration_authority_status" \
+    "$lesson_maintenance_authority_status" \
     "$as_built_sync_status" \
     "$workflow_pair_status" \
     "$developer_memory_status" \
@@ -408,7 +1017,13 @@ content_seed="$(
     "$security_policy_status" \
     "$security_gate_status" \
     "$dangerous_action_approval_status" \
-    "${command_previews[*]}"
+    "${command_previews[*]}" \
+    "${command_preview_groups[*]}" \
+    "${git_operation_rows[*]}" \
+    "${workflow_recent_run_rows[*]}" \
+    "${maintenance_evidence_rows[*]}" \
+    "${security_approvals[*]}" \
+    "${dangerous_operations[*]}"
 )"
 content_hash="$(dashboard_data_content_hash "$content_seed")"
 snapshot_id="${generated_at}-${content_hash:0:12}"
@@ -433,6 +1048,15 @@ printf '  "source_commands": '
 dashboard_json_string_array "${source_commands[@]}"
 printf ',\n'
 printf '  "warnings": [],\n'
+printf '  "selected_context": '
+printf '%s' "$selected_context_json"
+printf ',\n'
+printf '  "contexts_by_menu": '
+printf '%s' "$contexts_by_menu_json"
+printf ',\n'
+printf '  "available_contexts": '
+dashboard_json_raw_array "${available_contexts[@]}"
+printf ',\n'
 printf '  "partial_failures": '
 dashboard_json_raw_array "${partial_failures[@]}"
 printf ',\n'
@@ -488,6 +1112,15 @@ dashboard_json_string "$git_sync_status"
 printf ',\n'
 printf '    "ci_status": '
 dashboard_json_string "$ci_status"
+printf ',\n'
+printf '    "git_operations": '
+dashboard_json_raw_array "${git_operation_rows[@]}"
+printf ',\n'
+printf '    "recent_runs": '
+dashboard_json_raw_array "${workflow_recent_run_rows[@]}"
+printf ',\n'
+printf '    "product_authority": '
+printf '%s' "$product_authority_json"
 printf '\n'
 printf '  },\n'
 printf '  "maintenance": {\n'
@@ -502,6 +1135,9 @@ dashboard_json_string "$developer_memory_status"
 printf ',\n'
 printf '    "skills_status": '
 dashboard_json_string "$skills_status_value"
+printf ',\n'
+printf '    "evidence_rows": '
+dashboard_json_raw_array "${maintenance_evidence_rows[@]}"
 printf '\n'
 printf '  },\n'
 printf '  "git_workflow": {\n'
@@ -527,11 +1163,20 @@ dashboard_json_string "$security_gate_status"
 printf ',\n'
 printf '    "dangerous_action_approval": '
 dashboard_json_string "$dangerous_action_approval_status"
+printf ',\n'
+printf '    "approvals": '
+dashboard_json_raw_array "${security_approvals[@]}"
+printf ',\n'
+printf '    "dangerous_operations": '
+dashboard_json_raw_array "${dangerous_operations[@]}"
 printf '\n'
 printf '  },\n'
 printf '  "actions": {\n'
 printf '    "command_previews": '
 dashboard_json_raw_array "${command_previews[@]}"
+printf ',\n'
+printf '    "command_preview_groups": '
+dashboard_json_raw_array "${command_preview_groups[@]}"
 printf '\n'
 printf '  }\n'
 printf '}\n'

@@ -35,7 +35,10 @@ test_ci_pipeline_acceleration	regression	parallel	CI pipeline acceleration regre
 check_ci_workflow_structure	regression	parallel	CI workflow structure validation is read-only and can run in parallel.
 test_menu_prerequisites	regression	parallel	Menu prerequisite regression uses fixtures and can run in parallel.
 test_product_gate_tools	regression	parallel	Product gate regression uses fixtures and can run in parallel.
+test_product_launch_check	regression	parallel	Product launch-path regression uses temporary repositories and can run in parallel.
+test_product_scaffold_check	regression	parallel	Product scaffold regression uses temporary repositories and can run in parallel.
 test_product_repository_cleanup	regression	parallel	Product repository cleanup regression uses fixtures and can run in parallel.
+test_product_repository_authority	regression	parallel	Product repository authority regression uses temporary repositories and can run in parallel.
 test_product_security	regression	parallel	Product security regression uses fixtures and can run in parallel.
 test_lesson_playwright	heavy	heavy	Playwright is browser-heavy and uses its own resource guard profile.
 test_lesson_start_position	lesson-cli	parallel	Lesson start-position regression mutates only fixture lesson state and can run in parallel.

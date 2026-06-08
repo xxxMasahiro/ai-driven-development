@@ -1,4 +1,7 @@
 # context_id	menu_item	workflow_kind	product_repo_required	external_approval_required	safety_summary
+step_1_7	1	lesson	false	false	Use the foundation lesson state and settings before moving to workflow operations.
+step_1_14	2	lesson	true	false	Use the practical lesson state, product repository, and launch readiness before final completion.
+advanced	3	lesson	true	false	Use shared lesson settings and product repository readiness before applied lesson work.
 free-development	4	workflow	true	false	Choose the product stack, write the core documents, and record security assumptions before implementation.
 product-improvement	5	workflow	true	false	Check changed dependencies, authentication, APIs, storage, deletion, and logging before improving the product.
 external-integration	6	workflow	true	true	Confirm service, data movement, OAuth/API permissions, token storage, logging, rate limits, sandbox use, and rollback before implementation.

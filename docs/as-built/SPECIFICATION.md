@@ -373,6 +373,11 @@ SYNC-ID: test_ci_full_pipeline_acceleration_plan
 STATUS: implemented
 ARTIFACTS: docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/git-hooks,tools/ci-final-gate,tools/ci-evidence,tools/ci-playwright-setup,tools/lib/ci_evidence.sh,tools/lib/as_built_evidence.sh,tools/lib/git_hooks_policy.sh,tools/lib/resource_guard.sh,tools/check_as_built_sync_contract.sh,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh,tools/test_lesson_playwright.sh,tools/test_lesson_repository.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_as_built_docs.sh,tools/check_as_built_sync_contract.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh,tools/test_ci_pipeline_acceleration.sh
+
+RECORD: dashboard_control_center_mock_exact_alignment_correction
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,free-development/FREE_DEVELOPMENT_MODE.md,templates/TEMPLATES.md,lesson/SYNC_GATES_14_DAYS.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,tools/lib/product_repository_authority.sh,tools/free-development,tools/product-improvement,tools/external-integration,tools/product-scaffold-check,tools/product-launch-check,dashboard-control-center/mocks/mock-context-overview.png,dashboard-control-center/mocks/mock-context-lessons.png,dashboard-control-center/mocks/mock-context-workflow.png,dashboard-control-center/mocks/mock-context-maintenance.png,dashboard-control-center/mocks/mock-context-safety.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_launch_check.sh,tools/test_product_gate_tools.sh,tools/check_lesson14_sync.sh,tools/test_lesson14.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_launch_check.sh,tools/test_product_gate_tools.sh,tools/check_lesson14_sync.sh,tools/test_lesson14.sh,tools/check_test_plan_coverage.sh,tools/test_test_plan.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
 ```
 
 ### Planned Learner Context Foundation
@@ -1034,12 +1039,12 @@ Implemented verification:
 
 SYNC-ID: dashboard_control_center_information_architecture
 STATUS: implemented
-ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,vite.config.mjs,dashboard-control-center/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,vite.config.mjs,dashboard-control-center/mocks/archive/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
 TESTS: tools/test_dashboard_control_center.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
 
 ### Implemented Dashboard Control Center Visual Polish Specification
 
-The visual-polish layer refines the categorized read-only dashboard to more closely follow `dashboard-control-center/mock-categorized-dashboard.png`.
+The visual-polish layer refines the categorized read-only dashboard to more closely follow `dashboard-control-center/mocks/archive/mock-categorized-dashboard.png`.
 It is a frontend-only visual and layout layer over the existing dashboard JSON contract.
 
 Implemented visual model:
@@ -1075,13 +1080,13 @@ Implemented verification:
 
 SYNC-ID: dashboard_control_center_visual_polish
 STATUS: implemented
-ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,dashboard-control-center/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,dashboard-control-center/mocks/archive/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
 TESTS: tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
 
 ### Implemented Dashboard Control Center Mock Parity Specification
 
 The mock-parity layer is implemented as a schema-backed UI correction over the existing read-only categorized dashboard.
-It must align the real dashboard with the information density and major layout decisions shown in `dashboard-control-center/mock-categorized-dashboard.png` while preserving real data authority and responsive behavior.
+It must align the real dashboard with the information density and major layout decisions shown in `dashboard-control-center/mocks/archive/mock-categorized-dashboard.png` while preserving real data authority and responsive behavior.
 
 Implemented data model:
 
@@ -1119,7 +1124,7 @@ Implemented verification:
 
 SYNC-ID: dashboard_control_center_mock_parity
 STATUS: implemented
-ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,dashboard-control-center/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/fixtures/dashboard-control-center-invalid.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
+ARTIFACTS: docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,dashboard-control-center/mocks/archive/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/fixtures/dashboard-control-center-invalid.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
 TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
 
 ### Implemented Dashboard Control Center Live Snapshot Sync Specification
@@ -1229,7 +1234,7 @@ Implemented verification:
 
 SYNC-ID: dashboard_control_center_mock_aligned_overview
 STATUS: implemented
-ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,dashboard-control-center/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,dashboard-control-center/mocks/archive/mock-categorized-dashboard.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
 TESTS: tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
 
 ### Implemented Dashboard Control Center Detail-Page Mock Parity Specification
@@ -1307,7 +1312,7 @@ Implemented verification:
 
 SYNC-ID: dashboard_control_center_detail_mock_parity
 STATUS: implemented
-ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,dashboard-control-center/mock-detail-lessons.png,dashboard-control-center/mock-detail-workflow.png,dashboard-control-center/mock-detail-maintenance.png,dashboard-control-center/mock-detail-safety.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,dashboard-control-center/mocks/archive/mock-detail-lessons.png,dashboard-control-center/mocks/archive/mock-detail-workflow.png,dashboard-control-center/mocks/archive/mock-detail-maintenance.png,dashboard-control-center/mocks/archive/mock-detail-safety.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh,tools/test_lesson_repository.sh
 TESTS: tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
 
 ## Product Repository Boundary
@@ -1341,3 +1346,308 @@ The policy is implemented before learner-facing STEP wording is considered compl
 - `tools/menu`, `tools/dashboard`, `tools/roadmap`, `tools/lesson14`, `tools/learn`, and `tools/helpdesk` share or consume the same display-label boundary so new learner-facing output avoids old course labels and raw internal step IDs.
 - `tools/check_lesson14_sync.sh`, `tools/check_lesson14_structure.sh`, and `tools/test_lesson14.sh` must continue to protect the `Step N/14` sync-gate contract unless a later approved implementation separates sync keys from display labels mechanically.
 - The implementation adds `docs/workflow/LESSON_DISPLAY_LABELS.tsv` and `tools/lib/lesson_display_labels.sh` as the reusable display-label policy and shared helper.
+
+## Implemented External Product Repository Authority Specification
+
+SYNC-ID: external_product_repository_authority
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/product_repository_authority.sh,tools/product-repository-authority,tools/test_product_repository_authority.sh,tools/lib/dashboard_data.sh,tools/dashboard-data,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,tools/test_lesson_repository.sh,tools/check_lesson_structure.sh,tools/check_lesson14_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml,tools/check_ci_workflow_structure.sh
+TESTS: tools/test_product_repository_authority.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_test_plan_coverage.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+This implemented specification defines the contract for operating external product repositories and reporting their state to the dashboard.
+
+Product repository structure:
+
+- Product repositories keep only root-level operational entry files that must be immediately discoverable, including `.git`, `AGENT.md`, `README.md`, `.gitignore`, selected stack entry files, and optional CI configuration.
+- Product design documents live under `docs/product/`.
+- Product workflow documents live under `docs/workflow/`.
+- Product memory and recovery documents live under `docs/memory/` when used.
+- Product operation manifests live under `ops/`.
+- `docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv` is the lesson-side policy source for the expected product skeleton.
+- The structure policy records required mode, workflow contexts, product types, validation rule, dashboard visibility, canonical path, and legacy paths.
+- Existing root-level product documents remain legacy-readable through a shared resolver; the canonical new structure is `docs/product/` and `docs/workflow/`.
+- Standard root control directories such as `.github/workflows/` and `.githooks/` remain root-level control directories, not docs cleanup targets.
+
+Manifest contract:
+
+- `ops/STAGE_MANIFEST.tsv` declares lifecycle stages.
+- `ops/TEST_PLAN_MANIFEST.tsv` declares tests and whether they are required in the current product context.
+- `ops/CI_MANIFEST.tsv` declares CI workflows and required status expectations.
+- `ops/INTEGRATION_MANIFEST.tsv` declares external integrations and approval needs.
+- `ops/SECURITY_MANIFEST.tsv` declares security checks and required evidence.
+- `ops/DASHBOARD_MANIFEST.tsv` declares product surfaces that may appear in the dashboard.
+- Manifest column contracts are defined in `docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv` so each `ops/*_MANIFEST.tsv` can be parsed without stack-specific code.
+- Missing optional manifests must be visible as optional or unknown state, not silently treated as healthy.
+- Missing required manifests must be visible as blockers for product operations.
+
+Evidence contract:
+
+- Product gate evidence is stored under the product repository `.git/product-gate-evidence/` area so routine source commits do not persist volatile local evidence.
+- Evidence items use stable source ids and a fixed status vocabulary.
+- Evidence binds observations to workflow context, product root, product HEAD where applicable, observation time, freshness state, required-in-context state, authority, source artifacts, blockers, and read-only next-command previews.
+- `docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv` is the lesson-side policy source for evidence fields.
+- Evidence index rows use the fixed TSV columns recorded in the evidence schema.
+- Evidence statuses include `not_run` and `stale`; dashboard schema and UI state handling must preserve those meanings instead of collapsing them into `unknown`.
+- Source ids use the fixed namespaces recorded in the evidence schema, including `repositories.product` for missing product repositories.
+
+Dashboard contract:
+
+- `docs/workflow/DASHBOARD_DATA_SCHEMA.tsv` defines product authority, manifest summary, evidence summary, and product-operation blocker fields before the dashboard UI relies on them.
+- `tools/dashboard-data` exposes product authority, manifest summary, and evidence summary as structured data.
+- `tools/dashboard-data` reads existing product manifests and evidence only. It must not create product evidence, run product checks, call `gh`, fetch remotes, query GitHub Actions, or mutate the product repository.
+- Dashboard UI must render producer-owned product status and freshness instead of inventing state from UI labels.
+- Product repository missing status blocks product operations only; it does not block lesson-only progress.
+- Product-operation blockers must be source-scoped in product authority data rather than mixed into lesson-only summary blockers.
+- The browser remains read-only and may reload or poll data, but it must not execute product checks or mutate repositories.
+
+## Implemented STEP 1-14 Product Launch Quality Gate Specification
+
+SYNC-ID: step_1_14_product_launch_quality_gate
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,lesson/SYNC_GATES_14_DAYS.tsv,lesson/LESSON_FLOW_14_DAYS.tsv,prompts/PROMPTS_14_DAYS.md,skills/lesson-sync-gate/SKILL.md,tools/check_lesson14_sync.sh,tools/test_lesson14.sh,tools/product-launch-check,tools/test_product_launch_check.sh,tools/test_product_gate_tools.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/check_lesson14_sync.sh,tools/test_lesson14.sh,tools/test_product_launch_check.sh,tools/test_product_gate_tools.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+The STEP 1-14 final product launch contract is defined by the product repository's user-facing README launch instructions.
+For the standard task-tracker product, the implemented contract is direct browser opening of `index.html` without requiring a local HTTP server unless a later approved specification changes that launch path.
+
+Launch-gate behavior:
+
+- The lesson completion gate must verify the documented product launch path, not only a server-based developer test path.
+- The gate must check the primary user workflow: add a task, show it in the list, update active/done counters, change status, and clear completed tasks.
+- The gate must fail when the product README promises direct opening but the runtime code only works through HTTP server module loading.
+- The gate must treat URL query parameters such as `?title=...` as a failure symptom unless a future requirement explicitly adds query-prefill behavior.
+- The final STEP 1-14 completion flow must not pass solely because unit tests, HTTP-only E2E, CI, or document checks pass.
+- Product-side README, requirements, specification, implementation plan, task tracker, and handoff must describe the same launch path and verification path.
+
+Verification contract:
+
+- Product launch-path verification must be runnable directly for a product repository and callable from the lesson aggregate path.
+- The implemented launch verifier is exposed through `tools/product-launch-check` and `tools/test_product_launch_check.sh`.
+- The sync contract records the launch verifier runtime artifacts and tests now that they exist.
+- Existing STEP 1-14 sync gates remain ordered and approval-controlled.
+- When the product repository is missing, lesson-side checks must report the missing product context safely rather than recreating or mutating the repository.
+
+## Implemented Product Authority Evidence Status Propagation Specification
+
+SYNC-ID: product_authority_evidence_status_propagation
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/product_repository_authority.sh,tools/product-repository-authority,tools/test_product_repository_authority.sh,tools/lib/dashboard_data.sh,tools/dashboard-data,tools/test_dashboard_data.sh,tools/test_dashboard_schema.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/test_product_repository_authority.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+Product authority evidence aggregation must be deterministic, context-aware, and blocker-preserving.
+
+Evidence aggregation contract:
+
+- The evidence index may contain zero, one, or many rows.
+- Multiple rows that match the requested workflow context or `all` must emit a valid JSON array.
+- Invalid evidence rows must not corrupt the dashboard JSON output; they must be reported as failed, blocked, or unknown authority state.
+- Required evidence in `failed` or `blocked` state must create product-operation blockers.
+- Required evidence in `stale`, `not_run`, or `unknown` state must create stale, not-run, unknown, or manual-required product-operation state rather than being treated as ready.
+- Optional evidence must remain visible without becoming a required blocker.
+- Context-mismatched evidence must not improve the selected context status.
+
+Status contract:
+
+- `status`, `freshness_state`, `authority`, `required_in_context`, `blocked_by`, and `next_command` remain separate fields.
+- Product authority status must derive from the worst applicable required evidence and required structure state.
+- Product-operation blockers must remain separate from lesson-only blockers and summary manual follow-ups.
+- Product authority remains read-only; evidence creation is a separate future capability.
+
+## Implemented Free Development Product Repository Scaffold Specification
+
+SYNC-ID: free_development_product_repo_scaffold
+STATUS: implemented
+ARTIFACTS: free-development/FREE_DEVELOPMENT_MODE.md,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,tools/free-development,tools/product-improvement,tools/external-integration,tools/product-scaffold-check,tools/test_product_scaffold_check.sh,tools/test_product_gate_tools.sh,tools/test_product_repository_authority.sh,tools/check_workflow_pair_sync.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/test_product_scaffold_check.sh,tools/test_product_gate_tools.sh,tools/test_product_repository_authority.sh,tools/check_workflow_pair_sync.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+Free Development product repositories use a policy-driven scaffold contract rather than a copied lesson-repository shape.
+
+Scaffold contract:
+
+- Root-level files are limited to immediately discoverable product controls such as `.git`, `AGENT.md`, `README.md`, `.gitignore`, selected runtime entry files, and standard control directories.
+- Product requirements, specification, and implementation plan are canonical under `docs/product/`.
+- Product task tracker and handoff are canonical under `docs/workflow/`.
+- Product memory and recovery files are canonical under `docs/memory/` when present.
+- Operation declarations are canonical under `ops/`.
+- Legacy root product documents remain readable through shared resolvers until compatibility is intentionally removed through a later approved migration.
+- A manifest-backed entrypoint declaration must identify the browser or runtime entrypoint, source authority, test authority, CI authority, security authority, and dashboard-visible surfaces.
+- The implemented scaffold validator is exposed through `tools/product-scaffold-check` and `tools/test_product_scaffold_check.sh`.
+- Any new scaffold manifest file added at runtime must be added to the sync contract artifacts when the file exists.
+- Scaffold validation must use product type and workflow context, not hard-coded product names or stack-specific branches.
+
+Workflow contract:
+
+- Free Development, Product Improvement, and External Integration must use the same product-repository authority rules.
+- Missing required scaffold entries block product operations but must not block unrelated lesson-only progress.
+- Optional stack-specific files are allowed when declared through policy or manifests.
+
+## Implemented Dashboard Control Center Selected Context Sync Specification
+
+SYNC-ID: dashboard_control_center_selected_context_sync
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,tools/lib/product_repository_authority.sh,tools/product-repository-authority,tools/test_product_repository_authority.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,dashboard-control-center/mocks/mock-context-overview.png,dashboard-control-center/mocks/mock-context-lessons.png,dashboard-control-center/mocks/mock-context-workflow.png,dashboard-control-center/mocks/mock-context-maintenance.png,dashboard-control-center/mocks/mock-context-safety.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
+TESTS: tools/test_product_repository_authority.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
+
+This implemented specification defines the selected-context contract that the browser dashboard uses to present menu-specific live state as intuitive control-panel content.
+This fourth-priority dashboard specification displays the data produced by the launch-quality, evidence-status, and scaffold contracts rather than making the browser responsible for those decisions.
+
+Selected-context data contract:
+
+- `selected_context` is producer-owned dashboard JSON data that identifies the current menu, workflow context, target repository, product type, lesson step, next safe action, Git state, CI state, Security state, authority evidence, blockers, and update metadata.
+- `available_contexts[]` lists the menu choices the UI may show, including STEP 1-7, STEP 1-14, applied lessons, Free Development, Product Improvement, External Integration, and lesson-repository improvement.
+- UI selection may choose which available context to display, but the UI must not invent repository names, workflow context, authority status, progress percentages, blockers, or command previews.
+- The default selected context is resolved by the producer from existing lesson state, workflow settings, menu prerequisites, and product authority inputs.
+- Lesson display language and product development language remain workflow state. They are not the control-panel UI locale resolver.
+
+Context resolver behavior:
+
+- The resolver uses existing policy and settings sources, including lesson config files, workflow context maps, Git workflow settings, product structure policy, product gate evidence schema, product manifests, and current lesson state.
+- Resolver status readers mean read-only access to existing settings, manifests, and evidence read models; they do not execute shell commands, Git, GitHub, CI, product-security, product-authority, or evidence writers.
+- STEP 1-14 may continue to resolve `task-tracker-repository` as its standard product repository.
+- Free Development, Product Improvement, and External Integration must resolve product repository and workflow context through policy-backed context data, not hard-coded `task-tracker-repository` or `product-improvement` assumptions.
+- Lesson-repository improvement is a lesson-repository context and must not be treated as an external product operation unless a later approved workflow explicitly selects one.
+
+Evidence and status behavior:
+
+- Product authority must preserve `not_run` and `stale` states and must promote `failed` and `blocked` evidence into product authority status and product-operation blockers.
+- Multiple evidence rows must produce valid JSON and deterministic latest/status aggregation.
+- Partial Failures contain true failed, blocked, or unknown conditions that affect the current selected context.
+- Optional, cached, not-run, not-collected, and manual-required checks belong in manual follow-up or evidence sections unless they are current blockers.
+- Auto-merge availability must be evidence-backed; missing developer auto-merge gate evidence is a blocker or manual-required state, not a ready state.
+
+Dashboard read-only boundary:
+
+- `tools/dashboard-data` reads existing state, settings, manifests, and evidence only.
+- `tools/dashboard-data` must not create evidence, fetch remotes, call GitHub, run CI, run product checks, mutate repositories, or treat browser state as authoritative.
+- Browser pages may fetch dashboard JSON with GET and may keep last-known-good data, but must not execute shell, Git, GitHub, CI, `tools/*`, product-security, product-authority, merge, push, or cleanup commands.
+
+UI behavior:
+
+- The Overview shows a menu selector, selected-context summary, four context-aware status cards, Git management overview, and Security overview.
+- Detail pages start with a current-state summary explaining what is checked, what can be decided, what needs review, and the next safe check for the selected context.
+- The five `mock-context-*` images guide hierarchy, icon direction, density, color identity, and intuitive comprehension without becoming screenshot-equality test oracles.
+- Source files, source commands, and read-only boundaries are presented as evidence or data-grounding details, not as primary user tasks.
+
+## Implemented Dashboard Control Center Context Mock Source Of Truth Specification
+
+SYNC-ID: dashboard_control_center_context_mock_source_of_truth
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,dashboard-control-center/mocks/mock-context-overview.png,dashboard-control-center/mocks/mock-context-lessons.png,dashboard-control-center/mocks/mock-context-workflow.png,dashboard-control-center/mocks/mock-context-maintenance.png,dashboard-control-center/mocks/mock-context-safety.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
+
+This implemented specification makes the five `mock-context-*` images the current UI/UX authority while keeping `tools/dashboard-data` and the dashboard schema as the state authority.
+
+Shell and navigation:
+
+- The browser app uses a shared shell with fixed brand, main navigation, repository/navigation support links, page-specific active styling, and a read-only notice.
+- The sidebar is a navigation surface only. It must not expose executable Git, CI, Security, or repository commands.
+- Navigation anchors remain stable for `#overview`, `#lessons`, `#workflow`, `#maintenance`, and `#safety`.
+
+Overview:
+
+- The Overview header shows the page identity, selected-menu purpose, generated or refreshed timestamp, and a read-only refresh affordance that fetches or reloads dashboard JSON without running commands.
+- The menu-tile strip renders the seven workflow/menu choices from `available_contexts[]` and the selected state from `selected_context.menu_id`.
+- Selecting a non-authoritative menu option may change display focus only when producer-owned data for that context is available; otherwise the UI must show it as inspectable summary data, not as newly authoritative state.
+- The selected-context strip renders current context, target repository, next safe action, and update time from producer-owned fields.
+- Overview status cards render lesson progress, Git status, CI status, and Security status from dashboard data, not from hard-coded mock numbers.
+- Git management settings and Security confirmation are cross-cutting summaries with details routed to Workflow, Maintenance, and Safety pages.
+
+Detail pages:
+
+- Lessons renders selected lesson state, progress, current step, next learning action, lesson choices, status table, and lesson-health notice from lesson and selected-context data.
+- Development Workflow renders Git action settings, Git sync, CI, PR/Merge, product evidence, next step, recent workflow evidence where available, and read-only evidence notices from producer-owned status and evidence fields.
+- Maintenance Sync renders as-built sync, workflow pair, developer memory, repo-local skills, Git workflow settings, Security policy, evidence rows, source files, source commands, and read-only source boundaries from maintenance, Git workflow, Security, and metadata fields.
+- Safety Confirmation renders Security gate, approvals, dangerous operations, Partial Failures, command previews, and Security policy state from `security`, `partial_failures`, and `actions.command_previews`.
+
+Data and localization:
+
+- React may normalize display shape, but it must not invent healthier status, repository identity, command authority, current step, progress totals, evidence freshness, or blocker state.
+- New fields needed for current-step labels, operation rows, maintenance evidence rows, approvals, dangerous-operation summaries, or command-preview grouping must be added to `DASHBOARD_DATA_SCHEMA.tsv` before UI reliance.
+- Fixed labels use `i18n.js`; data-originated identifiers, command text, paths, source ids, and evidence ids remain sanitized data.
+- The UI locale may use browser/environment hints. Lesson workflow display language and product development language remain separate workflow settings.
+
+Safety:
+
+- The browser uses GET-only snapshot reads and last-known-good behavior.
+- Run, Execute, Apply, Merge, Push, Check, shell, Git, GitHub, CI, `tools/*`, product-security, product-authority, and cleanup command execution remain outside the browser UI.
+- Partial Failures and manual follow-ups remain separate categories.
+
+Verification:
+
+- Tests verify the mock-aligned structure, data-backed fields, read-only boundary, command-preview isolation, i18n labels, and responsive no-overflow behavior without requiring pixel-perfect screenshot equality.
+
+## Implemented Dashboard Control Center Exact Mock Alignment Correction Specification
+
+SYNC-ID: dashboard_control_center_mock_exact_alignment_correction
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,free-development/FREE_DEVELOPMENT_MODE.md,templates/TEMPLATES.md,lesson/SYNC_GATES_14_DAYS.tsv,tools/lib/dashboard_data.sh,tools/dashboard-data,tools/lib/product_repository_authority.sh,tools/free-development,tools/product-improvement,tools/external-integration,tools/product-scaffold-check,tools/product-launch-check,dashboard-control-center/mocks/mock-context-overview.png,dashboard-control-center/mocks/mock-context-lessons.png,dashboard-control-center/mocks/mock-context-workflow.png,dashboard-control-center/mocks/mock-context-maintenance.png,dashboard-control-center/mocks/mock-context-safety.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_launch_check.sh,tools/test_product_gate_tools.sh,tools/check_lesson14_sync.sh,tools/test_lesson14.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_launch_check.sh,tools/test_product_gate_tools.sh,tools/check_lesson14_sync.sh,tools/test_lesson14.sh,tools/check_test_plan_coverage.sh,tools/test_test_plan.sh,tools/test_git_hooks.sh,tools/test_git_hooks_parallel.sh,tools/test_ci_final_gate.sh,tools/check_ci_workflow_structure.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+This implemented correction specifies the exact mock-aligned dashboard control-center runtime now used for the developer-approved visual target.
+The browser remains a renderer of producer-owned state, and the rendered structure now lets the current mocks define the user-facing hierarchy instead of the older generic dashboard components.
+
+Data contract:
+
+- The producer must expose enough selected-context data for every selectable menu context that the UI displays.
+- `available_contexts[]` must not remain a thin menu/status list for the corrected runtime. It must either be expanded with the full fields needed by the selected-context UI or be paired with a `contexts_by_menu` style producer-owned map that carries repository, workflow context, step, Git, CI, Security, evidence, blocker, metric, and update data for each displayed menu.
+- The UI may choose an available context for display, but it must not invent repository identity, workflow context, Git status, CI status, Security status, product evidence, blockers, current step, command-preview groups, or progress percentages.
+- If a context lacks complete producer-owned data, the UI must display a safe incomplete state such as `blocked`, `unknown`, `manual_required`, `not_run`, or `stale`; it must not fill the gap with mock text.
+- Selected-context Git, CI, and Security status are derived from the product authority evidence axis for the active product workflow context. Product-operation blockers and required evidence items with matching `product.git.*`, `product.ci.*`, or `product.security.*` source ids take precedence over generic policy defaults.
+- Required evidence with `status=passed` is authoritative only when `freshness_state=current` and `authority=authoritative`. Advisory, cached, stale, not-run, failed, blocked, or unknown required evidence remains non-healthy and must remain visible through blockers, selected-context status, evidence rows, or safe manual-required state.
+- Lesson live status, Maintenance status cards, and Safety status cards render descriptions from lesson setting states, snapshot identity, maintenance evidence rows, security approval rows, dangerous-operation rows, and current-context Partial Failures rather than fixed explanatory prose.
+- Category metrics must distinguish selected-context progress from optional, unknown, not-run, cached, or manual follow-up state.
+- Partial Failures are limited to current-context failed, blocked, or unknown conditions. Optional and not-yet-collected evidence remain manual follow-up or evidence detail unless they block the selected context.
+
+UI structure:
+
+- The React shell must be split into page-specific surfaces for Overview, Lessons, Development Workflow, Maintenance Sync, and Safety Confirmation.
+- Shared components may cover shell, sidebar, icon badge, status pill, data sanitization, i18n labels, and read-only notice behavior.
+- Generic decision or snapshot components must not erase page-specific meaning when a mock uses different hierarchy, numbered steps, status rows, tables, command-preview groups, or evidence panels.
+- Sidebar groups, active-state styling, icon identity, color identity, contrast, card density, icon centering, background fill or transparency, and content amount must follow the current mock family.
+- Repository information, documents, settings, help, and changelog pages remain non-runtime surfaces until a later mock-backed specification adds them.
+
+Product repository and evidence behavior:
+
+- STEP 1-14 may keep `task-tracker-repository` as its standard product repository.
+- Free Development, Product Improvement, and External Integration must resolve target repositories through policy-backed context data, not fixed dashboard assumptions.
+- Product scaffold expectations remain canonical under `docs/product/`, `docs/workflow/`, `docs/memory/`, `ops/`, `src/`, and `tests/`, with root legacy document compatibility preserved.
+- `docs/memory/` is a standard directory in the external product scaffold. Individual memory documents may remain optional and appear only when the workflow uses them, but the scaffold and validators must not treat the directory concept as a stack-specific exception.
+- Product manifest entries must identify entrypoint, source authority, test authority, CI, security, and dashboard-visible surfaces without stack-specific branches.
+- Launch verification must connect README launch instructions with the manifest-backed entrypoint and user workflow before STEP 1-14 final completion depends on it.
+
+Safety boundary:
+
+- `tools/dashboard-data` remains a read-only producer. It may read existing settings, manifests, and evidence but must not create evidence, run Git, call GitHub, run CI, execute product-security or product-authority checks, or mutate repositories.
+- Browser pages use GET-only snapshot reads and must not expose executable operations.
+- Any future evidence writer, auto-merge execution, repository mutation, or live network polling belongs to a separate approved specification.
+
+Verification contract:
+
+- This implemented sync ID requires dashboard schema/data, browser control center, product authority, scaffold, launch quality, product gate, STEP 1-14 sync, STEP 1-14 aggregate, and as-built synchronization checks.
+- The sync contract and all five synchronized blocks carry the same targeted runtime `TESTS` list for the implemented state.
+- Future changes remain governed by AGENTS.MD local-verification scope and must run only the checks required by changed surfaces and the active workflow contract.
+
+## Planned Dashboard Lessons Page Exact Mock Alignment Specification
+
+SYNC-ID: dashboard_control_center_lessons_page_exact_mock_alignment
+STATUS: planned
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,dashboard-control-center/mocks/mock-context-lessons.png,dashboard-control-center/src/App.jsx,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_control_center.sh
+TESTS: tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_test_plan_coverage.sh,tools/check_ci_workflow_structure.sh
+
+The Lessons page remains a read-only renderer of producer-owned dashboard data for the selected workflow context.
+`dashboard-control-center/mocks/mock-context-lessons.png` is the visual and content-quantity source of truth for the next implementation pass.
+
+Required behavior:
+
+- Render the Lessons page with the same visible page structure, icon treatment, color contrast, density, label hierarchy, progress presentation, and card content amount shown by the current Lessons mock.
+- Reuse existing dashboard data fields for lesson mode, lesson progress, current step, approvals, blockers, follow-up state, repository identity, language settings, Git/CI/Security summaries, and evidence state.
+- Display safe incomplete states when producer data is missing; the React view must not invent progress, blocker, approval, Git, CI, Security, or repository facts.
+- Keep the control-panel UI locale separate from lesson display language and product development language.
+- Keep the sidebar and common status surfaces consistent with the current mock family while making only the Lessons page the runtime scope of this planned pass.
+- Preserve responsive behavior so desktop, narrow desktop, tablet, and phone widths do not overflow or hide primary labels.
+
+Implementation boundary:
+
+- Runtime changes should stay in `dashboard-control-center/src/App.jsx`, `dashboard-control-center/src/i18n.js`, `dashboard-control-center/src/styles.css`, and the related Playwright coverage unless a missing producer field is discovered.
+- If a missing producer field is discovered, stop and plan the schema and producer change instead of filling the UI with fixed text.
+- Do not turn mock image equality into an automated oracle. Use Playwright and screenshots for human visual inspection, and use tests for structural and behavior regressions.

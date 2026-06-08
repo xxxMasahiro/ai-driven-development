@@ -52,17 +52,6 @@ async function expectCenteredSvg(locator, tolerance = 1) {
   expect(Math.max(...deltas)).toBeLessThanOrEqual(tolerance);
 }
 
-async function expectCenteredText(locator, tolerance = 1) {
-  const delta = await locator.evaluate((element) => {
-    const range = document.createRange();
-    range.selectNodeContents(element);
-    const outer = element.getBoundingClientRect();
-    const inner = range.getBoundingClientRect();
-    return Math.abs(inner.top + inner.height / 2 - (outer.top + outer.height / 2));
-  });
-  expect(delta).toBeLessThanOrEqual(tolerance);
-}
-
 test.beforeEach(async ({ page }) => {
   await page.route("**/dashboard-control-center/index.html*", async (route) => {
     await route.fulfill({
@@ -86,7 +75,7 @@ test.beforeEach(async ({ page }) => {
 test.describe("English dashboard control center", () => {
   test.use({ locale: "en-US" });
 
-  test("renders categorized overview and isolates command previews", async ({ page }) => {
+  test("renders the mock-source overview and detail surfaces from producer data", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 980 });
     await page.goto("http://lesson.local/dashboard-control-center/index.html");
     const navigation = page.getByRole("navigation", { name: "Dashboard categories" });
@@ -97,134 +86,107 @@ test.describe("English dashboard control center", () => {
     await expect(navigation.getByRole("link", { name: /Development Workflow/ })).toBeVisible();
     await expect(navigation.getByRole("link", { name: /Maintenance Sync/ })).toBeVisible();
     await expect(navigation.getByRole("link", { name: /Safety Actions/ })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Repository" }).locator(".category-nav__link")).toHaveCount(3);
+    await expect(page.getByRole("navigation", { name: "Other" }).locator(".category-nav__link")).toHaveCount(2);
+    await expect(page.getByText("This dashboard is read-only.")).toBeVisible();
 
-    await expect(page.getByLabel("Dashboard snapshot status").getByText("Read-only")).toBeVisible();
-    await expect(page.getByText("This dashboard shows a read-only snapshot.")).toHaveCount(0);
-    await expect(page.getByText("Next safe action")).toBeVisible();
-    await expect(page.locator(".next-action-panel__head > svg[aria-hidden='true']")).toBeVisible();
-    await expect(page.getByText("Review lessons and accept for workflow")).toBeVisible();
-    await expect(page.locator(".primary-action-card")).toContainText("Review lessons and accept for workflow");
-    await expect(page.locator(".primary-action-card").getByText("Target")).toHaveCount(0);
-    await expect(page.locator(".action-meta-row > svg[aria-hidden='true']")).toHaveCount(3);
-    await expect(page.locator(".action-meta")).toContainText("Target");
-    await expect(page.locator(".action-meta")).toContainText("Expected Result");
-    await expect(page.locator(".action-meta")).toContainText("Risk");
-    const primaryActionHeight = await page.locator(".primary-action-card").evaluate((element) => element.getBoundingClientRect().height);
-    expect(primaryActionHeight).toBeLessThan(330);
-    await expect(page.getByText("Partial Failures")).toBeVisible();
-    const partialFailures = page.locator(".issue-summary", { hasText: "Partial Failures" });
-    await expect(partialFailures.locator(".issue")).toHaveCount(1);
-    await expect(partialFailures.locator("code")).toHaveCount(0);
-    await expect(page.getByText("security_gate")).toHaveCount(0);
-    await expect(page.getByRole("button", { name: "View all issues" })).toHaveCount(0);
-    await expect(page.locator(".issue-summary", { hasText: "Manual Follow-ups" })).toBeVisible();
-    await expect(page.getByText("This repository control panel is read-only.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
     await expect(page.getByText("Category Health")).toHaveCount(0);
-    await expect(page.getByRole("region", { name: "Category health" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Lesson Health" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Workflow Health" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Explore Pages" })).toBeVisible();
-    await expect(page.getByLabel("Dashboard snapshot status").getByText("Read-only")).toBeVisible();
-    await expect(page.getByText("Last updated")).toBeVisible();
-    await expect(page.locator(".status-strip__item")).toHaveCount(4);
-    await expect(page.locator(".status-strip__item > svg[aria-hidden='true']")).toHaveCount(4);
-    await expect(navigation.locator("svg[aria-hidden='true']")).toHaveCount(5);
-    await expect(navigation.getByRole("link", { name: /Development Workflow/ }).locator("[data-workflow-category-icon='true']")).toBeVisible();
-    await expect(page.locator(".health-card")).toHaveCount(4);
-    await expect(page.locator(".metric-ring")).toHaveCount(4);
-    await expect(page.locator(".health-card__head > svg[aria-hidden='true']")).toHaveCount(4);
-    const healthRingColors = await page.locator(".health-card").evaluateAll((cards) =>
-      cards.map((card) => getComputedStyle(card).getPropertyValue("--metric-color").trim()),
-    );
-    expect(healthRingColors.every(Boolean)).toBe(true);
-    expect(new Set(healthRingColors).size).toBe(4);
-    await expect(page.locator(".issue-summary", { hasText: "Partial Failures" }).locator(".issue-preview__head > div > svg[aria-hidden='true']")).toBeVisible();
-    await expect(page.locator(".issue-summary", { hasText: "Manual Follow-ups" }).locator(".issue-preview__head > div > svg[aria-hidden='true']")).toBeVisible();
-    await expect(page.locator(".health-card", { hasText: "Lesson Health" }).locator(".metric-ring")).toContainText("66%");
-    await expect(page.locator(".health-card", { hasText: "Workflow Health" }).locator(".metric-ring")).toContainText("62%");
-    await expect(page.locator(".explore-card")).toHaveCount(5);
-    await expect(page.locator(".explore-card", { hasText: "Lesson Health" }).locator(".explore-card__count")).toContainText("3 items");
-    await expect(page.locator(".explore-card", { hasText: "Lesson Health" }).locator(".explore-card__meta strong")).toContainText("66%");
-    const healthCards = await page.locator(".health-card").evaluateAll((cards) =>
-      cards.map((card) => {
-        const rect = card.getBoundingClientRect();
-        return { top: Math.round(rect.top), left: Math.round(rect.left) };
-      }),
-    );
-    expect(Math.abs(healthCards[0].top - healthCards[1].top)).toBeLessThanOrEqual(3);
-    expect(healthCards[2].top).toBeGreaterThan(healthCards[0].top);
-    expect(healthCards[1].left).toBeGreaterThan(healthCards[0].left);
-    const healthCardHeights = await page.locator(".health-card").evaluateAll((cards) => cards.map((card) => Math.round(card.getBoundingClientRect().height)));
-    expect(Math.abs(healthCardHeights[0] - healthCardHeights[1])).toBeLessThanOrEqual(3);
-    expect(Math.abs(healthCardHeights[2] - healthCardHeights[3])).toBeLessThanOrEqual(3);
+    await expect(page.locator(".menu-tile")).toHaveCount(7);
+    await expect(page.locator(".menu-tile.is-selected")).toContainText(/STEP 1-14\s*Practical lesson/);
+    await expect(page.locator(".menu-tile[data-menu-tile='free-development']")).toContainText("Free Development");
+    await expectCenteredSvg(page.locator(".menu-tile__icon"));
+    await expect(page.locator(".context-strip__item")).toHaveCount(4);
+    await expect(page.locator(".context-strip")).toContainText("Step 12 / 14");
+    await expect(page.locator(".context-strip")).toContainText("task-tracker-repository");
+    await expectCenteredSvg(page.locator(".context-strip__icon"));
+    await expect(page.locator(".overview-status-card")).toHaveCount(4);
+    await expectCenteredSvg(page.locator(".overview-status-card__icon"));
+    await expect(page.locator("[data-overview-status-card='lessons']")).toContainText("2 / 3");
+    await expect(page.locator("[data-overview-status-card='lessons']")).toContainText("66%");
+    await expect(page.locator("[data-overview-status-card='git']")).toContainText("Unconfirmed");
+    await expect(page.locator("[data-overview-status-card='security']")).toContainText("Blockers: 1");
+    await expect(page.locator(".common-status-card--git .common-status-op")).toHaveCount(4);
+    await expectCenteredSvg(page.locator(".common-status-card--git .common-status-op__label"));
+    await expect(page.locator(".common-status-card--security")).toContainText("Partial Failures");
+    await expect(page.locator(".common-status-card--security")).toContainText("1");
+    await expectCenteredSvg(page.locator(".common-status-card--security .common-status-card__icon"));
+    await expect(page.locator(".explore-card")).toHaveCount(4);
+    await expect(page.locator(".explore-card", { hasText: "Lessons" })).toContainText("Open");
     await expect(page.getByText("./tools/dashboard lesson")).toHaveCount(0);
     await expect(page.getByText("Preview merge boundary")).toHaveCount(0);
+
+    const overviewCards = await page.locator(".overview-status-card").evaluateAll((cards) =>
+      cards.map((card) => {
+        const rect = card.getBoundingClientRect();
+        return { top: Math.round(rect.top), height: Math.round(rect.height) };
+      }),
+    );
+    expect(new Set(overviewCards.map((card) => card.top)).size).toBe(1);
+    expect(Math.max(...overviewCards.map((card) => card.height)) - Math.min(...overviewCards.map((card) => card.height))).toBeLessThanOrEqual(3);
 
     await navigation.getByRole("link", { name: /Lessons/ }).click();
     await expect(page.getByRole("heading", { name: "Lessons" })).toBeVisible();
     await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
+    await expectCenteredSvg(page.locator(".page-title__icon"));
     await expectCenteredSvg(page.locator(".decision-summary__icon"));
-    await expectCenteredSvg(page.locator(".detail-page-header__icon"));
+    await expect(page.locator(".context-strip")).toContainText("Step 12 / 14");
+    await expect(page.locator(".context-strip--lessons .mini-progress-ring--icon")).toHaveCount(1);
     await expect(page.getByText("What this page checks")).toBeVisible();
     await expect(page.getByText("Current judgment")).toBeVisible();
     await expect(page.getByText("Must review")).toBeVisible();
     await expect(page.getByText("Next safe check")).toBeVisible();
     await expect(page.locator(".decision-summary__cta", { hasText: "Open workflow page" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Foundation Lesson" })).toBeVisible();
-    await expect(page.locator(".lesson-panel")).toHaveCount(2);
-    await expect(page.locator(".lesson-panel").first().locator(".lesson-row__label", { hasText: "Points" })).toBeVisible();
-    await expect(page.locator(".lesson-panel").first().locator(".lesson-row__label", { hasText: "Warnings" })).toBeVisible();
-    await expect(page.locator(".lesson-callout").first()).toBeVisible();
+    await expect(page.getByRole("heading", { name: "STEP 1-7 Basic Lesson" })).toBeVisible();
+    await expect(page.locator(".lesson-progress-card")).toHaveCount(2);
+    await expect(page.getByRole("heading", { name: "Live status (current execution state)" })).toBeVisible();
 
     await navigation.getByRole("link", { name: /Development Workflow/ }).click();
     await expect(page.getByRole("heading", { name: "Development Workflow" })).toBeVisible();
-    await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
+    await expectCenteredSvg(page.locator(".page-title__icon"));
     await expectCenteredSvg(page.locator(".decision-summary__icon"));
-    await expectCenteredSvg(page.locator(".detail-page-header__icon"));
-    await expect(page.getByRole("heading", { name: "Must Review First" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Ready Items" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Product Repository" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Approval" })).toBeVisible();
+    await expect(page.locator(".operation-chip")).toHaveCount(6);
+    await expect(page.locator(".workflow-mini-card")).toHaveCount(5);
+    await expectCenteredSvg(page.locator(".workflow-mini-card__icon"));
+    await expect(page.getByRole("heading", { name: "Git Sync" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Product Evidence" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Recent workflow execution" })).toBeVisible();
     await expect(page.getByText(/Development\.Product Repository/)).toHaveCount(0);
     await expect(page.getByText("development.git.sync.status")).toHaveCount(0);
-    await expect(page.getByText("git_sync")).toBeVisible();
-    await expect(page.locator("[data-workflow-category-icon='true']")).toHaveCount(5);
-    await expect(page.locator(".decision-summary__cta", { hasText: "Open safety page" })).toBeVisible();
-    await expect(page.locator(".detail-row")).toHaveCount(8);
+    await expect(page.locator(".mock-table-row--workflow")).toHaveCount(5);
 
     await navigation.getByRole("link", { name: /Maintenance Sync/ }).click();
     await expect(page.getByRole("heading", { name: "Maintenance Sync" })).toBeVisible();
-    await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
+    await expectCenteredSvg(page.locator(".page-title__icon"));
     await expectCenteredSvg(page.locator(".decision-summary__icon"));
-    await expectCenteredSvg(page.locator(".detail-page-header__icon"));
-    await expectCenteredSvg(page.locator(".detail-card__icon"));
-    await expect(page.getByRole("heading", { name: "Manual Confirmation Flow" })).toBeVisible();
-    await expect(page.locator(".decision-summary__cta", { hasText: "Open confirmation flow" })).toBeVisible();
-    await expect(page.locator(".confirmation-row")).toHaveCount(3);
+    await expectCenteredSvg(page.locator(".maintenance-mini-card__icon"));
+    await expect(page.locator(".maintenance-mini-card")).toHaveCount(6);
+    await expect(page.locator(".evidence-row")).toHaveCount(6);
+    await expect(page.locator(".evidence-row", { hasText: "Product authority evidence" })).toContainText("docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv");
     await expect(page.getByText("product_git_sync_live")).toHaveCount(0);
-    await expect(page.getByText("git_sync.live")).toBeVisible();
-    await expect(page.getByText("./tools/check_ci_status.sh --product --required")).toBeVisible();
+    await expect(page.getByText("git_sync.live")).toHaveCount(0);
+    await expect(page.getByText("Data grounding (details)")).toBeVisible();
+    await expect(page.getByText("tools/dashboard-data")).toBeVisible();
 
     await navigation.getByRole("link", { name: /Safety Actions/ }).click();
     await expect(page.getByRole("heading", { name: "Safety Actions" })).toBeVisible();
-    await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
+    await expectCenteredSvg(page.locator(".page-title__icon"));
     await expectCenteredSvg(page.locator(".decision-summary__icon"));
-    await expectCenteredSvg(page.locator(".detail-page-header__icon"));
-    await expectCenteredSvg(page.locator(".detail-card__icon"));
-    await expect(page.getByRole("heading", { name: "Partial Failures" })).toBeVisible();
-    await expect(page.locator(".decision-summary__cta", { hasText: "Open Partial Failures" })).toBeVisible();
-    await expect(page.getByText("Security gate violation")).toBeVisible();
+    await expectCenteredSvg(page.locator(".security-mini-card__icon"));
+    await expect(page.locator(".security-mini-card")).toHaveCount(4);
+    const safetyContextIconBackgrounds = await page.locator(".context-strip--safety .context-strip__icon").evaluateAll((icons) => icons.map((icon) => getComputedStyle(icon).backgroundColor));
+    expect(safetyContextIconBackgrounds.every((background) => background === "rgba(0, 0, 0, 0)")).toBe(true);
+    await expect(page.locator("#partial-failures-heading")).toBeVisible();
+    await expect(page.locator(".failure-row")).toHaveCount(1);
+    await expect(page.locator(".failure-row", { hasText: "Required product evidence has not run." })).toBeVisible();
     await expect(page.getByText("security_gate")).toHaveCount(0);
-    await expect(page.getByText("safety.gate.blocked")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Command Previews" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Command Previews (display only)" })).toBeVisible();
     await expect(page.locator(".display-only-badge").first()).toContainText("Display only");
     await expect(page.getByText("preview_only")).toHaveCount(0);
     await expect(page.getByText("git_workflow_merge_approval")).toHaveCount(0);
-    await expect(page.locator(".command-preview")).toHaveCount(2);
-    await expect(page.locator(".command-preview .command-chip")).toHaveCount(2);
-
+    await expect(page.locator(".command-preview")).toHaveCount(4);
+    await expect(page.locator(".command-preview .command-chip")).toHaveCount(4);
     await expect(page.getByRole("button", { name: /Run|Execute|Apply|Merge|Push|Check/i })).toHaveCount(0);
-    await expect(page.locator("[data-risk='critical']")).toBeVisible();
     await expect(page.locator("[data-state='approval_required']").first()).toBeVisible();
   });
 
@@ -238,12 +200,12 @@ test.describe("English dashboard control center", () => {
     await page.setViewportSize({ width: 390, height: 920 });
     await page.goto("http://lesson.local/dashboard-control-center/index.html");
 
-    await expect(page.getByText("[redacted secret-like data]", { exact: false })).toBeVisible();
-    await expect(page.getByText("TOKEN=abcdefghijklmnop", { exact: false })).toHaveCount(0);
-    await expect(page.locator(".explore-card")).toHaveCount(5);
-    await expect(page.locator(".metric-ring").first()).toBeVisible();
+    await expect(page.locator(".menu-tile")).toHaveCount(7);
+    await expect(page.locator(".overview-status-card")).toHaveCount(4);
+    await expect(page.locator(".explore-card")).toHaveCount(4);
     const hasHorizontalOverflow = await page.locator(".app-shell").evaluate((element) => element.scrollWidth > element.clientWidth);
     expect(hasHorizontalOverflow).toBe(false);
+
     for (const target of ["Lessons", "Development Workflow", "Maintenance Sync", "Safety Actions"]) {
       await page.getByRole("navigation", { name: "Dashboard categories" }).getByRole("link", { name: new RegExp(target) }).click();
       await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
@@ -253,7 +215,9 @@ test.describe("English dashboard control center", () => {
 
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.getByRole("navigation", { name: "Dashboard categories" }).getByRole("link", { name: /Maintenance Sync/ }).click();
-    await expect(page.getByRole("heading", { name: "Maintenance Sync" })).toBeVisible();
+    await expect(page.getByText("Data grounding (details)")).toBeVisible();
+    await expect(page.getByText("[redacted secret-like data]", { exact: false })).toHaveCount(0);
+    await expect(page.getByText("TOKEN=abcdefghijklmnop", { exact: false })).toHaveCount(0);
   });
 
   test("updates changed dashboard data without reloading the page", async ({ page }) => {
@@ -263,14 +227,15 @@ test.describe("English dashboard control center", () => {
 
     await page.setViewportSize({ width: 1440, height: 980 });
     await page.goto("http://lesson.local/dashboard-control-center/index.html?refresh_ms=100");
-    await expect(page.locator(".health-card", { hasText: "Lesson Health" }).locator(".metric-ring")).toContainText("66%");
+    await expect(page.locator("[data-overview-status-card='lessons']")).toContainText("2 / 3");
     await page.evaluate(() => {
       window.__dashboardReloadMarker = "kept";
     });
 
-    await expect(page.locator(".health-card", { hasText: "Lesson Health" }).locator(".metric-ring")).toContainText("100%");
-    await expect(page.locator(".issue-summary", { hasText: "Partial Failures" })).toContainText("None");
-    await expect(page.locator(".explore-card", { hasText: "Lesson Health" }).locator(".explore-card__count")).toContainText("4 items");
+    await expect(page.locator("[data-overview-status-card='lessons']")).toContainText("4 / 4");
+    await expect(page.locator("[data-overview-status-card='security']")).toContainText("Ready");
+    await expect(page.locator(".common-status-card--security")).toContainText("None");
+    await expect(page.locator(".explore-card", { hasText: "Lessons" })).toContainText("Open");
     await expect.poll(() => page.evaluate(() => window.__dashboardReloadMarker)).toBe("kept");
     expect(methods.every((method) => method === "GET")).toBe(true);
   });
@@ -281,14 +246,27 @@ test.describe("English dashboard control center", () => {
 
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("http://lesson.local/dashboard-control-center/index.html?refresh_ms=100");
-    await expect(page.locator(".health-card", { hasText: "Lesson Health" }).locator(".metric-ring")).toContainText("66%");
+    await expect(page.locator("[data-overview-status-card='lessons']")).toContainText("2 / 3");
     await expect(page.getByText("Latest snapshot is unavailable")).toBeVisible();
-    await expect(page.locator(".health-card", { hasText: "Lesson Health" }).locator(".metric-ring")).toContainText("66%");
-    await expect(page.locator(".health-card", { hasText: "Lesson Health" }).locator(".metric-ring")).toContainText("100%");
+    await expect(page.locator("[data-overview-status-card='lessons']")).toContainText("2 / 3");
+    await expect(page.locator("[data-overview-status-card='lessons']")).toContainText("4 / 4");
   });
 
   test("does not duplicate ready workflow items in the must-review section", async ({ page }) => {
     const readyWorkflow = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
+    readyWorkflow.selected_context = {
+      ...readyWorkflow.selected_context,
+      git_status: "ready",
+      ci_status: "ready",
+      security_status: "ready",
+      evidence_status: "ready",
+      blockers: [],
+    };
+    readyWorkflow.contexts_by_menu = {
+      ...readyWorkflow.contexts_by_menu,
+      [readyWorkflow.selected_context.menu_id]: readyWorkflow.selected_context,
+    };
+    readyWorkflow.partial_failures = [];
     readyWorkflow.summary.category_metrics.workflow = {
       ...readyWorkflow.summary.category_metrics.workflow,
       healthy: 8,
@@ -298,7 +276,23 @@ test.describe("English dashboard control center", () => {
       status: "ready",
     };
     readyWorkflow.development = {
+      ...readyWorkflow.development,
       product_repository: { status: "ready", configured_name: "example-product" },
+      product_authority: {
+        ...readyWorkflow.development.product_authority,
+        status: "ready",
+        evidence_summary: {
+          ...readyWorkflow.development.product_authority.evidence_summary,
+          index_status: "ready",
+          items: readyWorkflow.development.product_authority.evidence_summary.items.map((item) => ({
+            ...item,
+            status: "passed",
+            freshness_state: "current",
+            authority: "authoritative",
+          })),
+        },
+        product_operation_blockers: [],
+      },
       documents: { status: "ready" },
       git_sync_status: "ready",
       ci_status: "ready",
@@ -314,18 +308,16 @@ test.describe("English dashboard control center", () => {
     await routeDashboardDataPayload(page, readyWorkflow);
     await page.goto("http://lesson.local/dashboard-control-center/index.html#workflow");
 
-    const mustReview = page.locator("#workflow-review");
-    await expect(mustReview.getByRole("heading", { name: "Must Review First" })).toBeVisible();
-    await expect(mustReview.locator("[data-detail-row]")).toHaveCount(0);
-    await expect(mustReview).toContainText("No required review");
-    await expect(page.locator("#workflow-ready [data-detail-row]")).toHaveCount(8);
+    await expect(page.locator(".decision-summary--workflow")).toContainText("Ready");
+    await expect(page.locator(".workflow-mini-card")).toHaveCount(5);
+    await expect(page.locator(".mock-table-row--workflow")).toHaveCount(5);
   });
 });
 
 test.describe("Japanese dashboard control center", () => {
   test.use({ locale: "ja-JP" });
 
-  test("uses device language for fixed UI labels while preserving data text", async ({ page }) => {
+  test("uses device language for fixed UI labels while preserving producer data text", async ({ page }) => {
     await page.goto("http://lesson.local/dashboard-control-center/index.html");
     const navigation = page.getByRole("navigation", { name: "ダッシュボードカテゴリ" });
 
@@ -334,33 +326,37 @@ test.describe("Japanese dashboard control center", () => {
     await expect(navigation.getByRole("link", { name: /開発ワークフロー/ })).toBeVisible();
     await expect(navigation.getByRole("link", { name: /保守・同期/ })).toBeVisible();
     await expect(navigation.getByRole("link", { name: /安全確認/ })).toBeVisible();
-    await expect(page.getByLabel("ダッシュボードスナップショット状態").getByText("読み取り専用")).toBeVisible();
-    await expect(page.getByText("この画面は読み取り専用のスナップショットです。")).toHaveCount(0);
+    await expect(page.getByText("このダッシュボードは読み取り専用です。")).toBeVisible();
     await expect(page.getByText("カテゴリ別の状態")).toHaveCount(0);
-    await expect(page.getByRole("region", { name: "カテゴリ別の状態" }).getByText(/ワークフロー項目/)).toBeVisible();
-    await expect(page.getByRole("heading", { name: "ページを確認" })).toBeVisible();
-    await expect(page.getByText("最終更新")).toBeVisible();
-    await expectCenteredText(page.locator(".action-meta .risk", { hasText: "低" }).first());
-    await expect(page.getByText("このリポジトリ管理パネルは読み取り専用です。", { exact: false })).toBeVisible();
-    const manualFollowups = page.locator(".issue-summary", { hasText: "手動確認事項" });
-    await expect(manualFollowups).toContainText("ライブCI状態");
-    await expect(manualFollowups).not.toContainText("product_ci_live");
-    await expect(manualFollowups).not.toContainText("product_git_sync_live");
+    await expect(page.locator(".menu-tile.is-selected")).toContainText(/STEP 1-14\s*実践レッスン/);
+    await expect(page.locator("[data-overview-status-card='lessons']")).toContainText("2 / 3");
+    await expect(page.locator("[data-overview-status-card='security']")).toContainText("ブロッカー: 1");
+    await expect(page.locator(".common-status-card--security")).toContainText("Security確認");
+    await expect(page.locator(".common-status-card--git .common-status-op")).toHaveCount(4);
 
     await navigation.getByRole("link", { name: /レッスン/ }).click();
     await expect(page.getByLabel("詳細ページ判断サマリー")).toBeVisible();
     await expect(page.getByText("このページで確認すること")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Foundation Lesson" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "STEP 1-7 基礎レッスン" })).toBeVisible();
+    await expect(page.locator(".lesson-progress-card")).toHaveCount(2);
 
     await navigation.getByRole("link", { name: /開発ワークフロー/ }).click();
     await expect(page.getByLabel("詳細ページ判断サマリー")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "成果物リポジトリ" })).toBeVisible();
+    await expect(page.locator(".workflow-mini-card")).toHaveCount(5);
+    await expect(page.getByRole("heading", { name: "Product Evidence" })).toBeVisible();
     await expect(page.getByText(/Development\.Product Repository/)).toHaveCount(0);
+
+    await navigation.getByRole("link", { name: /保守・同期/ }).click();
+    await expect(page.getByRole("heading", { name: "同期と証跡の確認" })).toBeVisible();
+    await expect(page.locator(".evidence-row")).toHaveCount(6);
+    await expect(page.getByText("Product authority evidence")).toBeVisible();
+    await expect(page.getByText("product_ci_live")).toHaveCount(0);
 
     await navigation.getByRole("link", { name: /安全確認/ }).click();
     await expect(page.getByLabel("詳細ページ判断サマリー")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "コマンドプレビュー" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "コマンドプレビュー（表示専用）" })).toBeVisible();
     await expect(page.locator(".display-only-badge").first()).toContainText("表示専用");
-    await expect(page.locator(".command-preview .command-chip")).toHaveCount(2);
+    await expect(page.locator(".command-preview")).toHaveCount(4);
+    await expect(page.locator(".command-preview .command-chip")).toHaveCount(4);
   });
 });

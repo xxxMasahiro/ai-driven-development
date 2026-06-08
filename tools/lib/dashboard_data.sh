@@ -17,7 +17,7 @@ if ! declare -F product_security_policy_file >/dev/null 2>&1; then
 fi
 
 dashboard_data_schema_version() {
-  printf '0.2.0'
+  printf '0.6.0'
 }
 
 dashboard_data_generated_at() {
@@ -28,11 +28,17 @@ dashboard_data_generated_at() {
   fi
 }
 
+dashboard_data_control_chars=(
+  $'\001' $'\002' $'\003' $'\004' $'\005' $'\006' $'\007' $'\010'
+  $'\013' $'\014' $'\016' $'\017' $'\020' $'\021' $'\022' $'\023'
+  $'\024' $'\025' $'\026' $'\027' $'\030' $'\031' $'\032' $'\033'
+  $'\034' $'\035' $'\036' $'\037'
+)
+
 dashboard_data_strip_unsafe_control_chars() {
   local value="$1"
-  local code char
-  for code in 1 2 3 4 5 6 7 8 11 12 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31; do
-    printf -v char "\\$(printf '%03o' "$code")"
+  local char
+  for char in "${dashboard_data_control_chars[@]}"; do
     value="${value//$char/}"
   done
   printf '%s' "$value"
@@ -56,7 +62,6 @@ dashboard_data_safe_text() {
 dashboard_json_escape() {
   local value escaped
   value="$(dashboard_data_safe_text "$1")"
-  value="$(dashboard_data_strip_unsafe_control_chars "$value")"
   escaped="${value//\\/\\\\}"
   escaped="${escaped//\"/\\\"}"
   escaped="${escaped//$'\r'/\\r}"
@@ -104,9 +109,50 @@ dashboard_json_raw_array() {
   printf ']'
 }
 
+dashboard_json_raw_object() {
+  local first=1
+  local key
+  local value
+  printf '{'
+  while [[ "$#" -gt 0 ]]; do
+    key="$1"
+    value="$2"
+    shift 2
+    if [[ "$first" -eq 0 ]]; then
+      printf ','
+    fi
+    first=0
+    dashboard_json_string "$key"
+    printf ':'
+    printf '%s' "$value"
+  done
+  printf '}'
+}
+
+dashboard_json_get_field() {
+  local json="$1"
+  local path="$2"
+  DASHBOARD_JSON_INPUT="$json" DASHBOARD_JSON_PATH="$path" node -e '
+const data = JSON.parse(process.env.DASHBOARD_JSON_INPUT);
+let value = data;
+for (const key of process.env.DASHBOARD_JSON_PATH.split(".")) {
+  if (!key) continue;
+  value = value && typeof value === "object" ? value[key] : undefined;
+}
+if (value === undefined || value === null) {
+  process.exit(2);
+}
+if (typeof value === "object") {
+  process.stdout.write(JSON.stringify(value));
+} else {
+  process.stdout.write(String(value));
+}
+'
+}
+
 dashboard_data_allowed_state() {
   case "$1" in
-    missing|ready|passed|failed|blocked|unknown|approval_required|optional|cached) return 0 ;;
+    missing|ready|passed|failed|blocked|unknown|approval_required|optional|cached|not_run|stale|manual_required) return 0 ;;
   esac
   return 1
 }
@@ -172,6 +218,39 @@ dashboard_data_validate_guidance_priority() {
   esac
   printf 'invalid dashboard guidance priority: %s\n' "$1" >&2
   return 1
+}
+
+dashboard_data_workflow_context_map_file() {
+  printf '%s\n' "${DASHBOARD_WORKFLOW_CONTEXT_MAP_FILE:-$LESSON_ROOT/learning/context/WORKFLOW_CONTEXT_MAP.tsv}"
+}
+
+dashboard_data_workflow_context_map_row() {
+  local context_id="$1"
+  local file
+  file="$(dashboard_data_workflow_context_map_file)"
+  [[ -f "$file" ]] || return 1
+  awk -F '\t' -v context_id="$context_id" '
+    /^[[:space:]]*$/ { next }
+    $1 ~ /^#/ { next }
+    $1 == context_id { print; found = 1; exit }
+    END { exit found ? 0 : 1 }
+  ' "$file"
+}
+
+dashboard_data_workflow_context_map_field() {
+  local context_id="$1"
+  local field="$2"
+  local row field_number
+  row="$(dashboard_data_workflow_context_map_row "$context_id")" || return 1
+  case "$field" in
+    menu_item) field_number=2 ;;
+    workflow_kind) field_number=3 ;;
+    product_repo_required) field_number=4 ;;
+    external_approval_required) field_number=5 ;;
+    safety_summary) field_number=6 ;;
+    *) return 1 ;;
+  esac
+  printf '%s\n' "$row" | awk -F '\t' -v field_number="$field_number" '{ print $field_number; exit }'
 }
 
 dashboard_json_partial_failure() {
@@ -350,6 +429,118 @@ dashboard_json_guidance_item() {
   printf '}'
 }
 
+dashboard_json_operation_row() {
+  local id="$1"
+  local label="$2"
+  local status="$3"
+  local mode="$4"
+  local detail="$5"
+
+  dashboard_data_validate_state "$status"
+
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"label":'
+  dashboard_json_string "$label"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"mode":'
+  dashboard_json_string "$mode"
+  printf ',"detail":'
+  dashboard_json_string "$detail"
+  printf '}'
+}
+
+dashboard_json_workflow_run_row() {
+  local id="$1"
+  local time="$2"
+  local type="$3"
+  local target="$4"
+  local detail="$5"
+  local status="$6"
+  local reference="$7"
+
+  dashboard_data_validate_state "$status"
+
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"time":'
+  dashboard_json_string "$time"
+  printf ',"type":'
+  dashboard_json_string "$type"
+  printf ',"target":'
+  dashboard_json_string "$target"
+  printf ',"detail":'
+  dashboard_json_string "$detail"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"reference":'
+  dashboard_json_string "$reference"
+  printf '}'
+}
+
+dashboard_json_evidence_row() {
+  local id="$1"
+  local label="$2"
+  local importance="$3"
+  local status="$4"
+  local reference="$5"
+
+  dashboard_data_validate_state "$status"
+
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"label":'
+  dashboard_json_string "$label"
+  printf ',"importance":'
+  dashboard_json_string "$importance"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"reference":'
+  dashboard_json_string "$reference"
+  printf '}'
+}
+
+dashboard_json_security_item() {
+  local id="$1"
+  local label="$2"
+  local status="$3"
+  local detail="$4"
+  local last_checked="$5"
+
+  dashboard_data_validate_state "$status"
+
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"label":'
+  dashboard_json_string "$label"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"detail":'
+  dashboard_json_string "$detail"
+  printf ',"last_checked":'
+  dashboard_json_string "$last_checked"
+  printf '}'
+}
+
+dashboard_json_command_preview_group() {
+  local id="$1"
+  local label="$2"
+  local risk_level="$3"
+  local preview_count="$4"
+
+  dashboard_data_validate_risk_level "$risk_level"
+
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"label":'
+  dashboard_json_string "$label"
+  printf ',"risk_level":'
+  dashboard_json_string "$risk_level"
+  printf ',"preview_count":%d' "$preview_count"
+  printf '}'
+}
+
 dashboard_data_add_partial_failure() {
   local -n target_array="$1"
   shift
@@ -461,6 +652,30 @@ dashboard_data_lesson_all_completed() {
 dashboard_data_lesson_state_file_from_config() {
   local config_file="$1"
   lesson_abs_path_from_config_file "$config_file" "$(lesson_config_get_from_file "$config_file" state_file "learning/LESSON_STATE.tsv")"
+}
+
+dashboard_data_lesson_step_total() {
+  local state_file="$1"
+  [[ -f "$state_file" ]] || { printf '0'; return; }
+  awk -F '\t' '$1 !~ /^#/ { total++ } END { print total + 0 }' "$state_file"
+}
+
+dashboard_data_lesson_current_step_index() {
+  local state_file="$1"
+  [[ -f "$state_file" ]] || { printf '0'; return; }
+  awk -F '\t' '
+    $1 !~ /^#/ {
+      total++
+      if ($3 == "current") {
+        print total
+        found = 1
+        exit
+      }
+    }
+    END {
+      if (!found) print 0
+    }
+  ' "$state_file"
 }
 
 dashboard_data_lesson_setting_state() {
