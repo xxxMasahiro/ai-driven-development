@@ -33,7 +33,9 @@ require_file_contains() {
 require_job() {
   local file="$1"
   local job="$2"
-  if [[ -z "$(workflow_block "$file" "$job")" ]]; then
+  local block
+  block="$(workflow_block "$file" "$job")"
+  if [[ -z "$block" ]]; then
     printf 'Missing required job in %s: %s\n' "$file" "$job" >&2
     return 1
   fi
@@ -43,7 +45,9 @@ require_job_contains() {
   local file="$1"
   local job="$2"
   local pattern="$3"
-  if ! workflow_block "$file" "$job" | grep -Fq -- "$pattern"; then
+  local block
+  block="$(workflow_block "$file" "$job")"
+  if ! grep -Fq -- "$pattern" <<<"$block"; then
     printf 'Missing required text in %s job %s: %s\n' "$file" "$job" "$pattern" >&2
     return 1
   fi
@@ -53,7 +57,9 @@ reject_job_contains() {
   local file="$1"
   local job="$2"
   local pattern="$3"
-  if workflow_block "$file" "$job" | grep -Fq -- "$pattern"; then
+  local block
+  block="$(workflow_block "$file" "$job")"
+  if grep -Fq -- "$pattern" <<<"$block"; then
     printf 'Forbidden workflow text in %s job %s: %s\n' "$file" "$job" "$pattern" >&2
     return 1
   fi
