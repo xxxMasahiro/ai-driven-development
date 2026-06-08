@@ -1,0 +1,233 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/product_repository_authority.sh
+source "$ROOT/tools/lib/product_repository_authority.sh"
+
+COMMAND="${1:-check}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+REPO=""
+CONTEXT="free-development"
+PRODUCT_TYPE="all"
+FAILURES=()
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  tools/product-scaffold-check check [--repo <path>] [--context <context>] [--product-type <type>]
+
+This command is read-only. It validates the product repository standard scaffold:
+docs/product, docs/workflow, ops, src, tests, and ops/PRODUCT_MANIFEST.tsv.
+The product manifest declares entrypoint, source, and test authorities without
+hard-coding one technology stack.
+USAGE
+}
+
+fail() {
+  FAILURES+=("$1")
+}
+
+path_is_safe_relative() {
+  local relpath="$1"
+  [[ -n "$relpath" ]] || return 1
+  case "$relpath" in
+    /*|../*|*/../*|*/..|*\\*) return 1 ;;
+  esac
+  return 0
+}
+
+validate_required_structure() {
+  local repo="$1"
+  local context="$2"
+  local product_type="$3"
+  local scope item lifecycle_status required_mode contexts product_types validation_rule dashboard_visibility canonical_path legacy_paths requirement
+  local resolved resolved_status resolved_path resolved_source source_id
+
+  if ! product_repository_authority_validate_policy_files >/dev/null 2>&1; then
+    fail "product repository structure policy could not be validated."
+    return
+  fi
+
+  while IFS=$'\t' read -r scope item lifecycle_status required_mode contexts product_types validation_rule dashboard_visibility canonical_path legacy_paths requirement; do
+    product_repository_authority_required_for_context "$required_mode" "$contexts" "$product_types" "$context" "$product_type" || continue
+    resolved="$(product_repository_authority_resolve_structure_path "$repo" "$validation_rule" "$canonical_path" "$legacy_paths")"
+    IFS=$'\t' read -r resolved_status resolved_path resolved_source <<<"$resolved"
+    source_id="${scope}.${item}"
+    case "$resolved_status" in
+      ready)
+        if [[ "$context" == "free-development" && "$scope" =~ ^product_(docs|workflow)$ && "$resolved_source" != "canonical" ]]; then
+          fail "free-development scaffold must use canonical path for $source_id: $canonical_path"
+        fi
+        ;;
+      blocked)
+        fail "product scaffold has conflicting canonical and legacy paths for $source_id."
+        ;;
+      missing)
+        fail "product scaffold is missing required item $source_id: $canonical_path"
+        ;;
+      *)
+        fail "product scaffold has unknown state for $source_id."
+        ;;
+    esac
+  done < <(product_repository_authority_structure_rows)
+}
+
+manifest_rows() {
+  local manifest="$1"
+  awk -F '\t' '
+    /^[[:space:]]*$/ { next }
+    $1 ~ /^#/ { next }
+    {
+      if (NF != 9) {
+        printf "invalid product manifest row: %s\n", $0 > "/dev/stderr"
+        invalid = 1
+        next
+      }
+      print
+    }
+    END { exit invalid ? 1 : 0 }
+  ' "$manifest"
+}
+
+validate_product_manifest() {
+  local repo="$1"
+  local context="$2"
+  local product_type="$3"
+  local manifest="$repo/ops/PRODUCT_MANIFEST.tsv"
+  local row authority_id required_mode contexts product_types path path_role validation_rule dashboard_group description
+  local entrypoint_ready=0
+  local source_ready=0
+  local test_ready=0
+
+  if [[ ! -s "$manifest" ]]; then
+    fail "product scaffold is missing required manifest: ops/PRODUCT_MANIFEST.tsv"
+    return
+  fi
+
+  if ! manifest_rows "$manifest" >/dev/null; then
+    fail "ops/PRODUCT_MANIFEST.tsv must use the declared 9-column TSV format."
+    return
+  fi
+
+  while IFS= read -r row; do
+    authority_id="$(product_repository_authority_tsv_field "$row" 1)"
+    required_mode="$(product_repository_authority_tsv_field "$row" 2)"
+    contexts="$(product_repository_authority_tsv_field "$row" 3)"
+    product_types="$(product_repository_authority_tsv_field "$row" 4)"
+    path="$(product_repository_authority_tsv_field "$row" 5)"
+    path_role="$(product_repository_authority_tsv_field "$row" 6)"
+    validation_rule="$(product_repository_authority_tsv_field "$row" 7)"
+    dashboard_group="$(product_repository_authority_tsv_field "$row" 8)"
+    description="$(product_repository_authority_tsv_field "$row" 9)"
+
+    case "$path_role" in
+      entrypoint|source|test|doc|workflow|ops|ci|security|integration|custom) ;;
+      *) fail "product manifest row has unsupported path_role for $authority_id: $path_role"; continue ;;
+    esac
+    case "$validation_rule" in
+      file_exists|file_nonempty|path_exists|tsv_valid) ;;
+      *) fail "product manifest row has unsupported validation_rule for $authority_id: $validation_rule"; continue ;;
+    esac
+    if ! path_is_safe_relative "$path"; then
+      fail "product manifest row must use a safe relative path for $authority_id."
+      continue
+    fi
+    [[ -n "$dashboard_group" && -n "$description" ]] || fail "product manifest row must include dashboard_group and description for $authority_id."
+
+    product_repository_authority_required_for_context "$required_mode" "$contexts" "$product_types" "$context" "$product_type" || continue
+    if ! product_repository_authority_path_valid "$repo" "$path" "$validation_rule"; then
+      fail "product manifest required path is not valid for $authority_id: $path"
+      continue
+    fi
+
+    case "$path_role" in
+      entrypoint) entrypoint_ready=$((entrypoint_ready + 1)) ;;
+      source) source_ready=$((source_ready + 1)) ;;
+      test) test_ready=$((test_ready + 1)) ;;
+    esac
+  done < <(manifest_rows "$manifest")
+
+  [[ "$entrypoint_ready" -eq 1 ]] || fail "product manifest must declare exactly one required entrypoint authority."
+  [[ "$source_ready" -eq 1 ]] || fail "product manifest must declare exactly one required source authority."
+  [[ "$test_ready" -eq 1 ]] || fail "product manifest must declare exactly one required test authority."
+}
+
+run_check() {
+  local repo="$1"
+  local context="$2"
+  local product_type="$3"
+
+  if [[ ! -d "$repo" ]]; then
+    fail "configured product repository is missing."
+  elif [[ ! -d "$repo/.git" ]]; then
+    fail "configured product path is not a Git repository."
+  fi
+
+  if [[ "${#FAILURES[@]}" -eq 0 ]]; then
+    validate_required_structure "$repo" "$context" "$product_type"
+    validate_product_manifest "$repo" "$context" "$product_type"
+  fi
+
+  if [[ "${#FAILURES[@]}" -gt 0 ]]; then
+    printf 'Product scaffold check failed.\n' >&2
+    local failure
+    for failure in "${FAILURES[@]}"; do
+      printf '%s\n' "- $failure" >&2
+    done
+    return 1
+  fi
+
+  printf 'Product scaffold check passed.\n'
+  printf 'Context: %s\n' "$context"
+  printf 'Product type: %s\n' "$product_type"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --repo)
+      REPO="${2:-}"
+      shift 2
+      ;;
+    --context)
+      CONTEXT="${2:-}"
+      shift 2
+      ;;
+    --product-type)
+      PRODUCT_TYPE="${2:-}"
+      shift 2
+      ;;
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    *)
+      printf 'unknown option: %s\n' "$1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$REPO" ]]; then
+  REPO="$(lesson_product_repo_root)"
+fi
+
+case "$COMMAND" in
+  check|status|現在地)
+    run_check "$REPO" "$CONTEXT" "$PRODUCT_TYPE"
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    printf 'unknown command: %s\n' "$COMMAND" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

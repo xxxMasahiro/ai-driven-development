@@ -98,6 +98,30 @@ cp learning/GIT_WORKFLOW_SETTINGS.tsv learning/GIT_WORKFLOW_SETTINGS.tsv.bak
 grep 'Invalid value for automation_level' /tmp/menu-git-policy-invalid.out >/dev/null
 mv learning/GIT_WORKFLOW_SETTINGS.tsv.bak learning/GIT_WORKFLOW_SETTINGS.tsv
 
+setting_value() {
+  local key="$1"
+  awk -F '\t' -v key="$key" '
+    $1 == key {
+      print $2
+      found = 1
+    }
+    END {
+      if (!found) {
+        exit 1
+      }
+    }
+  ' learning/GIT_WORKFLOW_SETTINGS.tsv
+}
+
+expected_commit_automation="$(setting_value commit_automation)"
+expected_push_automation="$(setting_value push_automation)"
+expected_pr_creation="$(setting_value pr_creation)"
+expected_pr_ci_monitoring="$(setting_value pr_ci_monitoring)"
+expected_merge_execution="$(setting_value merge_execution)"
+expected_developer_auto_merge_allowed="$(setting_value developer_auto_merge_allowed)"
+expected_main_ci_monitoring="$(setting_value main_ci_monitoring)"
+expected_sync_monitoring="$(setting_value sync_monitoring)"
+
 ./tools/lesson 学習モード A >/dev/null
 ./tools/lesson 表示言語 ja >/dev/null
 ./tools/lesson 開発言語 ja >/dev/null
@@ -122,14 +146,14 @@ done
 ./tools/menu readiness | grep 'Git branch permission: true' >/dev/null
 ./tools/menu readiness | grep 'Git worktree permission: false' >/dev/null
 ./tools/menu readiness | grep 'Git direct-main permission: false' >/dev/null
-./tools/menu readiness | grep 'Git commit automation: auto' >/dev/null
-./tools/menu readiness | grep 'Git push automation: manual' >/dev/null
-./tools/menu readiness | grep 'Git PR creation: manual' >/dev/null
-./tools/menu readiness | grep 'Git PR CI monitoring: auto' >/dev/null
-./tools/menu readiness | grep 'Git merge execution: after_approval' >/dev/null
-./tools/menu readiness | grep 'Git developer auto-merge allowed: false' >/dev/null
-./tools/menu readiness | grep 'Git main CI monitoring: auto' >/dev/null
-./tools/menu readiness | grep 'Git sync monitoring: auto' >/dev/null
+./tools/menu readiness | grep "Git commit automation: $expected_commit_automation" >/dev/null
+./tools/menu readiness | grep "Git push automation: $expected_push_automation" >/dev/null
+./tools/menu readiness | grep "Git PR creation: $expected_pr_creation" >/dev/null
+./tools/menu readiness | grep "Git PR CI monitoring: $expected_pr_ci_monitoring" >/dev/null
+./tools/menu readiness | grep "Git merge execution: $expected_merge_execution" >/dev/null
+./tools/menu readiness | grep "Git developer auto-merge allowed: $expected_developer_auto_merge_allowed" >/dev/null
+./tools/menu readiness | grep "Git main CI monitoring: $expected_main_ci_monitoring" >/dev/null
+./tools/menu readiness | grep "Git sync monitoring: $expected_sync_monitoring" >/dev/null
 ./tools/menu readiness | grep '\[1\] STEP 1-7: 基礎レッスン' >/dev/null
 ./tools/menu readiness | grep '\[2\] STEP 1-14: 実践レッスン' >/dev/null
 ./tools/menu readiness | grep '\[7\] 教材そのものを改善' >/dev/null
@@ -137,13 +161,13 @@ dashboard_menu_output="$(./tools/dashboard menu)"
 grep 'STEP 1-7: 基礎レッスン' <<<"$dashboard_menu_output" >/dev/null
 grep 'STEP 1-14: 実践レッスン' <<<"$dashboard_menu_output" >/dev/null
 grep '7日間レッスン\|14日間レッスン' <<<"$dashboard_menu_output" >/dev/null && exit 1 || true
-grep 'Git commit automation: auto' <<<"$dashboard_menu_output" >/dev/null
-grep 'Git push automation: manual' <<<"$dashboard_menu_output" >/dev/null
-grep 'Git PR creation: manual' <<<"$dashboard_menu_output" >/dev/null
-grep 'Git PR CI monitoring: auto' <<<"$dashboard_menu_output" >/dev/null
-grep 'Git merge execution: after_approval' <<<"$dashboard_menu_output" >/dev/null
-grep 'Git developer auto-merge allowed: false' <<<"$dashboard_menu_output" >/dev/null
-grep 'Git main CI monitoring: auto' <<<"$dashboard_menu_output" >/dev/null
-grep 'Git sync monitoring: auto' <<<"$dashboard_menu_output" >/dev/null
+grep "Git commit automation: $expected_commit_automation" <<<"$dashboard_menu_output" >/dev/null
+grep "Git push automation: $expected_push_automation" <<<"$dashboard_menu_output" >/dev/null
+grep "Git PR creation: $expected_pr_creation" <<<"$dashboard_menu_output" >/dev/null
+grep "Git PR CI monitoring: $expected_pr_ci_monitoring" <<<"$dashboard_menu_output" >/dev/null
+grep "Git merge execution: $expected_merge_execution" <<<"$dashboard_menu_output" >/dev/null
+grep "Git developer auto-merge allowed: $expected_developer_auto_merge_allowed" <<<"$dashboard_menu_output" >/dev/null
+grep "Git main CI monitoring: $expected_main_ci_monitoring" <<<"$dashboard_menu_output" >/dev/null
+grep "Git sync monitoring: $expected_sync_monitoring" <<<"$dashboard_menu_output" >/dev/null
 
 printf 'Menu prerequisite tests passed.\n'

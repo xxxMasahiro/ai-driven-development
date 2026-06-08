@@ -1,0 +1,37 @@
+# section	field	lifecycle_status	type	allowed_values	requirement
+evidence	index_path	implemented	path	.git/product-gate-evidence/index.tsv	Authoritative product gate evidence index is stored under the product repository .git directory, not committed into product source by default.
+evidence	index_columns	implemented	tsv	source_id|context|status|freshness_state|required_in_context|authority|observed_at|max_age_seconds|product_root|product_head|source_artifacts|blocked_by|next_command	The evidence index uses a fixed TSV column order so dashboard, gates, and tests parse it without prose.
+evidence	source_id	implemented	string	source-id	Each evidence item has a stable source id that dashboard and gates can reference without parsing prose.
+evidence	source_id_namespace	implemented	enum	repositories.product|product.docs|product.workflow|product.git|product.ci|product.security|product.approvals|product.gates	Source ids use a fixed namespace so product-operation blockers are stable.
+evidence	context	implemented	string	free-development|product-improvement|external-integration|lesson-maintenance|custom	Each evidence item records the workflow context such as free-development, product-improvement, or external-integration.
+evidence	product_root	implemented	path	sanitized-path	Each evidence item records the checked product repository root in sanitized form.
+evidence	product_head	implemented	git-sha|none	sha1|sha256|none	Each evidence item binds the result to the product repository HEAD where applicable.
+evidence	observed_at	implemented	string	iso8601|not_collected	Each evidence item records when the observation was made.
+evidence	max_age_seconds	implemented	integer	non-negative|0-for-no-expiry	Each evidence item records freshness expectations without hard-coding them in the UI.
+evidence	status	implemented	enum	not_run|passed|failed|blocked|unknown|optional|cached|stale	Status uses a fixed vocabulary that can distinguish not-run and stale evidence from unknown state.
+evidence	freshness_state	implemented	enum	current|stale|not_collected|unknown	Freshness is explicit so dashboard can separate current evidence from old evidence.
+evidence	required_in_context	implemented	boolean	true|false	Each evidence item records whether the workflow context requires it.
+evidence	authority	implemented	enum	authoritative|manual_required|advisory|not_collected	Each evidence item records whether the value is authoritative, manual_required, advisory, or not collected.
+evidence	source_artifacts	implemented	list	semicolon-separated-relative-path-or-command-ids	Each evidence item lists the policy, manifest, command, or file sources used to produce it.
+evidence	blocked_by	implemented	list	semicolon-separated-source-ids	Each evidence item lists blocking source ids when the status is blocked or unknown.
+evidence	next_command	implemented	command-preview	preview_only-text	Each evidence item may provide a read-only command preview for manual follow-up.
+resolver	canonical_priority	implemented	enum	canonical_first|legacy_when_canonical_missing|blocked_on_conflict	Product document resolution prefers canonical docs paths, reads legacy root paths when canonical files are missing, and blocks conflicting duplicate content.
+resolver	legacy_paths_none	implemented	string	none	The `none` legacy_paths value is a sentinel that means no legacy path is accepted for that structure row.
+manifest	required_mode_values	implemented	enum	required|optional|contextual	Manifest and structure rows use fixed required-mode values.
+manifest	context_values	implemented	enum	all|free-development|product-improvement|external-integration|lesson-maintenance|custom	Manifest and structure contexts use fixed values, with `all` applying to every product workflow context.
+manifest	product_type_values	implemented	enum	all|web|api|cli|library|integration|custom	Manifest and structure product types use fixed values, with `all` applying to every product type.
+manifest	missing_required_status	implemented	enum	blocked	Missing required rows become product-operation blockers.
+manifest	missing_optional_status	implemented	enum	optional|unknown	Missing optional rows are visible but not blockers.
+manifest	missing_contextual_status	implemented	enum	blocked|optional|unknown	Missing contextual rows depend on whether the current context/product type requires the row.
+manifest	stage_manifest_columns	implemented	tsv	stage_id|required_mode|contexts|product_types|dashboard_group|description	Stage manifests declare lifecycle stages without stack-specific code branches.
+manifest	test_plan_manifest_columns	implemented	tsv	test_id|required_mode|contexts|product_types|command_id|evidence_source|dashboard_group|description	Test manifests declare required and optional product checks without stack-specific code branches.
+manifest	ci_manifest_columns	implemented	tsv	ci_id|required_mode|contexts|workflow_file|workflow_name|branch_policy|evidence_source|description	CI manifests bind product CI expectations to real workflow files and evidence sources.
+manifest	integration_manifest_columns	implemented	tsv	integration_id|required_mode|contexts|service_kind|approval_source|security_source|dashboard_group|description	Integration manifests declare external services and approval/security evidence.
+manifest	security_manifest_columns	implemented	tsv	security_id|required_mode|contexts|policy_source|evidence_source|dashboard_group|description	Security manifests declare required security checks and evidence.
+manifest	dashboard_manifest_columns	implemented	tsv	surface_id|required_mode|contexts|source_id|label_key|dashboard_group|description	Dashboard manifests declare which product surfaces can appear in dashboard data.
+manifest	product_manifest_columns	implemented	tsv	authority_id|required_mode|contexts|product_types|path|path_role|validation_rule|dashboard_group|description	Product manifests declare entrypoint, source, and test authorities without stack-specific code branches.
+manifest	product_manifest_path_roles	implemented	enum	entrypoint|source|test|doc|workflow|ops|ci|security|integration|custom	Product manifest path roles use a fixed vocabulary so dashboard and gates can summarize scaffold authority.
+dashboard	product_authority	implemented	object	structured-status	Dashboard data exposes product authority as structured source status, not as UI-invented judgment.
+dashboard	manifest_summary	implemented	object	manifest-coverage	Dashboard data exposes product manifest coverage and missing required surfaces.
+dashboard	evidence_summary	implemented	object	evidence-coverage	Dashboard data exposes latest evidence status and freshness for Git, docs, CI, security, approvals, and gates.
+dashboard	product_operation_blockers	implemented	array	source-scoped-blockers	Dashboard data exposes product-operation blockers separately from lesson-only progress blockers.

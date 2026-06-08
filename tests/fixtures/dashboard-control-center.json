@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.2.0",
+  "schema_version": "0.6.0",
   "generated_at": "2026-06-05T00:00:00Z",
   "snapshot_id": "2026-06-05T00:00:00Z-aaaaaaaaaaaa",
   "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -13,24 +13,91 @@
   "warnings": [
     "TOKEN=abcdefghijklmnop should be redacted before display."
   ],
+  "selected_context": {
+    "menu_id": "step_1_14",
+    "workflow_context": "lesson",
+    "target_repository": {
+      "name": "task-tracker-repository",
+      "path_state": "configured"
+    },
+    "product_type": "all",
+    "current_step_id": "day12.subagents-plan",
+    "current_step_label": "Step 12 / 14 - Sub-agent design",
+    "current_step_index": 12,
+    "current_step_total": 14,
+    "updated_at": "2026-06-05T00:00:00Z",
+    "git_status": "unknown",
+    "ci_status": "optional",
+    "security_status": "unknown",
+    "evidence_status": "blocked",
+    "next_safe_action": {
+      "title": "Review selected context",
+      "description": "Review current context status, evidence, blockers, and manual follow-ups before acting.",
+      "target": "step_1_14",
+      "expected_result": "Current workflow state is understood before operational action.",
+      "risk_level": "low",
+      "status": "blocked",
+      "source": "selected_context"
+    },
+    "blockers": [
+      {
+        "source": "product.gates.evidence_index",
+        "status": "not_run",
+        "reason": "Required product evidence has not run.",
+        "required_command": "./tools/product-repository-authority status --json"
+      }
+    ]
+  },
+  "available_contexts": [
+    {
+      "menu_id": "step_1_7",
+      "workflow_context": "lesson",
+      "target_repository_name": "task-tracker-repository",
+      "status": "missing"
+    },
+    {
+      "menu_id": "step_1_14",
+      "workflow_context": "lesson",
+      "target_repository_name": "task-tracker-repository",
+      "status": "ready"
+    },
+    {
+      "menu_id": "advanced",
+      "workflow_context": "lesson",
+      "target_repository_name": "task-tracker-repository",
+      "status": "ready"
+    },
+    {
+      "menu_id": "free-development",
+      "workflow_context": "free-development",
+      "target_repository_name": "attendance-management-repository",
+      "status": "blocked"
+    },
+    {
+      "menu_id": "product-improvement",
+      "workflow_context": "product-improvement",
+      "target_repository_name": "attendance-management-repository",
+      "status": "unknown"
+    },
+    {
+      "menu_id": "external-integration",
+      "workflow_context": "external-integration",
+      "target_repository_name": "attendance-management-repository",
+      "status": "unknown"
+    },
+    {
+      "menu_id": "lesson-repository-improvement",
+      "workflow_context": "lesson-maintenance",
+      "target_repository_name": "ai-driven-development-lesson",
+      "status": "unknown"
+    }
+  ],
   "partial_failures": [
     {
-      "source": "ci_required_gate",
-      "status": "failed",
-      "reason": "Required CI evidence is not passing in this fixture.",
-      "required_command": "./tools/check_ci_status.sh --required"
-    },
-    {
-      "source": "workflow_pair_sync",
+      "source": "product.gates.evidence_index",
       "status": "unknown",
-      "reason": "Workflow pair evidence has not been validated in this fixture.",
-      "required_command": "./tools/check_workflow_pair_sync.sh"
-    },
-    {
-      "source": "security_gate",
-      "status": "blocked",
-      "reason": "Security gate review must be completed before treating the workflow as clear.",
-      "required_command": "./tools/product-security gate --context product-improvement"
+      "reason": "Required product evidence has not run.",
+      "required_command": "./tools/product-repository-authority status --json"
     }
   ],
   "summary": {
@@ -180,13 +247,195 @@
       "status": "ready"
     },
     "git_sync_status": "unknown",
-    "ci_status": "optional"
+    "ci_status": "optional",
+    "git_operations": [
+      {
+        "id": "push",
+        "label": "Push",
+        "status": "ready",
+        "mode": "auto",
+        "detail": "Push policy is configured."
+      },
+      {
+        "id": "pull_request",
+        "label": "PR creation",
+        "status": "ready",
+        "mode": "auto",
+        "detail": "Pull request creation follows the configured workflow."
+      },
+      {
+        "id": "pr_ci",
+        "label": "PR CI",
+        "status": "optional",
+        "mode": "auto",
+        "detail": "CI evidence is optional in this fixture."
+      },
+      {
+        "id": "main_ci",
+        "label": "Main CI",
+        "status": "optional",
+        "mode": "auto",
+        "detail": "Main CI is display-only evidence."
+      },
+      {
+        "id": "sync_check",
+        "label": "Sync check",
+        "status": "unknown",
+        "mode": "auto",
+        "detail": "Git sync has not been refreshed by a live check."
+      },
+      {
+        "id": "merge",
+        "label": "Merge",
+        "status": "approval_required",
+        "mode": "gated",
+        "detail": "Merge remains approval-gated."
+      }
+    ],
+    "product_authority": {
+      "status": "not_run",
+      "repository": {
+        "status": "ready",
+        "configured_name": "example-product",
+        "product_root": "[external-product-repository]/example-product",
+        "blocker_scope": "none"
+      },
+      "document_paths": [
+        {
+          "source_id": "product_docs.requirements",
+          "status": "ready",
+          "required_in_context": true,
+          "canonical_path": "docs/product/REQUIREMENTS.md",
+          "resolved_path": "docs/product/REQUIREMENTS.md",
+          "resolved_source": "canonical"
+        }
+      ],
+      "manifest_summary": {
+        "required_total": 1,
+        "required_ready": 1,
+        "required_missing": [],
+        "optional_missing": [],
+        "conflicts": []
+      },
+      "evidence_summary": {
+        "index_status": "not_run",
+        "items": [
+          {
+            "source_id": "product.gates.evidence_index",
+            "context": "product-improvement",
+            "status": "not_run",
+            "freshness_state": "not_collected",
+            "required_in_context": false,
+            "authority": "not_collected",
+            "observed_at": "not_collected",
+            "max_age_seconds": "0",
+            "product_root": "[external-product-repository]/example-product",
+            "product_head": "none",
+            "source_artifacts": "docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv",
+            "blocked_by": "",
+            "next_command": "./tools/product-repository-authority status --json"
+          }
+        ]
+      },
+      "product_operation_blockers": []
+    },
+    "recent_runs": [
+      {
+        "id": "ci-main",
+        "time": "2026-06-05T00:00:00Z",
+        "type": "CI run",
+        "target": "main",
+        "detail": "Current snapshot CI evidence",
+        "status": "optional",
+        "reference": "CI evidence"
+      },
+      {
+        "id": "git-sync",
+        "time": "2026-06-05T00:00:00Z",
+        "type": "Git sync",
+        "target": "main",
+        "detail": "Current snapshot Git synchronization evidence",
+        "status": "unknown",
+        "reference": "Git sync evidence"
+      },
+      {
+        "id": "product-authority",
+        "time": "2026-06-05T00:00:00Z",
+        "type": "Product evidence",
+        "target": "lesson",
+        "detail": "Product authority and manifest evidence",
+        "status": "not_run",
+        "reference": "Product authority"
+      },
+      {
+        "id": "security-gate",
+        "time": "2026-06-05T00:00:00Z",
+        "type": "Security gate",
+        "target": "lesson",
+        "detail": "Product security gate snapshot",
+        "status": "unknown",
+        "reference": "Security gate"
+      },
+      {
+        "id": "next-step",
+        "time": "2026-06-05T00:00:00Z",
+        "type": "Next step",
+        "target": "step_1_14",
+        "detail": "day12.subagents-plan",
+        "status": "manual_required",
+        "reference": "Selected context"
+      }
+    ]
   },
   "maintenance": {
     "as_built_sync_status": "cached",
     "workflow_pair_status": "unknown",
     "developer_memory_status": "ready",
-    "skills_status": "ready"
+    "skills_status": "ready",
+    "evidence_rows": [
+      {
+        "id": "dashboard_data_schema",
+        "label": "Dashboard data schema",
+        "importance": "required",
+        "status": "cached",
+        "reference": "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv"
+      },
+      {
+        "id": "product_authority_evidence",
+        "label": "Product authority evidence",
+        "importance": "required",
+        "status": "not_run",
+        "reference": "docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv"
+      },
+      {
+        "id": "git_workflow_settings",
+        "label": "Git workflow settings",
+        "importance": "required",
+        "status": "ready",
+        "reference": "learning/GIT_WORKFLOW_SETTINGS.tsv"
+      },
+      {
+        "id": "security_policy",
+        "label": "Security policy",
+        "importance": "required",
+        "status": "ready",
+        "reference": "docs/workflow/PRODUCT_SECURITY_POLICY.tsv"
+      },
+      {
+        "id": "developer_memory",
+        "label": "Developer memory",
+        "importance": "required",
+        "status": "ready",
+        "reference": "docs/memory/DEVELOPER_MEMORY.md"
+      },
+      {
+        "id": "workflow_pair",
+        "label": "Workflow pair",
+        "importance": "required",
+        "status": "unknown",
+        "reference": "docs/workflow/TASK_TRACKER.md"
+      }
+    ]
   },
   "git_workflow": {
     "policy_status": "ready",
@@ -197,38 +446,327 @@
   "security": {
     "policy_status": "ready",
     "gate_status": "unknown",
-    "dangerous_action_approval": "approval_required"
+    "dangerous_action_approval": "approval_required",
+    "approvals": [
+      {
+        "id": "dangerous_action_approval",
+        "label": "Dangerous action approval",
+        "status": "approval_required",
+        "detail": "Dangerous operations require explicit approval.",
+        "last_checked": "2026-06-05T00:00:00Z"
+      },
+      {
+        "id": "git_workflow_approval",
+        "label": "Git workflow approval",
+        "status": "approval_required",
+        "detail": "Merge and push approvals are tracked outside the dashboard.",
+        "last_checked": "2026-06-05T00:00:00Z"
+      }
+    ],
+    "dangerous_operations": [
+      {
+        "id": "merge",
+        "label": "Merge",
+        "status": "approval_required",
+        "detail": "Merge is approval-gated.",
+        "last_checked": "2026-06-05T00:00:00Z"
+      },
+      {
+        "id": "cleanup",
+        "label": "Product cleanup",
+        "status": "blocked",
+        "detail": "Cleanup is not executable from this dashboard.",
+        "last_checked": "2026-06-05T00:00:00Z"
+      }
+    ]
   },
   "actions": {
     "command_previews": [
       {
-        "intent": "Validate dashboard data",
-        "target": "lesson repository",
+        "intent": "Low-risk check",
+        "target": "selected context",
         "risk_level": "low",
         "requires_approval": false,
         "approval_gate_id": "none",
         "argv": [
-          "./tools/test_dashboard_data.sh"
+          "npm",
+          "test"
         ],
-        "command_text": "./tools/test_dashboard_data.sh",
+        "command_text": "npm test",
         "execution_mode": "preview_only",
         "non_executable": true
       },
       {
-        "intent": "Preview merge boundary",
-        "target": "current Git repository",
-        "risk_level": "critical",
-        "requires_approval": true,
-        "approval_gate_id": "git_workflow_merge_approval",
+        "intent": "E2E test review",
+        "target": "selected context",
+        "risk_level": "medium",
+        "requires_approval": false,
+        "approval_gate_id": "none",
         "argv": [
-          "./tools/git-workflow",
-          "approve",
-          "merge"
+          "npm",
+          "run",
+          "test:e2e"
         ],
-        "command_text": "./tools/git-workflow approve merge",
+        "command_text": "npm run test:e2e",
+        "execution_mode": "preview_only",
+        "non_executable": true
+      },
+      {
+        "intent": "Check product Git synchronization",
+        "target": "configured product repository",
+        "risk_level": "low",
+        "requires_approval": false,
+        "approval_gate_id": "none",
+        "argv": [
+          "./tools/check_git_sync.sh",
+          "--product",
+          "--required"
+        ],
+        "command_text": "./tools/check_git_sync.sh --product --required",
+        "execution_mode": "preview_only",
+        "non_executable": true
+      },
+      {
+        "intent": "Check product CI status",
+        "target": "configured product repository",
+        "risk_level": "medium",
+        "requires_approval": false,
+        "approval_gate_id": "none",
+        "argv": [
+          "./tools/check_ci_status.sh",
+          "--product",
+          "--required"
+        ],
+        "command_text": "./tools/check_ci_status.sh --product --required",
         "execution_mode": "preview_only",
         "non_executable": true
       }
+    ],
+    "command_preview_groups": [
+      {
+        "id": "safe_checks",
+        "label": "Low-risk checks",
+        "risk_level": "low",
+        "preview_count": 2
+      },
+      {
+        "id": "evidence_checks",
+        "label": "Evidence checks",
+        "risk_level": "medium",
+        "preview_count": 2
+      }
     ]
+  },
+  "contexts_by_menu": {
+    "step_1_7": {
+      "menu_id": "step_1_7",
+      "workflow_context": "lesson",
+      "target_repository": {
+        "name": "task-tracker-repository",
+        "path_state": "not_applicable"
+      },
+      "product_type": "all",
+      "current_step_id": "step.current",
+      "current_step_label": "step.current",
+      "current_step_index": 0,
+      "current_step_total": 0,
+      "updated_at": "2026-06-05T00:00:00Z",
+      "git_status": "manual_required",
+      "ci_status": "manual_required",
+      "security_status": "unknown",
+      "evidence_status": "manual_required",
+      "next_safe_action": {
+        "title": "Review selected context",
+        "description": "Review the producer-owned context before acting.",
+        "target": "step_1_7",
+        "expected_result": "Current workflow state is understood before operational action.",
+        "risk_level": "low",
+        "status": "missing",
+        "source": "contexts_by_menu"
+      },
+      "blockers": []
+    },
+    "step_1_14": {
+      "menu_id": "step_1_14",
+      "workflow_context": "lesson",
+      "target_repository": {
+        "name": "task-tracker-repository",
+        "path_state": "configured"
+      },
+      "product_type": "all",
+      "current_step_id": "day12.subagents-plan",
+      "current_step_label": "Step 12 / 14 - Sub-agent design",
+      "current_step_index": 12,
+      "current_step_total": 14,
+      "updated_at": "2026-06-05T00:00:00Z",
+      "git_status": "unknown",
+      "ci_status": "optional",
+      "security_status": "unknown",
+      "evidence_status": "blocked",
+      "next_safe_action": {
+        "title": "Review selected context",
+        "description": "Review current context status, evidence, blockers, and manual follow-ups before acting.",
+        "target": "step_1_14",
+        "expected_result": "Current workflow state is understood before operational action.",
+        "risk_level": "low",
+        "status": "blocked",
+        "source": "selected_context"
+      },
+      "blockers": [
+        {
+          "source": "product.gates.evidence_index",
+          "status": "not_run",
+          "reason": "Required product evidence has not run.",
+          "required_command": "./tools/product-repository-authority status --json"
+        }
+      ]
+    },
+    "advanced": {
+      "menu_id": "advanced",
+      "workflow_context": "lesson",
+      "target_repository": {
+        "name": "task-tracker-repository",
+        "path_state": "configured"
+      },
+      "product_type": "all",
+      "current_step_id": "advanced.start",
+      "current_step_label": "advanced.start",
+      "current_step_index": 0,
+      "current_step_total": 0,
+      "updated_at": "2026-06-05T00:00:00Z",
+      "git_status": "manual_required",
+      "ci_status": "manual_required",
+      "security_status": "unknown",
+      "evidence_status": "manual_required",
+      "next_safe_action": {
+        "title": "Review selected context",
+        "description": "Review the producer-owned context before acting.",
+        "target": "advanced",
+        "expected_result": "Current workflow state is understood before operational action.",
+        "risk_level": "low",
+        "status": "manual_required",
+        "source": "contexts_by_menu"
+      },
+      "blockers": []
+    },
+    "free-development": {
+      "menu_id": "free-development",
+      "workflow_context": "free-development",
+      "target_repository": {
+        "name": "attendance-management-repository",
+        "path_state": "configured"
+      },
+      "product_type": "all",
+      "current_step_id": "free-development.workflow",
+      "current_step_label": "free-development.workflow",
+      "current_step_index": 0,
+      "current_step_total": 0,
+      "updated_at": "2026-06-05T00:00:00Z",
+      "git_status": "unknown",
+      "ci_status": "optional",
+      "security_status": "unknown",
+      "evidence_status": "blocked",
+      "next_safe_action": {
+        "title": "Review selected context",
+        "description": "Review the producer-owned context before acting.",
+        "target": "free-development",
+        "expected_result": "Current workflow state is understood before operational action.",
+        "risk_level": "low",
+        "status": "blocked",
+        "source": "contexts_by_menu"
+      },
+      "blockers": [
+        {
+          "source": "product.gates.evidence_index",
+          "status": "not_run",
+          "reason": "Required product evidence has not run.",
+          "required_command": "./tools/product-repository-authority status --json"
+        }
+      ]
+    },
+    "product-improvement": {
+      "menu_id": "product-improvement",
+      "workflow_context": "product-improvement",
+      "target_repository": {
+        "name": "attendance-management-repository",
+        "path_state": "configured"
+      },
+      "product_type": "all",
+      "current_step_id": "product-improvement.workflow",
+      "current_step_label": "product-improvement.workflow",
+      "current_step_index": 0,
+      "current_step_total": 0,
+      "updated_at": "2026-06-05T00:00:00Z",
+      "git_status": "unknown",
+      "ci_status": "optional",
+      "security_status": "unknown",
+      "evidence_status": "unknown",
+      "next_safe_action": {
+        "title": "Review selected context",
+        "description": "Review the producer-owned context before acting.",
+        "target": "product-improvement",
+        "expected_result": "Current workflow state is understood before operational action.",
+        "risk_level": "low",
+        "status": "unknown",
+        "source": "contexts_by_menu"
+      },
+      "blockers": []
+    },
+    "external-integration": {
+      "menu_id": "external-integration",
+      "workflow_context": "external-integration",
+      "target_repository": {
+        "name": "attendance-management-repository",
+        "path_state": "configured"
+      },
+      "product_type": "all",
+      "current_step_id": "external-integration.workflow",
+      "current_step_label": "external-integration.workflow",
+      "current_step_index": 0,
+      "current_step_total": 0,
+      "updated_at": "2026-06-05T00:00:00Z",
+      "git_status": "unknown",
+      "ci_status": "optional",
+      "security_status": "unknown",
+      "evidence_status": "unknown",
+      "next_safe_action": {
+        "title": "Review selected context",
+        "description": "Review the producer-owned context before acting.",
+        "target": "external-integration",
+        "expected_result": "Current workflow state is understood before operational action.",
+        "risk_level": "low",
+        "status": "unknown",
+        "source": "contexts_by_menu"
+      },
+      "blockers": []
+    },
+    "lesson-repository-improvement": {
+      "menu_id": "lesson-repository-improvement",
+      "workflow_context": "lesson-maintenance",
+      "target_repository": {
+        "name": "ai-driven-development-lesson",
+        "path_state": "not_applicable"
+      },
+      "product_type": "all",
+      "current_step_id": "lesson-repository-improvement.workflow",
+      "current_step_label": "lesson-repository-improvement.workflow",
+      "current_step_index": 0,
+      "current_step_total": 0,
+      "updated_at": "2026-06-05T00:00:00Z",
+      "git_status": "manual_required",
+      "ci_status": "manual_required",
+      "security_status": "unknown",
+      "evidence_status": "manual_required",
+      "next_safe_action": {
+        "title": "Review selected context",
+        "description": "Review the producer-owned context before acting.",
+        "target": "lesson-repository-improvement",
+        "expected_result": "Current workflow state is understood before operational action.",
+        "risk_level": "low",
+        "status": "unknown",
+        "source": "contexts_by_menu"
+      },
+      "blockers": []
+    }
   }
 }

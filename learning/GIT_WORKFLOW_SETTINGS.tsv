@@ -2,12 +2,12 @@
 branch_allowed	true
 worktree_allowed	false
 main_direct_work_allowed	false
-automation_level	manual
+automation_level	sync
 commit_automation	auto
-push_automation	manual
-pr_creation	manual
+push_automation	auto
+pr_creation	auto
 pr_ci_monitoring	auto
 merge_execution	after_approval
-developer_auto_merge_allowed	false
+developer_auto_merge_allowed	true
 main_ci_monitoring	auto
 sync_monitoring	auto

@@ -33,7 +33,9 @@ require_file_contains() {
 require_job() {
   local file="$1"
   local job="$2"
-  if [[ -z "$(workflow_block "$file" "$job")" ]]; then
+  local block
+  block="$(workflow_block "$file" "$job")"
+  if [[ -z "$block" ]]; then
     printf 'Missing required job in %s: %s\n' "$file" "$job" >&2
     return 1
   fi
@@ -43,7 +45,9 @@ require_job_contains() {
   local file="$1"
   local job="$2"
   local pattern="$3"
-  if ! workflow_block "$file" "$job" | grep -Fq -- "$pattern"; then
+  local block
+  block="$(workflow_block "$file" "$job")"
+  if ! grep -Fq -- "$pattern" <<<"$block"; then
     printf 'Missing required text in %s job %s: %s\n' "$file" "$job" "$pattern" >&2
     return 1
   fi
@@ -53,7 +57,9 @@ reject_job_contains() {
   local file="$1"
   local job="$2"
   local pattern="$3"
-  if workflow_block "$file" "$job" | grep -Fq -- "$pattern"; then
+  local block
+  block="$(workflow_block "$file" "$job")"
+  if grep -Fq -- "$pattern" <<<"$block"; then
     printf 'Forbidden workflow text in %s job %s: %s\n' "$file" "$job" "$pattern" >&2
     return 1
   fi
@@ -97,6 +103,9 @@ check_main_ci() {
   require_job_contains "$file" syntax-checks "bash -n tools/test_lesson14.sh"
   require_job_contains "$file" syntax-checks "bash -n tools/check_security_invariants.sh"
   require_job_contains "$file" syntax-checks "bash -n tools/product-security"
+  require_job_contains "$file" syntax-checks "bash -n tools/lib/product_repository_authority.sh"
+  require_job_contains "$file" syntax-checks "bash -n tools/product-repository-authority"
+  require_job_contains "$file" syntax-checks "bash -n tools/test_product_repository_authority.sh"
 	  require_job_contains "$file" syntax-checks "bash -n tools/lib/dashboard_data.sh"
 	  require_job_contains "$file" syntax-checks "bash -n tools/dashboard-data"
 	  require_job_contains "$file" syntax-checks "bash -n tools/dashboard-control-center"
@@ -120,6 +129,7 @@ check_main_ci() {
   require_job_contains "$file" policy-regression-tests "./tools/test_security_invariants.sh"
   require_job_contains "$file" policy-regression-tests "./tools/test_lesson_start_position.sh"
   require_job_contains "$file" policy-regression-tests "./tools/test_product_gate_tools.sh"
+  require_job_contains "$file" policy-regression-tests "./tools/test_product_repository_authority.sh"
   require_job_contains "$file" policy-regression-tests "./tools/test_product_security.sh"
   require_job_contains "$file" policy-regression-tests "./tools/check_ci_workflow_structure.sh"
   require_job_contains "$file" lesson-cli-tests "./tools/test_lesson.sh"
@@ -240,6 +250,9 @@ check_lesson14_ci() {
   require_job_contains "$file" syntax-checks "bash -n tools/test_lesson_start_position.sh"
   require_job_contains "$file" syntax-checks "bash -n tools/check_security_invariants.sh"
   require_job_contains "$file" syntax-checks "bash -n tools/product-security"
+  require_job_contains "$file" syntax-checks "bash -n tools/lib/product_repository_authority.sh"
+  require_job_contains "$file" syntax-checks "bash -n tools/product-repository-authority"
+  require_job_contains "$file" syntax-checks "bash -n tools/test_product_repository_authority.sh"
 	  require_job_contains "$file" syntax-checks "bash -n tools/lib/dashboard_data.sh"
 	  require_job_contains "$file" syntax-checks "bash -n tools/dashboard-data"
 	  require_job_contains "$file" syntax-checks "bash -n tools/dashboard-control-center"

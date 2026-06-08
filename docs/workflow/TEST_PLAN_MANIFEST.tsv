@@ -34,9 +34,19 @@ docs/workflow/SAFEFLOW_SECURITY_BACKFILL.tsv	critical	check_security_invariants|
 tools/check_security_invariants.sh	critical	check_security_invariants|test_security_invariants	true	true	none	false	Security guard checker changes affect security invariant enforcement.
 tools/lib/security_invariants.sh	critical	check_security_invariants|test_security_invariants	true	true	none	false	Security guard helper changes affect security invariant enforcement.
 docs/workflow/PRODUCT_SECURITY_POLICY.tsv	critical	test_product_security|test_product_gate_tools	true	true	same-run	false	Product security policy changes affect product workflow gates.
+docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv	high	test_product_repository_authority|test_product_scaffold_check|check_as_built_sync_contract	true	true	same-run	false	Product repository structure policy changes affect external product authority and scaffold readiness.
+docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv	high	test_product_repository_authority|test_product_scaffold_check|test_dashboard_data|check_as_built_sync_contract	true	true	same-run	false	Product gate evidence schema changes affect product authority, scaffold policy, and dashboard data.
+lesson/SYNC_GATES_14_DAYS.tsv	high	check_lesson14_sync|test_lesson14	true	true	same-run	false	STEP14 synchronization-gate changes affect product readiness completion.
 learning/context/WORKFLOW_CONTEXT_MAP.tsv	high	test_product_security|test_product_gate_tools	true	true	same-run	false	Workflow context mapping changes affect product security and menu readiness.
 tools/product-security	critical	test_product_security|test_product_gate_tools	true	true	none	false	Product security command changes affect product workflow verification.
 tools/lib/product_security.sh	critical	test_product_security|test_product_gate_tools	true	true	none	false	Product security helper changes affect product workflow verification.
+tools/product-launch-check	high	test_product_launch_check|test_lesson14|test_lesson_repository	true	true	none	false	Product launch checks affect STEP14 product readiness completion.
+tools/test_product_launch_check.sh	high	test_product_launch_check|test_lesson_repository	true	true	none	false	Product launch regression changes require aggregate verification.
+tools/product-scaffold-check	high	test_product_scaffold_check|test_product_gate_tools|test_lesson_repository	true	true	none	false	Product scaffold checks affect free-development product repository readiness.
+tools/test_product_scaffold_check.sh	high	test_product_scaffold_check|test_lesson_repository	true	true	none	false	Product scaffold regression changes require aggregate verification.
+tools/lib/product_repository_authority.sh	high	test_product_repository_authority|test_dashboard_data|test_lesson_repository	true	true	none	false	Product authority helper changes affect product repository status and dashboard data.
+tools/product-repository-authority	high	test_product_repository_authority|test_dashboard_data|test_lesson_repository	true	true	none	false	Product authority command changes affect product repository status and dashboard data.
+tools/test_product_repository_authority.sh	high	test_product_repository_authority|test_lesson_repository	true	true	none	false	Product authority regression changes require aggregate verification.
 tools/dashboard-data	high	test_dashboard_data|test_lesson_repository	true	true	none	false	Dashboard JSON producer changes affect control-center data safety boundaries.
 tools/lib/dashboard_data.sh	high	test_dashboard_data|test_lesson_repository	true	true	none	false	Dashboard data helper changes affect JSON escaping, state vocabulary, source tracking, and command previews.
 dashboard-control-center/	critical	test_dashboard_control_center|test_lesson_repository	true	true	dependency	false	React/Vite dashboard control-center changes affect browser control-center behavior.

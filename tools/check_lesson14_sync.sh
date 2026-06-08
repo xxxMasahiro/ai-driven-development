@@ -132,6 +132,14 @@ if ! awk -F '\t' '
       printf "Step 14/14 must use required git sync check\n" > "/dev/stderr"
       bad = 1
     }
+    if ($1 == "Step 14/14" && $6 !~ /product-launch-check[[:space:]]+check/ ) {
+      printf "Step 14/14 must use product launch check\n" > "/dev/stderr"
+      bad = 1
+    }
+    if ($1 == "Step 14/14" && $6 !~ /--launch[[:space:]]+direct-index/ ) {
+      printf "Step 14/14 product launch check must verify direct index launch\n" > "/dev/stderr"
+      bad = 1
+    }
     if ($4 ~ /push|remote|PR|merge|pull|同期/ && $6 !~ /check_git_sync\.sh --product --required/) {
       printf "remote sync gate must use required git sync check at %s\n", $1 > "/dev/stderr"
       bad = 1

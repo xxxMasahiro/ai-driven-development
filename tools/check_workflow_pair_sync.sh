@@ -10,19 +10,39 @@ source "$SCRIPT_DIR/lib/document_paths.sh"
 target_root="$LESSON_ROOT"
 tracker="$(lesson_doc_path task_tracker)"
 handoff="$(lesson_doc_path handoff)"
+product_mode=0
+
+resolve_product_workflow_pair() {
+  local repo="$1"
+  local canonical_tracker="$repo/docs/workflow/TASK_TRACKER.md"
+  local legacy_tracker="$repo/TASK_TRACKER.md"
+  local canonical_handoff="$repo/docs/workflow/HANDOFF.md"
+  local legacy_handoff="$repo/HANDOFF.md"
+
+  if [[ -f "$canonical_tracker" ]]; then
+    tracker="$canonical_tracker"
+  else
+    tracker="$legacy_tracker"
+  fi
+  if [[ -f "$canonical_handoff" ]]; then
+    handoff="$canonical_handoff"
+  else
+    handoff="$legacy_handoff"
+  fi
+}
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --product)
       target_root="$(lesson_product_repo_root)"
-      tracker="$target_root/TASK_TRACKER.md"
-      handoff="$target_root/HANDOFF.md"
+      product_mode=1
+      resolve_product_workflow_pair "$target_root"
       shift
       ;;
     --repo)
       target_root="$(lesson_expand_path "${2:-}")"
-      tracker="$target_root/TASK_TRACKER.md"
-      handoff="$target_root/HANDOFF.md"
+      product_mode=1
+      resolve_product_workflow_pair "$target_root"
       shift 2
       ;;
     *)
@@ -36,7 +56,11 @@ missing=0
 
 for file in "$tracker" "$handoff"; do
   if [[ ! -f "$file" ]]; then
-    printf 'missing workflow pair file: %s\n' "$file" >&2
+    if [[ "$product_mode" -eq 1 ]]; then
+      printf 'missing workflow pair file: docs/workflow/%s or %s\n' "$(basename "$file")" "$(basename "$file")" >&2
+    else
+      printf 'missing workflow pair file: %s\n' "$file" >&2
+    fi
     missing=1
   fi
 done

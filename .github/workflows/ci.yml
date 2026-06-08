@@ -65,6 +65,10 @@ jobs:
           bash -n tools/test_dashboard_schema.sh
           bash -n tools/test_dashboard_data.sh
           bash -n tools/test_dashboard_control_center.sh
+          bash -n tools/product-launch-check
+          bash -n tools/test_product_launch_check.sh
+          bash -n tools/product-scaffold-check
+          bash -n tools/test_product_scaffold_check.sh
           bash -n tools/test_ci_final_gate.sh
           bash -n tools/test_ci_pipeline_acceleration.sh
           bash -n tools/test_lesson_start_position.sh
@@ -72,8 +76,11 @@ jobs:
           bash -n tools/test_lesson14.sh
           bash -n tools/test_menu_prerequisites.sh
           bash -n tools/test_product_gate_tools.sh
+          bash -n tools/lib/product_repository_authority.sh
+          bash -n tools/product-repository-authority
           bash -n tools/product-repository-cleanup
           bash -n tools/test_product_repository_cleanup.sh
+          bash -n tools/test_product_repository_authority.sh
           bash -n tools/fixture-copy
           bash -n tools/product-security
           bash -n tools/test_product_security.sh
@@ -179,8 +186,11 @@ jobs:
           ./tools/test_menu_prerequisites.sh
           ./tools/test_lesson_start_position.sh
           ./tools/test_lesson14.sh
+          ./tools/test_product_launch_check.sh
+          ./tools/test_product_scaffold_check.sh
           ./tools/test_product_gate_tools.sh
           ./tools/test_product_repository_cleanup.sh
+          ./tools/test_product_repository_authority.sh
           ./tools/test_product_security.sh
           ./tools/check_ci_workflow_structure.sh
 

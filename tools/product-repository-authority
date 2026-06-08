@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/product_repository_authority.sh
+source "$ROOT/tools/lib/product_repository_authority.sh"
+
+COMMAND="${1:-status}"
+shift || true
+
+REPO=""
+CONTEXT="product-improvement"
+PRODUCT_TYPE="all"
+JSON="false"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  tools/product-repository-authority status [--repo <path>] [--context <context>] [--product-type <type>] [--json]
+
+This command is read-only. It reads existing product manifests and evidence only.
+It does not create evidence, fetch remotes, call GitHub, run CI, run product checks, or mutate repositories.
+USAGE
+}
+
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --repo)
+      REPO="${2:-}"
+      shift 2
+      ;;
+    --context)
+      CONTEXT="${2:-}"
+      shift 2
+      ;;
+    --product-type)
+      PRODUCT_TYPE="${2:-}"
+      shift 2
+      ;;
+    --json)
+      JSON="true"
+      shift
+      ;;
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    *)
+      printf 'unknown option: %s\n' "$1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z "$REPO" ]]; then
+  REPO="$(lesson_product_repo_root)"
+fi
+
+case "$COMMAND" in
+  status|現在地)
+    if [[ "$JSON" == "true" ]]; then
+      product_repository_authority_json "$REPO" "$CONTEXT" "$PRODUCT_TYPE"
+      printf '\n'
+    else
+      product_repository_authority_status_text "$REPO" "$CONTEXT" "$PRODUCT_TYPE"
+    fi
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    printf 'unknown command: %s\n' "$COMMAND" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

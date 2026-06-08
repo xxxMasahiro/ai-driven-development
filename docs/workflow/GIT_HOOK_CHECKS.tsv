@@ -34,7 +34,10 @@ test_ci_pipeline_acceleration	full|fast	./tools/test_ci_pipeline_acceleration.sh
 check_ci_workflow_structure	full|fast	./tools/check_ci_workflow_structure.sh	Validate required CI workflow job splitting and final gates.
 test_menu_prerequisites	full|fast	./tools/test_menu_prerequisites.sh	Run menu prerequisite regression tests.
 test_product_gate_tools	full|fast	./tools/test_product_gate_tools.sh	Run product gate regression tests.
+test_product_launch_check	full|fast	./tools/test_product_launch_check.sh	Run product launch-path regression tests.
+test_product_scaffold_check	full|fast	./tools/test_product_scaffold_check.sh	Run product scaffold regression tests.
 test_product_repository_cleanup	full|fast	./tools/test_product_repository_cleanup.sh	Run product repository cleanup regression tests.
+test_product_repository_authority	full|fast	./tools/test_product_repository_authority.sh	Run product repository authority regression tests.
 test_product_security	full|fast	./tools/test_product_security.sh	Run product security workflow regression tests.
 test_lesson_playwright	full|fast	./tools/test_lesson_playwright.sh --use-evidence	Run lesson dashboard and illustration Playwright checks.
 test_lesson_start_position	full|fast	./tools/test_lesson_start_position.sh	Run free lesson start-position regression tests.
