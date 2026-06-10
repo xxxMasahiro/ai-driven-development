@@ -1534,3 +1534,27 @@ Non-scope:
 - Do not infer document meaning from one product stack, one repository name, one fixture, one language phrase, or one exact UI sentence.
 - Do not remove existing docs-tour, dashboard-data, maintenance, safety, repository information, or update-history routes.
 - Do not accept any existing-feature tradeoff to simplify the Documents page.
+
+## Implemented Agent Escalated Verification Policy Requirements
+
+SYNC-ID: agent_escalated_verification_policy
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
+TESTS: tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_agents_skills.sh
+
+Agents must not waste verification time by first running known sandbox-incompatible, non-destructive visual or environment checks without the required execution scope.
+When the work requires Playwright/Chromium screenshots, browser-based visual inspection, local port observation, or equivalent non-destructive environment observation that is known to need escalated execution in this environment, the agent must run it with the required execution scope from the start and complete the evidence-gathering step before reporting design conclusions.
+
+Required outcomes:
+
+- Treat Playwright/Chromium real-screen inspection as evidence only after the browser has actually launched, the page has loaded, and screenshots or equivalent observations have been collected.
+- Run known sandbox-incompatible, non-destructive checks with the required execution scope from the first attempt instead of failing once and retrying.
+- Do not ask for a separate developer policy decision before these non-destructive verification commands when the active task already requires the check.
+- Preserve minimum necessary verification scope; this policy does not authorize broad, unrelated, or heavy tests.
+- Keep dangerous, credential-bearing, destructive, write-heavy, external-service, dependency-changing, push, merge, cleanup, delete, and CI-failure override actions outside this exception.
+
+Non-scope:
+
+- Do not weaken authentication, secret handling, destructive-operation, external repository, Git/CI, pre-commit, repository-boundary, or security-gate approval rules.
+- Do not treat screenshot capture as permission for browser command execution, POST requests, live GitHub/CI polling, evidence writing, dashboard mutation, or product repository mutation.
+- Do not replace developer visual judgment with screenshot equality tests or claim visual parity without inspecting the captured page.

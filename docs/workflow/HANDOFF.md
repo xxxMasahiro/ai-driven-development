@@ -1405,3 +1405,30 @@ Stop and ask before:
 
 - Browser command execution, POST fetches, live Git/GitHub/CI/API polling, evidence writing, document editing from the dashboard, external repository mutation, push, merge, cleanup, remote deletion, OAuth, token handling, destructive operations, or accepting any existing-feature tradeoff.
 - Removing or weakening docs-tour, `tools/dashboard docs`, Maintenance Sync, Safety Confirmation, Repository Information, STEP 1-7, STEP 1-14, existing checks, CI, Git hooks, pre-commit, localization boundaries, or read-only dashboard ownership.
+
+## Implemented Agent Escalated Verification Policy Handoff
+
+SYNC-ID: agent_escalated_verification_policy
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
+TESTS: tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_agents_skills.sh
+
+Restart context:
+
+- AGENTS.MD now has invariant rule 22: known sandbox-incompatible, non-destructive verification must be run with the required execution scope from the first attempt.
+- Covered examples are Playwright/Chromium real-screen inspection, screenshot capture, browser launch, local port observation, and equivalent observation-only checks needed by the active task.
+- The rule exists to prevent false or delayed visual verification when the page must be inspected before design conclusions or developer visual review.
+
+Safety notes:
+
+- This policy does not authorize credentials, OAuth, external writes, dependency changes, repository mutation, evidence writes, push, merge, cleanup, delete, destructive operations, CI failure overrides, gate weakening, or any existing-feature tradeoff.
+- Dashboard pages remain read-only. Escalated Playwright is a verification method outside the dashboard, not a dashboard runtime capability.
+- If Playwright cannot capture the page even with the required execution scope, report that blocker and do not claim visual verification.
+
+Verification expectation:
+
+```bash
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_agents_skills.sh
+```
