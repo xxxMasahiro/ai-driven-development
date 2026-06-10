@@ -17,9 +17,11 @@ assert_contains() {
 JSON_FILE="$TMP_DIR/dashboard-data.json"
 DASHBOARD_DATA_GENERATED_AT="2026-06-05T00:00:00Z" "$ROOT/tools/dashboard-data" >"$JSON_FILE"
 
-node - "$JSON_FILE" <<'NODE'
+node - "$JSON_FILE" "$ROOT/dashboard-control-center/src/i18n.js" "$ROOT/tools/dashboard-data" <<'NODE'
 const fs = require('fs');
 const file = process.argv[2];
+const i18nRaw = fs.readFileSync(process.argv[3], 'utf8');
+const producerRaw = fs.readFileSync(process.argv[4], 'utf8');
 const raw = fs.readFileSync(file, 'utf8');
 let data;
 try {
@@ -56,6 +58,17 @@ function stableStringify(value) {
   return JSON.stringify(value);
 }
 
+function requireI18nKey(key) {
+  if (typeof key !== 'string' || key.length === 0) {
+    fail('i18n key must be a non-empty string');
+  }
+  const marker = `${JSON.stringify(key)}:`;
+  const occurrences = i18nRaw.split(marker).length - 1;
+  if (occurrences < 2) {
+    fail(`document i18n key must exist for en and ja: ${key}`);
+  }
+}
+
 const allowedStates = new Set([
   'missing',
   'ready',
@@ -87,6 +100,16 @@ if (!/^[a-f0-9]{64}$/.test(contentHash)) {
 }
 if (!snapshotId.endsWith(contentHash.slice(0, 12))) {
   fail('snapshot_id must include the content_hash prefix');
+}
+for (const seedToken of [
+  '"$documents_catalog_status"',
+  '"${documents_groups[*]}"',
+  '"${documents_catalog[*]}"',
+  '"${documents_related_commands[*]}"',
+]) {
+  if (!producerRaw.includes(seedToken)) {
+    fail(`content_hash seed must include document payload token: ${seedToken}`);
+  }
 }
 
 for (const path of ['source_files', 'source_commands', 'partial_failures']) {
@@ -510,6 +533,110 @@ if (data.security.gate_status === data.security.policy_status) {
   fail('security gate status must not be inferred from policy readiness');
 }
 
+const documents = requireField('documents');
+if (!documents || typeof documents !== 'object' || Array.isArray(documents)) {
+  fail('documents must be an object');
+}
+if (!allowedStates.has(documents.status)) {
+  fail(`invalid documents status: ${documents.status}`);
+}
+if (!Array.isArray(documents.groups) || documents.groups.length < 3) {
+  fail('documents.groups must contain purpose-based groups');
+}
+if (!Array.isArray(documents.catalog) || documents.catalog.length < 5) {
+  fail('documents.catalog must contain producer-owned document items');
+}
+const documentGroupIds = new Set();
+for (const group of documents.groups) {
+  for (const field of ['id', 'label_key', 'description_key', 'order']) {
+    if (!(field in group)) {
+      fail(`document group missing ${field}`);
+    }
+  }
+  if (!Number.isInteger(group.order) || group.order <= 0) {
+    fail(`document group order is invalid: ${group.order}`);
+  }
+  if (documentGroupIds.has(group.id)) {
+    fail(`duplicate document group: ${group.id}`);
+  }
+  requireI18nKey(group.label_key);
+  requireI18nKey(group.description_key);
+  documentGroupIds.add(group.id);
+}
+const relatedPages = new Set(['#documents', '#maintenance', '#workflow', '#safety', '#repository-info', '#history']);
+const audiences = new Set(['non_engineer', 'engineer', 'all']);
+const catalogIds = new Set();
+for (const item of documents.catalog) {
+  for (const field of ['id', 'group_id', 'role_id', 'path', 'status', 'status_source', 'audience', 'order', 'related_page']) {
+    if (!(field in item)) {
+      fail(`document catalog item missing ${field}`);
+    }
+  }
+  if (catalogIds.has(item.id)) {
+    fail(`duplicate document catalog item: ${item.id}`);
+  }
+  catalogIds.add(item.id);
+  if (!documentGroupIds.has(item.group_id)) {
+    fail(`document catalog item references unknown group: ${item.group_id}`);
+  }
+  if (
+    typeof item.path !== 'string' ||
+    item.path.startsWith('/') ||
+    item.path.startsWith('\\') ||
+    /^[A-Za-z]:[\\/]/.test(item.path) ||
+    item.path.split(/[\\/]+/).includes('..')
+  ) {
+    fail(`document catalog item path must be safe relative path: ${item.path}`);
+  }
+  requireI18nKey(`documentsPage.item.${item.id}`);
+  requireI18nKey(`documentsPage.detail.${item.id}`);
+  if (!allowedStates.has(item.status)) {
+    fail(`invalid document catalog status: ${item.status}`);
+  }
+  if (!audiences.has(item.audience)) {
+    fail(`invalid document catalog audience: ${item.audience}`);
+  }
+  if (!Number.isInteger(item.order) || item.order <= 0) {
+    fail(`document catalog item order is invalid: ${item.order}`);
+  }
+  if (!relatedPages.has(item.related_page)) {
+    fail(`invalid document catalog related page: ${item.related_page}`);
+  }
+}
+for (const expectedId of ['agents', 'documentMap', 'requirements', 'specification', 'implementationPlan', 'taskTracker', 'handoff']) {
+  if (!catalogIds.has(expectedId)) {
+    fail(`missing expected document catalog item: ${expectedId}`);
+  }
+}
+if (!Array.isArray(documents.related_commands) || documents.related_commands.length < 2) {
+  fail('documents.related_commands must expose docs-tour and dashboard docs reference commands');
+}
+const documentCommandIds = new Set();
+for (const command of documents.related_commands) {
+  for (const field of ['id', 'label_key', 'description_key', 'command', 'order']) {
+    if (!(field in command)) {
+      fail(`document related command missing ${field}`);
+    }
+  }
+  if (documentCommandIds.has(command.id)) {
+    fail(`duplicate document related command: ${command.id}`);
+  }
+  documentCommandIds.add(command.id);
+  requireI18nKey(command.label_key);
+  requireI18nKey(command.description_key);
+  if (typeof command.command !== 'string' || !/^tools\/[A-Za-z0-9._-]+(?: [A-Za-z0-9._:@/%+=,-]+)*$/.test(command.command)) {
+    fail(`document related command must be a safe display command: ${command.command}`);
+  }
+  if (!Number.isInteger(command.order) || command.order <= 0) {
+    fail(`document related command order is invalid: ${command.order}`);
+  }
+}
+for (const expectedCommand of ['tools/docs-tour all', 'tools/dashboard docs']) {
+  if (!documents.related_commands.some((command) => command.command === expectedCommand)) {
+    fail(`missing document guidance command: ${expectedCommand}`);
+  }
+}
+
 const productAuthority = requireField('development.product_authority');
 if (!productAuthority || typeof productAuthority !== 'object' || Array.isArray(productAuthority)) {
   fail('development.product_authority must be an object');
@@ -765,9 +892,9 @@ overview	required	all	product.overview	overview	overview	Product overview.
 DOC
 cat >"$product_repo/ops/PRODUCT_MANIFEST.tsv" <<'DOC'
 # authority_id	required_mode	contexts	product_types	path	path_role	validation_rule	dashboard_group	description
-product.entrypoint	required	all	all	README.md	entrypoint	file_exists	workflow	Product entrypoint.
-product.source	required	all	all	src/index.txt	source	file_nonempty	workflow	Product source authority.
-product.test	required	all	all	tests/test.txt	test	file_nonempty	workflow	Product test authority.
+product.entrypoint	required	all	api|web	README.md	entrypoint	file_exists	workflow	Product entrypoint.
+product.source	required	all	web	src/index.txt	source	file_nonempty	workflow	Product source authority.
+product.test	required	all	web	tests/test.txt	test	file_nonempty	workflow	Product test authority.
 DOC
 cat >"$product_repo/ops/PRODUCT_PROFILE.json" <<'DOC'
 {
@@ -819,15 +946,44 @@ prompt_file	prompts/PROMPTS_14_DAYS.md
 DOC
 evidence_backed_context_json="$TMP_DIR/dashboard-data-product-improvement.json"
 DASHBOARD_DATA_GENERATED_AT="2026-06-05T00:00:00Z" DASHBOARD_SELECTED_MENU_ID="product-improvement" DASHBOARD_LESSON14_CONFIG="$dashboard_config" "$ROOT/tools/dashboard-data" >"$evidence_backed_context_json"
-node - "$evidence_backed_context_json" <<'NODE'
+node - "$evidence_backed_context_json" "$product_repo/ops/PRODUCT_MANIFEST.tsv" <<'NODE'
 const fs = require('fs');
 const data = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+const manifest = fs.readFileSync(process.argv[3], 'utf8');
 function fail(message) {
   console.error(message);
   process.exit(1);
 }
+function expectedProductTypeFromManifest(raw) {
+  const allowed = new Set(['web', 'api', 'cli', 'library', 'integration', 'custom']);
+  const seen = new Set();
+  let hasAll = false;
+  for (const line of raw.split(/\r?\n/)) {
+    if (!line.trim() || line.startsWith('#')) {
+      continue;
+    }
+    const fields = line.split('\t');
+    if (fields.length !== 9) {
+      continue;
+    }
+    for (const rawType of fields[3].split('|')) {
+      const type = rawType.trim();
+      if (type === 'all') {
+        hasAll = true;
+      } else if (allowed.has(type) && !seen.has(type)) {
+        seen.add(type);
+        return type;
+      }
+    }
+  }
+  return hasAll ? 'all' : 'unknown';
+}
 if (data.selected_context.menu_id !== 'product-improvement') {
   fail(`expected product-improvement selected context, got ${data.selected_context.menu_id}`);
+}
+const expectedProductType = expectedProductTypeFromManifest(manifest);
+if (data.selected_context.product_type !== expectedProductType) {
+  fail(`selected product type must follow PRODUCT_MANIFEST.tsv order: expected ${expectedProductType}, got ${data.selected_context.product_type}`);
 }
 if (data.selected_context.git_status !== 'passed') {
   fail(`expected selected_context.git_status to propagate product.git evidence, got ${data.selected_context.git_status}`);

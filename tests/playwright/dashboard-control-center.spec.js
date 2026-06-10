@@ -22,9 +22,10 @@ async function routeDashboardData(page, fixtures, methods = []) {
     methods.push(route.request().method());
     const selected = fixtureList[Math.min(requestCount, fixtureList.length - 1)];
     requestCount += 1;
+    const body = typeof selected === "string" ? fs.readFileSync(selected, "utf8") : JSON.stringify(selected);
     await route.fulfill({
       contentType: "application/json",
-      body: fs.readFileSync(selected, "utf8"),
+      body,
     });
   });
 }
@@ -84,6 +85,7 @@ test.describe("English dashboard control center", () => {
     await page.setViewportSize({ width: 1440, height: 980 });
     await page.goto("http://lesson.local/dashboard-control-center/index.html");
     const navigation = page.getByRole("navigation", { name: "Dashboard categories" });
+    const repositoryNavigation = page.getByRole("navigation", { name: "Repository" });
 
     await expect(page.locator(".brand strong", { hasText: "Repository Control Center" })).toBeVisible();
     await expect(navigation.getByRole("link", { name: /Dashboard/ })).toBeVisible();
@@ -91,7 +93,7 @@ test.describe("English dashboard control center", () => {
     await expect(navigation.getByRole("link", { name: /Development Workflow/ })).toBeVisible();
     await expect(navigation.getByRole("link", { name: /Maintenance Sync/ })).toBeVisible();
     await expect(navigation.getByRole("link", { name: /Safety Actions/ })).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Repository" }).locator(".category-nav__link")).toHaveCount(3);
+    await expect(repositoryNavigation.locator(".category-nav__link")).toHaveCount(3);
     await expect(page.getByRole("navigation", { name: "Other" }).locator(".category-nav__link")).toHaveCount(2);
     await expect(page.getByText("This dashboard is read-only.")).toBeVisible();
 
@@ -198,6 +200,24 @@ test.describe("English dashboard control center", () => {
     await expect(page.locator(".command-preview .command-chip")).toHaveCount(4);
     await expect(page.getByRole("button", { name: /^(Run|Execute|Apply|Merge|Push|Check)$/i })).toHaveCount(0);
     await expect(page.locator("[data-state='approval_required']").first()).toBeVisible();
+
+    await repositoryNavigation.getByRole("link", { name: /Documents/ }).click();
+    const documentsView = page.locator("#documents");
+    await expect(documentsView).toBeVisible();
+    await expect(documentsView.locator("#documents-brief")).toBeVisible();
+    await expect(documentsView.locator(".documents-brief-card")).toHaveCount(5);
+    await expect(documentsView.locator(".documents-brief-card", { hasText: "Decide the product being built" })).toContainText("Requirements");
+    await expect(documentsView.locator(".documents-brief-card", { hasText: "Decide current progress" })).toContainText("Task tracker");
+    await documentsView.locator(".documents-brief-card", { hasText: "Decide the product being built" }).click();
+    await expect(page.locator(".documents-brief-modal")).toBeVisible();
+    await expect(page.locator(".documents-brief-modal")).toContainText("Source document");
+    await expect(page.locator(".documents-brief-modal")).toContainText("What the documents say now");
+    await page.locator(".documents-brief-modal__close").click();
+    await expect(documentsView.locator("#documents-next-actions .documents-next-row")).toHaveCount(3);
+    await expect(page.locator(".evidence-row")).toHaveCount(0);
+    await expect(page.getByText("Information sources for this view")).toHaveCount(0);
+    await expect(documentsView.locator("#documents-related a[href='#maintenance']")).toBeVisible();
+    await expect(documentsView.locator("#documents-related .sidebar-page-link-card")).toHaveCount(3);
   });
 
   test("keeps unsafe text as data across desktop and mobile layout", async ({ page }) => {
@@ -252,8 +272,10 @@ test.describe("English dashboard control center", () => {
 
   test("keeps last known good data when a refresh fails validation", async ({ page }) => {
     const methods = [];
+    const invalidDocuments = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
+    invalidDocuments.documents.catalog[0].path = "/tmp/unsafe-document.md";
     await page.unroute("**/dashboard-data.json");
-    await routeDashboardData(page, [fixturePath, invalidFixturePath, invalidFixturePath, liveUpdateFixturePath], methods);
+    await routeDashboardData(page, [fixturePath, invalidDocuments, invalidFixturePath, liveUpdateFixturePath], methods);
 
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("http://lesson.local/dashboard-control-center/index.html?refresh_ms=100");
@@ -262,6 +284,21 @@ test.describe("English dashboard control center", () => {
     await expect(page.locator("[data-overview-status-card='security']")).toContainText("Ready");
     expect(methods.every((method) => method === "GET")).toBe(true);
     expect(methods.length).toBeGreaterThanOrEqual(4);
+  });
+
+  test("shows an incomplete Documents state for legacy snapshots without a documents catalog", async ({ page }) => {
+    const legacySnapshot = JSON.parse(fs.readFileSync(fixturePath, "utf8"));
+    delete legacySnapshot.documents;
+
+    await page.unroute("**/dashboard-data.json");
+    await routeDashboardData(page, legacySnapshot);
+    await page.goto("http://lesson.local/dashboard-control-center/index.html#documents");
+
+    const documentsView = page.locator("#documents");
+    await expect(documentsView).toBeVisible();
+    await expect(page.getByText("Dashboard Data Unavailable")).toHaveCount(0);
+    await expect(documentsView.locator("#documents-brief .sidebar-page-card")).toHaveCount(1);
+    await expect(documentsView.locator("#documents-related .sidebar-page-link-card")).toHaveCount(0);
   });
 
   test("does not duplicate ready workflow items in the must-review section", async ({ page }) => {
@@ -358,6 +395,22 @@ test.describe("Japanese dashboard control center", () => {
     await expect(page.locator(".workflow-mini-card")).toHaveCount(5);
     await expect(page.getByRole("heading", { name: "Product Evidence" })).toBeVisible();
     await expect(page.getByText(/Development\.Product Repository/)).toHaveCount(0);
+
+    await page.getByRole("navigation", { name: "リポジトリ" }).getByRole("link", { name: /ドキュメント/ }).click();
+    const documentsView = page.locator("#documents");
+    await expect(documentsView).toBeVisible();
+    await expect(documentsView.locator("#documents-brief")).toBeVisible();
+    await expect(documentsView.locator(".documents-brief-card")).toHaveCount(5);
+    await expect(documentsView.locator(".documents-brief-card", { hasText: "作る成果物を判断する" })).toContainText("要件");
+    await expect(documentsView.locator(".documents-brief-card", { hasText: "現在の進捗を判断する" })).toContainText("タスクトラッカー");
+    await documentsView.locator(".documents-brief-card", { hasText: "作る成果物を判断する" }).click();
+    await expect(page.locator(".documents-brief-modal")).toBeVisible();
+    await expect(page.locator(".documents-brief-modal")).toContainText("元文書");
+    await expect(page.locator(".documents-brief-modal")).toContainText("文書から今わかること");
+    await page.locator(".documents-brief-modal__close").click();
+    await expect(documentsView.locator("#documents-next-actions .documents-next-row")).toHaveCount(3);
+    await expect(documentsView.locator("#documents-related .sidebar-page-link-card")).toHaveCount(3);
+    await expect(page.locator(".evidence-row")).toHaveCount(0);
 
     await navigation.getByRole("link", { name: /保守・同期/ }).click();
     await expect(page.getByRole("heading", { name: "同期と確認記録" })).toBeVisible();

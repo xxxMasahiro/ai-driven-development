@@ -92,6 +92,29 @@ lessons	lessons.advanced.warnings	implemented	array	safe-text-list	menu-prerequi
 lessons	lessons.advanced.next_learning_action	implemented	string	safe-text	menu-prerequisite	Applied lesson next learning action must be a read-only explanation derived from structured menu prerequisite state.
 development	development.product_repository.status	implemented	enum	missing|ready|failed|unknown|optional	product-gate	Product repository state must come from existing repository-boundary and product workflow sources.
 development	development.documents.status	implemented	enum	missing|ready|failed|unknown	product-gate	Product document state must come from existing document and workflow-pair checks.
+documents	documents	implemented	object	documents-catalog	dashboard-data	Documents page data must be producer-owned so React does not keep a fixed document array.
+documents	documents.status	implemented	enum	missing|ready|passed|failed|blocked|unknown|approval_required|optional|cached|not_run|stale|manual_required	dashboard-data	Documents page status must summarize the producer-owned documents catalog without browser inference.
+documents	documents.groups[]	implemented	array	document-group-list	dashboard-data	Documents page groups must identify learner intent and display order from dashboard data.
+documents	documents.groups[].id	implemented	string	source-id	dashboard-data	Each document group must expose a stable id.
+documents	documents.groups[].label_key	implemented	string	i18n-key	dashboard-data	Each document group must expose a localization key for the primary label.
+documents	documents.groups[].description_key	implemented	string	i18n-key	dashboard-data	Each document group must expose a localization key for the group explanation.
+documents	documents.groups[].order	implemented	integer	positive	dashboard-data	Each document group must expose producer-owned display order.
+documents	documents.catalog[]	implemented	array	document-catalog-list	dashboard-data	Documents page catalog must list document cards from producer-owned data.
+documents	documents.catalog[].id	implemented	string	source-id	dashboard-data	Each document catalog item must expose a stable id.
+documents	documents.catalog[].group_id	implemented	string	source-id	dashboard-data	Each document catalog item must reference a known documents group.
+documents	documents.catalog[].role_id	implemented	string	source-id	dashboard-data	Each document catalog item must expose a stable document role.
+documents	documents.catalog[].path	implemented	string	relative-path	dashboard-data	Each document catalog item must expose a safe relative path.
+documents	documents.catalog[].status	implemented	enum	missing|ready|passed|failed|blocked|unknown|approval_required|optional|cached|not_run|stale|manual_required	dashboard-data	Each document catalog item must expose structured readiness or review state.
+documents	documents.catalog[].status_source	implemented	string	source-id	dashboard-data	Each document catalog item must identify which producer source determined its status.
+documents	documents.catalog[].audience	implemented	enum	non_engineer|engineer|all	dashboard-data	Each document catalog item must classify its intended audience without hard-coded UI branches.
+documents	documents.catalog[].order	implemented	integer	positive	dashboard-data	Each document catalog item must expose producer-owned display order.
+documents	documents.catalog[].related_page	implemented	enum	#documents|#maintenance|#workflow|#safety|#repository-info|#history	dashboard-data	Each document catalog item must route related operational checks to an existing dashboard page.
+documents	documents.related_commands[]	implemented	array	document-command-list	dashboard-data	Documents page must expose read-only reference commands for existing document guidance tools without browser execution.
+documents	documents.related_commands[].id	implemented	string	source-id	dashboard-data	Each related document command must expose a stable id.
+documents	documents.related_commands[].label_key	implemented	string	i18n-key	dashboard-data	Each related document command must expose a localization key for the primary label.
+documents	documents.related_commands[].description_key	implemented	string	i18n-key	dashboard-data	Each related document command must expose a localization key for the description.
+documents	documents.related_commands[].command	implemented	string	display-command	dashboard-data	Each related document command must expose a safe display-only command string.
+documents	documents.related_commands[].order	implemented	integer	positive	dashboard-data	Each related document command must expose producer-owned display order.
 development	development.git_sync_status	implemented	enum	passed|failed|blocked|unknown|optional|cached	git-workflow	Product Git sync state must remain separate from Git policy readiness.
 development	development.ci_status	implemented	enum	passed|failed|blocked|unknown|optional|cached	ci-evidence	Product CI state must be optional or evidence-backed unless a required check is requested.
 development	development.git_operations[]	implemented	array	operation-row-list	dashboard-data	Git operation rows must describe Push, PR, CI, sync, and Merge settings from producer-owned workflow data.

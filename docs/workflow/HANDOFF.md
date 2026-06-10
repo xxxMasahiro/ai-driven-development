@@ -1361,3 +1361,47 @@ Recovery notes:
 - If a product repository still has root duplicates, compare root and canonical contents before deleting. Never delete a differing root file without preserving the content for review.
 - If a product repository lacks canonical docs, create or move content into the canonical path rather than restoring root fallback.
 - If root duplicate blockers appear in dashboard data, fix the external repository structure; do not hide the blocker in React.
+
+## Implemented Dashboard Control Center Documents Guided Catalog Handoff
+
+SYNC-ID: dashboard_control_center_documents_guided_catalog
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/dashboard_data.sh,tools/lib/document_paths.sh,tools/lib/product_repository_authority.sh,tools/dashboard-data,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+Restart context:
+
+- The Documents page direction is implemented.
+- `tools/dashboard-data` now emits a producer-owned `documents` catalog, with React rendering purpose-based document groups.
+- Do not regress `DocumentsPage` back to a UI-local fixed document array.
+- Do not use the Documents page as the primary place for Git/CI status, evidence rows, command previews, source-command detail, Security gates, or repository file-tree exploration.
+- Route those concepts to Development Workflow, Maintenance Sync, Safety Confirmation, Repository Information, docs-tour, or update history as appropriate.
+
+Implementation reminders:
+
+- Start follow-up changes from `DASHBOARD_DATA_SCHEMA.tsv`, `tools/lib/dashboard_data.sh`, `tools/dashboard-data`, and `dashboard-control-center/src/dashboardData.js` before changing visible UI.
+- Keep document catalog fields generic and reusable: stable document id, group id, role id, path, audience, order, status, status source, related dashboard surface, and display-only related command metadata are the current contract.
+- Keep fixed display labels in `i18n.js`; keep file paths, ids, command text, and evidence ids as sanitized producer data.
+- Use existing dashboard card, copy, tooltip, sidebar, and responsive layout conventions.
+- If malformed data appears, fail validation; if legacy document catalog data is missing, show a safe incomplete state; do not invent state in React.
+- Product type handling now follows `PRODUCT_MANIFEST.tsv` order and product authority can evaluate multiple `|`-separated product types; do not restore fixed `STEP 1-14 = web` assumptions.
+
+Verification expectations:
+
+```bash
+./tools/test_dashboard_schema.sh
+./tools/test_dashboard_data.sh
+./tools/test_dashboard_control_center.sh
+./tools/test_product_repository_authority.sh
+./tools/test_product_scaffold_check.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+```
+
+Run `npm run dashboard:build` when runtime React changes are made.
+Run heavier aggregate, pre-commit, PR CI, or main CI only when the active workflow contract requires it.
+
+Stop and ask before:
+
+- Browser command execution, POST fetches, live Git/GitHub/CI/API polling, evidence writing, document editing from the dashboard, external repository mutation, push, merge, cleanup, remote deletion, OAuth, token handling, destructive operations, or accepting any existing-feature tradeoff.
+- Removing or weakening docs-tour, `tools/dashboard docs`, Maintenance Sync, Safety Confirmation, Repository Information, STEP 1-7, STEP 1-14, existing checks, CI, Git hooks, pre-commit, localization boundaries, or read-only dashboard ownership.

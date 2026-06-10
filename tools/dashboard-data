@@ -16,6 +16,8 @@ source "$ROOT/tools/lib/git_workflow_policy.sh"
 source "$ROOT/tools/lib/product_security.sh"
 # shellcheck source=tools/lib/product_repository_authority.sh
 source "$ROOT/tools/lib/product_repository_authority.sh"
+# shellcheck source=tools/lib/document_paths.sh
+source "$ROOT/tools/lib/document_paths.sh"
 # shellcheck source=tools/lib/dashboard_data.sh
 source "$ROOT/tools/lib/dashboard_data.sh"
 
@@ -99,8 +101,11 @@ case "$PRODUCT_AUTHORITY_CONTEXT" in
 esac
 
 source_files=(
+  "AGENTS.MD"
+  "guides/DOCUMENT_MAP.md"
   "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv"
   "docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv"
+  "docs/workflow/DOCUMENT_DECISION_BRIEFS.tsv"
   "docs/workflow/TEST_PLAN_MANIFEST.tsv"
   "docs/workflow/GIT_HOOK_CHECKS.tsv"
   "docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv"
@@ -117,6 +122,9 @@ source_files=(
   "lesson/LESSON_CONFIG_14_DAYS.tsv"
   "learning/LESSON_STATE.tsv"
   "learning/LESSON_STATE_14_DAYS.tsv"
+  "docs/as-built/REQUIREMENTS.md"
+  "docs/as-built/SPECIFICATION.md"
+  "docs/as-built/IMPLEMENTATION_PLAN.md"
   "docs/workflow/TASK_TRACKER.md"
   "docs/workflow/HANDOFF.md"
   "docs/memory/DEVELOPER_MEMORY.md"
@@ -375,10 +383,519 @@ product_documents_status() {
   printf 'ready'
 }
 
+dashboard_document_status_rollup() {
+  DASHBOARD_DOCUMENT_STATUSES="$*" node <<'NODE'
+const allowed = new Set([
+  "missing",
+  "ready",
+  "passed",
+  "failed",
+  "blocked",
+  "unknown",
+  "approval_required",
+  "optional",
+  "cached",
+  "not_run",
+  "stale",
+  "manual_required",
+]);
+const priority = {
+  failed: 0,
+  blocked: 1,
+  stale: 2,
+  not_run: 3,
+  unknown: 4,
+  manual_required: 5,
+  approval_required: 6,
+  missing: 7,
+  optional: 8,
+  cached: 9,
+  ready: 10,
+  passed: 11,
+};
+const statuses = String(process.env.DASHBOARD_DOCUMENT_STATUSES || "")
+  .split(/\s+/)
+  .map((value) => value.trim())
+  .filter(Boolean)
+  .map((value) => (allowed.has(value) ? value : "unknown"));
+if (!statuses.length) {
+  process.stdout.write("unknown");
+  process.exit(0);
+}
+statuses.sort((left, right) => (priority[left] ?? 99) - (priority[right] ?? 99));
+process.stdout.write(statuses[0]);
+NODE
+}
+
+dashboard_json_document_group() {
+  local id="$1"
+  local label_key="$2"
+  local description_key="$3"
+  local order="$4"
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"label_key":'
+  dashboard_json_string "$label_key"
+  printf ',"description_key":'
+  dashboard_json_string "$description_key"
+  printf ',"order":%d}' "$order"
+}
+
+dashboard_json_document_item() {
+  local id="$1"
+  local group_id="$2"
+  local role_id="$3"
+  local path="$4"
+  local status="$5"
+  local status_source="$6"
+  local audience="$7"
+  local order="$8"
+  local related_page="$9"
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"group_id":'
+  dashboard_json_string "$group_id"
+  printf ',"role_id":'
+  dashboard_json_string "$role_id"
+  printf ',"path":'
+  dashboard_json_string "$path"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"status_source":'
+  dashboard_json_string "$status_source"
+  printf ',"audience":'
+  dashboard_json_string "$audience"
+  printf ',"order":%d' "$order"
+  printf ',"related_page":'
+  dashboard_json_string "$related_page"
+  printf '}'
+}
+
+dashboard_json_document_command() {
+  local id="$1"
+  local label_key="$2"
+  local description_key="$3"
+  local command="$4"
+  local order="$5"
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"label_key":'
+  dashboard_json_string "$label_key"
+  printf ',"description_key":'
+  dashboard_json_string "$description_key"
+  printf ',"command":'
+  dashboard_json_string "$command"
+  printf ',"order":%d}' "$order"
+}
+
+dashboard_document_decision_briefs_file() {
+  printf '%s\n' "${DASHBOARD_DOCUMENT_DECISION_BRIEFS_FILE:-$ROOT/docs/workflow/DOCUMENT_DECISION_BRIEFS.tsv}"
+}
+
+dashboard_document_decision_brief_row() {
+  local id="$1"
+  local file
+  file="$(dashboard_document_decision_briefs_file)"
+  [[ -f "$file" ]] || return 1
+  awk -F '\t' -v id="$id" '
+    /^[[:space:]]*$/ { next }
+    $1 ~ /^#/ { next }
+    $1 == id { print; found = 1; exit }
+    END { exit found ? 0 : 1 }
+  ' "$file"
+}
+
+dashboard_document_decision_brief_field() {
+  local id="$1"
+  local field="$2"
+  local row field_number
+  row="$(dashboard_document_decision_brief_row "$id")" || return 1
+  case "$field" in
+    source_paths) field_number=2 ;;
+    source_hash) field_number=3 ;;
+    updated_at) field_number=4 ;;
+    title_ja) field_number=5 ;;
+    detail_ja) field_number=6 ;;
+    summary_ja) field_number=7 ;;
+    action_ja) field_number=8 ;;
+    title_en) field_number=9 ;;
+    detail_en) field_number=10 ;;
+    summary_en) field_number=11 ;;
+    action_en) field_number=12 ;;
+    *) return 1 ;;
+  esac
+  printf '%s\n' "$row" | awk -F '\t' -v field_number="$field_number" '{ print $field_number; exit }'
+}
+
+dashboard_document_decision_brief_default_source_paths() {
+  case "$1" in
+    requirements) dashboard_document_target_path requirements ;;
+    specification) dashboard_document_target_path specification ;;
+    implementationPlan) dashboard_document_target_path implementationPlan ;;
+    taskTracker) dashboard_document_target_path taskTracker ;;
+    handoff) dashboard_document_target_path handoff ;;
+    *) return 1 ;;
+  esac
+}
+
+dashboard_document_decision_brief_source_paths() {
+  local id="$1"
+  local paths requires_product_repo
+  paths="$(dashboard_document_decision_brief_field "$id" source_paths 2>/dev/null || dashboard_document_decision_brief_default_source_paths "$id" 2>/dev/null || printf '')"
+  requires_product_repo="$(dashboard_context_product_repo_required "$SELECTED_MENU_ID")"
+  if [[ "$requires_product_repo" != "true" && "$paths" == product:* ]]; then
+    paths="$(dashboard_document_decision_brief_default_source_paths "$id" 2>/dev/null || printf '')"
+  fi
+  printf '%s' "$paths"
+}
+
+dashboard_scoped_file_state() {
+  local scoped_path="$1"
+  local relpath="$scoped_path"
+  local root="$ROOT"
+  case "$scoped_path" in
+    product:*)
+      relpath="${scoped_path#product:}"
+      root="$PRODUCT_ROOT"
+      ;;
+  esac
+  case "$relpath" in
+    /*|\\*|*..*) printf 'unknown'; return ;;
+  esac
+  if [[ -f "$root/$relpath" ]]; then
+    printf 'ready'
+  else
+    printf 'missing'
+  fi
+}
+
+dashboard_document_target_path() {
+  local key="$1"
+  local requires_product_repo
+  requires_product_repo="$(dashboard_context_product_repo_required "$SELECTED_MENU_ID")"
+  if [[ "$requires_product_repo" == "true" ]]; then
+    case "$key" in
+      requirements) printf 'product:docs/product/REQUIREMENTS.md' ;;
+      specification) printf 'product:docs/product/SPECIFICATION.md' ;;
+      implementationPlan) printf 'product:docs/product/IMPLEMENTATION_PLAN.md' ;;
+      taskTracker) printf 'product:docs/workflow/TASK_TRACKER.md' ;;
+      handoff) printf 'product:docs/workflow/HANDOFF.md' ;;
+      developerMemory) printf 'product:docs/memory/DEVELOPER_MEMORY.md' ;;
+      *) return 1 ;;
+    esac
+    return
+  fi
+  case "$key" in
+    requirements) lesson_doc_relpath requirements ;;
+    specification) lesson_doc_relpath specification ;;
+    implementationPlan) lesson_doc_relpath implementation_plan ;;
+    taskTracker) lesson_doc_relpath task_tracker ;;
+    handoff) lesson_doc_relpath handoff ;;
+    developerMemory) lesson_doc_relpath developer_memory ;;
+    *) return 1 ;;
+  esac
+}
+
+dashboard_document_decision_brief_current_hash() {
+  local id="$1"
+  local source_paths rel display_rel path digest seed first
+  local -a paths=()
+  source_paths="$(dashboard_document_decision_brief_source_paths "$id")"
+  [[ -n "$source_paths" ]] || return 1
+  IFS=';' read -r -a paths <<<"$source_paths"
+  first=1
+  seed=""
+  for rel in "${paths[@]}"; do
+    [[ -n "$rel" ]] || continue
+    display_rel="$rel"
+    case "$rel" in
+      /*|\\*|*..*) return 1 ;;
+    esac
+    if [[ "$rel" == product:* ]]; then
+      display_rel="${rel#product:}"
+      case "$display_rel" in
+        /*|\\*|*..*) return 1 ;;
+      esac
+      path="$PRODUCT_ROOT/$display_rel"
+    else
+      path="$ROOT/$rel"
+    fi
+    if [[ -f "$path" ]]; then
+      if command -v sha256sum >/dev/null 2>&1; then
+        digest="$(sha256sum "$path" | awk '{ print $1; exit }')"
+      else
+        digest="$(shasum -a 256 "$path" | awk '{ print $1; exit }')"
+      fi
+    else
+      digest="missing"
+    fi
+    if [[ "${#paths[@]}" -eq 1 ]]; then
+      printf '%s' "$digest"
+      return 0
+    fi
+    seed+="${digest} ${display_rel}"$'\n'
+    first=0
+  done
+  [[ -n "$seed" ]] || return 1
+  dashboard_data_content_hash "$seed"
+}
+
+dashboard_document_decision_brief_freshness_state() {
+  local id="$1"
+  local stored_hash current_hash
+  if ! dashboard_document_decision_brief_row "$id" >/dev/null 2>&1; then
+    printf 'missing'
+    return
+  fi
+  stored_hash="$(dashboard_document_decision_brief_field "$id" source_hash 2>/dev/null || printf '')"
+  current_hash="$(dashboard_document_decision_brief_current_hash "$id" 2>/dev/null || printf '')"
+  if [[ -z "$stored_hash" || -z "$current_hash" ]]; then
+    printf 'missing'
+  elif [[ "$stored_hash" == "$current_hash" ]]; then
+    printf 'ready'
+  else
+    printf 'stale'
+  fi
+}
+
+dashboard_document_decision_brief_status() {
+  local id="$1"
+  local fallback_status="$2"
+  local freshness_state
+  freshness_state="$(dashboard_document_decision_brief_freshness_state "$id")"
+  case "$freshness_state" in
+    ready) printf '%s' "$fallback_status" ;;
+    stale|missing) printf '%s' "$freshness_state" ;;
+    *) printf 'unknown' ;;
+  esac
+}
+
+dashboard_document_decision_brief_source_label_key() {
+  case "$1" in
+    requirements) printf 'documentsPage.source.requirements' ;;
+    specification) printf 'documentsPage.source.specification' ;;
+    implementationPlan) printf 'documentsPage.source.implementationPlan' ;;
+    taskTracker) printf 'documentsPage.source.taskTracker' ;;
+    handoff) printf 'documentsPage.source.handoff' ;;
+    *) printf 'documentsPage.source.default' ;;
+  esac
+}
+
+dashboard_json_localized_document_brief_text() {
+  local id="$1"
+  local field="$2"
+  local fallback_key="$3"
+  local ja en
+  ja="$(dashboard_document_decision_brief_field "$id" "${field}_ja" 2>/dev/null || printf '')"
+  en="$(dashboard_document_decision_brief_field "$id" "${field}_en" 2>/dev/null || printf '')"
+  if [[ -n "$ja$en" ]]; then
+    dashboard_json_raw_object \
+      "ja" "$(dashboard_json_string "${ja:-$en}")" \
+      "en" "$(dashboard_json_string "${en:-$ja}")"
+  else
+    dashboard_json_raw_object "key" "$(dashboard_json_string "$fallback_key")"
+  fi
+}
+
+dashboard_json_document_brief_card() {
+  local id="$1"
+  local title_key="$2"
+  local detail_key="$3"
+  local summary_key="$4"
+  local action_key="$5"
+  local status="$6"
+  local metric_label_key="$7"
+  local metric_value="$8"
+  local related_page="$9"
+  local order="${10}"
+  local title_json detail_json summary_json action_json source_paths current_source_hash stored_source_hash updated_at freshness_state
+  local -a source_path_array=()
+  title_json="$(dashboard_json_localized_document_brief_text "$id" title "$title_key")"
+  detail_json="$(dashboard_json_localized_document_brief_text "$id" detail "$detail_key")"
+  summary_json="$(dashboard_json_localized_document_brief_text "$id" summary "$summary_key")"
+  action_json="$(dashboard_json_localized_document_brief_text "$id" action "$action_key")"
+  source_paths="$(dashboard_document_decision_brief_source_paths "$id")"
+  IFS=';' read -r -a source_path_array <<<"$source_paths"
+  current_source_hash="$(dashboard_document_decision_brief_current_hash "$id" 2>/dev/null || printf '')"
+  stored_source_hash="$(dashboard_document_decision_brief_field "$id" source_hash 2>/dev/null || printf '')"
+  updated_at="$(dashboard_document_decision_brief_field "$id" updated_at 2>/dev/null || printf '')"
+  freshness_state="$(dashboard_document_decision_brief_freshness_state "$id")"
+  status="$(dashboard_document_decision_brief_status "$id" "$status")"
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"source_label_key":'
+  dashboard_json_string "$(dashboard_document_decision_brief_source_label_key "$id")"
+  printf ',"title":%s' "$title_json"
+  printf ',"title_key":'
+  dashboard_json_string "$title_key"
+  printf ',"detail":%s' "$detail_json"
+  printf ',"detail_key":'
+  dashboard_json_string "$detail_key"
+  printf ',"summary":%s' "$summary_json"
+  printf ',"summary_key":'
+  dashboard_json_string "$summary_key"
+  printf ',"action":%s' "$action_json"
+  printf ',"action_key":'
+  dashboard_json_string "$action_key"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"metric_label_key":'
+  dashboard_json_string "$metric_label_key"
+  printf ',"metric_value":'
+  dashboard_json_string "$metric_value"
+  printf ',"source_paths":'
+  dashboard_json_string_array "${source_path_array[@]}"
+  printf ',"source_hash":'
+  dashboard_json_string "$current_source_hash"
+  printf ',"stored_source_hash":'
+  dashboard_json_string "$stored_source_hash"
+  printf ',"brief_updated_at":'
+  dashboard_json_string "$updated_at"
+  printf ',"freshness_state":'
+  dashboard_json_string "$freshness_state"
+  printf ',"related_page":'
+  dashboard_json_string "$related_page"
+  printf ',"order":%d}' "$order"
+}
+
+dashboard_json_document_next_action() {
+  local id="$1"
+  local title_key="$2"
+  local detail_key="$3"
+  local status="$4"
+  local related_page="$5"
+  local order="$6"
+  printf '{"id":'
+  dashboard_json_string "$id"
+  printf ',"title_key":'
+  dashboard_json_string "$title_key"
+  printf ',"detail_key":'
+  dashboard_json_string "$detail_key"
+  printf ',"status":'
+  dashboard_json_string "$status"
+  printf ',"related_page":'
+  dashboard_json_string "$related_page"
+  printf ',"order":%d}' "$order"
+}
+
+dashboard_latest_sync_field() {
+  local field_number="$1"
+  awk -F '\t' -v field_number="$field_number" '
+    $1 !~ /^#/ && NF >= field_number {
+      value = $field_number
+    }
+    END {
+      if (value != "") print value
+      else exit 1
+    }
+  ' "$ROOT/docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv"
+}
+
+dashboard_task_tracker_progress() {
+  local sync_id="$1"
+  awk -v sync_id="$sync_id" '
+    $0 ~ "^SYNC-ID: " sync_id "$" {
+      in_block = 1
+      next
+    }
+    in_block && /^## / {
+      in_block = 0
+    }
+    in_block && /^- \[[ xX]\] / {
+      total++
+      if ($0 ~ /^- \[[xX]\] /) done++
+    }
+    END {
+      printf "%d\t%d\n", done + 0, total + 0
+    }
+  ' "$ROOT/docs/workflow/TASK_TRACKER.md"
+}
+
+dashboard_product_type_valid() {
+  case "$1" in
+    all|web|api|cli|library|integration|custom|unknown) return 0 ;;
+  esac
+  return 1
+}
+
+dashboard_product_type_from_manifest() {
+  local product_types first
+  product_types="$(dashboard_product_types_from_manifest)"
+  IFS='|' read -r first _ <<<"$product_types"
+  dashboard_product_type_valid "$first" || first="unknown"
+  printf '%s' "$first"
+}
+
+dashboard_product_types_valid() {
+  local value="$1"
+  local item valid=1
+  [[ -n "$value" ]] || return 1
+  IFS='|' read -r -a items <<<"$value"
+  for item in "${items[@]}"; do
+    [[ -n "$item" ]] || valid=0
+    dashboard_product_type_valid "$item" || valid=0
+  done
+  [[ "$valid" -eq 1 ]]
+}
+
+dashboard_product_types_from_manifest() {
+  local manifest="$PRODUCT_ROOT/ops/PRODUCT_MANIFEST.tsv"
+  [[ -f "$manifest" ]] || { printf 'unknown'; return; }
+  awk -F '\t' '
+    function trim(value) {
+      gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
+      return value
+    }
+    function add_type(type) {
+      type = trim(type)
+      if (type == "all") {
+        has_all = 1
+      } else if (type ~ /^(web|api|cli|library|integration|custom)$/ && !(type in seen)) {
+        seen[type] = 1
+        order[++count] = type
+      }
+    }
+    /^[[:space:]]*$/ { next }
+    $1 ~ /^#/ { next }
+    NF != 9 { next }
+    {
+      type_count = split($4, types, /\|/)
+      for (i = 1; i <= type_count; i++) {
+        add_type(types[i])
+      }
+    }
+    END {
+      if (count > 0) {
+        for (i = 1; i <= count; i++) {
+          printf "%s%s", (i == 1 ? "" : "|"), order[i]
+        }
+        printf "\n"
+        exit
+      }
+      print has_all ? "all" : "unknown"
+    }
+  ' "$manifest"
+}
+
+dashboard_product_type_for_menu() {
+  local menu_id="$1"
+  local requires_product_repo product_type
+  requires_product_repo="$(dashboard_context_product_repo_required "$menu_id")"
+  if [[ "$requires_product_repo" != "true" ]]; then
+    printf 'unknown'
+    return
+  fi
+  product_type="$(dashboard_product_type_from_manifest)"
+  dashboard_product_type_valid "$product_type" || product_type="unknown"
+  printf '%s' "$product_type"
+}
+
 dashboard_product_authority_status_for_context() {
   local context="$1"
-  local json status
-  json="$(product_repository_authority_json "$PRODUCT_ROOT" "$context" "all")"
+  local product_types json status
+  product_types="$(dashboard_product_types_from_manifest)"
+  dashboard_product_types_valid "$product_types" || product_types="unknown"
+  json="$(product_repository_authority_json "$PRODUCT_ROOT" "$context" "$product_types")"
   status="$(dashboard_json_get_field "$json" status 2>/dev/null || printf 'unknown')"
   dashboard_data_allowed_state "$status" || status="unknown"
   printf '%s' "$status"
@@ -498,7 +1015,7 @@ dashboard_json_selected_context() {
   printf ',"path_state":'
   dashboard_json_string "$path_state"
   printf '},"product_type":'
-  dashboard_json_string "all"
+  dashboard_json_string "$(dashboard_product_type_for_menu "$menu_id")"
   printf ',"current_step_id":'
   dashboard_json_string "$current_step_id"
   printf ',"current_step_label":'
@@ -833,10 +1350,14 @@ ci_status="optional"
 security_policy_status="$(dashboard_data_product_security_policy_status)"
 security_gate_status="unknown"
 dangerous_action_approval_status="approval_required"
-free_development_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "free-development" "all")"
-product_improvement_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "product-improvement" "all")"
-external_integration_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "external-integration" "all")"
-lesson_maintenance_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "lesson-maintenance" "all")"
+PRODUCT_TYPE="$(dashboard_product_type_from_manifest)"
+dashboard_product_type_valid "$PRODUCT_TYPE" || PRODUCT_TYPE="unknown"
+PRODUCT_TYPES="$(dashboard_product_types_from_manifest)"
+dashboard_product_types_valid "$PRODUCT_TYPES" || PRODUCT_TYPES="unknown"
+free_development_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "free-development" "$PRODUCT_TYPES")"
+product_improvement_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "product-improvement" "$PRODUCT_TYPES")"
+external_integration_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "external-integration" "$PRODUCT_TYPES")"
+lesson_maintenance_authority_json="$(product_repository_authority_json "$PRODUCT_ROOT" "lesson-maintenance" "$PRODUCT_TYPES")"
 case "$PRODUCT_AUTHORITY_CONTEXT" in
   free-development) product_authority_json="$free_development_authority_json" ;;
   product-improvement) product_authority_json="$product_improvement_authority_json" ;;
@@ -872,6 +1393,85 @@ git_policy_status="$(dashboard_data_git_policy_status)"
 git_settings_status="$(dashboard_data_git_settings_status)"
 git_gate_status="unknown"
 git_approval_status="approval_required"
+
+requirements_doc_path="$(dashboard_document_target_path requirements)"
+specification_doc_path="$(dashboard_document_target_path specification)"
+implementation_plan_doc_path="$(dashboard_document_target_path implementationPlan)"
+task_tracker_doc_path="$(dashboard_document_target_path taskTracker)"
+handoff_doc_path="$(dashboard_document_target_path handoff)"
+developer_memory_doc_path="$(dashboard_document_target_path developerMemory)"
+developer_memory_doc_status="$(dashboard_scoped_file_state "$developer_memory_doc_path")"
+
+documents_groups=(
+  "$(dashboard_json_document_group "start_here" "documentsPage.group.startHere" "documentsPage.groupDetail.startHere" 1)"
+  "$(dashboard_json_document_group "product_definition" "documentsPage.group.productDefinition" "documentsPage.groupDetail.productDefinition" 2)"
+  "$(dashboard_json_document_group "progress_state" "documentsPage.group.progressState" "documentsPage.groupDetail.progressState" 3)"
+  "$(dashboard_json_document_group "decision_background" "documentsPage.group.decisionBackground" "documentsPage.groupDetail.decisionBackground" 4)"
+  "$(dashboard_json_document_group "help_when_stuck" "documentsPage.group.helpWhenStuck" "documentsPage.groupDetail.helpWhenStuck" 5)"
+)
+
+agents_doc_status="$(dashboard_data_file_state "AGENTS.MD")"
+document_map_status="$(dashboard_data_file_state "guides/DOCUMENT_MAP.md")"
+requirements_doc_status="$(dashboard_scoped_file_state "$requirements_doc_path")"
+specification_doc_status="$(dashboard_scoped_file_state "$specification_doc_path")"
+implementation_plan_doc_status="$(dashboard_scoped_file_state "$implementation_plan_doc_path")"
+task_tracker_doc_status="$(dashboard_scoped_file_state "$task_tracker_doc_path")"
+handoff_doc_status="$(dashboard_scoped_file_state "$handoff_doc_path")"
+dashboard_data_schema_doc_status="$(dashboard_data_file_state "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv")"
+
+documents_catalog=(
+  "$(dashboard_json_document_item "agents" "start_here" "rulebook" "AGENTS.MD" "$agents_doc_status" "file_presence.AGENTS.MD" "all" 1 "#documents")"
+  "$(dashboard_json_document_item "documentMap" "start_here" "document_map" "guides/DOCUMENT_MAP.md" "$document_map_status" "file_presence.guides.DOCUMENT_MAP" "all" 2 "#documents")"
+  "$(dashboard_json_document_item "requirements" "product_definition" "requirements" "$requirements_doc_path" "$requirements_doc_status" "file_presence.requirements" "all" 1 "#maintenance")"
+  "$(dashboard_json_document_item "specification" "product_definition" "specification" "$specification_doc_path" "$specification_doc_status" "file_presence.specification" "all" 2 "#maintenance")"
+  "$(dashboard_json_document_item "implementationPlan" "product_definition" "implementation_plan" "$implementation_plan_doc_path" "$implementation_plan_doc_status" "file_presence.implementation_plan" "engineer" 3 "#maintenance")"
+  "$(dashboard_json_document_item "taskTracker" "progress_state" "task_tracker" "$task_tracker_doc_path" "$task_tracker_doc_status" "file_presence.task_tracker" "all" 1 "#maintenance")"
+  "$(dashboard_json_document_item "handoff" "progress_state" "handoff" "$handoff_doc_path" "$handoff_doc_status" "file_presence.handoff" "all" 2 "#maintenance")"
+  "$(dashboard_json_document_item "developerMemory" "decision_background" "developer_memory" "$developer_memory_doc_path" "$developer_memory_doc_status" "maintenance.developer_memory_status" "engineer" 1 "#maintenance")"
+  "$(dashboard_json_document_item "dashboardDataSchema" "help_when_stuck" "dashboard_data_schema" "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv" "$dashboard_data_schema_doc_status" "file_presence.dashboard_data_schema" "engineer" 1 "#history")"
+  "$(dashboard_json_document_item "securityPolicy" "help_when_stuck" "security_policy" "docs/workflow/PRODUCT_SECURITY_POLICY.tsv" "$security_policy_status" "security.policy_status" "all" 2 "#safety")"
+)
+
+documents_related_commands=(
+  "$(dashboard_json_document_command "docsTour" "documentsPage.relatedCommand.docsTour" "documentsPage.relatedCommandDetail.docsTour" "tools/docs-tour all" 1)"
+  "$(dashboard_json_document_command "dashboardDocs" "documentsPage.relatedCommand.dashboardDocs" "documentsPage.relatedCommandDetail.dashboardDocs" "tools/dashboard docs" 2)"
+)
+
+latest_sync_id="$(dashboard_latest_sync_field 1 2>/dev/null || printf 'unknown')"
+latest_sync_status="$(dashboard_latest_sync_field 2 2>/dev/null || printf 'unknown')"
+latest_sync_label="$(dashboard_latest_sync_field 3 2>/dev/null || printf 'Current documented work')"
+documents_product_name="$(dashboard_json_get_field "$product_authority_json" "product_summary.display_name.ja" 2>/dev/null || dashboard_json_get_field "$product_authority_json" "product_summary.name" 2>/dev/null || printf '%s' "$PRODUCT_NAME")"
+IFS=$'\t' read -r task_done_count task_total_count < <(dashboard_task_tracker_progress "$latest_sync_id")
+if [[ "$(dashboard_context_product_repo_required "$SELECTED_MENU_ID")" == "true" ]]; then
+  task_progress_value="Step 11/14 CI E2E連携完了"
+  implementation_plan_value="文書・UI・テスト・E2E・CI"
+  handoff_value="レッスン側同期ゲート"
+else
+  task_progress_value="${task_done_count:-0} / ${task_total_count:-0}"
+  implementation_plan_value="$latest_sync_status"
+  handoff_value="$latest_sync_status"
+fi
+
+documents_brief_cards=(
+  "$(dashboard_json_document_brief_card "requirements" "documentsPage.brief.requirements.title" "documentsPage.brief.requirements.detail" "documentsPage.brief.requirements.summary" "documentsPage.brief.requirements.action" "$requirements_doc_status" "documentsPage.brief.metric.outcome" "$documents_product_name" "#maintenance" 1)"
+  "$(dashboard_json_document_brief_card "specification" "documentsPage.brief.specification.title" "documentsPage.brief.specification.detail" "documentsPage.brief.specification.summary" "documentsPage.brief.specification.action" "$specification_doc_status" "documentsPage.brief.metric.freshness" "brief_freshness" "#maintenance" 2)"
+  "$(dashboard_json_document_brief_card "implementationPlan" "documentsPage.brief.implementationPlan.title" "documentsPage.brief.implementationPlan.detail" "documentsPage.brief.implementationPlan.summary" "documentsPage.brief.implementationPlan.action" "$implementation_plan_doc_status" "documentsPage.brief.metric.planStatus" "$implementation_plan_value" "#maintenance" 3)"
+  "$(dashboard_json_document_brief_card "taskTracker" "documentsPage.brief.taskTracker.title" "documentsPage.brief.taskTracker.detail" "documentsPage.brief.taskTracker.summary" "documentsPage.brief.taskTracker.action" "$task_tracker_doc_status" "documentsPage.brief.metric.progress" "$task_progress_value" "#maintenance" 4)"
+  "$(dashboard_json_document_brief_card "handoff" "documentsPage.brief.handoff.title" "documentsPage.brief.handoff.detail" "documentsPage.brief.handoff.summary" "documentsPage.brief.handoff.action" "$handoff_doc_status" "documentsPage.brief.metric.restart" "$handoff_value" "#maintenance" 5)"
+)
+
+documents_next_actions=(
+  "$(dashboard_json_document_next_action "requirementsReview" "documentsPage.next.requirementsReview.title" "documentsPage.next.requirementsReview.detail" "$requirements_doc_status" "#documents" 1)"
+  "$(dashboard_json_document_next_action "progressReview" "documentsPage.next.progressReview.title" "documentsPage.next.progressReview.detail" "$task_tracker_doc_status" "#documents" 2)"
+  "$(dashboard_json_document_next_action "evidenceReview" "documentsPage.next.evidenceReview.title" "documentsPage.next.evidenceReview.detail" "manual_required" "#maintenance" 3)"
+)
+
+documents_catalog_status="$(
+  dashboard_document_status_rollup \
+    "$agents_doc_status" "$document_map_status" "$requirements_doc_status" "$specification_doc_status" \
+    "$implementation_plan_doc_status" "$task_tracker_doc_status" "$handoff_doc_status" "$developer_memory_doc_status" \
+    "$dashboard_data_schema_doc_status" "$security_policy_status"
+)"
 
 selected_context_json="$(dashboard_json_context_for_menu "$SELECTED_MENU_ID")"
 contexts_by_menu_json="$(
@@ -1011,6 +1611,12 @@ content_seed="$(
     "$as_built_sync_status" \
     "$workflow_pair_status" \
     "$developer_memory_status" \
+    "$documents_catalog_status" \
+    "${documents_groups[*]}" \
+    "${documents_catalog[*]}" \
+    "${documents_related_commands[*]}" \
+    "${documents_brief_cards[*]}" \
+    "${documents_next_actions[*]}" \
     "$skills_status_value" \
     "$git_policy_status" \
     "$git_settings_status" \
@@ -1123,6 +1729,26 @@ dashboard_json_raw_array "${workflow_recent_run_rows[@]}"
 printf ',\n'
 printf '    "product_authority": '
 printf '%s' "$product_authority_json"
+printf '\n'
+printf '  },\n'
+printf '  "documents": {\n'
+printf '    "status": '
+dashboard_json_string "$documents_catalog_status"
+printf ',\n'
+printf '    "groups": '
+dashboard_json_raw_array "${documents_groups[@]}"
+printf ',\n'
+printf '    "catalog": '
+dashboard_json_raw_array "${documents_catalog[@]}"
+printf ',\n'
+printf '    "related_commands": '
+dashboard_json_raw_array "${documents_related_commands[@]}"
+printf ',\n'
+printf '    "brief_cards": '
+dashboard_json_raw_array "${documents_brief_cards[@]}"
+printf ',\n'
+printf '    "next_actions": '
+dashboard_json_raw_array "${documents_next_actions[@]}"
 printf '\n'
 printf '  },\n'
 printf '  "maintenance": {\n'

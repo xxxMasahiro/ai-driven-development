@@ -17,7 +17,7 @@ if ! declare -F product_security_policy_file >/dev/null 2>&1; then
 fi
 
 dashboard_data_schema_version() {
-  printf '0.6.0'
+  printf '0.8.0'
 }
 
 dashboard_data_generated_at() {

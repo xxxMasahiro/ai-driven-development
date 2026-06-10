@@ -1397,3 +1397,31 @@ Current task state:
 - [x] Keep external repository remediation out of lesson-repository documents; record only reusable prevention policy, tools, prompts, and tests.
 - [x] Run targeted local verification for product authority, scaffold, product security, dashboard data, lesson14, structure, and skill checks.
 - [ ] Commit, push, PR CI, merge, and synchronize local/remote state for the current work.
+
+## Implemented Dashboard Control Center Documents Guided Catalog
+
+SYNC-ID: dashboard_control_center_documents_guided_catalog
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/dashboard_data.sh,tools/lib/document_paths.sh,tools/lib/product_repository_authority.sh,tools/dashboard-data,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+Current task state:
+
+- [x] Collect multiple sub-agent reviews for the Documents page direction.
+- [x] Confirm the chosen direction: producer-owned documents catalog in dashboard data, React as a purpose-based renderer.
+- [x] Reject the shortcut of adding another fixed document array inside `DocumentsPage`.
+- [x] Record that Maintenance Sync evidence, Safety gates, Git/CI flow, Repository Information, and update history remain dedicated surfaces.
+- [x] Synchronize the planned implementation across the three as-built documents, this task tracker, handoff, and the sync contract.
+- [x] Implement the documents catalog data contract and producer output.
+- [x] Rebuild the Documents page around purpose-based groups with localized fixed labels and secondary file-path details.
+- [x] Add targeted tests without stack-specific or wording-specific assertions.
+- [x] Fix product type handling so dashboard data follows `PRODUCT_MANIFEST.tsv` order and product authority can evaluate multiple product types.
+- [x] Address sub-agent review findings for safe relative path validation, documents hash coverage, duplicate ids, legacy snapshot fallback, manifest product-type ordering, docs-tour references, i18n key coverage, and fixed-phrase test assertions.
+- [x] Run the required dashboard schema/data/control-center, product authority/scaffold, and as-built synchronization checks after implementation.
+- [x] Promote this sync ID to `implemented` after implementation and required verification pass.
+
+Active constraints:
+
+- Existing STEP 1-7, STEP 1-14, CI, checks, docs-tour, document routes, Maintenance Sync, Safety Confirmation, Repository Information, Git hooks, pre-commit, localization, and read-only dashboard behavior must remain intact.
+- The dashboard must not execute commands, write documents, refresh evidence, mutate repositories, call GitHub/CI, push, merge, clean up, or handle credentials.
+- Implementation must use existing settings, shared dashboard-data helpers, schema validation, fixtures, targeted tests, and repo-local workflow conventions rather than fixed values or one-off branches.

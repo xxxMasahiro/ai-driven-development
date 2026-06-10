@@ -3184,3 +3184,69 @@ Failure recovery:
 - If root and canonical content differ, stop before deletion and preserve both versions for human review.
 - If dashboard product document readiness reports missing, inspect canonical `docs/product` and `docs/workflow` paths rather than adding root fallback.
 - If skills or prompts regress to bare product document names, update the relevant guidance and `tools/check_agents_skills.sh` together.
+
+## Implemented Dashboard Control Center Documents Guided Catalog Implementation Plan
+
+SYNC-ID: dashboard_control_center_documents_guided_catalog
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/dashboard_data.sh,tools/lib/document_paths.sh,tools/lib/product_repository_authority.sh,tools/dashboard-data,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+Implementation order completed:
+
+1. Define the documents catalog data contract before changing the browser page.
+   - Use existing dashboard schema, producer, fixture, and validator paths.
+   - Keep the shape generic, for example document id, group id, role id, path, audience, order, status, status source, related dashboard surface, and display-only related command metadata.
+   - Do not add a React-only fixed document list.
+2. Extend `tools/dashboard-data` and shared dashboard data helpers to emit the documents catalog from existing settings, document routes, docs-tour knowledge, and dashboard state.
+   - Treat the producer as read-only.
+   - Do not execute Git, CI, product authority, security checks, evidence writers, or document generators.
+3. Update `DASHBOARD_DATA_SCHEMA.tsv` and `dashboardData.js` so malformed document catalog data is caught before UI reliance while missing legacy catalog data renders as a safe incomplete state.
+4. Rebuild `DocumentsPage` as a guided reading surface.
+   - Suggested groups: first documents to read, what is being built, current progress, decision background, and help when stuck.
+   - Route Git/CI, security, evidence, file structure, and update history to their dedicated pages.
+   - Keep file paths and technical ids as secondary copyable or tooltip-backed details.
+5. Update localized fixed labels in `i18n.js` and reuse existing dashboard card, tooltip, copy, sidebar, and responsive CSS patterns.
+6. Add or adjust tests only at the level required by changed surfaces.
+   - If a new documents-specific test is needed, make it standalone and aggregate-callable.
+   - Avoid assertions that depend on one exact Japanese sentence, one product stack, or one fixture-only case.
+7. Promoted this sync ID to `implemented` after implementation and required verification passed.
+8. Addressed sub-agent review findings for safe relative path validation, documents hash coverage, duplicate ids, legacy snapshot fallback, manifest product-type ordering, docs-tour references, and fixed-phrase test assertions.
+
+Document synchronization:
+
+- Requirements record the user-facing capability, non-scope, and no-tradeoff constraints.
+- Specification records the data contract, UI contract, safety boundary, and compatibility behavior.
+- This implementation plan records execution order, verification, recovery, and approval boundaries.
+- Task tracker records current implemented work state and checklist.
+- Handoff records restart context, prohibited shortcuts, and validation expectations.
+
+Verification completed:
+
+```bash
+./tools/test_dashboard_schema.sh
+./tools/test_dashboard_data.sh
+./tools/test_dashboard_control_center.sh
+./tools/test_product_repository_authority.sh
+./tools/test_product_scaffold_check.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+```
+
+Runtime React changes also use `npm run dashboard:build` as the targeted Vite build check.
+Run broader aggregate, pre-commit, PR CI, or main CI only when the active workflow contract requires it.
+
+Failure recovery:
+
+- If schema or producer tests fail, fix the data contract and producer output before continuing UI work.
+- If the UI cannot display a document group from producer-owned data, show a safe incomplete state or extend the schema; do not hard-code the missing fact in React.
+- If evidence or command details reappear as primary Documents page content, move them back to Maintenance Sync, Safety Confirmation, Development Workflow, or update history.
+- If localized text overflows, fix responsive layout or label structure rather than adding language-specific branches.
+- If sync checks fail, repair the five synchronized documents and sync contract before runtime implementation continues.
+- If any existing-feature tradeoff appears necessary, stop and request developer approval.
+
+Developer approval boundaries:
+
+- Approval is required before browser command execution, POST fetches, live Git/GitHub/CI/API polling, evidence writing, document editing from the dashboard, merge, push, cleanup, remote deletion, OAuth, token handling, or destructive operations.
+- Approval is required before removing or weakening docs-tour, `tools/dashboard docs`, Maintenance Sync evidence, Safety Confirmation, Repository Information, STEP 1-7, STEP 1-14, existing CI, Git hooks, pre-commit, or existing document routes.
+- Approval is required before accepting schema-incompatible behavior or any existing-feature tradeoff.

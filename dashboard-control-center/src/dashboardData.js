@@ -45,6 +45,46 @@ const WORKFLOW_CONTEXTS = new Set([
 
 const REPOSITORY_PATH_STATES = new Set(["configured", "missing", "not_applicable", "unknown"]);
 const PRODUCT_TYPES = new Set(["all", "web", "api", "cli", "library", "integration", "custom", "unknown"]);
+const DOCUMENT_AUDIENCES = new Set(["non_engineer", "engineer", "all"]);
+const DOCUMENT_RELATED_PAGES = new Set(["#documents", "#maintenance", "#workflow", "#safety", "#repository-info", "#history"]);
+
+function safeRelativePath(value) {
+  if (typeof value !== "string") {
+    return "";
+  }
+  const normalized = value.replace(/[\u0000-\u001f]/g, "").trim();
+  if (
+    !normalized ||
+    normalized.startsWith("/") ||
+    normalized.startsWith("\\") ||
+    /^[A-Za-z]:[\\/]/.test(normalized) ||
+    normalized.split(/[\\/]+/).some((part) => part === "..")
+  ) {
+    return "";
+  }
+  return normalized;
+}
+
+function safeScopedRelativePath(value) {
+  if (typeof value !== "string") {
+    return "";
+  }
+  if (value.startsWith("product:")) {
+    return safeRelativePath(value.slice("product:".length));
+  }
+  return safeRelativePath(value);
+}
+
+function safeDisplayCommand(value) {
+  if (typeof value !== "string") {
+    return "";
+  }
+  const normalized = value.replace(/[\u0000-\u001f]/g, "").replace(/\s+/g, " ").trim();
+  if (!normalized || /[;&|`$<>\\]/.test(normalized)) {
+    return "";
+  }
+  return /^tools\/[A-Za-z0-9._-]+(?: [A-Za-z0-9._:@/%+=,-]+)*$/.test(normalized) ? normalized : "";
+}
 
 export function displayText(value, fallback = "unknown") {
   if (value === null || value === undefined || value === "") {
@@ -65,6 +105,16 @@ export function displayKey(value) {
   return displayText(value)
     .replace(/[_-]+/g, " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
+}
+
+function validateLocalizedTextObject(value, label) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error(`${label} must be a localized object`);
+  }
+  assertAllowedKeys(value, new Set(["ja", "en", "key"]), label);
+  if (!displayText(value.ja, "") && !displayText(value.en, "") && !displayText(value.key, "")) {
+    throw new Error(`${label} is missing localized text`);
+  }
 }
 
 export function normalizeState(value) {
@@ -452,6 +502,158 @@ function validateOperationRows(development) {
   }
 }
 
+function validateDocuments(data) {
+  if (data.documents === undefined || data.documents === null) {
+    return;
+  }
+  const documents = asObject(data.documents, "dashboard documents");
+  assertAllowedKeys(documents, new Set(["status", "groups", "catalog", "related_commands", "brief_cards", "next_actions"]), "dashboard documents");
+  if (documents.status !== undefined && !ALLOWED_STATES.has(displayText(documents.status, ""))) {
+    throw new Error("dashboard documents status is invalid");
+  }
+  const groupIds = new Set();
+  for (const group of asArray(documents.groups)) {
+    if (!group || typeof group !== "object" || Array.isArray(group)) {
+      throw new Error("dashboard document group must be an object");
+    }
+    assertAllowedKeys(group, new Set(["id", "label_key", "description_key", "order"]), "dashboard document group");
+    for (const key of ["id", "label_key", "description_key"]) {
+      if (!displayText(group[key], "")) {
+        throw new Error(`dashboard document group ${key} is missing`);
+      }
+    }
+    if (!Number.isInteger(group.order) || group.order <= 0) {
+      throw new Error("dashboard document group order is invalid");
+    }
+    const groupId = displayText(group.id, "");
+    if (groupIds.has(groupId)) {
+      throw new Error("dashboard document group id is duplicated");
+    }
+    groupIds.add(groupId);
+  }
+  const catalogIds = new Set();
+  for (const item of asArray(documents.catalog)) {
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      throw new Error("dashboard document catalog item must be an object");
+    }
+    assertAllowedKeys(item, new Set(["id", "group_id", "role_id", "path", "status", "status_source", "audience", "order", "related_page"]), "dashboard document catalog item");
+    for (const key of ["id", "group_id", "role_id", "path", "status_source"]) {
+      if (!displayText(item[key], "")) {
+        throw new Error(`dashboard document catalog item ${key} is missing`);
+      }
+    }
+    if (groupIds.size && !groupIds.has(displayText(item.group_id, ""))) {
+      throw new Error("dashboard document catalog item references an unknown group");
+    }
+    const itemId = displayText(item.id, "");
+    if (catalogIds.has(itemId)) {
+      throw new Error("dashboard document catalog item id is duplicated");
+    }
+    catalogIds.add(itemId);
+    if (!safeScopedRelativePath(item.path)) {
+      throw new Error("dashboard document catalog item path must be a safe relative path");
+    }
+    if (!ALLOWED_STATES.has(displayText(item.status, ""))) {
+      throw new Error("dashboard document catalog item status is invalid");
+    }
+    if (!DOCUMENT_AUDIENCES.has(displayText(item.audience, ""))) {
+      throw new Error("dashboard document catalog item audience is invalid");
+    }
+    if (!Number.isInteger(item.order) || item.order <= 0) {
+      throw new Error("dashboard document catalog item order is invalid");
+    }
+    if (!DOCUMENT_RELATED_PAGES.has(displayText(item.related_page, ""))) {
+      throw new Error("dashboard document catalog item related_page is invalid");
+    }
+  }
+  const commandIds = new Set();
+  for (const command of asArray(documents.related_commands)) {
+    if (!command || typeof command !== "object" || Array.isArray(command)) {
+      throw new Error("dashboard document related command must be an object");
+    }
+    assertAllowedKeys(command, new Set(["id", "label_key", "description_key", "command", "order"]), "dashboard document related command");
+    for (const key of ["id", "label_key", "description_key", "command"]) {
+      if (!displayText(command[key], "")) {
+        throw new Error(`dashboard document related command ${key} is missing`);
+      }
+    }
+    const commandId = displayText(command.id, "");
+    if (commandIds.has(commandId)) {
+      throw new Error("dashboard document related command id is duplicated");
+    }
+    commandIds.add(commandId);
+    if (!safeDisplayCommand(command.command)) {
+      throw new Error("dashboard document related command is invalid");
+    }
+    if (!Number.isInteger(command.order) || command.order <= 0) {
+      throw new Error("dashboard document related command order is invalid");
+    }
+  }
+  const briefIds = new Set();
+  for (const card of asArray(documents.brief_cards)) {
+    if (!card || typeof card !== "object" || Array.isArray(card)) {
+      throw new Error("dashboard document brief card must be an object");
+    }
+    assertAllowedKeys(card, new Set(["id", "source_label_key", "title", "title_key", "detail", "detail_key", "summary", "summary_key", "action", "action_key", "status", "metric_label_key", "metric_value", "source_paths", "source_hash", "stored_source_hash", "brief_updated_at", "freshness_state", "related_page", "order"]), "dashboard document brief card");
+    for (const key of ["id", "source_label_key", "title_key", "detail_key", "summary_key", "action_key", "metric_label_key", "metric_value"]) {
+      if (!displayText(card[key], "")) {
+        throw new Error(`dashboard document brief card ${key} is missing`);
+      }
+    }
+    for (const key of ["title", "detail", "summary", "action"]) {
+      validateLocalizedTextObject(card[key], `dashboard document brief card ${key}`);
+    }
+    const briefId = displayText(card.id, "");
+    if (briefIds.has(briefId)) {
+      throw new Error("dashboard document brief card id is duplicated");
+    }
+    briefIds.add(briefId);
+    if (!ALLOWED_STATES.has(displayText(card.status, ""))) {
+      throw new Error("dashboard document brief card status is invalid");
+    }
+    if (!ALLOWED_STATES.has(displayText(card.freshness_state, "unknown"))) {
+      throw new Error("dashboard document brief card freshness_state is invalid");
+    }
+    for (const sourcePath of asArray(card.source_paths)) {
+      if (!safeScopedRelativePath(sourcePath)) {
+        throw new Error("dashboard document brief card source_paths is invalid");
+      }
+    }
+    if (!DOCUMENT_RELATED_PAGES.has(displayText(card.related_page, ""))) {
+      throw new Error("dashboard document brief card related_page is invalid");
+    }
+    if (!Number.isInteger(card.order) || card.order <= 0) {
+      throw new Error("dashboard document brief card order is invalid");
+    }
+  }
+  const actionIds = new Set();
+  for (const action of asArray(documents.next_actions)) {
+    if (!action || typeof action !== "object" || Array.isArray(action)) {
+      throw new Error("dashboard document next action must be an object");
+    }
+    assertAllowedKeys(action, new Set(["id", "title_key", "detail_key", "status", "related_page", "order"]), "dashboard document next action");
+    for (const key of ["id", "title_key", "detail_key"]) {
+      if (!displayText(action[key], "")) {
+        throw new Error(`dashboard document next action ${key} is missing`);
+      }
+    }
+    const actionId = displayText(action.id, "");
+    if (actionIds.has(actionId)) {
+      throw new Error("dashboard document next action id is duplicated");
+    }
+    actionIds.add(actionId);
+    if (!ALLOWED_STATES.has(displayText(action.status, ""))) {
+      throw new Error("dashboard document next action status is invalid");
+    }
+    if (!DOCUMENT_RELATED_PAGES.has(displayText(action.related_page, ""))) {
+      throw new Error("dashboard document next action related_page is invalid");
+    }
+    if (!Number.isInteger(action.order) || action.order <= 0) {
+      throw new Error("dashboard document next action order is invalid");
+    }
+  }
+}
+
 function validateMaintenanceEvidence(maintenance) {
   for (const row of asArray(maintenance.evidence_rows)) {
     if (!row || typeof row !== "object" || Array.isArray(row)) {
@@ -533,6 +735,7 @@ export function validateDashboardData(data) {
   validatePartialFailureScope(data);
   validateOperationRows(data.development);
   validateProductAuthority(data.development);
+  validateDocuments(data);
   validateMaintenanceEvidence(data.maintenance);
   validateSecurityRows(data.security);
   validateCommandPreviews(data.actions);

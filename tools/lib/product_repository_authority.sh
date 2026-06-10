@@ -97,13 +97,20 @@ product_repository_authority_safe_repo_label() {
 product_repository_authority_list_has() {
   local list="$1"
   local expected="$2"
-  local item
+  local item expected_item
   IFS='|' read -r -a items <<<"$list"
   for item in "${items[@]}"; do
     item="$(product_repository_authority_trim "$item")"
-    if [[ "$item" == "all" || "$item" == "$expected" ]]; then
+    if [[ "$item" == "all" ]]; then
       return 0
     fi
+    IFS='|' read -r -a expected_items <<<"$expected"
+    for expected_item in "${expected_items[@]}"; do
+      expected_item="$(product_repository_authority_trim "$expected_item")"
+      if [[ -n "$expected_item" && "$item" == "$expected_item" ]]; then
+        return 0
+      fi
+    done
   done
   return 1
 }

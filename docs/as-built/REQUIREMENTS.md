@@ -1506,3 +1506,31 @@ Non-scope:
 - Do not delete or rewrite external product repository content unless the operation is explicitly part of product repository maintenance.
 - Do not relax repository boundary checks, approval requirements, security checks, Git/CI gates, or product profile validation.
 - Do not trade off existing STEP 1-7, STEP 1-14, dashboard read-only behavior, localization, or product authority evidence semantics.
+
+## Implemented Dashboard Control Center Documents Guided Catalog Requirements
+
+SYNC-ID: dashboard_control_center_documents_guided_catalog
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/dashboard_data.sh,tools/lib/document_paths.sh,tools/lib/product_repository_authority.sh,tools/dashboard-data,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+The dashboard control center must make the Documents page a guided, read-only document navigation surface rather than a flat file list or a maintenance evidence surface.
+This implemented work is additive and must not trade away STEP 1-7, STEP 1-14, existing CI, existing checks, existing document routes, docs-tour behavior, repository information, maintenance sync, safety confirmation, Git hooks, pre-commit, localization boundaries, or dashboard read-only ownership.
+
+Required outcomes:
+
+- Present documents by learner intent, such as confirming what is being built, checking current progress, understanding decision history, and finding help when stuck.
+- Keep Git/CI status, evidence rows, command previews, source-command details, and security gate details on their dedicated pages instead of making them the Documents page's primary content.
+- Add a producer-owned documents catalog to dashboard data before the browser UI depends on document groups, status, priority, or related-page routing.
+- Keep document structure data in existing dashboard data/schema paths and shared dashboard data helpers; do not add React-only fixed document arrays.
+- Use localized fixed labels for known dashboard concepts while keeping file paths, ids, command text, and repository facts as sanitized producer data.
+- Show non-engineer-readable display names in the primary UI, with concrete file paths available as secondary copyable or tooltip-backed details.
+- Preserve existing `tools/docs-tour`, `guides/DOCUMENT_MAP.md`, `tools/dashboard docs`, maintenance source grounding, and repository information behavior.
+- Keep any new document validation runnable standalone and connectable to aggregate checks if a new test entry point is introduced later.
+
+Non-scope:
+
+- Do not add browser command execution, POST actions, live Git/GitHub/CI polling, evidence writing, document editing, product repository mutation, cleanup, merge, push, OAuth, token handling, or destructive operations.
+- Do not infer document meaning from one product stack, one repository name, one fixture, one language phrase, or one exact UI sentence.
+- Do not remove existing docs-tour, dashboard-data, maintenance, safety, repository information, or update-history routes.
+- Do not accept any existing-feature tradeoff to simplify the Documents page.

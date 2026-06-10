@@ -1745,3 +1745,33 @@ External repository boundary contract:
 
 - This lesson repository records the generic canonical path policy and validation behavior only.
 - Product repository file cleanup, manifest edits, and repository-index regeneration remain external repository state and are not recorded as lesson repository source of truth.
+
+## Implemented Dashboard Control Center Documents Guided Catalog Specification
+
+SYNC-ID: dashboard_control_center_documents_guided_catalog
+STATUS: implemented
+ARTIFACTS: docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/dashboard_data.sh,tools/lib/document_paths.sh,tools/lib/product_repository_authority.sh,tools/dashboard-data,dashboard-control-center/src/App.jsx,dashboard-control-center/src/dashboardData.js,dashboard-control-center/src/i18n.js,dashboard-control-center/src/styles.css,tests/fixtures/dashboard-control-center.json,tests/fixtures/dashboard-control-center-live-update.json,tests/playwright/dashboard-control-center.spec.js,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh,tools/test_dashboard_control_center.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh
+
+Documents data contract:
+
+- `tools/dashboard-data` remains the producer for dashboard Documents page state.
+- The producer exposes a generic documents catalog shape before the React page depends on document grouping, order, status, or related-page routing.
+- The implemented catalog shape remains stack-neutral and wording-neutral, using stable fields such as document id, group id, role id, path, audience, order, status, status source, related dashboard surface, and related display-only command metadata.
+- `DASHBOARD_DATA_SCHEMA.tsv` and `dashboardData.js` must validate the documents section before UI reliance when the section is present.
+- Missing or incomplete document catalog data must render as a safe incomplete state; React must not invent document readiness, document paths, evidence state, workflow status, or command execution behavior.
+
+Documents UI contract:
+
+- The Documents page presents a guided reading surface organized by purpose, not a primary evidence table.
+- Primary labels use non-engineer-readable localized display names.
+- File paths and technical document ids remain secondary data, shown through compact chips, copy affordances, or tooltip details where appropriate.
+- The UI must keep fixed labels in `i18n.js` and must not rewrite producer-owned path, id, command, or evidence values as if they were localization strings.
+- The page links users to Maintenance Sync for evidence/source grounding, Safety Confirmation for security gates, Development Workflow for Git/CI flow, Repository Information for file structure, and exposes display-only `tools/docs-tour all` and `tools/dashboard docs` references for broader document explanations.
+- Responsive behavior must use existing dashboard card, sidebar, tooltip, and no-overflow patterns so desktop, narrow desktop, tablet, and phone widths remain readable.
+
+Safety and compatibility contract:
+
+- Browser behavior remains GET/read-only and cannot execute Git, GitHub, CI, shell, product-security, product-authority, document generation, evidence writing, merge, push, cleanup, or external repository mutation.
+- Existing docs-tour, `tools/dashboard docs`, maintenance evidence, repository information, update history, STEP 1-7, STEP 1-14, Git hooks, pre-commit, and CI wiring remain intact.
+- If a new dashboard document test is later introduced, it must run as a standalone command and be callable from aggregate tests without depending on a single product stack or one exact phrase.

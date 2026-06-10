@@ -1,5 +1,5 @@
 {
-  "schema_version": "0.6.0",
+  "schema_version": "0.8.0",
   "generated_at": "2026-06-05T00:00:00Z",
   "snapshot_id": "2026-06-05T00:00:00Z-aaaaaaaaaaaa",
   "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
@@ -384,6 +384,377 @@
         "detail": "day12.subagents-plan",
         "status": "manual_required",
         "reference": "Selected context"
+      }
+    ]
+  },
+  "documents": {
+    "status": "ready",
+    "groups": [
+      {
+        "id": "start_here",
+        "label_key": "documentsPage.group.startHere",
+        "description_key": "documentsPage.groupDetail.startHere",
+        "order": 1
+      },
+      {
+        "id": "product_definition",
+        "label_key": "documentsPage.group.productDefinition",
+        "description_key": "documentsPage.groupDetail.productDefinition",
+        "order": 2
+      },
+      {
+        "id": "progress_state",
+        "label_key": "documentsPage.group.progressState",
+        "description_key": "documentsPage.groupDetail.progressState",
+        "order": 3
+      },
+      {
+        "id": "decision_background",
+        "label_key": "documentsPage.group.decisionBackground",
+        "description_key": "documentsPage.groupDetail.decisionBackground",
+        "order": 4
+      },
+      {
+        "id": "help_when_stuck",
+        "label_key": "documentsPage.group.helpWhenStuck",
+        "description_key": "documentsPage.groupDetail.helpWhenStuck",
+        "order": 5
+      }
+    ],
+    "catalog": [
+      {
+        "id": "agents",
+        "group_id": "start_here",
+        "role_id": "rulebook",
+        "path": "AGENTS.MD",
+        "status": "ready",
+        "status_source": "file_presence.AGENTS.MD",
+        "audience": "all",
+        "order": 1,
+        "related_page": "#documents"
+      },
+      {
+        "id": "documentMap",
+        "group_id": "start_here",
+        "role_id": "document_map",
+        "path": "guides/DOCUMENT_MAP.md",
+        "status": "ready",
+        "status_source": "file_presence.guides.DOCUMENT_MAP",
+        "audience": "all",
+        "order": 2,
+        "related_page": "#documents"
+      },
+      {
+        "id": "requirements",
+        "group_id": "product_definition",
+        "role_id": "requirements",
+        "path": "product:docs/product/REQUIREMENTS.md",
+        "status": "ready",
+        "status_source": "file_presence.requirements",
+        "audience": "all",
+        "order": 1,
+        "related_page": "#maintenance"
+      },
+      {
+        "id": "specification",
+        "group_id": "product_definition",
+        "role_id": "specification",
+        "path": "product:docs/product/SPECIFICATION.md",
+        "status": "ready",
+        "status_source": "file_presence.specification",
+        "audience": "all",
+        "order": 2,
+        "related_page": "#maintenance"
+      },
+      {
+        "id": "implementationPlan",
+        "group_id": "product_definition",
+        "role_id": "implementation_plan",
+        "path": "product:docs/product/IMPLEMENTATION_PLAN.md",
+        "status": "ready",
+        "status_source": "file_presence.implementation_plan",
+        "audience": "engineer",
+        "order": 3,
+        "related_page": "#maintenance"
+      },
+      {
+        "id": "taskTracker",
+        "group_id": "progress_state",
+        "role_id": "task_tracker",
+        "path": "product:docs/workflow/TASK_TRACKER.md",
+        "status": "ready",
+        "status_source": "file_presence.task_tracker",
+        "audience": "all",
+        "order": 1,
+        "related_page": "#maintenance"
+      },
+      {
+        "id": "handoff",
+        "group_id": "progress_state",
+        "role_id": "handoff",
+        "path": "product:docs/workflow/HANDOFF.md",
+        "status": "ready",
+        "status_source": "file_presence.handoff",
+        "audience": "all",
+        "order": 2,
+        "related_page": "#maintenance"
+      },
+      {
+        "id": "developerMemory",
+        "group_id": "decision_background",
+        "role_id": "developer_memory",
+        "path": "product:docs/memory/DEVELOPER_MEMORY.md",
+        "status": "ready",
+        "status_source": "maintenance.developer_memory_status",
+        "audience": "engineer",
+        "order": 1,
+        "related_page": "#maintenance"
+      },
+      {
+        "id": "dashboardDataSchema",
+        "group_id": "help_when_stuck",
+        "role_id": "dashboard_data_schema",
+        "path": "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv",
+        "status": "ready",
+        "status_source": "file_presence.dashboard_data_schema",
+        "audience": "engineer",
+        "order": 1,
+        "related_page": "#history"
+      },
+      {
+        "id": "securityPolicy",
+        "group_id": "help_when_stuck",
+        "role_id": "security_policy",
+        "path": "docs/workflow/PRODUCT_SECURITY_POLICY.tsv",
+        "status": "ready",
+        "status_source": "security.policy_status",
+        "audience": "all",
+        "order": 2,
+        "related_page": "#safety"
+      }
+    ],
+    "related_commands": [
+      {
+        "id": "docsTour",
+        "label_key": "documentsPage.relatedCommand.docsTour",
+        "description_key": "documentsPage.relatedCommandDetail.docsTour",
+        "command": "tools/docs-tour all",
+        "order": 1
+      },
+      {
+        "id": "dashboardDocs",
+        "label_key": "documentsPage.relatedCommand.dashboardDocs",
+        "description_key": "documentsPage.relatedCommandDetail.dashboardDocs",
+        "command": "tools/dashboard docs",
+        "order": 2
+      }
+    ],
+    "brief_cards": [
+      {
+        "id": "requirements",
+        "source_label_key": "documentsPage.source.requirements",
+        "title": {
+          "ja": "作る成果物を判断する",
+          "en": "Decide the product being built"
+        },
+        "title_key": "documentsPage.brief.requirements.title",
+        "detail": {
+          "ja": "タスク管理表に必要な機能と、対象外を確認します。",
+          "en": "Confirm the required features and out-of-scope items for the task management table."
+        },
+        "detail_key": "documentsPage.brief.requirements.detail",
+        "summary": {
+          "ja": "対象成果物はSTEP 1-14実践レッスンのタスク管理表です。ブラウザで開けること、タスク追加、空タイトルの防止、担当者・優先度・期限・状態の記録、todo/doing/doneの移動、件数表示、ローカル保存、テスト、E2E、CI、運用マニフェストが求められています。",
+          "en": "The target product is the STEP 1-14 practical lesson task management table. It must open in a browser, add tasks, reject empty titles, record owner, priority, due date, and status, move tasks across todo/doing/done, show counts, keep browser-local data, and include tests, E2E, CI, and operation manifests."
+        },
+        "summary_key": "documentsPage.brief.requirements.summary",
+        "action": {
+          "ja": "この成果物が「タスク管理表」として必要な機能を満たしているかを確認します。認証、共有ストレージ、サーバーAPI、課金、外部連携、個人情報は対象外として扱います。",
+          "en": "Check whether the product satisfies the task management table requirements. Treat authentication, shared storage, server APIs, billing, external integrations, and personal data as out of scope."
+        },
+        "action_key": "documentsPage.brief.requirements.action",
+        "status": "ready",
+        "metric_label_key": "documentsPage.brief.metric.outcome",
+        "metric_value": "タスク管理表",
+        "source_paths": [
+          "product:docs/product/REQUIREMENTS.md"
+        ],
+        "source_hash": "b3d171d604b5427aadaba15f82e54ba045a84789fdedaea2eb948b1dabe005ac",
+        "stored_source_hash": "b3d171d604b5427aadaba15f82e54ba045a84789fdedaea2eb948b1dabe005ac",
+        "brief_updated_at": "2026-06-10T00:00:00Z",
+        "freshness_state": "ready",
+        "related_page": "#maintenance",
+        "order": 1
+      },
+      {
+        "id": "specification",
+        "source_label_key": "documentsPage.source.specification",
+        "title": {
+          "ja": "画面でできることを判断する",
+          "en": "Decide what the screen can do"
+        },
+        "title_key": "documentsPage.brief.specification.title",
+        "detail": {
+          "ja": "入力、追加、状態変更、件数表示の振る舞いを確認します。",
+          "en": "Confirm inputs, task creation, status changes, and count updates."
+        },
+        "detail_key": "documentsPage.brief.specification.detail",
+        "summary": {
+          "ja": "仕様では、静的なブラウザ画面にタスク名、担当者、優先度、期限、追加ボタン、未完了・完了件数、状態変更ボタン、完了済み削除ボタンを置きます。送信時はタスク名を検証し、問題なければ一覧へ追加します。データはブラウザ内だけに保存します。",
+          "en": "The specification defines a static browser task tracker with title, owner, priority, due date, add button, active and completed counters, status-change buttons, and clear-completed behavior. Submission validates the title and appends a task. Data stays inside browser localStorage."
+        },
+        "summary_key": "documentsPage.brief.specification.summary",
+        "action": {
+          "ja": "画面を見て、ユーザーがタスクを追加し、状態を変え、件数の変化を確認できるか判断します。外部API、認証情報、秘密情報が不要な作りであることも確認します。",
+          "en": "Check whether a user can add a task, change its status, and see counts update. Also confirm the product does not need external APIs, credentials, or secrets."
+        },
+        "action_key": "documentsPage.brief.specification.action",
+        "status": "ready",
+        "metric_label_key": "documentsPage.brief.metric.freshness",
+        "metric_value": "brief_freshness",
+        "source_paths": [
+          "product:docs/product/SPECIFICATION.md"
+        ],
+        "source_hash": "aa42c334d0e80bd1c2d76f71a535a29c78438bd0e95ecb6bb2d2c1f228eec452",
+        "stored_source_hash": "aa42c334d0e80bd1c2d76f71a535a29c78438bd0e95ecb6bb2d2c1f228eec452",
+        "brief_updated_at": "2026-06-10T00:00:00Z",
+        "freshness_state": "ready",
+        "related_page": "#maintenance",
+        "order": 2
+      },
+      {
+        "id": "implementationPlan",
+        "source_label_key": "documentsPage.source.implementationPlan",
+        "title": {
+          "ja": "完成までの進め方を判断する",
+          "en": "Decide the path to completion"
+        },
+        "title_key": "documentsPage.brief.implementationPlan.title",
+        "detail": {
+          "ja": "文書、UI、ロジック、テスト、E2E、CIの順序を確認します。",
+          "en": "Confirm the order across documents, UI, logic, tests, E2E, and CI."
+        },
+        "detail_key": "documentsPage.brief.implementationPlan.detail",
+        "summary": {
+          "ja": "実装計画は、外部成果物リポジトリを本体リポジトリから分け、要件・仕様・実装計画を書き、静的UI、検証ロジック、ローカルテスト、タスクトラッカーとハンドオフ、Playwright E2E、CI、運用マニフェストまで進める流れです。",
+          "en": "The implementation plan keeps the product repository separate from the lesson repository, then creates documents, static UI, validation logic, local tests, task tracker and handoff, Playwright E2E, CI, and operation manifests."
+        },
+        "summary_key": "documentsPage.brief.implementationPlan.summary",
+        "action": {
+          "ja": "不足がある場合は、この順序に沿って次の作業を決めます。確認時はブラウザでindex.htmlを開き、npm test、npm run test:e2e、リポジトリ境界、Git同期、GitHub Actionsを確認対象にします。",
+          "en": "If anything is missing, choose the next task from this order. Verification includes opening index.html, npm test, npm run test:e2e, repository-boundary checks, Git sync, and GitHub Actions."
+        },
+        "action_key": "documentsPage.brief.implementationPlan.action",
+        "status": "ready",
+        "metric_label_key": "documentsPage.brief.metric.planStatus",
+        "metric_value": "文書・UI・テスト・E2E・CI",
+        "source_paths": [
+          "product:docs/product/IMPLEMENTATION_PLAN.md"
+        ],
+        "source_hash": "cfa0bff04ec6fb3bceefac4b115eac723da11aea9cb357da188d1d6644879070",
+        "stored_source_hash": "cfa0bff04ec6fb3bceefac4b115eac723da11aea9cb357da188d1d6644879070",
+        "brief_updated_at": "2026-06-10T00:00:00Z",
+        "freshness_state": "ready",
+        "related_page": "#maintenance",
+        "order": 3
+      },
+      {
+        "id": "taskTracker",
+        "source_label_key": "documentsPage.source.taskTracker",
+        "title": {
+          "ja": "現在の進捗を判断する",
+          "en": "Decide current progress"
+        },
+        "title_key": "documentsPage.brief.taskTracker.title",
+        "detail": {
+          "ja": "どこまで完了し、何を続けるかを確認します。",
+          "en": "Confirm what is complete and what should continue."
+        },
+        "detail_key": "documentsPage.brief.taskTracker.detail",
+        "summary": {
+          "ja": "対象リポジトリのタスクトラッカーでは、Step 11/14のCI E2E連携が完了しています。要件、仕様、実装計画、静的UI、タスクロジック、単体テスト、Playwright E2E、ワークフロー文書、運用マニフェスト、GitHubリモート、mainのGitHub Actions通過が記録されています。",
+          "en": "The target repository task tracker says Step 11/14 CI E2E integration is complete. Requirements, specification, implementation plan, static UI, task logic, unit tests, Playwright E2E, workflow documents, operation manifests, GitHub remote, and passing main GitHub Actions are recorded."
+        },
+        "summary_key": "documentsPage.brief.taskTracker.summary",
+        "action": {
+          "ja": "次はレッスンリポジトリ側の同期ゲートから続きを確認します。ダッシュボード上のライブGit/CI表示はスナップショット制限があるため、成果物ワークフローの状態とは分けて読みます。",
+          "en": "Continue from the lesson repository sync gate. Read dashboard live Git/CI observations separately because they are snapshot-limited and not the product workflow source of truth."
+        },
+        "action_key": "documentsPage.brief.taskTracker.action",
+        "status": "ready",
+        "metric_label_key": "documentsPage.brief.metric.progress",
+        "metric_value": "Step 11/14 CI E2E連携完了",
+        "source_paths": [
+          "product:docs/workflow/TASK_TRACKER.md"
+        ],
+        "source_hash": "a9c10fcdb95d796d6b41b86e7de21966b11ea299ed0bcaaece6568777e48aaac",
+        "stored_source_hash": "a9c10fcdb95d796d6b41b86e7de21966b11ea299ed0bcaaece6568777e48aaac",
+        "brief_updated_at": "2026-06-10T00:00:00Z",
+        "freshness_state": "ready",
+        "related_page": "#maintenance",
+        "order": 4
+      },
+      {
+        "id": "handoff",
+        "source_label_key": "documentsPage.source.handoff",
+        "title": {
+          "ja": "次に再開する場所を判断する",
+          "en": "Decide where to restart"
+        },
+        "title_key": "documentsPage.brief.handoff.title",
+        "detail": {
+          "ja": "次の作業者がどこから始めるかを確認します。",
+          "en": "Confirm where the next worker should begin."
+        },
+        "detail_key": "documentsPage.brief.handoff.detail",
+        "summary": {
+          "ja": "ハンドオフでは、タスク管理表はindex.htmlから開け、npm testとnpm run test:e2eで確認できる状態です。Step 11/14 CI E2E連携、単体テスト4件、Playwright E2E 1件、Git同期、mainのGitHub Actions通過が記録されています。",
+          "en": "The handoff says the task management table opens from index.html and can be checked with npm test and npm run test:e2e. Step 11/14 CI E2E integration, four unit tests, one Playwright E2E test, Git sync, and passing main GitHub Actions are recorded."
+        },
+        "summary_key": "documentsPage.brief.handoff.summary",
+        "action": {
+          "ja": "次の作業者は、レッスンリポジトリ側の同期ゲートから再開し、ダッシュボードの観測値と成果物ワークフローの状態を混同しないようにします。",
+          "en": "The next worker should restart from the lesson repository sync gate and avoid mixing dashboard observations with the product workflow source of truth."
+        },
+        "action_key": "documentsPage.brief.handoff.action",
+        "status": "ready",
+        "metric_label_key": "documentsPage.brief.metric.restart",
+        "metric_value": "レッスン側同期ゲート",
+        "source_paths": [
+          "product:docs/workflow/HANDOFF.md"
+        ],
+        "source_hash": "eb3586df817af2371937e8f947e19c741146243c0add780d9286d965ee3e8a04",
+        "stored_source_hash": "eb3586df817af2371937e8f947e19c741146243c0add780d9286d965ee3e8a04",
+        "brief_updated_at": "2026-06-10T00:00:00Z",
+        "freshness_state": "ready",
+        "related_page": "#maintenance",
+        "order": 5
+      }
+    ],
+    "next_actions": [
+      {
+        "id": "requirementsReview",
+        "title_key": "documentsPage.next.requirementsReview.title",
+        "detail_key": "documentsPage.next.requirementsReview.detail",
+        "status": "ready",
+        "related_page": "#documents",
+        "order": 1
+      },
+      {
+        "id": "progressReview",
+        "title_key": "documentsPage.next.progressReview.title",
+        "detail_key": "documentsPage.next.progressReview.detail",
+        "status": "ready",
+        "related_page": "#documents",
+        "order": 2
+      },
+      {
+        "id": "evidenceReview",
+        "title_key": "documentsPage.next.evidenceReview.title",
+        "detail_key": "documentsPage.next.evidenceReview.detail",
+        "status": "manual_required",
+        "related_page": "#maintenance",
+        "order": 3
       }
     ]
   },

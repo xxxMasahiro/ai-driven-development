@@ -3088,6 +3088,149 @@ function documentStatusFor(documentId, data) {
   return developmentDocumentsStatus;
 }
 
+function documentIconFor(item) {
+  const roleId = displayText(item.role_id, "");
+  const itemId = displayText(item.id, "");
+  const map = {
+    rulebook: FileText,
+    document_map: Folder,
+    requirements: FileCheck2,
+    specification: FileJson,
+    implementation_plan: ListChecks,
+    task_tracker: ClipboardCheck,
+    handoff: Waypoints,
+    developer_memory: Brain,
+    dashboard_data_schema: Database,
+    security_policy: ShieldCheck,
+  };
+  return map[roleId] || map[itemId] || FileText;
+}
+
+function documentGroupIconFor(group) {
+  const groupId = displayText(group.id, "");
+  const map = {
+    start_here: Folder,
+    product_definition: FileCheck2,
+    progress_state: Waypoints,
+    decision_background: Brain,
+    help_when_stuck: CircleHelp,
+  };
+  return map[groupId] || FileText;
+}
+
+function documentItemTitle(item, t) {
+  return t(`documentsPage.item.${displayText(item.id, "")}`, displayKey(item.role_id || item.id));
+}
+
+function documentItemDetail(item, t) {
+  return t(`documentsPage.detail.${displayText(item.id, "")}`, t("documentsPage.detail.fallback"));
+}
+
+function documentIntentTitle(item, t) {
+  return t(`documentsPage.intent.${displayText(item.id, "")}`, documentItemTitle(item, t));
+}
+
+function documentIntentDetail(item, t) {
+  return t(`documentsPage.intentDetail.${displayText(item.id, "")}`, documentItemDetail(item, t));
+}
+
+function documentGroupStatus(items) {
+  const priority = ["failed", "blocked", "stale", "not_run", "unknown", "manual_required", "approval_required", "missing", "optional", "cached", "ready", "passed"];
+  const statuses = asArray(items).map((item) => normalizeState(item.status)).filter(Boolean);
+  if (!statuses.length) {
+    return "unknown";
+  }
+  return statuses.sort((left, right) => priority.indexOf(left) - priority.indexOf(right))[0] || "unknown";
+}
+
+function documentBriefIconFor(card) {
+  const id = displayText(card.id, "");
+  const map = {
+    requirements: Target,
+    specification: Workflow,
+    implementationPlan: ListChecks,
+    taskTracker: ClipboardCheck,
+    handoff: Waypoints,
+  };
+  return map[id] || FileText;
+}
+
+function localizedDocumentText(value, fallbackKey, fallback, locale, t) {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const localized = displayText(value[locale], "");
+    const ja = displayText(value.ja, "");
+    const en = displayText(value.en, "");
+    const key = displayText(value.key, "");
+    if (localized || ja || en) {
+      return localized || ja || en;
+    }
+    if (key) {
+      return t(key, fallback);
+    }
+  }
+  return t(displayText(fallbackKey, ""), fallback);
+}
+
+function documentBriefTitle(card, t, locale = "en") {
+  return localizedDocumentText(card.title, card.title_key, displayKey(card.id), locale, t);
+}
+
+function documentBriefDetail(card, t, locale = "en") {
+  return localizedDocumentText(card.detail, card.detail_key, "", locale, t);
+}
+
+function documentBriefSummary(card, t, locale = "en") {
+  return localizedDocumentText(card.summary, card.summary_key, documentBriefDetail(card, t, locale), locale, t);
+}
+
+function documentBriefAction(card, t, locale = "en") {
+  return localizedDocumentText(card.action, card.action_key, "", locale, t);
+}
+
+function documentBriefSourceLabel(card, t) {
+  return t(displayText(card.source_label_key, ""), t("documentsPage.source.default"));
+}
+
+function documentBriefMetricLabel(card, t) {
+  return t(displayText(card.metric_label_key, ""), "");
+}
+
+function documentBriefMetricValue(card, t) {
+  const raw = displayText(card.metric_value, "");
+  if (raw === "brief_freshness") {
+    return statusLabelForChip(card.freshness_state || "unknown", t);
+  }
+  if (raw && normalizeState(raw) !== raw) {
+    return raw;
+  }
+  const localized = t(`documentsPage.brief.metricValue.${displayText(card.id, "")}`, "");
+  if (localized) {
+    return localized;
+  }
+  return raw ? statusLabelForChip(raw, t) : "";
+}
+
+function documentNextActionTitle(action, t) {
+  return t(displayText(action.title_key, ""), displayKey(action.id));
+}
+
+function documentNextActionDetail(action, t) {
+  return t(displayText(action.detail_key, ""), "");
+}
+
+function relatedPageLabel(href, t) {
+  const key = displayText(href, "#documents").replace(/^#/, "") || "documents";
+  return t(`documentsPage.related.${key}`, displayKey(key));
+}
+
+function documentRelatedCommandTitle(command, t) {
+  return t(displayText(command.label_key, ""), displayKey(command.id));
+}
+
+function documentRelatedCommandDetail(command, t) {
+  return t(displayText(command.description_key, ""), t("documentsPage.relatedCommandDetail.default"));
+}
+
 function repositoryFileRoleKey(value) {
   return displayText(value, "generic").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "") || "generic";
 }
@@ -3096,10 +3239,6 @@ function repositoryFileRoleLabel(row, t) {
   const pathDescription = t(`repositoryInfo.pathDescription.${repositoryFileRoleKey(row.path)}`, "");
   if (pathDescription) {
     return pathDescription;
-  }
-  const description = displayText(row.description, "");
-  if (description) {
-    return description;
   }
   const roles = row.roles && typeof row.roles === "object" && !Array.isArray(row.roles) ? row.roles : {};
   for (const roleId of asArray(row.role_ids)) {
@@ -3123,6 +3262,10 @@ function repositoryFileRoleLabel(row, t) {
     if (label) {
       return label;
     }
+  }
+  const description = displayText(row.description, "");
+  if (description) {
+    return description;
   }
   const sourceId = displayText(row.source_id || row.id, "");
   const path = displayText(row.path, "");
@@ -3515,6 +3658,11 @@ function repositoryProductContentLabel(authority, t, locale) {
   return summaryName || t("repositoryInfo.summary.productContent.general");
 }
 
+function productTypeLabel(value, t) {
+  const id = displayText(value, "unknown");
+  return t(`repositoryInfo.productType.${id}`, displayKey(id));
+}
+
 function RepositoryInfoPage({ data, locale, t }) {
   const context = selectedContextData(data);
   const authority = data.development?.product_authority || {};
@@ -3546,7 +3694,7 @@ function RepositoryInfoPage({ data, locale, t }) {
             { label: t("repositoryInfo.field.menu"), value: context.menu_id, render: () => contextLabel(context.menu_id, t) },
             { label: t("repositoryInfo.field.workflow"), value: context.workflow_context, render: () => workflowContextLabel(context.workflow_context, t) },
             { label: t("repositoryInfo.field.repository"), value: selectedRepository },
-            { label: t("repositoryInfo.field.productType"), value: context.product_type },
+            { label: t("repositoryInfo.field.productType"), value: context.product_type, render: (value) => productTypeLabel(value, t) },
             { label: t("repositoryInfo.field.currentStep"), value: selectedStepText(context) },
             { label: t("repositoryInfo.field.updated"), value: context.updated_at, render: (value) => formatDashboardDateTime(value) || displayText(value) },
             { label: t("repositoryInfo.field.pathState"), value: context.target_repository?.path_state, render: (value) => <StatusPill value={repositoryPathStateToStatus(value)} t={t} label={t(`repositoryInfo.pathState.${displayText(value, "unknown")}`, displayKey(value))} /> },
@@ -3554,7 +3702,7 @@ function RepositoryInfoPage({ data, locale, t }) {
         />
       </DetailSection>
       <DetailSection id="repository-file-map" title={t("repositoryInfo.fileMapTitle")} Icon={FileSearch}>
-        <RepositoryFileTree rows={fileRows} t={t} defaultExpandDepth={Number(repositoryIndex.default_expand_depth) || 0} />
+        <RepositoryFileTree rows={fileRows} t={t} defaultExpandDepth={0} />
       </DetailSection>
       <DetailSection id="repository-related" title={t("repositoryInfo.relatedTitle")} Icon={ArrowRightCircle}>
         <RepositoryRelatedLinks t={t} />
@@ -3565,21 +3713,20 @@ function RepositoryInfoPage({ data, locale, t }) {
 }
 
 function DocumentsPage({ data, locale, t }) {
-  const maintenance = data.maintenance || {};
-  const workflowPairStatus = valueState(maintenanceEvidenceRow(maintenance, ["workflow_pair"]) || maintenance.workflow_pair_status || "manual_required");
-  const developerMemoryStatus = valueState(maintenanceEvidenceRow(maintenance, ["developer_memory"]) || maintenance.developer_memory_status || "manual_required");
-  const documents = [
-    { id: "agents", title: t("documentsPage.item.agents"), path: "AGENTS.MD", detail: t("documentsPage.detail.agents"), Icon: FileText },
-    { id: "documentMap", title: t("documentsPage.item.documentMap"), path: "guides/DOCUMENT_MAP.md", detail: t("documentsPage.detail.documentMap"), Icon: Folder },
-    { id: "requirements", title: t("documentsPage.item.requirements"), path: "docs/as-built/REQUIREMENTS.md", detail: t("documentsPage.detail.requirements"), Icon: FileCheck2 },
-    { id: "specification", title: t("documentsPage.item.specification"), path: "docs/as-built/SPECIFICATION.md", detail: t("documentsPage.detail.specification"), Icon: FileJson },
-    { id: "implementationPlan", title: t("documentsPage.item.implementationPlan"), path: "docs/as-built/IMPLEMENTATION_PLAN.md", detail: t("documentsPage.detail.implementationPlan"), Icon: ListChecks },
-    { id: "taskTracker", title: t("documentsPage.item.taskTracker"), path: "docs/workflow/TASK_TRACKER.md", detail: t("documentsPage.detail.taskTracker"), Icon: ClipboardCheck },
-    { id: "handoff", title: t("documentsPage.item.handoff"), path: "docs/workflow/HANDOFF.md", detail: t("documentsPage.detail.handoff"), Icon: Waypoints },
-    { id: "developerMemory", title: t("documentsPage.item.developerMemory"), path: "docs/memory/DEVELOPER_MEMORY.md", detail: t("documentsPage.detail.developerMemory"), Icon: Brain },
-    { id: "dashboardDataSchema", title: t("documentsPage.item.dashboardDataSchema"), path: "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv", detail: t("documentsPage.detail.dashboardDataSchema"), Icon: Database },
-    { id: "securityPolicy", title: t("documentsPage.item.securityPolicy"), path: "docs/workflow/PRODUCT_SECURITY_POLICY.tsv", detail: t("documentsPage.detail.securityPolicy"), Icon: ShieldCheck },
-  ];
+  const [selectedBriefId, setSelectedBriefId] = useState("");
+  const context = selectedContextData(data);
+  const authority = data.development?.product_authority || {};
+  const documents = data.documents || {};
+  const catalog = asArray(documents.catalog).slice().sort((left, right) => (Number(left.order) || 0) - (Number(right.order) || 0));
+  const briefCards = asArray(documents.brief_cards).slice().sort((left, right) => (Number(left.order) || 0) - (Number(right.order) || 0));
+  const nextActions = asArray(documents.next_actions).slice().sort((left, right) => (Number(left.order) || 0) - (Number(right.order) || 0));
+  const relatedPages = Array.from(new Set(catalog.map((item) => displayText(item.related_page, "")).filter((href) => href && href !== "#documents")));
+  const selectedBrief = briefCards.find((card) => displayText(card.id, "") === selectedBriefId) || null;
+  const SelectedBriefIcon = selectedBrief ? documentBriefIconFor(selectedBrief) : FileText;
+  const selectedRepository = displayText(context.target_repository?.name || authority.repository?.configured_name || authority.repository?.name, t("summary.none"));
+  const productName = repositoryProductContentLabel(authority, t, locale);
+  const stepShort = selectedStepShort(context);
+  const stepDetail = localizedStepDetail(context, t);
 
   return (
     <section className="view-surface view-surface--documents sidebar-page" id="documents" aria-labelledby="documents-heading">
@@ -3588,23 +3735,125 @@ function DocumentsPage({ data, locale, t }) {
         tone="sidebar"
         t={t}
         items={[
-          { Icon: Folder, label: t("documentsPage.summary.start"), value: t("documentsPage.summary.startValue"), detail: t("documentsPage.summary.startDetail") },
-          { Icon: Waypoints, label: t("documentsPage.summary.workflowPair"), value: statusLabelForChip(workflowPairStatus, t), detail: t("documentsPage.summary.workflowPairDetail"), tone: isReviewState(workflowPairStatus) ? "warning" : "ready" },
-          { Icon: Brain, label: t("documentsPage.summary.memory"), value: statusLabelForChip(developerMemoryStatus, t), detail: t("documentsPage.summary.memoryDetail"), tone: isReviewState(developerMemoryStatus) ? "warning" : "ready" },
-          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: t("documentsPage.summary.next"), detail: t("documentsPage.summary.nextDetail"), cta: { href: "#maintenance", label: t("summary.viewDetails") } },
+          { Icon: Compass, label: t("documentsPage.summary.selectedMenu"), value: contextLabel(context.menu_id, t), detail: t("documentsPage.summary.selectedMenuDetail") },
+          { Icon: Database, label: t("documentsPage.summary.targetRepository"), value: selectedRepository, detail: t("documentsPage.summary.targetRepositoryDetail") },
+          { Icon: ClipboardCheck, label: t("documentsPage.summary.productName"), value: productName, detail: t("documentsPage.summary.productNameDetail") },
+          { Icon: Flag, label: t("documentsPage.summary.currentStep"), valueLines: [stepShort, stepDetail].filter(Boolean), detail: t("documentsPage.summary.currentStepDetail") },
         ]}
       />
-      <DetailSection id="documents-catalog" title={t("documentsPage.catalogTitle")} Icon={FileText}>
-        <div className="sidebar-document-grid">
-          {documents.map(({ id, title, path, detail, Icon }) => (
-            <SidebarPageCard Icon={Icon} title={title} detail={detail} status={documentStatusFor(id, data)} t={t} key={id}>
-              <SidebarReferenceChip value={path} t={t} />
-            </SidebarPageCard>
+      <DetailSection id="documents-brief" title={t("documentsPage.briefTitle")} Icon={FileText}>
+        {briefCards.length ? (
+          <div className="documents-brief-grid">
+            {briefCards.map((card) => {
+              const Icon = documentBriefIconFor(card);
+              return (
+                <button className="documents-brief-card" type="button" onClick={() => setSelectedBriefId(displayText(card.id))} key={displayText(card.id)} aria-label={`${documentBriefTitle(card, t, locale)} ${t("documentsPage.brief.open")}`}>
+                  <div className="documents-brief-card__head">
+                    <span className="documents-brief-card__icon">
+                      <Icon aria-hidden="true" size={21} />
+                    </span>
+                    <div>
+                      <h3>{documentBriefTitle(card, t, locale)}</h3>
+                      <span className="documents-brief-card__source">
+                        {t("documentsPage.source.prefix")}: <strong>{documentBriefSourceLabel(card, t)}</strong>
+                      </span>
+                      <p>{documentBriefDetail(card, t, locale)}</p>
+                    </div>
+                    <StatusPill value={card.status || "unknown"} t={t} label={statusLabelForChip(card.status, t)} />
+                  </div>
+                  <div className="documents-brief-card__metric">
+                    <span>{documentBriefMetricLabel(card, t)}</span>
+                    <strong>{documentBriefMetricValue(card, t)}</strong>
+                  </div>
+                  <span className="documents-brief-card__open">
+                    <Eye aria-hidden="true" size={15} />
+                    {t("documentsPage.brief.open")}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <SidebarPageCard Icon={AlertTriangle} title={t("documentsPage.emptyTitle")} detail={t("documentsPage.emptyDetail")} status="unknown" t={t} />
+        )}
+      </DetailSection>
+      <DetailSection id="documents-next-actions" title={t("documentsPage.nextTitle")} Icon={ArrowRightCircle}>
+        <div className="documents-next-list">
+          {nextActions.map((action) => (
+            <a className="documents-next-row" href={displayText(action.related_page, "#documents")} key={displayText(action.id)}>
+              <span className="documents-next-row__icon">
+                <ArrowRightCircle aria-hidden="true" size={18} />
+              </span>
+              <span>
+                <strong>{documentNextActionTitle(action, t)}</strong>
+                <small>{documentNextActionDetail(action, t)}</small>
+              </span>
+              <StatusPill value={action.status || "unknown"} t={t} label={statusLabelForChip(action.status, t)} />
+            </a>
           ))}
         </div>
       </DetailSection>
-      <EvidenceRowsTable rows={maintenance.evidence_rows} t={t} />
-      <SourceBoundary data={data} t={t} />
+      {selectedBrief ? (
+        <div className="documents-brief-modal-backdrop" role="presentation" onClick={(event) => {
+          if (event.target === event.currentTarget) {
+            setSelectedBriefId("");
+          }
+        }}>
+          <div className="documents-brief-modal" role="dialog" aria-modal="true" aria-labelledby="documents-brief-modal-title">
+            <div className="documents-brief-modal__header">
+              <span className="documents-brief-modal__icon">
+                <SelectedBriefIcon aria-hidden="true" size={24} />
+              </span>
+              <div>
+                <small>{t("documentsPage.modal.eyebrow")}</small>
+                <h2 id="documents-brief-modal-title">{documentBriefTitle(selectedBrief, t, locale)}</h2>
+                <span className="documents-brief-modal__source">
+                  {t("documentsPage.source.prefix")}: <strong>{documentBriefSourceLabel(selectedBrief, t)}</strong>
+                </span>
+                <p>{documentBriefDetail(selectedBrief, t, locale)}</p>
+              </div>
+              <button className="documents-brief-modal__close" type="button" onClick={() => setSelectedBriefId("")} aria-label={t("documentsPage.modal.close")}>
+                <CircleX aria-hidden="true" size={20} />
+              </button>
+            </div>
+            <div className="documents-brief-modal__status">
+              <div>
+                <span>{documentBriefMetricLabel(selectedBrief, t)}</span>
+                <strong>{documentBriefMetricValue(selectedBrief, t)}</strong>
+              </div>
+              <StatusPill value={selectedBrief.status || "unknown"} t={t} label={statusLabelForChip(selectedBrief.status, t)} />
+            </div>
+            <div className="documents-brief-modal__freshness">
+              <span>{t("documentsPage.modal.freshness")}</span>
+              <StatusPill value={selectedBrief.freshness_state || "unknown"} t={t} label={statusLabelForChip(selectedBrief.freshness_state, t)} />
+              <small>{t("documentsPage.modal.updatedAt")}: {formatDashboardDateTime(selectedBrief.brief_updated_at) || t("summary.none")}</small>
+            </div>
+            <div className="documents-brief-modal__body">
+              <section>
+                <h3>{t("documentsPage.modal.summaryTitle")}</h3>
+                <p>{documentBriefSummary(selectedBrief, t, locale)}</p>
+              </section>
+              <section>
+                <h3>{t("documentsPage.modal.actionTitle")}</h3>
+                <p>{documentBriefAction(selectedBrief, t, locale)}</p>
+              </section>
+            </div>
+            <div className="documents-brief-modal__footer">
+              <a href={displayText(selectedBrief.related_page, "#documents")} onClick={() => setSelectedBriefId("")}>
+                {t("documentsPage.modal.related")}
+                <ChevronRight aria-hidden="true" size={16} />
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : null}
+      <DetailSection id="documents-related" title={t("documentsPage.relatedTitle")} Icon={ArrowRightCircle}>
+        <div className="sidebar-page-link-grid">
+          {relatedPages.map((href) => (
+            <SidebarPageLinkCard Icon={ArrowRightCircle} title={relatedPageLabel(href, t)} detail={t(`documentsPage.relatedDetail.${displayText(href, "").replace(/^#/, "")}`, t("documentsPage.relatedDetail.default"))} href={href} key={href} />
+          ))}
+        </div>
+      </DetailSection>
     </section>
   );
 }
