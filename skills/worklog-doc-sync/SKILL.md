@@ -1,6 +1,6 @@
 ---
 name: worklog-doc-sync
-description: Synchronize REQUIREMENTS.md, SPECIFICATION.md, IMPLEMENTATION_PLAN.md, TASK_TRACKER.md, and HANDOFF.md according to the lesson's initial-creation and change-management rules. Use when checking consistency, recording a change, starting a new feature/removal, completing implementation, or preparing final documentation sync.
+description: Synchronize docs/product/REQUIREMENTS.md, docs/product/SPECIFICATION.md, docs/product/IMPLEMENTATION_PLAN.md, docs/workflow/TASK_TRACKER.md, and docs/workflow/HANDOFF.md according to the lesson's initial-creation and change-management rules. Use when checking consistency, recording a change, starting a new feature/removal, completing implementation, or preparing final documentation sync.
 ---
 
 # Worklog Doc Sync
@@ -10,22 +10,22 @@ description: Synchronize REQUIREMENTS.md, SPECIFICATION.md, IMPLEMENTATION_PLAN.
 Initial creation:
 
 ```text
-REQUIREMENTS.md
-SPECIFICATION.md
-IMPLEMENTATION_PLAN.md
-TASK_TRACKER.md
-HANDOFF.md
+docs/product/REQUIREMENTS.md
+docs/product/SPECIFICATION.md
+docs/product/IMPLEMENTATION_PLAN.md
+docs/workflow/TASK_TRACKER.md
+docs/workflow/HANDOFF.md
 ```
 
 Later change:
 
 ```text
-TASK_TRACKER.md
-HANDOFF.md
+docs/workflow/TASK_TRACKER.md
+docs/workflow/HANDOFF.md
 implementation or deletion
-REQUIREMENTS.md
-SPECIFICATION.md
-IMPLEMENTATION_PLAN.md
+docs/product/REQUIREMENTS.md
+docs/product/SPECIFICATION.md
+docs/product/IMPLEMENTATION_PLAN.md
 ```
 
 ## Workflow

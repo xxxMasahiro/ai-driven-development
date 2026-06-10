@@ -11,6 +11,7 @@ target_root="$LESSON_ROOT"
 tracker="$(lesson_doc_path task_tracker)"
 handoff="$(lesson_doc_path handoff)"
 product_mode=0
+product_root_duplicates=()
 
 resolve_product_workflow_pair() {
   local repo="$1"
@@ -19,16 +20,11 @@ resolve_product_workflow_pair() {
   local canonical_handoff="$repo/docs/workflow/HANDOFF.md"
   local legacy_handoff="$repo/HANDOFF.md"
 
-  if [[ -f "$canonical_tracker" ]]; then
-    tracker="$canonical_tracker"
-  else
-    tracker="$legacy_tracker"
-  fi
-  if [[ -f "$canonical_handoff" ]]; then
-    handoff="$canonical_handoff"
-  else
-    handoff="$legacy_handoff"
-  fi
+  product_root_duplicates=()
+  tracker="$canonical_tracker"
+  handoff="$canonical_handoff"
+  [[ ! -e "$legacy_tracker" ]] || product_root_duplicates+=("TASK_TRACKER.md")
+  [[ ! -e "$legacy_handoff" ]] || product_root_duplicates+=("HANDOFF.md")
 }
 
 while [[ $# -gt 0 ]]; do
@@ -57,13 +53,20 @@ missing=0
 for file in "$tracker" "$handoff"; do
   if [[ ! -f "$file" ]]; then
     if [[ "$product_mode" -eq 1 ]]; then
-      printf 'missing workflow pair file: docs/workflow/%s or %s\n' "$(basename "$file")" "$(basename "$file")" >&2
+      printf 'missing workflow pair file: docs/workflow/%s\n' "$(basename "$file")" >&2
     else
       printf 'missing workflow pair file: %s\n' "$file" >&2
     fi
     missing=1
   fi
 done
+
+if [[ "$product_mode" -eq 1 && "${#product_root_duplicates[@]}" -gt 0 ]]; then
+  for file in "${product_root_duplicates[@]}"; do
+    printf 'root-level duplicate workflow file is not allowed: %s; keep docs/workflow/%s only\n' "$file" "$file" >&2
+  done
+  missing=1
+fi
 
 if [[ $missing -ne 0 ]]; then
   printf '\nWorkflow pair sync check failed.\n' >&2

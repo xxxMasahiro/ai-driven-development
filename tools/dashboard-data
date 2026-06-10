@@ -106,8 +106,10 @@ source_files=(
   "docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv"
   "docs/workflow/FINAL_GATE_COVERAGE.tsv"
   "docs/workflow/GIT_WORKFLOW_POLICY.tsv"
+  "docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv"
   "docs/workflow/PRODUCT_SECURITY_POLICY.tsv"
   "docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv"
+  "docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv"
   "docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv"
   "learning/context/WORKFLOW_CONTEXT_MAP.tsv"
   "learning/GIT_WORKFLOW_SETTINGS.tsv"
@@ -365,9 +367,9 @@ product_documents_status() {
   [[ -d "$PRODUCT_ROOT/.git" ]] || { printf 'unknown'; return; }
   for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md TASK_TRACKER.md HANDOFF.md; do
     if [[ "$file" == TASK_TRACKER.md || "$file" == HANDOFF.md ]]; then
-      [[ -f "$PRODUCT_ROOT/docs/workflow/$file" || -f "$PRODUCT_ROOT/$file" ]] || { printf 'missing'; return; }
+      [[ -f "$PRODUCT_ROOT/docs/workflow/$file" ]] || { printf 'missing'; return; }
     else
-      [[ -f "$PRODUCT_ROOT/docs/product/$file" || -f "$PRODUCT_ROOT/$file" ]] || { printf 'missing'; return; }
+      [[ -f "$PRODUCT_ROOT/docs/product/$file" ]] || { printf 'missing'; return; }
     fi
   done
   printf 'ready'

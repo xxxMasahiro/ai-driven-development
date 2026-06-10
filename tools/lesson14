@@ -127,6 +127,11 @@ lesson14_require_language_settings() {
     printf 'Run: ./tools/lesson14 開発言語 <%s>\n' "$LESSON14_LANGUAGE_CODES" >&2
     missing=1
   fi
+  if ! lesson_product_profile_has_name_for_menu 2; then
+    printf 'Product name is required before passing setup.index.\n' >&2
+    lesson_product_profile_print_readiness 2 "Product name" >&2
+    missing=1
+  fi
   [[ "$missing" -eq 0 ]] || exit 1
 }
 

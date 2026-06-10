@@ -109,6 +109,9 @@ if (!data.source_files.includes('docs/workflow/DASHBOARD_DATA_SCHEMA.tsv')) {
 if (!data.source_files.includes('docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv')) {
   fail('source_files does not include product repository structure policy');
 }
+if (!data.source_files.includes('docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv')) {
+  fail('source_files does not include menu product profile policy');
+}
 if (!data.source_files.includes('docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv')) {
   fail('source_files does not include product gate evidence schema');
 }
@@ -517,6 +520,21 @@ if (!allowedStates.has(productAuthority.status)) {
 if (!['product_operations', 'none'].includes(productAuthority.repository.blocker_scope)) {
   fail(`invalid product authority blocker scope: ${productAuthority.repository.blocker_scope}`);
 }
+if (!productAuthority.product_summary || typeof productAuthority.product_summary !== 'object' || Array.isArray(productAuthority.product_summary)) {
+  fail('product authority product_summary must be an object');
+}
+if (!['missing', 'ready', 'failed', 'unknown'].includes(productAuthority.product_summary.status)) {
+  fail(`invalid product summary status: ${productAuthority.product_summary.status}`);
+}
+if (productAuthority.product_summary.source_path !== 'ops/PRODUCT_PROFILE.json') {
+  fail(`product summary source_path must be ops/PRODUCT_PROFILE.json, got ${productAuthority.product_summary.source_path}`);
+}
+if (JSON.stringify(productAuthority.product_summary).includes('/tmp/')) {
+  fail('product summary must not leak temporary absolute paths');
+}
+if (!Array.isArray(productAuthority.product_summary.source_documents)) {
+  fail('product summary source_documents must be an array');
+}
 if (!Array.isArray(productAuthority.document_paths)) {
   fail('product authority document_paths must be an array');
 }
@@ -751,6 +769,28 @@ product.entrypoint	required	all	all	README.md	entrypoint	file_exists	workflow	Pr
 product.source	required	all	all	src/index.txt	source	file_nonempty	workflow	Product source authority.
 product.test	required	all	all	tests/test.txt	test	file_nonempty	workflow	Product test authority.
 DOC
+cat >"$product_repo/ops/PRODUCT_PROFILE.json" <<'DOC'
+{
+  "schema_version": "1.0.0",
+  "profile_kind": "product_display_profile",
+  "menu_id": "step_1_14",
+  "profile_scope": "product",
+  "display_name": {
+    "ja": "タスク管理表",
+    "en": "Task Management Table"
+  },
+  "description": {
+    "ja": "STEP 1-14 実践レッスンで作成する成果物です。",
+    "en": "The product built in the STEP 1-14 practical lesson."
+  },
+  "source": "learner_confirmed",
+  "confirmed_at": "2026-06-05T00:00:00Z",
+  "source_documents": [
+    "prompts/PROMPTS_14_DAYS.md",
+    "lesson/LESSON_FLOW_14_DAYS.tsv"
+  ]
+}
+DOC
 cat >"$product_repo/.git/product-gate-evidence/index.tsv" <<'DOC'
 # source_id	context	status	freshness_state	required_in_context	authority	observed_at	max_age_seconds	product_root	product_head	source_artifacts	blocked_by	next_command
 product.git.sync	product-improvement	passed	current	true	authoritative	2026-06-07T00:00:00Z	3600	[external-product-repository]/dashboard-product	none	ops/CI_MANIFEST.tsv		./tools/check_git_sync.sh --product --required
@@ -797,6 +837,15 @@ if (data.selected_context.ci_status !== 'failed') {
 }
 if (data.selected_context.security_status !== 'passed') {
   fail(`expected selected_context.security_status to propagate product.security evidence, got ${data.selected_context.security_status}`);
+}
+if (data.development.product_authority.product_summary.status !== 'ready') {
+  fail(`expected product summary ready, got ${data.development.product_authority.product_summary.status}`);
+}
+if (data.development.product_authority.product_summary.display_name.ja !== 'タスク管理表') {
+  fail('product summary did not preserve the learner-confirmed Japanese product name');
+}
+if (data.development.product_authority.product_summary.source_path !== 'ops/PRODUCT_PROFILE.json') {
+  fail('product summary did not use PRODUCT_PROFILE.json as the canonical source');
 }
 if (!data.selected_context.blockers.some((blocker) => blocker.source === 'product.ci.main' && blocker.status === 'failed')) {
   fail('failed product CI evidence must remain in selected_context.blockers');

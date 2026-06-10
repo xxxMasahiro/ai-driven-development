@@ -7,14 +7,14 @@ Standard product files:
 
 ```text
 AGENT.md
-REQUIREMENTS.md
-SPECIFICATION.md
-IMPLEMENTATION_PLAN.md
-TASK_TRACKER.md
-HANDOFF.md
-SESSION_MEMORY.md
-FAILURE_MEMORY.md
-DEVELOPER_MEMORY.md
+docs/product/REQUIREMENTS.md
+docs/product/SPECIFICATION.md
+docs/product/IMPLEMENTATION_PLAN.md
+docs/workflow/TASK_TRACKER.md
+docs/workflow/HANDOFF.md
+docs/memory/SESSION_MEMORY.md
+docs/memory/FAILURE_MEMORY.md
+docs/memory/DEVELOPER_MEMORY.md
 index.html
 style.css
 app.js
@@ -24,14 +24,14 @@ README.md
 ## Roles
 
 ```text
-REQUIREMENTS.md: what to build
-SPECIFICATION.md: how it behaves
-IMPLEMENTATION_PLAN.md: order of work
-TASK_TRACKER.md: work progress
-HANDOFF.md: next-session handoff
-SESSION_MEMORY.md: session-specific facts
-FAILURE_MEMORY.md: failures and recovery
-DEVELOPER_MEMORY.md: stable developer preferences
+docs/product/REQUIREMENTS.md: what to build
+docs/product/SPECIFICATION.md: how it behaves
+docs/product/IMPLEMENTATION_PLAN.md: order of work
+docs/workflow/TASK_TRACKER.md: work progress
+docs/workflow/HANDOFF.md: next-session handoff
+docs/memory/SESSION_MEMORY.md: session-specific facts
+docs/memory/FAILURE_MEMORY.md: failures and recovery
+docs/memory/DEVELOPER_MEMORY.md: stable developer preferences
 ```
 
 ## Sync Order

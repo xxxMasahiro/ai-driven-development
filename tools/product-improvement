@@ -28,8 +28,8 @@ check_scope_docs() {
   product_root="$(lesson_product_repo_root)"
   missing=0
   for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md; do
-    if [[ ! -s "$product_root/docs/product/$file" && ! -s "$product_root/$file" ]]; then
-      printf 'missing product-improvement scope document: docs/product/%s or %s\n' "$file" "$file" >&2
+    if [[ ! -s "$product_root/docs/product/$file" ]]; then
+      printf 'missing product-improvement scope document: docs/product/%s\n' "$file" >&2
       missing=1
     fi
   done
@@ -43,16 +43,18 @@ case "$COMMAND" in
     printf 'Typical improvements: completion, deletion, persistence, screen copy, layout, accessibility, tests, and documentation.\n'
     "$LESSON_ROOT/tools/product-security" advise --context product-improvement || true
     lesson_menu_print_readiness "Product Improvement"
+    lesson_product_profile_print_readiness 5 "Product name"
     ;;
   start|開始)
     lesson_menu_require_start_approval "Product Improvement" "${2:-}"
     lesson_menu_require_settings "Product Improvement"
     "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    lesson_product_profile_require 5 "Product Improvement"
     cat <<'PROMPT'
 Product Improvement start prompt:
 
 I want to improve the existing product.
-First inspect REQUIREMENTS.md, SPECIFICATION.md, IMPLEMENTATION_PLAN.md, TASK_TRACKER.md, and HANDOFF.md.
+First inspect docs/product/REQUIREMENTS.md, docs/product/SPECIFICATION.md, docs/product/IMPLEMENTATION_PLAN.md, docs/workflow/TASK_TRACKER.md, and docs/workflow/HANDOFF.md.
 Then ask me which improvement should be prioritized, what should stay out of scope, and how we will verify it.
 Before implementation, also ask what security-sensitive behavior changes: dependencies, authentication, APIs, storage, deletion, logging, secrets, or external data.
 Do not implement until I approve the smallest useful improvement plan.
@@ -63,6 +65,7 @@ PROMPT
   gate|確認)
     lesson_menu_require_settings "Product Improvement"
     "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    lesson_product_profile_require 5 "Product Improvement"
     check_scope_docs
     "$LESSON_ROOT/tools/product-scaffold-check" check --context product-improvement
     product_repository_authority_gate "$(lesson_product_repo_root)" product-improvement all

@@ -11,7 +11,7 @@ The short version:
 - `docs/memory/` records stable maintainer intent and decisions.
 - `learning/context/` stores learner-facing source context that future lesson implementation can render in the selected display language.
 - `skills/*/SKILL.md` stores reusable agent procedures.
-- Product repositories have their own documents, such as `AGENT.md`, `TASK_TRACKER.md`, `HANDOFF.md`, and `FAILURE_MEMORY.md`.
+- Product repositories have their own documents, such as `AGENT.md`, `docs/workflow/TASK_TRACKER.md`, `docs/workflow/HANDOFF.md`, and `docs/memory/FAILURE_MEMORY.md`.
 
 ## Why This Exists
 
@@ -100,10 +100,10 @@ The lesson memory documents live in `docs/memory/`.
 | `docs/memory/DEVELOPER_MEMORY.md` | Stable maintainer intent, preferences, review findings, and follow-up requirements |
 
 Product repositories may also use memory documents.
-For example, a product-side `FAILURE_MEMORY.md` records failures, recovery steps, and prevention notes.
+For example, a product-side `docs/memory/FAILURE_MEMORY.md` records failures, recovery steps, and prevention notes.
 
 This lesson repository does not currently have a lesson-side `docs/memory/FAILURE_MEMORY.md`.
-When the lesson discusses failure memory, it means product-side `FAILURE_MEMORY.md` or failure-recovery records used in lesson practice.
+When the lesson discusses failure memory, it means product-side `docs/memory/FAILURE_MEMORY.md` or failure-recovery records used in lesson practice.
 
 ## Learner Context Documents
 

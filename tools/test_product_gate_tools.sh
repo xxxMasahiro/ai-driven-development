@@ -151,6 +151,27 @@ product.entrypoint	required	all	all	index.html	entrypoint	file_exists	workflow	B
 product.source	required	all	all	src/app.js	source	file_nonempty	workflow	Application source authority.
 product.test	required	all	all	tests/app.test.js	test	file_nonempty	workflow	Test authority.
 DOC
+cat > "$product_repo/ops/PRODUCT_PROFILE.json" <<'DOC'
+{
+  "schema_version": "1.0.0",
+  "profile_kind": "product_display_profile",
+  "menu_id": "free-development",
+  "profile_scope": "product",
+  "display_name": {
+    "ja": "サンプル成果物",
+    "en": "Sample Product"
+  },
+  "description": {
+    "ja": "検査用の成果物です。",
+    "en": "A product used by product gate checks."
+  },
+  "source": "learner_confirmed",
+  "confirmed_at": "2026-06-05T00:00:00Z",
+  "source_documents": [
+    "docs/product/REQUIREMENTS.md"
+  ]
+}
+DOC
 mkdir -p "$product_repo/.git/product-gate-evidence"
 cat > "$product_repo/.git/product-gate-evidence/index.tsv" <<'DOC'
 # source_id	context	status	freshness_state	required_in_context	authority	observed_at	max_age_seconds	product_root	product_head	source_artifacts	blocked_by	next_command

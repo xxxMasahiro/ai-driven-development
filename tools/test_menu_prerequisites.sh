@@ -74,6 +74,7 @@ for item in 1 2 3 4 5 6; do
   grep 'missing menu prerequisite' /tmp/menu-missing-prerequisite-"$item".out >/dev/null
 done
 
+./tools/product-profile set --menu 7 --accept-recommended --confirm >/dev/null
 ./tools/menu check 7 | grep 'Menu prerequisite check passed' >/dev/null
 ./tools/menu start 4 >/tmp/menu-approval-required.out 2>&1 && exit 1 || true
 grep 'learner approval is required before starting' /tmp/menu-approval-required.out >/dev/null
@@ -129,18 +130,21 @@ expected_sync_monitoring="$(setting_value sync_monitoring)"
 ./tools/lesson14 表示言語 en >/dev/null
 ./tools/lesson14 開発言語 en >/dev/null
 
+git -c init.defaultBranch=main init "$product_repo" >/dev/null
+git -C "$product_repo" config user.name "Menu Test"
+git -C "$product_repo" config user.email "menu-test@example.com"
+./tools/product-profile set --menu 2 --accept-recommended --confirm >/dev/null
+
 for item in 1 2 3 4; do
   ./tools/menu check "$item" | grep 'Menu prerequisite check passed' >/dev/null
 done
 
-git -c init.defaultBranch=main init "$product_repo" >/dev/null
-git -C "$product_repo" config user.name "Menu Test"
-git -C "$product_repo" config user.email "menu-test@example.com"
 for item in 5 6; do
   ./tools/menu check "$item" | grep 'Menu prerequisite check passed' >/dev/null
 done
 
 ./tools/menu readiness | grep 'Menu prerequisite readiness: 自由開発' >/dev/null
+./tools/menu readiness | grep 'Product name: ready - タスク管理表' >/dev/null
 ./tools/menu readiness | grep 'Product repository boundary: ready' >/dev/null
 ./tools/menu readiness | grep 'Git workflow policy: ready' >/dev/null
 ./tools/menu readiness | grep 'Git branch permission: true' >/dev/null

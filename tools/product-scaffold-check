@@ -47,7 +47,7 @@ validate_required_structure() {
   local context="$2"
   local product_type="$3"
   local scope item lifecycle_status required_mode contexts product_types validation_rule dashboard_visibility canonical_path legacy_paths requirement
-  local resolved resolved_status resolved_path resolved_source source_id
+  local resolved resolved_status resolved_path resolved_source source_id required_in_context
 
   if ! product_repository_authority_validate_policy_files >/dev/null 2>&1; then
     fail "product repository structure policy could not be validated."
@@ -55,21 +55,33 @@ validate_required_structure() {
   fi
 
   while IFS=$'\t' read -r scope item lifecycle_status required_mode contexts product_types validation_rule dashboard_visibility canonical_path legacy_paths requirement; do
-    product_repository_authority_required_for_context "$required_mode" "$contexts" "$product_types" "$context" "$product_type" || continue
+    required_in_context=0
+    if product_repository_authority_required_for_context "$required_mode" "$contexts" "$product_types" "$context" "$product_type"; then
+      required_in_context=1
+    fi
     resolved="$(product_repository_authority_resolve_structure_path "$repo" "$validation_rule" "$canonical_path" "$legacy_paths")"
     IFS=$'\t' read -r resolved_status resolved_path resolved_source <<<"$resolved"
     source_id="${scope}.${item}"
     case "$resolved_status" in
       ready)
-        if [[ "$context" == "free-development" && "$scope" =~ ^product_(docs|workflow)$ && "$resolved_source" != "canonical" ]]; then
-          fail "free-development scaffold must use canonical path for $source_id: $canonical_path"
+        if [[ "$required_in_context" -eq 1 && "$scope" =~ ^product_(docs|workflow)$ && "$resolved_source" != "canonical" ]]; then
+          fail "product scaffold must use canonical path for $source_id: $canonical_path"
         fi
         ;;
       blocked)
-        fail "product scaffold has conflicting canonical and legacy paths for $source_id."
+        case "$resolved_source" in
+          root_duplicate)
+            fail "product scaffold has root-level duplicate for $source_id; keep only $canonical_path."
+            ;;
+          *)
+            fail "product scaffold has conflicting canonical and legacy paths for $source_id."
+            ;;
+        esac
         ;;
       missing)
-        fail "product scaffold is missing required item $source_id: $canonical_path"
+        if [[ "$required_in_context" -eq 1 ]]; then
+          fail "product scaffold is missing required item $source_id: $canonical_path"
+        fi
         ;;
       *)
         fail "product scaffold has unknown state for $source_id."
@@ -131,7 +143,7 @@ validate_product_manifest() {
       *) fail "product manifest row has unsupported path_role for $authority_id: $path_role"; continue ;;
     esac
     case "$validation_rule" in
-      file_exists|file_nonempty|path_exists|tsv_valid) ;;
+      file_exists|file_nonempty|path_exists|tsv_valid|product_profile_valid) ;;
       *) fail "product manifest row has unsupported validation_rule for $authority_id: $validation_rule"; continue ;;
     esac
     if ! path_is_safe_relative "$path"; then

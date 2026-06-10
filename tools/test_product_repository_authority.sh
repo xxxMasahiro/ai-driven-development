@@ -62,6 +62,27 @@ DOC
 overview	required	all	product.overview	overview	overview	Product overview.
 DOC
   write_product_manifest "$repo/ops/PRODUCT_MANIFEST.tsv"
+  cat >"$repo/ops/PRODUCT_PROFILE.json" <<'DOC'
+{
+  "schema_version": "1.0.0",
+  "profile_kind": "product_display_profile",
+  "menu_id": "step_1_14",
+  "profile_scope": "product",
+  "display_name": {
+    "ja": "タスク管理表",
+    "en": "Task Management Table"
+  },
+  "description": {
+    "ja": "STEP 1-14 実践レッスンで作成する成果物です。",
+    "en": "The product built in the STEP 1-14 practical lesson."
+  },
+  "source": "learner_confirmed",
+  "confirmed_at": "2026-06-05T00:00:00Z",
+  "source_documents": [
+    "prompts/PROMPTS_14_DAYS.md"
+  ]
+}
+DOC
 }
 
 missing_json="$(PATH="$fake_bin:$PATH" "$ROOT/tools/product-repository-authority" status --repo "$TMP_DIR/missing" --json)"
@@ -90,6 +111,9 @@ function fail(message) {
 if (data.repository.status !== "ready") fail(`expected ready repository, got ${data.repository.status}`);
 if (data.status !== "not_run") fail(`expected not_run authority before evidence, got ${data.status}`);
 if (data.manifest_summary.required_missing.length !== 0) fail("valid product should not miss required structure");
+if (data.product_summary.status !== "ready") fail(`expected ready product summary, got ${data.product_summary.status}`);
+if (data.product_summary.display_name.ja !== "タスク管理表") fail("product summary did not preserve Japanese display name");
+if (data.product_summary.source_path !== "ops/PRODUCT_PROFILE.json") fail("product summary did not use PRODUCT_PROFILE.json");
 if (!data.evidence_summary.items.some((item) => item.source_id === "product.gates.evidence_index" && item.status === "not_run")) {
   fail("missing evidence index should be represented as not_run evidence");
 }
@@ -109,15 +133,17 @@ printf '# Specification\n' >"$repo/SPECIFICATION.md"
 printf '# Implementation Plan\n' >"$repo/IMPLEMENTATION_PLAN.md"
 printf '# Task Tracker\n' >"$repo/TASK_TRACKER.md"
 printf '# Handoff\n' >"$repo/HANDOFF.md"
-legacy_json="$(PATH="$fake_bin:$PATH" "$ROOT/tools/product-repository-authority" status --repo "$repo" --context product-improvement --json)"
-node - "$legacy_json" <<'NODE'
+root_only_json="$(PATH="$fake_bin:$PATH" "$ROOT/tools/product-repository-authority" status --repo "$repo" --context product-improvement --json)"
+node - "$root_only_json" <<'NODE'
 const data = JSON.parse(process.argv[2]);
 function fail(message) {
   console.error(message);
   process.exit(1);
 }
-if (!data.document_paths.some((item) => item.source_id === "product_docs.requirements" && item.resolved_source === "legacy")) {
-  fail("legacy product requirements path was not resolved");
+if (data.status !== "blocked") fail(`expected blocked status for root-only product docs, got ${data.status}`);
+const requirementPath = data.document_paths.find((item) => item.source_id === "product_docs.requirements");
+if (!requirementPath || requirementPath.status !== "blocked" || requirementPath.resolved_source !== "root_duplicate") {
+  fail("root-only product requirements path was not blocked as a root duplicate");
 }
 NODE
 
@@ -130,13 +156,13 @@ function fail(message) {
   console.error(message);
   process.exit(1);
 }
-if (data.status !== "blocked") fail(`expected blocked status for canonical/legacy conflict, got ${data.status}`);
+if (data.status !== "blocked") fail(`expected blocked status for canonical/root duplicate conflict, got ${data.status}`);
 if (!data.manifest_summary.conflicts.includes("product_docs.requirements")) {
-  fail("requirements conflict was not reported");
+  fail("requirements root duplicate was not reported");
 }
 NODE
 
-rm -f "$repo/REQUIREMENTS.md"
+rm -f "$repo/REQUIREMENTS.md" "$repo/SPECIFICATION.md" "$repo/IMPLEMENTATION_PLAN.md" "$repo/TASK_TRACKER.md" "$repo/HANDOFF.md"
 mkdir -p "$repo/docs/product" "$repo/docs/workflow" "$repo/docs/memory" "$repo/.git/product-gate-evidence"
 printf '# Requirements\n' >"$repo/docs/product/REQUIREMENTS.md"
 printf '# Specification\n' >"$repo/docs/product/SPECIFICATION.md"

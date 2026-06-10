@@ -1,0 +1,206 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$SCRIPT_DIR/lib/lesson_common.sh"
+
+COMMAND="${1:-status}"
+if [[ $# -gt 0 ]]; then
+  shift
+fi
+
+MENU_KEY=""
+NAME_JA=""
+NAME_EN=""
+ACCEPT_RECOMMENDED=0
+CONFIRM=""
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  tools/product-profile status --menu <1|2|3|4|5|6|7|menu-id>
+  tools/product-profile set --menu <1|2|3|4|5|6|7|menu-id> --name-ja <name> [--name-en <name>] --confirm
+  tools/product-profile set --menu <1|2|3|4|5|6|7|menu-id> --accept-recommended --confirm
+
+This command records only the learner-confirmed product display name.
+It does not run product code, fetch remotes, call external APIs, or read secrets.
+USAGE
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --menu)
+      MENU_KEY="${2:-}"
+      shift 2
+      ;;
+    --name-ja)
+      NAME_JA="${2:-}"
+      shift 2
+      ;;
+    --name-en)
+      NAME_EN="${2:-}"
+      shift 2
+      ;;
+    --accept-recommended)
+      ACCEPT_RECOMMENDED=1
+      shift
+      ;;
+    --confirm)
+      CONFIRM="--confirm"
+      shift
+      ;;
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    *)
+      printf 'unknown option: %s\n' "$1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+require_menu() {
+  [[ -n "$MENU_KEY" ]] || {
+    printf 'menu is required.\n' >&2
+    usage >&2
+    exit 1
+  }
+  lesson_product_profile_menu_id "$MENU_KEY" >/dev/null || {
+    printf 'unknown product profile menu: %s\n' "$MENU_KEY" >&2
+    exit 1
+  }
+}
+
+write_profile() {
+  local menu_id scope file repo recommended_ja recommended_en description_ja description_en source_documents confirmed_at
+  menu_id="$(lesson_product_profile_menu_id "$MENU_KEY")"
+  scope="$(lesson_product_profile_scope "$MENU_KEY")"
+  file="$(lesson_product_profile_file_for_menu "$MENU_KEY")"
+  repo="$(lesson_product_profile_repo_for_menu "$MENU_KEY")"
+  recommended_ja="$(lesson_product_profile_recommended_name "$MENU_KEY" ja)"
+  recommended_en="$(lesson_product_profile_recommended_name "$MENU_KEY" en)"
+  description_ja="$(lesson_product_profile_description "$MENU_KEY" ja)"
+  description_en="$(lesson_product_profile_description "$MENU_KEY" en)"
+  source_documents="$(lesson_product_profile_source_documents "$MENU_KEY")"
+
+  if [[ "$CONFIRM" != "--confirm" ]]; then
+    printf 'explicit learner approval is required before recording the product name.\n' >&2
+    printf 'Run the command again with --confirm after the learner approves.\n' >&2
+    exit 1
+  fi
+
+  if [[ "$ACCEPT_RECOMMENDED" -eq 1 ]]; then
+    [[ -n "$recommended_ja" || -n "$recommended_en" ]] || {
+      printf 'no recommended product name is configured for menu %s.\n' "$menu_id" >&2
+      printf 'Use --name-ja and optional --name-en.\n' >&2
+      exit 1
+    }
+    [[ -n "$NAME_JA" ]] || NAME_JA="$recommended_ja"
+    [[ -n "$NAME_EN" ]] || NAME_EN="$recommended_en"
+  fi
+
+  [[ -n "$NAME_JA" || -n "$NAME_EN" ]] || {
+    printf 'product name is required.\n' >&2
+    printf 'Use --name-ja "<成果物名>" and optional --name-en "<Product name>".\n' >&2
+    exit 1
+  }
+
+  if [[ "$scope" == "product" ]]; then
+    "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    printf 'Before product-repository development, keep a separate Ubuntu/WSL CLI window for this product repository.\n'
+  fi
+
+  mkdir -p "$(dirname "$file")"
+  confirmed_at="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+
+  PRODUCT_PROFILE_FILE="$file" \
+  PRODUCT_PROFILE_MENU_ID="$menu_id" \
+  PRODUCT_PROFILE_SCOPE="$scope" \
+  PRODUCT_PROFILE_NAME_JA="$NAME_JA" \
+  PRODUCT_PROFILE_NAME_EN="$NAME_EN" \
+  PRODUCT_PROFILE_DESCRIPTION_JA="$description_ja" \
+  PRODUCT_PROFILE_DESCRIPTION_EN="$description_en" \
+  PRODUCT_PROFILE_SOURCE_DOCUMENTS="$source_documents" \
+  PRODUCT_PROFILE_CONFIRMED_AT="$confirmed_at" \
+  node <<'NODE'
+const fs = require("node:fs");
+const path = require("node:path");
+
+const file = process.env.PRODUCT_PROFILE_FILE || "";
+
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+function safeText(value, max = 240) {
+  const text = String(value ?? "");
+  if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(text)) {
+    fail("product profile text contains unsupported control characters");
+  }
+  return text.replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+function safeRelativePath(value) {
+  const text = safeText(value, 240);
+  if (!text || text.startsWith("/") || text.includes("\\") || text.includes("\0")) return "";
+  if (text.split("/").some((part) => part === ".." || part === "")) return "";
+  return text;
+}
+
+const nameJa = safeText(process.env.PRODUCT_PROFILE_NAME_JA || "");
+const nameEn = safeText(process.env.PRODUCT_PROFILE_NAME_EN || "");
+if (!nameJa && !nameEn) fail("product name is required");
+
+const sourceDocuments = String(process.env.PRODUCT_PROFILE_SOURCE_DOCUMENTS || "")
+  .split("|")
+  .map(safeRelativePath)
+  .filter(Boolean);
+
+const profile = {
+  schema_version: "1.0.0",
+  profile_kind: "product_display_profile",
+  menu_id: safeText(process.env.PRODUCT_PROFILE_MENU_ID || "", 80),
+  profile_scope: safeText(process.env.PRODUCT_PROFILE_SCOPE || "", 40),
+  display_name: {
+    ja: nameJa,
+    en: nameEn,
+  },
+  description: {
+    ja: safeText(process.env.PRODUCT_PROFILE_DESCRIPTION_JA || ""),
+    en: safeText(process.env.PRODUCT_PROFILE_DESCRIPTION_EN || ""),
+  },
+  source: "learner_confirmed",
+  confirmed_at: safeText(process.env.PRODUCT_PROFILE_CONFIRMED_AT || "", 40),
+  source_documents: sourceDocuments,
+};
+
+fs.mkdirSync(path.dirname(file), { recursive: true });
+fs.writeFileSync(file, `${JSON.stringify(profile, null, 2)}\n`);
+NODE
+
+  printf 'Product profile recorded: %s\n' "$menu_id"
+  printf 'Product name: %s\n' "$(lesson_product_profile_display_name_from_file "$file" ja)"
+}
+
+case "$COMMAND" in
+  status|現在地)
+    require_menu
+    lesson_product_profile_print_readiness "$MENU_KEY" "Product name"
+    ;;
+  set|設定)
+    require_menu
+    write_profile
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    printf 'unknown command: %s\n' "$COMMAND" >&2
+    usage >&2
+    exit 1
+    ;;
+esac

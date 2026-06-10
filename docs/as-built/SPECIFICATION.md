@@ -1317,12 +1317,7 @@ TESTS: tools/test_dashboard_control_center.sh,tools/check_as_built_sync_contract
 
 ## Product Repository Boundary
 
-The default lesson-created product repository path is outside this repository:
-
-```text
-/home/masahiro/projects/task-tracker-repository
-```
-
+The default lesson-created product repository path is configured outside this repository.
 The boundary is checked by `tools/check_repository_boundary.sh --product-required`.
 Lesson-repository validation does not recreate that repository and does not depend on it.
 Real 7-day, 14-day, Free Development, and Team Development product workflows may require a product repository after the learner intentionally creates or selects one.
@@ -1365,7 +1360,7 @@ Product repository structure:
 - Product operation manifests live under `ops/`.
 - `docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv` is the lesson-side policy source for the expected product skeleton.
 - The structure policy records required mode, workflow contexts, product types, validation rule, dashboard visibility, canonical path, and legacy paths.
-- Existing root-level product documents remain legacy-readable through a shared resolver; the canonical new structure is `docs/product/` and `docs/workflow/`.
+- Root-level duplicate product documents are blocked by the shared resolver; the canonical structure is `docs/product/`, `docs/workflow/`, and `docs/memory/`.
 - Standard root control directories such as `.github/workflows/` and `.githooks/` remain root-level control directories, not docs cleanup targets.
 
 Manifest contract:
@@ -1610,7 +1605,7 @@ Product repository and evidence behavior:
 
 - STEP 1-14 may keep `task-tracker-repository` as its standard product repository.
 - Free Development, Product Improvement, and External Integration must resolve target repositories through policy-backed context data, not fixed dashboard assumptions.
-- Product scaffold expectations remain canonical under `docs/product/`, `docs/workflow/`, `docs/memory/`, `ops/`, `src/`, and `tests/`, with root legacy document compatibility preserved.
+- Product scaffold expectations remain canonical under `docs/product/`, `docs/workflow/`, `docs/memory/`, `ops/`, `src/`, and `tests/`, with root duplicate Markdown documents blocked.
 - `docs/memory/` is a standard directory in the external product scaffold. Individual memory documents may remain optional and appear only when the workflow uses them, but the scaffold and validators must not treat the directory concept as a stack-specific exception.
 - Product manifest entries must identify entrypoint, source authority, test authority, CI, security, and dashboard-visible surfaces without stack-specific branches.
 - Launch verification must connect README launch instructions with the manifest-backed entrypoint and user workflow before STEP 1-14 final completion depends on it.
@@ -1694,3 +1689,59 @@ Responsive contract:
 - Cards, tables, source fields, command previews, and sidebar surfaces must avoid horizontal overflow on desktop, narrow desktop, tablet, and phone widths.
 - Lesson cards and dense status grids must stack before labels or key values become cramped.
 - Safety command previews use a vertical layout so the command and policy panels keep readable width.
+
+## Implemented Menu Product Display Profile Confirmation Specification
+
+SYNC-ID: menu_product_display_profile_confirmation
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/lesson_common.sh,tools/lib/product_repository_authority.sh,tools/product-profile,tools/menu,tools/lesson,tools/lesson14,tools/free-development,tools/product-improvement,tools/external-integration,tools/team-development,tools/product-scaffold-check,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_dashboard_data.sh,tools/check_lesson_structure.sh,tools/check_agents_skills.sh
+
+Profile contract:
+
+- `docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv` maps each menu choice to a stable menu id, profile scope, optional recommended Japanese and English name, localized description, and safe source-document list.
+- Product-scope profile data lives in the external repository at `ops/PRODUCT_PROFILE.json`.
+- Lesson-scope profile data lives under the lesson repository learning state and is used only for menu 7.
+- `ops/PRODUCT_PROFILE.json` uses `schema_version: "1.0.0"`, `profile_kind: "product_display_profile"`, locale-keyed `display_name`, locale-keyed `description`, `source: "learner_confirmed"`, `confirmed_at`, and safe relative `source_documents`.
+
+Runtime contract:
+
+- `tools/product-profile set` requires `--confirm`; product-scope writes also require the product repository boundary check.
+- `tools/menu check/start` requires the profile for all seven menu choices.
+- `tools/lesson` and `tools/lesson14` require the profile before passing `setup.index`.
+- Free Development, Product Improvement, External Integration, and Applied Lesson direct `start` and `gate` commands require the same profile prerequisite.
+- `tools/product-repository-authority` exposes `development.product_authority.product_summary` from `ops/PRODUCT_PROFILE.json`; missing or invalid profiles remain `missing` or `failed` and are not replaced with inferred names.
+- The React dashboard chooses `product_summary.display_name[locale]`, then Japanese, then English, then producer fallback `name`.
+
+Security contract:
+
+- Profile strings are sanitized as display text, limited in length, and rejected when they contain unsupported control characters.
+- Source document entries must remain safe relative paths.
+- The dashboard remains read-only and cannot write or edit the profile.
+
+## Implemented Product Repository Canonical Docs Only Specification
+
+SYNC-ID: product_repository_canonical_docs_only
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,prompts/PROMPTS.md,prompts/PROMPTS_14_DAYS.md,lesson/LESSON_FLOW.tsv,lesson/LESSON_FLOW_14_DAYS.tsv,lesson/SYNC_GATES_14_DAYS.tsv,playbooks/AGENT_PLAYBOOK.md,playbooks/AGENT_PLAYBOOK_14_DAYS.md,templates/TEMPLATES.md,skills/task-tracker-docs/SKILL.md,skills/task-tracker-docs/references/product-docs.md,skills/worklog-doc-sync/SKILL.md,skills/worklog-doc-sync/references/worklog-sync.md,skills/lesson-sync-gate/SKILL.md,skills/lesson-sync-gate/references/sync-gates.md,skills/learning-progress-helpdesk/references/progress-helpdesk.md,tools/lib/product_repository_authority.sh,tools/product-scaffold-check,tools/product-improvement,tools/external-integration,tools/dashboard-data,tools/dashboard,tools/check_workflow_pair_sync.sh,tools/check_agents_skills.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh
+TESTS: tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh,tools/check_agents_skills.sh,tools/test_dashboard_data.sh,tools/test_lesson14.sh,tools/check_lesson_structure.sh,tools/check_lesson14_sync.sh
+
+Canonical path contract:
+
+- `docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv` declares canonical product repository paths and uses `legacy_paths=none` for product docs, workflow docs, and product memory docs.
+- `docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv` maps forbidden root-level Markdown paths to their canonical paths and source ids.
+- `tools/lib/product_repository_authority.sh` validates both policy files and blocks matching root duplicates before reporting a structure item as ready.
+- `tools/product-scaffold-check` evaluates required and optional structure rows so optional memory root duplicates are also blocked.
+- `tools/check_workflow_pair_sync.sh --product` and `--repo` read only `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md`, and fail when root duplicates exist.
+
+Producer and dashboard contract:
+
+- `tools/dashboard-data` reports product document readiness from canonical paths only.
+- `tools/dashboard` displays canonical product document paths and paired workflow state from `docs/workflow`.
+- `tools/product-improvement` and `tools/external-integration` require canonical product design documents at gate time and show canonical paths in start prompts.
+- Prompt, playbook, skill, lesson-flow, and sync-gate text directs agents and learners to canonical product paths, while lesson repository documents continue to use `docs/as-built`, `docs/workflow`, and `docs/memory`.
+
+External repository boundary contract:
+
+- This lesson repository records the generic canonical path policy and validation behavior only.
+- Product repository file cleanup, manifest edits, and repository-index regeneration remain external repository state and are not recorded as lesson repository source of truth.

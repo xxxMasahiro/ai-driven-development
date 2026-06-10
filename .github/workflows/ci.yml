@@ -148,6 +148,11 @@ jobs:
           ./tools/lesson 学習モード A
           ./tools/lesson 表示言語 ja
           ./tools/lesson 開発言語 ja
+          source ./tools/lib/lesson_common.sh
+          product_repo="$(lesson_product_repo_root)"
+          mkdir -p "$product_repo"
+          git -C "$product_repo" init -q
+          ./tools/product-profile set --menu 1 --accept-recommended --confirm
           ./tools/lesson 通過 setup.index "設定から体験開発へ進む順番を確認した"
           ./tools/lesson 現在地 | grep './tools/lesson 開始 setup.github-login'
           ./tools/lesson 通過 setup.github-login "github-loginでGitHub接続を確認した"

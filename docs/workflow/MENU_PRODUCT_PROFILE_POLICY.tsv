@@ -1,0 +1,8 @@
+# menu_item	menu_id	profile_scope	recommended_name_ja	recommended_name_en	description_ja	description_en	source_documents
+1	step_1_7	product	タスク管理表	Task Management Table	STEP 1-7 基礎レッスンで作成する成果物です。	The product built in the STEP 1-7 basic lesson.	ai-driven-task-tracker-scenario.md|templates/TEMPLATES.md
+2	step_1_14	product	タスク管理表	Task Management Table	STEP 1-14 実践レッスンで作成する成果物です。	The product built in the STEP 1-14 practical lesson.	prompts/PROMPTS_14_DAYS.md|lesson/LESSON_FLOW_14_DAYS.tsv|templates/TEMPLATES.md
+3	advanced	product	none	none	応用レッスンで扱う成果物です。	The product used in the applied lesson.	advanced/TEAM_DEVELOPMENT_DOCKER.md
+4	free-development	product	none	none	自由開発で作成する成果物です。	The product chosen for free development.	free-development/FREE_DEVELOPMENT_MODE.md
+5	product-improvement	product	none	none	改善対象の既存成果物です。	The existing product being improved.	docs/product/REQUIREMENTS.md|docs/product/SPECIFICATION.md|docs/product/IMPLEMENTATION_PLAN.md
+6	external-integration	product	none	none	外部連携を追加する成果物です。	The product being extended with an external integration.	docs/product/REQUIREMENTS.md|docs/product/SPECIFICATION.md|docs/product/IMPLEMENTATION_PLAN.md
+7	lesson-repository-improvement	lesson	教材改善	Lesson Improvement	教材そのものを改善する作業対象です。	The lesson repository improvement target.	docs/as-built/REQUIREMENTS.md|docs/as-built/SPECIFICATION.md|docs/as-built/IMPLEMENTATION_PLAN.md

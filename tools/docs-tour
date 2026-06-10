@@ -64,6 +64,12 @@ sync_status() {
   local label="$2"
   local cache_key="$command"
   local check_status=1
+
+  if [[ "${DOCS_TOUR_SKIP_SYNC_STATUS:-0}" == "1" ]]; then
+    printf '%s: check skipped\n' "$label"
+    return
+  fi
+
   if [[ -n "${docs_tour_sync_status_cache[$cache_key]+set}" ]]; then
     check_status="${docs_tour_sync_status_cache[$cache_key]}"
   else
@@ -120,7 +126,7 @@ show_status() {
   printf '%s\n' '- docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv: when local full/no-cache verification is recommended'
   printf '%s\n' '- learning/GIT_HOOK_SETTINGS.tsv: current local Git hook mode'
   printf '%s\n' '- docs/memory/: stable lesson-side maintainer memory'
-  printf '%s\n' '- product-side FAILURE_MEMORY.md: failure and recovery records when a product repository uses one'
+  printf '%s\n' '- product-side docs/memory/FAILURE_MEMORY.md: failure and recovery records when a product repository uses one'
   printf '%s\n' '- skills/*/SKILL.md: reusable agent procedures'
   printf '\n'
   sync_status 'tools/check_workflow_pair_sync.sh' 'TASK_TRACKER/HANDOFF pair'
@@ -206,17 +212,17 @@ show_memory() {
   case "$(current_mode_code)" in
     A)
       printf 'Developer memory preserves stable maintainer intent, review findings, and follow-up requirements. It is different from a learner progress log.\n'
-      printf 'Failure memory is usually product-side: a product repository can use FAILURE_MEMORY.md to record failures and recovery steps.\n\n'
+      printf 'Failure memory is usually product-side: a product repository can use docs/memory/FAILURE_MEMORY.md to record failures and recovery steps.\n\n'
       ;;
     B)
       printf 'Developer memory stores stable maintainer intent. Product-side failure memory stores failures and recovery notes.\n\n'
       ;;
     C)
-      printf 'DEVELOPER_MEMORY.md: maintainer intent. Product FAILURE_MEMORY.md: failure recovery.\n\n'
+      printf 'DEVELOPER_MEMORY.md: maintainer intent. Product docs/memory/FAILURE_MEMORY.md: failure recovery.\n\n'
       ;;
   esac
   printf '%s\n' '- docs/memory/DEVELOPER_MEMORY.md'
-  printf '%s\n' '- product-side FAILURE_MEMORY.md when a product repository uses one'
+  printf '%s\n' '- product-side docs/memory/FAILURE_MEMORY.md when a product repository uses one'
   printf '\nThis lesson repository does not currently define docs/memory/FAILURE_MEMORY.md.\n'
 }
 

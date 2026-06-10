@@ -491,6 +491,175 @@ lesson_menu_print_readiness() {
   printf 'Learner approval: required before start\n'
 }
 
+lesson_product_profile_policy_file() {
+  printf '%s\n' "${MENU_PRODUCT_PROFILE_POLICY_FILE:-$LESSON_ROOT/docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv}"
+}
+
+lesson_product_profile_policy_field() {
+  local menu_key="$1"
+  local field_number="$2"
+  local policy_file
+  policy_file="$(lesson_product_profile_policy_file)"
+  awk -F '\t' -v key="$menu_key" -v field_number="$field_number" '
+    $1 ~ /^#/ { next }
+    $1 == key || $2 == key {
+      print $field_number
+      found = 1
+      exit
+    }
+    END { exit found ? 0 : 1 }
+  ' "$policy_file"
+}
+
+lesson_product_profile_policy_value() {
+  local menu_key="$1"
+  local field_number="$2"
+  local value
+  value="$(lesson_product_profile_policy_field "$menu_key" "$field_number" 2>/dev/null || true)"
+  if [[ "$value" == "none" ]]; then
+    value=""
+  fi
+  printf '%s' "$value"
+}
+
+lesson_product_profile_menu_id() {
+  lesson_product_profile_policy_value "$1" 2
+}
+
+lesson_product_profile_scope() {
+  lesson_product_profile_policy_value "$1" 3
+}
+
+lesson_product_profile_recommended_name() {
+  local menu_key="$1"
+  local language="${2:-ja}"
+  case "$language" in
+    en) lesson_product_profile_policy_value "$menu_key" 5 ;;
+    *) lesson_product_profile_policy_value "$menu_key" 4 ;;
+  esac
+}
+
+lesson_product_profile_description() {
+  local menu_key="$1"
+  local language="${2:-ja}"
+  case "$language" in
+    en) lesson_product_profile_policy_value "$menu_key" 7 ;;
+    *) lesson_product_profile_policy_value "$menu_key" 6 ;;
+  esac
+}
+
+lesson_product_profile_source_documents() {
+  lesson_product_profile_policy_value "$1" 8
+}
+
+lesson_product_profile_repo_for_menu() {
+  local menu_key="$1"
+  local scope
+  scope="$(lesson_product_profile_scope "$menu_key")"
+  case "$scope" in
+    lesson) printf '%s' "$LESSON_ROOT" ;;
+    *) lesson_product_repo_root ;;
+  esac
+}
+
+lesson_product_profile_file_for_menu() {
+  local menu_key="$1"
+  local menu_id scope repo
+  menu_id="$(lesson_product_profile_menu_id "$menu_key")"
+  scope="$(lesson_product_profile_scope "$menu_key")"
+  repo="$(lesson_product_profile_repo_for_menu "$menu_key")"
+  case "$scope" in
+    lesson)
+      printf '%s/learning/MENU_PRODUCT_PROFILES/%s.json' "$repo" "$menu_id"
+      ;;
+    product)
+      printf '%s/ops/PRODUCT_PROFILE.json' "$repo"
+      ;;
+    *)
+      printf 'unknown product profile scope for menu %s: %s\n' "$menu_key" "$scope" >&2
+      exit 1
+      ;;
+  esac
+}
+
+lesson_product_profile_display_name_from_file() {
+  local file="$1"
+  local language="${2:-ja}"
+  PRODUCT_PROFILE_FILE="$file" PRODUCT_PROFILE_LANGUAGE="$language" node <<'NODE'
+const fs = require("node:fs");
+
+const file = process.env.PRODUCT_PROFILE_FILE || "";
+const language = process.env.PRODUCT_PROFILE_LANGUAGE || "ja";
+
+function safeText(value) {
+  return String(value ?? "")
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 240);
+}
+
+try {
+  const data = JSON.parse(fs.readFileSync(file, "utf8"));
+  const names = data && typeof data === "object" && !Array.isArray(data) && data.display_name && typeof data.display_name === "object"
+    ? data.display_name
+    : {};
+  const preferred = safeText(names[language]);
+  const fallbackJa = safeText(names.ja);
+  const fallbackEn = safeText(names.en);
+  const name = preferred || fallbackJa || fallbackEn;
+  if (!name) process.exit(1);
+  process.stdout.write(name);
+} catch {
+  process.exit(1);
+}
+NODE
+}
+
+lesson_product_profile_display_name_for_menu() {
+  local menu_key="$1"
+  local language="${2:-ja}"
+  local file
+  file="$(lesson_product_profile_file_for_menu "$menu_key")"
+  [[ -f "$file" ]] || return 1
+  lesson_product_profile_display_name_from_file "$file" "$language"
+}
+
+lesson_product_profile_has_name_for_menu() {
+  lesson_product_profile_display_name_for_menu "$1" ja >/dev/null 2>&1
+}
+
+lesson_product_profile_print_readiness() {
+  local menu_key="$1"
+  local label="${2:-Product name}"
+  local name recommended menu_id
+  menu_id="$(lesson_product_profile_menu_id "$menu_key")"
+  if name="$(lesson_product_profile_display_name_for_menu "$menu_key" ja 2>/dev/null)"; then
+    printf '%s: ready - %s\n' "$label" "$name"
+    return
+  fi
+
+  recommended="$(lesson_product_profile_recommended_name "$menu_key" ja)"
+  printf '%s: missing\n' "$label"
+  if [[ -n "$recommended" ]]; then
+    printf 'Recommended product name: %s\n' "$recommended"
+    printf 'Run: ./tools/product-profile set --menu %s --accept-recommended --confirm\n' "$menu_id"
+  else
+    printf 'Run: ./tools/product-profile set --menu %s --name-ja "<成果物名>" --name-en "<Product name>" --confirm\n' "$menu_id"
+  fi
+}
+
+lesson_product_profile_require() {
+  local menu_key="$1"
+  local context="${2:-$1}"
+  if lesson_product_profile_has_name_for_menu "$menu_key"; then
+    return 0
+  fi
+  printf 'missing menu prerequisite for %s: product name\n' "$context" >&2
+  lesson_product_profile_print_readiness "$menu_key" "Product name" >&2
+  exit 1
+}
+
 lesson_menu_require_start_approval() {
   local context="$1"
   local confirm="${2:-}"

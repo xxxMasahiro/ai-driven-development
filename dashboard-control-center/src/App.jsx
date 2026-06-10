@@ -59,7 +59,7 @@ import {
   Wrench,
   Workflow,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   asArray,
@@ -118,15 +118,17 @@ const navigation = [
 ];
 
 const repositoryNavigation = [
-  { id: "repository-info", labelKey: "nav.repositoryInfo", Icon: Info, href: "#overview" },
-  { id: "documents", labelKey: "nav.documents", Icon: FileText, href: "#maintenance" },
-  { id: "settings", labelKey: "nav.settings", Icon: Settings, href: "#maintenance" },
+  { id: "repository-info", labelKey: "nav.repositoryInfo", Icon: Info, href: "#repository-info" },
+  { id: "documents", labelKey: "nav.documents", Icon: FileText, href: "#documents" },
+  { id: "settings", labelKey: "nav.settings", Icon: Settings, href: "#settings" },
 ];
 
 const supportNavigation = [
-  { id: "help", labelKey: "nav.help", Icon: CircleHelp, href: "#safety" },
-  { id: "history", labelKey: "nav.history", Icon: Clock, href: "#maintenance" },
+  { id: "help", labelKey: "nav.help", Icon: CircleHelp, href: "#help" },
+  { id: "history", labelKey: "nav.history", Icon: Clock, href: "#history" },
 ];
+
+const allNavigation = [...navigation, ...repositoryNavigation, ...supportNavigation];
 
 const contextMenuIcons = {
   step_1_7: BookOpen,
@@ -159,7 +161,7 @@ const overviewStatusConfig = {
 
 function viewFromHash() {
   const hash = window.location.hash.replace(/^#/, "");
-  return navigation.some((item) => item.id === hash) ? hash : "overview";
+  return allNavigation.some((item) => item.id === hash) ? hash : "overview";
 }
 
 function StatusPill({ value, t, label, className = "" }) {
@@ -380,7 +382,7 @@ function MenuTileStrip({ data, t }) {
   );
 }
 
-function ContextStripValue({ value, format }) {
+function ContextStripValue({ value, format, animateNumerator = false }) {
   const text = displayText(value, "");
   const fraction = text.match(/^(?:(Step)\s+)?(\d+)\s*\/\s*(\d+)$/i);
   if ((format === "fraction" || format === "step-fraction") && fraction) {
@@ -388,7 +390,11 @@ function ContextStripValue({ value, format }) {
     return (
       <strong className="context-strip__value context-strip__value--fraction" aria-label={text}>
         {prefix ? <span className="context-strip__value-prefix">{prefix}</span> : null}
-        <span>{numerator}</span>
+        {animateNumerator ? (
+          <AnimatedNumber value={numerator} className="context-strip__value-numerator" />
+        ) : (
+          <span>{numerator}</span>
+        )}
         <span className="context-strip__value-separator">/</span>
         <span className="context-strip__value-denominator">{denominator}</span>
       </strong>
@@ -437,6 +443,43 @@ function AnimatedNumber({ value, duration = 720, className = "" }) {
 
   const classes = `animated-number${running ? " animated-number--running" : ""}${className ? ` ${className}` : ""}`;
   return <span className={classes}>{displayValue}</span>;
+}
+
+function AnimatedProgressRing({ percent, className = "", duration = 900 }) {
+  const target = clampPercent(percent);
+  const [displayPercent, setDisplayPercent] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
+      setDisplayPercent(target);
+      return undefined;
+    }
+
+    setDisplayPercent(0);
+    let frame = 0;
+    const start = performance.now();
+    const easeOut = (progress) => 1 - Math.pow(1 - progress, 3);
+    const tick = (now) => {
+      const progress = Math.min((now - start) / duration, 1);
+      setDisplayPercent(Math.round(target * easeOut(progress)));
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+        return;
+      }
+      setDisplayPercent(target);
+    };
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [duration, target]);
+
+  return (
+    <span
+      className={`mini-progress-ring${className ? ` ${className}` : ""}`}
+      style={{ "--metric-percent": `${displayPercent}%` }}
+      aria-hidden="true"
+    />
+  );
 }
 
 function OverviewLessonProgressValue({ value }) {
@@ -514,14 +557,18 @@ function ContextSnapshotStrip({ data, t, locale, variant = "overview" }) {
         <article className={`context-strip__item context-strip__item--${tone || "default"}${invert ? " context-strip__item--invert" : ""}${chip ? " context-strip__item--chip" : ""}`} key={`${label}-${value}-${index}`}>
           <span className="context-strip__icon">
             {Number.isFinite(progress) ? (
-              <span className="mini-progress-ring mini-progress-ring--icon" style={{ "--metric-percent": `${progress}%` }} aria-hidden="true" />
+              <AnimatedProgressRing percent={progress} className="mini-progress-ring--icon" />
             ) : (
               <Icon aria-hidden="true" size={24} />
             )}
           </span>
           <div>
             {label ? <span>{contextStripLabel(label, variant)}</span> : null}
-            <ContextStripValue value={value} format={valueFormat} />
+            <ContextStripValue
+              value={value}
+              format={valueFormat}
+              animateNumerator={variant === "lessons" && (Number.isFinite(progress) || valueFormat === "step-fraction")}
+            />
             {detail && detail !== value ? <small>{detail}</small> : null}
           </div>
         </article>
@@ -578,6 +625,7 @@ function OverviewStatusCard({ id, title, status, metric, value, detail, t, chipL
 
 function gitOperationIcon(id) {
   const map = {
+    commit: GitBranch,
     push: ArrowUp,
     pull_request: GitPullRequest,
     pr_ci: CheckCircle2,
@@ -590,6 +638,9 @@ function gitOperationIcon(id) {
 
 function gitOperationModeLabel(mode, t) {
   const normalized = displayText(mode, "auto");
+  if (normalized === "manual") {
+    return t("mock.git.manual");
+  }
   if (normalized === "gated") {
     return t("mock.git.gated");
   }
@@ -2971,6 +3022,753 @@ function SafetySection({ security, actions, partialFailures, data, locale, t }) 
   );
 }
 
+function SidebarReferenceChip({ value, t }) {
+  const text = displayText(value, "");
+  if (!text) {
+    return null;
+  }
+  return (
+    <span className="sidebar-reference-chip" tabIndex={0} data-tooltip={text}>
+      {technicalChip(text)}
+      <button className="sidebar-reference-chip__copy" type="button" aria-label={`${t("app.copyItem")}: ${text}`} title={t("app.copyItem")} onClick={() => copyTextToClipboard(text)}>
+        <Copy aria-hidden="true" size={14} />
+      </button>
+    </span>
+  );
+}
+
+function SidebarPageCard({ Icon, title, detail, status, t, children, className = "" }) {
+  return (
+    <article className={`sidebar-page-card ${className}`.trim()}>
+      <div className="sidebar-page-card__head">
+        <span className="sidebar-page-card__icon">
+          <Icon aria-hidden="true" size={22} />
+        </span>
+        <div>
+          <h3>{title}</h3>
+          {detail ? <p>{detail}</p> : null}
+        </div>
+        {status ? <StatusPill value={status} t={t} label={statusLabelForChip(status, t)} /> : null}
+      </div>
+      {children ? <div className="sidebar-page-card__body">{children}</div> : null}
+    </article>
+  );
+}
+
+function SidebarPageLinkCard({ Icon, title, detail, href }) {
+  return (
+    <a className="sidebar-page-link-card" href={href}>
+      <span className="sidebar-page-link-card__icon">
+        <Icon aria-hidden="true" size={22} />
+      </span>
+      <span>
+        <strong>{title}</strong>
+        <small>{detail}</small>
+      </span>
+      <ArrowRightCircle aria-hidden="true" size={17} />
+    </a>
+  );
+}
+
+function documentStatusFor(documentId, data) {
+  const maintenance = data.maintenance || {};
+  const developmentDocumentsStatus = valueState(data.development?.documents || "manual_required");
+  if (documentId === "taskTracker" || documentId === "handoff") {
+    return valueState(maintenanceEvidenceRow(maintenance, ["workflow_pair"]) || maintenance.workflow_pair_status || "manual_required");
+  }
+  if (documentId === "developerMemory") {
+    return valueState(maintenanceEvidenceRow(maintenance, ["developer_memory"]) || maintenance.developer_memory_status || "manual_required");
+  }
+  if (documentId === "dashboardDataSchema") {
+    return valueState(maintenanceEvidenceRow(maintenance, ["dashboard_data_schema"]) || "manual_required");
+  }
+  if (documentId === "securityPolicy") {
+    return valueState(maintenanceEvidenceRow(maintenance, ["security_policy"]) || data.security?.policy_status || "manual_required");
+  }
+  return developmentDocumentsStatus;
+}
+
+function repositoryFileRoleKey(value) {
+  return displayText(value, "generic").replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "") || "generic";
+}
+
+function repositoryFileRoleLabel(row, t) {
+  const pathDescription = t(`repositoryInfo.pathDescription.${repositoryFileRoleKey(row.path)}`, "");
+  if (pathDescription) {
+    return pathDescription;
+  }
+  const description = displayText(row.description, "");
+  if (description) {
+    return description;
+  }
+  const roles = row.roles && typeof row.roles === "object" && !Array.isArray(row.roles) ? row.roles : {};
+  for (const roleId of asArray(row.role_ids)) {
+    const normalizedRoleId = displayText(roleId, "");
+    if (!normalizedRoleId) {
+      continue;
+    }
+    const translatedRole = t(`repositoryInfo.fileRoleId.${normalizedRoleId}`, "");
+    if (translatedRole) {
+      return translatedRole;
+    }
+    const role = roles[normalizedRoleId];
+    if (!role || typeof role !== "object" || Array.isArray(role)) {
+      continue;
+    }
+    const description = displayText(role.description, "");
+    if (description) {
+      return description;
+    }
+    const label = displayText(role.label, "");
+    if (label) {
+      return label;
+    }
+  }
+  const sourceId = displayText(row.source_id || row.id, "");
+  const path = displayText(row.path, "");
+  const key = repositoryFileRoleKey(sourceId || path);
+  if (path.includes("DASHBOARD_DATA_SCHEMA")) {
+    return t("repositoryInfo.fileRole.dashboardDataSchema");
+  }
+  if (path.includes("LESSON_STATE")) {
+    return t("repositoryInfo.fileRole.lessonState");
+  }
+  if (path.includes("PRODUCT_GATE_EVIDENCE_SCHEMA")) {
+    return t("repositoryInfo.fileRole.productEvidence");
+  }
+  if (path.includes("docs/product/REQUIREMENTS")) {
+    return t("repositoryInfo.fileRole.productRequirements");
+  }
+  if (path.includes("TASK_TRACKER")) {
+    return t("repositoryInfo.fileRole.taskTracker");
+  }
+  if (path.includes("HANDOFF")) {
+    return t("repositoryInfo.fileRole.handoff");
+  }
+  return t(`repositoryInfo.fileRole.${key}`, t("repositoryInfo.fileRole.generic"));
+}
+
+function repositoryNodeTooltip(node, t) {
+  const item = node.file || {
+    path: node.path,
+    type: node.type,
+    source_id: node.type === "directory" ? "repository_directory" : "repository_file",
+    role_ids: [node.type === "directory" ? "repository_directory" : "repository_file"],
+  };
+  return repositoryFileRoleLabel(item, t);
+}
+
+function repositoryFileRows(data, authority) {
+  const repositoryIndex = authority?.repository_index || {};
+  const indexedRows = asArray(repositoryIndex.files)
+    .map((item) => {
+      const path = displayText(item?.path, "");
+      if (!path) {
+        return null;
+      }
+      const roleIds = asArray(item.role_ids).map((roleId) => displayText(roleId, "")).filter(Boolean);
+      return {
+        id: `repository-index:${path}`,
+        path,
+        source_id: roleIds[0] || "repository_file",
+        status: normalizeState(repositoryIndex.status || "unknown"),
+        required: item.tracked !== false,
+        type: item.type === "directory" ? "directory" : "file",
+        description: displayText(item.description, ""),
+        role_ids: roleIds,
+        roles: repositoryIndex.roles || {},
+      };
+    })
+    .filter(Boolean);
+  if (indexedRows.length) {
+    return indexedRows;
+  }
+
+  const rows = [];
+  for (const item of asArray(authority?.document_paths)) {
+    const path = displayText(item.resolved_path || item.canonical_path, "");
+    if (!path) {
+      continue;
+    }
+    rows.push({
+      id: displayText(item.source_id || path),
+      path,
+      source_id: item.source_id,
+      status: item.status || "unknown",
+      required: item.required_in_context,
+    });
+  }
+  for (const row of asArray(data.maintenance?.evidence_rows)) {
+    const path = displayText(row.reference, "");
+    if (!path) {
+      continue;
+    }
+    rows.push({
+      id: displayText(row.id || path),
+      path,
+      source_id: row.id,
+      status: row.status || "unknown",
+      required: displayText(row.importance, "") === "required",
+    });
+  }
+  for (const path of asArray(data.source_files)) {
+    rows.push({
+      id: `source:${displayText(path)}`,
+      path: displayText(path),
+      status: "ready",
+      required: true,
+    });
+  }
+  const seen = new Set();
+  return rows.filter((row) => {
+    const path = displayText(row.path, "");
+    if (!path || seen.has(path)) {
+      return false;
+    }
+    seen.add(path);
+    return true;
+  });
+}
+
+function repositoryBuildFileTree(rows) {
+  const root = { id: "", name: "", path: "", type: "directory", children: [], childMap: new Map(), file: null };
+  for (const row of rows) {
+    const segments = displayText(row.path, "").split(/[\\/]/).filter(Boolean);
+    const rowType = row.type === "directory" ? "directory" : "file";
+    let node = root;
+    let currentPath = "";
+    for (const [index, segment] of segments.entries()) {
+      currentPath = currentPath ? `${currentPath}/${segment}` : segment;
+      if (!node.childMap.has(segment)) {
+        const isLast = index === segments.length - 1;
+        const child = { id: currentPath, name: segment, path: currentPath, type: isLast ? rowType : "directory", children: [], childMap: new Map(), file: null };
+        node.childMap.set(segment, child);
+        node.children.push(child);
+      }
+      node = node.childMap.get(segment);
+      if (index < segments.length - 1 || rowType === "directory") {
+        node.type = "directory";
+      }
+    }
+    node.file = row;
+    node.type = rowType;
+  }
+
+  function finalize(node) {
+    node.children = node.children
+      .map(finalize)
+      .sort((left, right) => {
+        const leftIsDirectory = left.type === "directory" || left.children.length > 0;
+        const rightIsDirectory = right.type === "directory" || right.children.length > 0;
+        if (leftIsDirectory !== rightIsDirectory) {
+          return leftIsDirectory ? -1 : 1;
+        }
+        return left.name.localeCompare(right.name);
+      });
+    delete node.childMap;
+    return node;
+  }
+
+  return finalize(root).children;
+}
+
+function repositoryCollectDirectoryIds(nodes) {
+  const ids = [];
+  for (const node of nodes) {
+    if (node.type === "directory" || node.children.length) {
+      ids.push(node.id, ...repositoryCollectDirectoryIds(node.children));
+    }
+  }
+  return ids;
+}
+
+function repositoryCollectDirectoryIdsByDepth(nodes, maxDepth, level = 0) {
+  if (maxDepth <= 0) {
+    return [];
+  }
+  const ids = [];
+  for (const node of nodes) {
+    const isDirectory = node.type === "directory" || node.children.length > 0;
+    if (!isDirectory) {
+      continue;
+    }
+    if (level < maxDepth) {
+      ids.push(node.id);
+      ids.push(...repositoryCollectDirectoryIdsByDepth(node.children, maxDepth, level + 1));
+    }
+  }
+  return ids;
+}
+
+function RepositoryFileTreeNode({ node, level, expandedIds, onToggle, t }) {
+  const isDirectory = node.type === "directory" || node.children.length > 0;
+  const isExpanded = expandedIds.has(node.id);
+  const tooltip = repositoryNodeTooltip(node, t);
+  if (isDirectory) {
+    return (
+      <li className="repository-file-tree__item">
+        <button className="repository-file-tree__node repository-file-tree__node--directory" type="button" aria-expanded={isExpanded} data-tooltip={tooltip} onClick={() => onToggle(node.id)} style={{ "--tree-level": level }}>
+          <ChevronRight aria-hidden="true" size={16} />
+          <Folder aria-hidden="true" size={18} />
+          <strong>{node.name}</strong>
+          <small>{node.children.length}</small>
+        </button>
+        {isExpanded ? (
+          <ul className="repository-file-tree__children">
+            {node.children.map((child) => (
+              <RepositoryFileTreeNode node={child} level={level + 1} expandedIds={expandedIds} onToggle={onToggle} t={t} key={child.id} />
+            ))}
+          </ul>
+        ) : null}
+      </li>
+    );
+  }
+
+  const file = node.file || {};
+  return (
+    <li className="repository-file-tree__item">
+      <div className="repository-file-tree__node repository-file-tree__node--file" tabIndex={0} data-tooltip={tooltip} style={{ "--tree-level": level }}>
+        <FileText aria-hidden="true" size={18} />
+        <div>
+          <strong title={displayText(file.path || node.path)}>{node.name}</strong>
+        </div>
+        <StatusPill value={file.status || "unknown"} t={t} label={statusLabelForChip(file.status || "unknown", t)} />
+      </div>
+    </li>
+  );
+}
+
+function RepositoryFileTree({ rows, t, defaultExpandDepth = 0 }) {
+  const tree = useMemo(() => repositoryBuildFileTree(rows), [rows]);
+  const directoryIds = useMemo(() => repositoryCollectDirectoryIds(tree), [tree]);
+  const rowsKey = useMemo(() => rows.map((row) => `${displayText(row.type, "file")}:${displayText(row.path, "")}`).join("\n"), [rows]);
+  const [expandedIds, setExpandedIds] = useState(() => new Set());
+
+  useEffect(() => {
+    const defaultExpandedIds = repositoryCollectDirectoryIdsByDepth(tree, defaultExpandDepth);
+    setExpandedIds(new Set(defaultExpandedIds));
+  }, [rowsKey, defaultExpandDepth]);
+
+  if (!rows.length) {
+    return <p className="repository-empty-note">{t("repositoryInfo.fileMapEmpty")}</p>;
+  }
+
+  const toggle = (id) => {
+    setExpandedIds((current) => {
+      const next = new Set(current);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  return (
+    <div className="repository-file-tree-panel">
+      <div className="repository-file-tree-panel__toolbar">
+        <span>{t("repositoryInfo.fileMapDetail")}</span>
+        <div>
+          <button type="button" onClick={() => setExpandedIds(new Set(directoryIds))}>{t("repositoryInfo.expandAll")}</button>
+          <button type="button" onClick={() => setExpandedIds(new Set())}>{t("repositoryInfo.collapseAll")}</button>
+        </div>
+      </div>
+      <p className="repository-file-tree-panel__note">
+        <Info aria-hidden="true" size={14} />
+        <span>{t("repositoryInfo.fileMapFilteredNote")}</span>
+      </p>
+      <ul className="repository-file-tree" aria-label={t("repositoryInfo.fileMapTitle")}>
+        {tree.map((node) => (
+          <RepositoryFileTreeNode node={node} level={0} expandedIds={expandedIds} onToggle={toggle} t={t} key={node.id} />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function repositoryOperationDetail(row, t) {
+  const detail = displayText(row.detail, "");
+  const map = {
+    "Push policy is configured.": "repositoryInfo.gitDetail.pushConfigured",
+    "Pull request creation follows the configured workflow.": "repositoryInfo.gitDetail.prConfigured",
+    "Pull request creation follows the configured Git workflow.": "repositoryInfo.gitDetail.prConfigured",
+    "CI evidence is optional in this fixture.": "repositoryInfo.gitDetail.ciOptional",
+    "PR CI status is evidence-backed or manual-required.": "repositoryInfo.gitDetail.prCiEvidence",
+    "Main CI is display-only evidence.": "repositoryInfo.gitDetail.mainCiEvidence",
+    "Main CI status is evidence-backed or manual-required.": "repositoryInfo.gitDetail.mainCiEvidence",
+    "Git sync has not been refreshed by a live check.": "repositoryInfo.gitDetail.syncNotRefreshed",
+    "Merge remains approval-gated.": "repositoryInfo.gitDetail.mergeGated",
+    "Merge remains gated by approval policy.": "repositoryInfo.gitDetail.mergeGated",
+  };
+  return map[detail] ? t(map[detail]) : detail;
+}
+
+function repositoryOperationRows(operations, t) {
+  const rows = asArray(operations);
+  const hasCommit = rows.some((row) => displayText(row.id) === "commit");
+  const commitRow = {
+    id: "commit",
+    label: t("repositoryInfo.git.commit"),
+    status: "manual_required",
+    mode: "manual",
+    detail: t("repositoryInfo.gitDetail.commitNotCollected"),
+  };
+  return hasCommit ? rows : [commitRow, ...rows];
+}
+
+function RepositoryGitFlow({ operations, t }) {
+  const rows = repositoryOperationRows(operations, t);
+  if (!rows.length) {
+    return <p className="repository-empty-note">{t("repositoryInfo.gitFlowEmpty")}</p>;
+  }
+  return (
+    <div className="repository-operation-grid">
+      {rows.map((row) => {
+        const Icon = gitOperationIcon(row.id);
+        const mode = displayText(row.mode, "auto");
+        return (
+          <article className="repository-operation-card" key={displayText(row.id)}>
+            <span className="repository-operation-card__icon">
+              <Icon aria-hidden="true" size={20} />
+            </span>
+            <div>
+              <strong>{gitOperationDisplayLabel(row.id, row.label, t)}</strong>
+              <p>{repositoryOperationDetail(row, t)}</p>
+            </div>
+            <div className="repository-operation-card__meta">
+              <StatusPill value={row.status} t={t} label={workflowStatusLabel(row.status, t)} />
+              <span className={`mode-pill mode-pill--${mode}`}>{gitOperationModeLabel(row.mode, t)}</span>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function RepositoryRunEvidence({ rows, data, t }) {
+  const context = selectedContextData(data);
+  const visibleRows = asArray(rows).slice(0, 6);
+  if (!visibleRows.length) {
+    return <p className="repository-empty-note">{t("repositoryInfo.runEvidenceEmpty")}</p>;
+  }
+  return (
+    <div className="repository-run-list">
+      {visibleRows.map((row) => (
+        <article className="repository-run-row" key={displayText(row.id)}>
+          <span>{formatDashboardDateTime(row.time) || displayText(row.time)}</span>
+          <strong>{workflowRunTypeLabel(row.type, t)}</strong>
+          <p>{workflowRunDetail(row, context, t)}</p>
+          <small>{displayText(row.target)}</small>
+          <StatusPill value={row.status} t={t} label={workflowStatusLabel(row.status, t)} />
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function RepositoryWorkspaceSnapshot({ t }) {
+  const items = [
+    { id: "branch", Icon: GitBranch, title: t("repositoryInfo.workspace.branch"), detail: t("repositoryInfo.workspace.branchDetail") },
+    { id: "worktree", Icon: Folder, title: t("repositoryInfo.workspace.worktree"), detail: t("repositoryInfo.workspace.worktreeDetail") },
+    { id: "cleanup", Icon: Wrench, title: t("repositoryInfo.workspace.cleanup"), detail: t("repositoryInfo.workspace.cleanupDetail") },
+  ];
+  return (
+    <div className="repository-workspace-grid">
+      {items.map(({ id, Icon, title, detail }) => (
+        <article className="repository-workspace-card" key={id}>
+          <span className="repository-workspace-card__icon">
+            <Icon aria-hidden="true" size={20} />
+          </span>
+          <div>
+            <strong>{title}</strong>
+            <p>{detail}</p>
+          </div>
+          <StatusPill value="manual_required" t={t} label={t("repositoryInfo.notCollected")} />
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function RepositoryRelatedLinks({ t }) {
+  const links = [
+    { Icon: WorkflowCategoryIcon, title: t("repositoryInfo.related.workflow"), detail: t("repositoryInfo.related.workflowDetail"), href: "#workflow" },
+    { Icon: RefreshCw, title: t("repositoryInfo.related.maintenance"), detail: t("repositoryInfo.related.maintenanceDetail"), href: "#maintenance" },
+    { Icon: ShieldCheck, title: t("repositoryInfo.related.safety"), detail: t("repositoryInfo.related.safetyDetail"), href: "#safety" },
+  ];
+  return (
+    <div className="sidebar-page-link-grid">
+      {links.map((link) => (
+        <SidebarPageLinkCard {...link} key={link.title} />
+      ))}
+    </div>
+  );
+}
+
+function repositoryProductContentLabel(authority, t, locale) {
+  const localizedName = displayText(authority?.product_summary?.display_name?.[locale], "");
+  const jaName = displayText(authority?.product_summary?.display_name?.ja, "");
+  const enName = displayText(authority?.product_summary?.display_name?.en, "");
+  const summaryName = localizedName || jaName || enName || displayText(authority?.product_summary?.name, "");
+  return summaryName || t("repositoryInfo.summary.productContent.general");
+}
+
+function RepositoryInfoPage({ data, locale, t }) {
+  const context = selectedContextData(data);
+  const authority = data.development?.product_authority || {};
+  const repositoryIndex = authority.repository_index || {};
+  const repository = authority.repository || {};
+  const repositoryIndexSummary = repositoryIndex.summary || {};
+  const selectedRepository = displayText(context.target_repository?.name || repository.configured_name || repository.name, t("summary.none"));
+  const fileRows = repositoryFileRows(data, authority);
+  const repositoryStructureValue = Number(repositoryIndexSummary.total)
+    ? `${Number(repositoryIndexSummary.directories) || 0} ${t("repositoryInfo.summary.directories")} / ${Number(repositoryIndexSummary.files) || 0} ${t("repositoryInfo.summary.files")}`
+    : t("repositoryInfo.notCollected");
+
+  return (
+    <section className="view-surface view-surface--repository-info sidebar-page" id="repository-info" aria-labelledby="repository-info-heading">
+      <DetailPageHeader tone="repository-info" Icon={Info} title={t("repositoryInfo.title")} subtitle={t("repositoryInfo.description")} data={data} locale={locale} t={t} actionLabel={t("detail.refreshDisplayOnly")} headingId="repository-info-heading" />
+      <DetailDecisionSummary
+        tone="sidebar"
+        t={t}
+        items={[
+          { Icon: Database, label: t("repositoryInfo.summary.target"), value: selectedRepository, detail: contextLabel(context.menu_id, t) },
+          { Icon: Compass, label: t("repositoryInfo.summary.context"), value: contextLabel(context.menu_id, t), detail: workflowContextLabel(context.workflow_context, t) },
+          { Icon: FileSearch, label: t("repositoryInfo.summary.structure"), value: repositoryStructureValue, detail: t("repositoryInfo.summary.structureDetail"), tone: repositoryIndex.status === "ready" ? "ready" : "warning" },
+          { Icon: ClipboardCheck, label: t("repositoryInfo.summary.productContent"), value: repositoryProductContentLabel(authority, t, locale), detail: t("repositoryInfo.summary.productContentDetail") },
+        ]}
+      />
+      <DetailSection id="repository-context" title={t("repositoryInfo.contextTitle")} Icon={Compass}>
+        <FieldGrid
+          fields={[
+            { label: t("repositoryInfo.field.menu"), value: context.menu_id, render: () => contextLabel(context.menu_id, t) },
+            { label: t("repositoryInfo.field.workflow"), value: context.workflow_context, render: () => workflowContextLabel(context.workflow_context, t) },
+            { label: t("repositoryInfo.field.repository"), value: selectedRepository },
+            { label: t("repositoryInfo.field.productType"), value: context.product_type },
+            { label: t("repositoryInfo.field.currentStep"), value: selectedStepText(context) },
+            { label: t("repositoryInfo.field.updated"), value: context.updated_at, render: (value) => formatDashboardDateTime(value) || displayText(value) },
+            { label: t("repositoryInfo.field.pathState"), value: context.target_repository?.path_state, render: (value) => <StatusPill value={repositoryPathStateToStatus(value)} t={t} label={t(`repositoryInfo.pathState.${displayText(value, "unknown")}`, displayKey(value))} /> },
+          ]}
+        />
+      </DetailSection>
+      <DetailSection id="repository-file-map" title={t("repositoryInfo.fileMapTitle")} Icon={FileSearch}>
+        <RepositoryFileTree rows={fileRows} t={t} defaultExpandDepth={Number(repositoryIndex.default_expand_depth) || 0} />
+      </DetailSection>
+      <DetailSection id="repository-related" title={t("repositoryInfo.relatedTitle")} Icon={ArrowRightCircle}>
+        <RepositoryRelatedLinks t={t} />
+      </DetailSection>
+      <SourceBoundary data={data} t={t} />
+    </section>
+  );
+}
+
+function DocumentsPage({ data, locale, t }) {
+  const maintenance = data.maintenance || {};
+  const workflowPairStatus = valueState(maintenanceEvidenceRow(maintenance, ["workflow_pair"]) || maintenance.workflow_pair_status || "manual_required");
+  const developerMemoryStatus = valueState(maintenanceEvidenceRow(maintenance, ["developer_memory"]) || maintenance.developer_memory_status || "manual_required");
+  const documents = [
+    { id: "agents", title: t("documentsPage.item.agents"), path: "AGENTS.MD", detail: t("documentsPage.detail.agents"), Icon: FileText },
+    { id: "documentMap", title: t("documentsPage.item.documentMap"), path: "guides/DOCUMENT_MAP.md", detail: t("documentsPage.detail.documentMap"), Icon: Folder },
+    { id: "requirements", title: t("documentsPage.item.requirements"), path: "docs/as-built/REQUIREMENTS.md", detail: t("documentsPage.detail.requirements"), Icon: FileCheck2 },
+    { id: "specification", title: t("documentsPage.item.specification"), path: "docs/as-built/SPECIFICATION.md", detail: t("documentsPage.detail.specification"), Icon: FileJson },
+    { id: "implementationPlan", title: t("documentsPage.item.implementationPlan"), path: "docs/as-built/IMPLEMENTATION_PLAN.md", detail: t("documentsPage.detail.implementationPlan"), Icon: ListChecks },
+    { id: "taskTracker", title: t("documentsPage.item.taskTracker"), path: "docs/workflow/TASK_TRACKER.md", detail: t("documentsPage.detail.taskTracker"), Icon: ClipboardCheck },
+    { id: "handoff", title: t("documentsPage.item.handoff"), path: "docs/workflow/HANDOFF.md", detail: t("documentsPage.detail.handoff"), Icon: Waypoints },
+    { id: "developerMemory", title: t("documentsPage.item.developerMemory"), path: "docs/memory/DEVELOPER_MEMORY.md", detail: t("documentsPage.detail.developerMemory"), Icon: Brain },
+    { id: "dashboardDataSchema", title: t("documentsPage.item.dashboardDataSchema"), path: "docs/workflow/DASHBOARD_DATA_SCHEMA.tsv", detail: t("documentsPage.detail.dashboardDataSchema"), Icon: Database },
+    { id: "securityPolicy", title: t("documentsPage.item.securityPolicy"), path: "docs/workflow/PRODUCT_SECURITY_POLICY.tsv", detail: t("documentsPage.detail.securityPolicy"), Icon: ShieldCheck },
+  ];
+
+  return (
+    <section className="view-surface view-surface--documents sidebar-page" id="documents" aria-labelledby="documents-heading">
+      <DetailPageHeader tone="documents" Icon={FileText} title={t("documentsPage.title")} subtitle={t("documentsPage.description")} data={data} locale={locale} t={t} actionLabel={t("detail.refreshDisplayOnly")} headingId="documents-heading" />
+      <DetailDecisionSummary
+        tone="sidebar"
+        t={t}
+        items={[
+          { Icon: Folder, label: t("documentsPage.summary.start"), value: t("documentsPage.summary.startValue"), detail: t("documentsPage.summary.startDetail") },
+          { Icon: Waypoints, label: t("documentsPage.summary.workflowPair"), value: statusLabelForChip(workflowPairStatus, t), detail: t("documentsPage.summary.workflowPairDetail"), tone: isReviewState(workflowPairStatus) ? "warning" : "ready" },
+          { Icon: Brain, label: t("documentsPage.summary.memory"), value: statusLabelForChip(developerMemoryStatus, t), detail: t("documentsPage.summary.memoryDetail"), tone: isReviewState(developerMemoryStatus) ? "warning" : "ready" },
+          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: t("documentsPage.summary.next"), detail: t("documentsPage.summary.nextDetail"), cta: { href: "#maintenance", label: t("summary.viewDetails") } },
+        ]}
+      />
+      <DetailSection id="documents-catalog" title={t("documentsPage.catalogTitle")} Icon={FileText}>
+        <div className="sidebar-document-grid">
+          {documents.map(({ id, title, path, detail, Icon }) => (
+            <SidebarPageCard Icon={Icon} title={title} detail={detail} status={documentStatusFor(id, data)} t={t} key={id}>
+              <SidebarReferenceChip value={path} t={t} />
+            </SidebarPageCard>
+          ))}
+        </div>
+      </DetailSection>
+      <EvidenceRowsTable rows={maintenance.evidence_rows} t={t} />
+      <SourceBoundary data={data} t={t} />
+    </section>
+  );
+}
+
+function SettingsPage({ data, locale, t }) {
+  const context = selectedContextData(data);
+  const lesson = selectedLessonObject(data, context);
+  const settingsGroups = [
+    {
+      id: "lesson",
+      title: t("settingsPage.group.lesson"),
+      Icon: GraduationCap,
+      items: [
+        { title: t("field.learningMode"), detail: t("settingsPage.detail.learningMode"), status: lesson.learning_mode_status },
+        { title: t("field.workflowLanguage"), detail: t("settingsPage.detail.workflowLanguage"), status: lesson.workflow_language_status },
+        { title: t("field.productLanguage"), detail: t("settingsPage.detail.productLanguage"), status: lesson.product_language_status },
+        { title: t("field.learnerApproval"), detail: t("settingsPage.detail.learnerApproval"), status: lesson.learner_approval_status },
+      ],
+    },
+    {
+      id: "workflow",
+      title: t("settingsPage.group.workflow"),
+      Icon: GitBranch,
+      items: [
+        { title: t("workflow.item.policy"), detail: t("settingsPage.detail.gitPolicy"), status: data.git_workflow?.policy_status },
+        { title: t("workflow.item.settings"), detail: t("settingsPage.detail.gitSettings"), status: data.git_workflow?.settings_status },
+        { title: t("workflow.item.gate"), detail: t("settingsPage.detail.gitGate"), status: data.git_workflow?.gate_status },
+        { title: t("workflow.item.approval"), detail: t("settingsPage.detail.gitApproval"), status: data.git_workflow?.approval_status },
+      ],
+    },
+    {
+      id: "security",
+      title: t("settingsPage.group.security"),
+      Icon: ShieldCheck,
+      items: [
+        { title: t("security.item.policy"), detail: t("settingsPage.detail.securityPolicy"), status: data.security?.policy_status },
+        { title: t("security.item.gate"), detail: t("settingsPage.detail.securityGate"), status: data.security?.gate_status },
+        { title: t("security.item.approval"), detail: t("settingsPage.detail.securityApproval"), status: data.security?.dangerous_action_approval },
+      ],
+    },
+  ];
+  const reviewItems = settingsGroups.flatMap((group) => group.items).filter((item) => isReviewState(item.status));
+
+  return (
+    <section className="view-surface view-surface--settings sidebar-page" id="settings" aria-labelledby="settings-heading">
+      <DetailPageHeader tone="settings" Icon={Settings} title={t("settingsPage.title")} subtitle={t("settingsPage.description")} data={data} locale={locale} t={t} actionLabel={t("detail.refreshDisplayOnly")} headingId="settings-heading" />
+      <DetailDecisionSummary
+        tone="sidebar"
+        t={t}
+        items={[
+          { Icon: Lock, label: t("settingsPage.summary.readOnly"), value: t("app.readOnly"), detail: t("settingsPage.summary.readOnlyDetail") },
+          { Icon: Scale, label: t("detail.currentJudgment"), value: reviewItems.length ? t("detail.judgment.needsReviewShort") : t("detail.judgment.readyShort"), detail: reviewItems.length ? t("settingsPage.summary.reviewDetail") : t("settingsPage.summary.readyDetail"), tone: reviewItems.length ? "warning" : "ready" },
+          { Icon: Eye, label: t("detail.mustReview"), points: reviewItems.length ? reviewItems.slice(0, 4).map((item) => item.title) : [t("detail.noRequiredReview")] },
+          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: t("settingsPage.summary.next"), detail: t("settingsPage.summary.nextDetail"), cta: { href: "#maintenance", label: t("summary.viewDetails") } },
+        ]}
+      />
+      {settingsGroups.map(({ id, title, Icon, items }) => (
+        <DetailSection id={`settings-${id}`} title={title} Icon={Icon} key={id}>
+          <div className="sidebar-page-card-grid">
+            {items.map((item) => (
+              <SidebarPageCard Icon={Settings} title={item.title} detail={item.detail} status={item.status || "unknown"} t={t} key={item.title} />
+            ))}
+          </div>
+        </DetailSection>
+      ))}
+      <MockNotice tone="settings-warning" Icon={Lock} title={t("settingsPage.notice.title")} detail={t("settingsPage.notice.detail")} />
+    </section>
+  );
+}
+
+function HelpPage({ data, locale, t }) {
+  const topics = [
+    { Icon: BookOpen, title: t("helpPage.topic.lessons.title"), detail: t("helpPage.topic.lessons.detail"), href: "#lessons" },
+    { Icon: Info, title: t("helpPage.topic.repository.title"), detail: t("helpPage.topic.repository.detail"), href: "#repository-info" },
+    { Icon: WorkflowCategoryIcon, title: t("helpPage.topic.workflow.title"), detail: t("helpPage.topic.workflow.detail"), href: "#workflow" },
+    { Icon: RefreshCw, title: t("helpPage.topic.maintenance.title"), detail: t("helpPage.topic.maintenance.detail"), href: "#maintenance" },
+    { Icon: ShieldCheck, title: t("helpPage.topic.safety.title"), detail: t("helpPage.topic.safety.detail"), href: "#safety" },
+    { Icon: Settings, title: t("helpPage.topic.settings.title"), detail: t("helpPage.topic.settings.detail"), href: "#settings" },
+  ];
+  const glossary = ["git", "ci", "pr", "merge", "snapshot", "evidence", "securityGate"].map((id) => ({
+    id,
+    title: t(`helpPage.glossary.${id}.title`),
+    detail: t(`helpPage.glossary.${id}.detail`),
+  }));
+
+  return (
+    <section className="view-surface view-surface--help sidebar-page" id="help" aria-labelledby="help-heading">
+      <DetailPageHeader tone="help" Icon={CircleHelp} title={t("helpPage.title")} subtitle={t("helpPage.description")} data={data} locale={locale} t={t} actionLabel={t("detail.refreshDisplayOnly")} headingId="help-heading" />
+      <DetailDecisionSummary
+        tone="sidebar"
+        t={t}
+        items={[
+          { Icon: Compass, label: t("helpPage.summary.where"), value: contextLabel(selectedContextData(data).menu_id, t), detail: t("helpPage.summary.whereDetail") },
+          { Icon: BookOpen, label: t("helpPage.summary.learn"), value: t("helpPage.summary.learnValue"), detail: t("helpPage.summary.learnDetail") },
+          { Icon: ShieldCheck, label: t("helpPage.summary.safety"), value: t("helpPage.summary.safetyValue"), detail: t("helpPage.summary.safetyDetail") },
+          { Icon: ArrowRightCircle, label: t("detail.nextSafeCheck"), value: t("helpPage.summary.next"), detail: t("helpPage.summary.nextDetail"), cta: { href: "#overview", label: t("nav.overview") } },
+        ]}
+      />
+      <DetailSection id="help-topics" title={t("helpPage.topicsTitle")} Icon={CircleHelp}>
+        <div className="sidebar-page-link-grid">
+          {topics.map((topic) => (
+            <SidebarPageLinkCard {...topic} key={topic.title} />
+          ))}
+        </div>
+      </DetailSection>
+      <DetailSection id="help-glossary" title={t("helpPage.glossaryTitle")} Icon={BookMarked}>
+        <div className="sidebar-glossary-grid">
+          {glossary.map((item) => (
+            <article className="sidebar-glossary-card" key={item.id}>
+              <strong>{item.title}</strong>
+              <p>{item.detail}</p>
+            </article>
+          ))}
+        </div>
+      </DetailSection>
+    </section>
+  );
+}
+
+function HistoryPage({ data, locale, t }) {
+  const warnings = asArray(data.warnings);
+  const sourceFiles = asArray(data.source_files);
+  const sourceCommands = asArray(data.source_commands);
+  return (
+    <section className="view-surface view-surface--history sidebar-page" id="history" aria-labelledby="history-heading">
+      <DetailPageHeader tone="history" Icon={Clock} title={t("historyPage.title")} subtitle={t("historyPage.description")} data={data} locale={locale} t={t} actionLabel={t("detail.refreshDisplayOnly")} headingId="history-heading" />
+      <DetailDecisionSummary
+        tone="sidebar"
+        t={t}
+        items={[
+          { Icon: CalendarDays, label: t("historyPage.summary.generated"), value: formatGenerated(data, locale), detail: t("historyPage.summary.generatedDetail") },
+          { Icon: FileJson, label: t("historyPage.summary.snapshot"), value: displayText(data.snapshot_id), detail: t("historyPage.summary.snapshotDetail") },
+          { Icon: FileText, label: t("historyPage.summary.sources"), value: `${sourceFiles.length} / ${sourceCommands.length}`, detail: t("historyPage.summary.sourcesDetail") },
+          { Icon: AlertTriangle, label: t("summary.warnings"), value: warnings.length ? `${warnings.length}` : t("summary.none"), detail: warnings.length ? t("historyPage.summary.warningDetail") : t("historyPage.summary.noWarningDetail"), tone: warnings.length ? "warning" : "ready" },
+        ]}
+      />
+      <DetailSection id="history-snapshot" title={t("historyPage.snapshotTitle")} Icon={FileJson}>
+        <div className="sidebar-page-card-grid">
+          <SidebarPageCard Icon={CalendarDays} title={t("summary.generated")} detail={formatGenerated(data, locale)} status="ready" t={t} />
+          <SidebarPageCard Icon={Database} title={t("summary.schema")} detail={displayText(data.schema_version)} status="ready" t={t} />
+          <SidebarPageCard Icon={FileJson} title={t("historyPage.contentHash")} detail={displayText(data.content_hash)} status={data.content_hash ? "ready" : "unknown"} t={t} />
+          <SidebarPageCard Icon={Lock} title={t("app.readOnly")} detail={t("historyPage.readOnlyDetail")} status="ready" t={t} />
+        </div>
+      </DetailSection>
+      <WorkflowRecentTable rows={data.development?.recent_runs} data={data} t={t} />
+      <DetailSection id="history-warnings" title={t("summary.warnings")} Icon={AlertTriangle}>
+        {warnings.length ? (
+          <div className="sidebar-warning-list">
+            {warnings.map((warning, index) => (
+              <article className="sidebar-warning-item" key={`${displayText(warning)}-${index}`}>
+                <AlertTriangle aria-hidden="true" size={18} />
+                <p>{displayText(warning)}</p>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <SidebarPageCard Icon={CheckCircle2} title={t("summary.none")} detail={t("historyPage.noWarnings")} status="ready" t={t} />
+        )}
+      </DetailSection>
+      <SourceBoundary data={data} t={t} />
+    </section>
+  );
+}
+
 function SourceBoundary({ data, t }) {
   const files = asArray(data.source_files);
   const commands = asArray(data.source_commands);
@@ -3011,45 +3809,74 @@ function SourceBoundary({ data, t }) {
 }
 
 function Sidebar({ activeView, t, data, locale, loaded }) {
+  const sidebarRef = useRef(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const activeItem = allNavigation.find((item) => item.id === activeView) || navigation[0];
+  const ActiveIcon = activeItem.Icon || Home;
+
+  useEffect(() => {
+    const activeLink = sidebarRef.current?.querySelector(".category-nav__link.is-active");
+    if (!activeLink) {
+      return;
+    }
+    activeLink.scrollIntoView({ block: "nearest", inline: "center" });
+  }, [activeView]);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [activeView]);
+
   return (
-    <aside className={`app-sidebar app-sidebar--${activeView}`} aria-label={t("aria.categories")}>
-      <div className="brand">
-        <BrandMark />
-        <div>
-          <strong>{t("app.title")}</strong>
-          <span>{t("app.eyebrow")}</span>
+    <aside className={`app-sidebar app-sidebar--${activeView}${isMobileMenuOpen ? " is-mobile-open" : ""}`} aria-label={t("aria.categories")} ref={sidebarRef}>
+      <div className="sidebar-topline">
+        <div className="brand">
+          <BrandMark />
+          <div>
+            <strong>{t("app.title")}</strong>
+            <span>{t("app.eyebrow")}</span>
+          </div>
         </div>
+        <button className="mobile-menu-toggle" type="button" aria-expanded={isMobileMenuOpen} aria-controls="sidebar-menu-panel" onClick={() => setIsMobileMenuOpen((current) => !current)}>
+          {isMobileMenuOpen ? <CircleX aria-hidden="true" size={17} /> : <List aria-hidden="true" size={17} />}
+          <span>{isMobileMenuOpen ? t("nav.closeMenu") : t("nav.openMenu")}</span>
+        </button>
       </div>
-      <nav className="category-nav" aria-label={t("aria.categories")}>
-        {navigation.map(({ id, labelKey, Icon }) => (
-          <a className={activeView === id ? "category-nav__link is-active" : "category-nav__link"} href={`#${id}`} aria-current={activeView === id ? "page" : undefined} key={id}>
-            <Icon aria-hidden="true" size={18} />
-            <span>{id === "overview" ? t("nav.overviewDetail") : t(labelKey)}</span>
-          </a>
-        ))}
-      </nav>
-      <nav className="support-nav" aria-label={t("nav.repositoryGroup")}>
-        <h3>{t("nav.repositoryGroup")}</h3>
-        {repositoryNavigation.map(({ id, labelKey, Icon }) => (
-          <span className="category-nav__link category-nav__link--subtle" aria-disabled="true" key={id}>
-            <Icon aria-hidden="true" size={18} />
-            <span>{t(labelKey)}</span>
-          </span>
-        ))}
-      </nav>
-      <nav className="support-nav" aria-label={t("nav.otherGroup")}>
-        <h3>{t("nav.otherGroup")}</h3>
-        {supportNavigation.map(({ id, labelKey, Icon }) => (
-          <span className="category-nav__link category-nav__link--subtle" aria-disabled="true" key={id}>
-            <Icon aria-hidden="true" size={18} />
-            <span>{t(labelKey)}</span>
-          </span>
-        ))}
-      </nav>
-      <div className="sidebar-meta">
-        <div className="sidebar-note">
-          <Info aria-hidden="true" size={16} />
-          <span>{t("sidebar.readOnlyNotice")}</span>
+      <div className="mobile-current-page" aria-label={t("nav.currentPage")}>
+        <ActiveIcon aria-hidden="true" size={17} />
+        <span>{activeView === "overview" ? t("nav.overviewDetail") : t(activeItem.labelKey)}</span>
+      </div>
+      <div className="sidebar-menu-panel" id="sidebar-menu-panel">
+        <nav className="category-nav" aria-label={t("aria.categories")}>
+          {navigation.map(({ id, labelKey, Icon }) => (
+            <a className={activeView === id ? "category-nav__link is-active" : "category-nav__link"} href={`#${id}`} aria-current={activeView === id ? "page" : undefined} key={id}>
+              <Icon aria-hidden="true" size={18} />
+              <span>{id === "overview" ? t("nav.overviewDetail") : t(labelKey)}</span>
+            </a>
+          ))}
+        </nav>
+        <nav className="support-nav" aria-label={t("nav.repositoryGroup")}>
+          <h3>{t("nav.repositoryGroup")}</h3>
+          {repositoryNavigation.map(({ id, labelKey, Icon, href }) => (
+            <a className={activeView === id ? "category-nav__link category-nav__link--subtle is-active" : "category-nav__link category-nav__link--subtle"} href={href} aria-current={activeView === id ? "page" : undefined} key={id}>
+              <Icon aria-hidden="true" size={18} />
+              <span>{t(labelKey)}</span>
+            </a>
+          ))}
+        </nav>
+        <nav className="support-nav" aria-label={t("nav.otherGroup")}>
+          <h3>{t("nav.otherGroup")}</h3>
+          {supportNavigation.map(({ id, labelKey, Icon, href }) => (
+            <a className={activeView === id ? "category-nav__link category-nav__link--subtle is-active" : "category-nav__link category-nav__link--subtle"} href={href} aria-current={activeView === id ? "page" : undefined} key={id}>
+              <Icon aria-hidden="true" size={18} />
+              <span>{t(labelKey)}</span>
+            </a>
+          ))}
+        </nav>
+        <div className="sidebar-meta">
+          <div className="sidebar-note">
+            <Info aria-hidden="true" size={16} />
+            <span>{t("sidebar.readOnlyNotice")}</span>
+          </div>
         </div>
       </div>
     </aside>
@@ -3192,6 +4019,11 @@ export default function App() {
         {loaded && activeView === "workflow" ? <WorkflowSection development={data.development || {}} gitWorkflow={data.git_workflow || {}} data={data} locale={locale} t={t} /> : null}
         {loaded && activeView === "maintenance" ? <MaintenanceSection maintenance={data.maintenance || {}} data={data} locale={locale} t={t} /> : null}
         {loaded && activeView === "safety" ? <SafetySection security={data.security || {}} actions={data.actions || {}} partialFailures={data.partial_failures || []} data={data} locale={locale} t={t} /> : null}
+        {loaded && activeView === "repository-info" ? <RepositoryInfoPage data={data} locale={locale} t={t} /> : null}
+        {loaded && activeView === "documents" ? <DocumentsPage data={data} locale={locale} t={t} /> : null}
+        {loaded && activeView === "settings" ? <SettingsPage data={data} locale={locale} t={t} /> : null}
+        {loaded && activeView === "help" ? <HelpPage data={data} locale={locale} t={t} /> : null}
+        {loaded && activeView === "history" ? <HistoryPage data={data} locale={locale} t={t} /> : null}
       </section>
     </main>
   );

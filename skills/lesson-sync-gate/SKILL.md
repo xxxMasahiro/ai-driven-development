@@ -1,6 +1,6 @@
 ---
 name: lesson-sync-gate
-description: Validate and enforce synchronization gates for this AI-driven development lesson. Use when passing a 14-day lesson sync gate; checking consistency among lesson state, roadmap, prompts, product documents, TASK_TRACKER.md, HANDOFF.md, Git state, and GitHub Actions; or repairing failed lesson/CI/Git/document sync checks.
+description: Validate and enforce synchronization gates for this AI-driven development lesson. Use when passing a 14-day lesson sync gate; checking consistency among lesson state, roadmap, prompts, product documents, docs/workflow/TASK_TRACKER.md, docs/workflow/HANDOFF.md, Git state, and GitHub Actions; or repairing failed lesson/CI/Git/document sync checks.
 ---
 
 # Lesson Sync Gate

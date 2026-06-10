@@ -57,8 +57,8 @@ tools/learn 理解 "理解できたこと"
 前回の続きから再開します。
 全体のフォルダ構成とindex.mdを確認し、tools/check_lesson_structure.sh、tools/check_repository_boundary.sh、tools/lesson 現在地 を実行してください。
 その後、LEARNING_HANDOFF.md、LEARNING_TASK_TRACKER.md、
-HANDOFF.md、TASK_TRACKER.md、
-REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdを確認し、
+docs/workflow/HANDOFF.md、docs/workflow/TASK_TRACKER.md、
+docs/product/REQUIREMENTS.md、docs/product/SPECIFICATION.md、docs/product/IMPLEMENTATION_PLAN.mdを確認し、
 現在位置と次にやることを1つだけ提案してください。
 すぐに編集せず、必要な更新案だけ提示してください。
 ```
@@ -99,7 +99,7 @@ tools/lesson 現在地で現在項目を確認してください。
 guides/DOCUMENT_MAP.md と tools/docs-tour status を確認してください。
 AGENTS.MD、docs/as-built/、docs/workflow/、docs/memory/、skills/ の役割を、初めて見る人にも分かるように短く説明してください。
 AGENTS.MDは教材側のルールブック、AGENT.mdは成果物リポジトリ側の文脈メモである違いも説明してください。
-FAILURE_MEMORY.mdは成果物側の失敗復旧記録として扱い、教材側のdocs/memory/FAILURE_MEMORY.mdがあるとは説明しないでください。
+docs/memory/FAILURE_MEMORY.mdは成果物側の失敗復旧記録として扱い、教材リポジトリ側のdocs/memory/FAILURE_MEMORY.mdがあるとは説明しないでください。
 この依頼ではファイルを編集しないでください。
 ```
 
@@ -122,8 +122,8 @@ docs/as-built/REQUIREMENTS.md、docs/as-built/SPECIFICATION.md、docs/as-built/I
 ## 初回同期
 
 ```text
-REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdの内容を確認し、
-初回作成が完了した作業としてTASK_TRACKER.mdとHANDOFF.mdへ記録する案を作ってください。
+docs/product/REQUIREMENTS.md、docs/product/SPECIFICATION.md、docs/product/IMPLEMENTATION_PLAN.mdの内容を確認し、
+初回作成が完了した作業としてdocs/workflow/TASK_TRACKER.mdとdocs/workflow/HANDOFF.mdへ記録する案を作ってください。
 開発者が承認するまでファイルを編集しないでください。
 ```
 
@@ -131,24 +131,24 @@ REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdの内容を確認し
 
 ```text
 これから新機能の追加、または不要な機能の削除を行います。
-まずTASK_TRACKER.mdに変更タスクを追加し、HANDOFF.mdに現在の作業状況を残す案を作ってください。
-REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdはまだ更新しないでください。
+まずdocs/workflow/TASK_TRACKER.mdに変更タスクを追加し、docs/workflow/HANDOFF.mdに現在の作業状況を残す案を作ってください。
+docs/product/REQUIREMENTS.md、docs/product/SPECIFICATION.md、docs/product/IMPLEMENTATION_PLAN.mdはまだ更新しないでください。
 ```
 
 ## 変更完了後の同期
 
 ```text
 変更作業が完了しました。
-TASK_TRACKER.mdとHANDOFF.mdの作業履歴を確認し、
-完了した内容に合わせてREQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.mdを同期する案を作ってください。
+docs/workflow/TASK_TRACKER.mdとdocs/workflow/HANDOFF.mdの作業履歴を確認し、
+完了した内容に合わせてdocs/product/REQUIREMENTS.md、docs/product/SPECIFICATION.md、docs/product/IMPLEMENTATION_PLAN.mdを同期する案を作ってください。
 実際に完了していない内容は3文書へ書かないでください。
 ```
 
 ## 整合性チェック
 
 ```text
-REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.md、
-TASK_TRACKER.md、HANDOFF.mdの整合性を確認してください。
+docs/product/REQUIREMENTS.md、docs/product/SPECIFICATION.md、docs/product/IMPLEMENTATION_PLAN.md、
+docs/workflow/TASK_TRACKER.md、docs/workflow/HANDOFF.mdの整合性を確認してください。
 この依頼ではファイルを編集しないでください。
 矛盾があれば、ファイル名と理由を短く示してください。
 ```
@@ -159,8 +159,8 @@ TASK_TRACKER.md、HANDOFF.mdの整合性を確認してください。
 進行中に問題がありました。
 作業を止めて、問題点、原因、再発防止策、次の一問を短く提示してください。
 この依頼ではファイルを編集しないでください。
-成果物リポジトリ側のFAILURE_MEMORY.mdへ書く必要がある場合も、まず記録案だけ出してください。
-教材側のdocs/memory/FAILURE_MEMORY.mdがあるとは説明しないでください。
+成果物リポジトリ側のdocs/memory/FAILURE_MEMORY.mdへ書く必要がある場合も、まず記録案だけ出してください。
+教材リポジトリ側のdocs/memory/FAILURE_MEMORY.mdがあるとは説明しないでください。
 ```
 
 ## Step 1/7
@@ -169,8 +169,8 @@ TASK_TRACKER.md、HANDOFF.mdの整合性を確認してください。
 Step 1/7として、AI駆動開発の土台を作ります。
 成果物リポジトリの開発に入る前には、別画面でUbuntu/WSL CLIを起動するよう必ず促してください。
 フォルダ構成、メモリー用Markdown、設計用Markdownの役割を確認し、
-REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.md、
-TASK_TRACKER.md、HANDOFF.mdの初期案を作ってください。
+docs/product/REQUIREMENTS.md、docs/product/SPECIFICATION.md、docs/product/IMPLEMENTATION_PLAN.md、
+docs/workflow/TASK_TRACKER.md、docs/workflow/HANDOFF.mdの初期案を作ってください。
 あわせてLEARNING_TASK_TRACKER.mdとLEARNING_HANDOFF.mdの初期案も作ってください。
 まず更新案だけ提示してください。
 ```
@@ -179,7 +179,7 @@ TASK_TRACKER.md、HANDOFF.mdの初期案を作ってください。
 
 ```text
 Step 2/7として、index.htmlの画面構成案を作ります。
-REQUIREMENTS.mdとSPECIFICATION.mdを確認し、
+docs/product/REQUIREMENTS.mdとdocs/product/SPECIFICATION.mdを確認し、
 タスク追加フォームと一覧表に必要な項目を整理してください。
 index.htmlへ書き込む前に画面構成案を提示してください。
 ```
@@ -188,7 +188,7 @@ index.htmlへ書き込む前に画面構成案を提示してください。
 
 ```text
 Step 3/7として、style.cssの見た目方針を作ります。
-SPECIFICATION.mdを確認し、見やすいタスク表の色、余白、状態表示の案を作ってください。
+docs/product/SPECIFICATION.mdを確認し、見やすいタスク表の色、余白、状態表示の案を作ってください。
 style.cssへ書き込む前に見た目の方針を提示してください。
 ```
 
@@ -196,7 +196,7 @@ style.cssへ書き込む前に見た目の方針を提示してください。
 
 ```text
 Step 4/7として、app.jsの動作案を作ります。
-SPECIFICATION.mdを確認し、タスク追加、空欄チェック、追加後の入力リセットの流れを整理してください。
+docs/product/SPECIFICATION.mdを確認し、タスク追加、空欄チェック、追加後の入力リセットの流れを整理してください。
 app.jsへ書き込む前に処理の流れを提示してください。
 ```
 
@@ -204,7 +204,7 @@ app.jsへ書き込む前に処理の流れを提示してください。
 
 ```text
 Step 5/7として、追加機能や削除する機能を検討します。
-TASK_TRACKER.mdとHANDOFF.mdを先に確認し、
+docs/workflow/TASK_TRACKER.mdとdocs/workflow/HANDOFF.mdを先に確認し、
 編集、削除、保存のうち入れるものと入れないものを整理してください。
 3文書はまだ更新しないでください。
 ```
@@ -213,7 +213,7 @@ TASK_TRACKER.mdとHANDOFF.mdを先に確認し、
 
 ```text
 Step 6/7として、操作確認とREADME.md案を作ります。
-index.html、style.css、app.jsの想定内容とSPECIFICATION.mdを確認し、
+index.html、style.css、app.jsの想定内容とdocs/product/SPECIFICATION.mdを確認し、
 操作確認リストとREADME.mdの案を作ってください。
 ```
 
@@ -221,7 +221,7 @@ index.html、style.css、app.jsの想定内容とSPECIFICATION.mdを確認し、
 
 ```text
 Step 7/7として、完成確認、ふりかえり、GitHubに残す準備をします。
-REQUIREMENTS.md、SPECIFICATION.md、IMPLEMENTATION_PLAN.md、
-TASK_TRACKER.md、HANDOFF.md、README.mdの整合性を確認し、
+docs/product/REQUIREMENTS.md、docs/product/SPECIFICATION.md、docs/product/IMPLEMENTATION_PLAN.md、
+docs/workflow/TASK_TRACKER.md、docs/workflow/HANDOFF.md、README.mdの整合性を確認し、
 完成、未完成、要確認のどれかで判定してください。
 ```

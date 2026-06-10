@@ -1021,7 +1021,7 @@ Implementation constraints:
 - Preserve existing 7-day, 14-day, product cleanup, product security, dashboard, Git hooks, CI, pre-commit, and document-route behavior.
 - Keep product structure policy-driven and stack-independent.
 - Keep dashboard status derived from producer-owned product authority and evidence fields.
-- Keep root-level product documents legacy-readable until a later approved migration removes that compatibility.
+- Keep root-level duplicate product documents blocked by the current canonical product document contract.
 - Keep product-operation blockers scoped to product operations so lesson-only progress is not blocked by a missing product repository.
 - Keep browser pages read-only.
 - Do not recreate `task-tracker-repository` during lesson-repository validation.
@@ -1146,7 +1146,7 @@ Constraints:
 
 - Do not copy the whole lesson repository into external product repositories.
 - Do not force one stack, framework, language, CI provider, or generated app shape.
-- Do not delete root legacy product documents without developer approval.
+- Do not weaken canonical product document enforcement without an explicit workflow change.
 
 Required implemented verification:
 
@@ -1180,7 +1180,7 @@ Implemented task state:
 - [x] Keep selected-context status readers as read-only evidence/settings readers rather than command executors.
 - [x] Remove fixed `product-improvement` and single product repository assumptions from dashboard-data.
 - [x] Consume product authority evidence status from `product_authority_evidence_status_propagation` rather than duplicating aggregation in dashboard code.
-- [x] Consume scaffold and canonical resolver behavior from `free_development_product_repo_scaffold` while preserving legacy root fallback.
+- [x] Consume scaffold and canonical resolver behavior from `free_development_product_repo_scaffold`; root fallback is superseded by `product_repository_canonical_docs_only`.
 - [x] Update dashboard-data to render context/evidence-driven Git, CI, Security, blockers, manual follow-ups, and command previews without running checks.
 - [x] Update the React control center to display selected-context selector, current-state summaries, Git/Security cross-cutting status, and selected-context detail-page foundations.
 - [x] Extend fixtures and targeted tests for selected context, evidence aggregation, canonical docs behavior, read-only UI behavior, and Partial Failures/manual follow-up separation.
@@ -1292,7 +1292,7 @@ Implementation work items:
 6. Rebuild the five dashboard pages around `mock-context-overview.png`, `mock-context-lessons.png`, `mock-context-workflow.png`, `mock-context-maintenance.png`, and `mock-context-safety.png`.
 7. Keep Partial Failures always visible and limited to true current-context failed, blocked, or unknown conditions.
 8. Keep command previews display-only and aligned with current settings and evidence.
-9. Keep external product repositories canonical under `docs/product/`, `docs/workflow/`, `docs/memory/`, `ops/`, `src/`, and `tests/`, while preserving root legacy compatibility.
+9. Keep external product repositories canonical under `docs/product/`, `docs/workflow/`, `docs/memory/`, `ops/`, `src/`, and `tests/`, and block root duplicate Markdown documents.
 
 Constraints:
 
@@ -1360,3 +1360,40 @@ Current task state:
 - [x] Update Playwright coverage for the three lesson cards.
 - [x] Run the minimal local verification requested for Git/CI closure.
 - [ ] Commit, push, CI-check, merge, and sync local/remote state.
+
+## Implemented Menu Product Display Profile Confirmation
+
+SYNC-ID: menu_product_display_profile_confirmation
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/lesson_common.sh,tools/lib/product_repository_authority.sh,tools/product-profile,tools/menu,tools/lesson,tools/lesson14,tools/free-development,tools/product-improvement,tools/external-integration,tools/team-development,tools/product-scaffold-check,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_dashboard_data.sh,tools/check_lesson_structure.sh,tools/check_agents_skills.sh
+
+Current task state:
+
+- [x] Add policy-backed menu recommendations and profile scope for all seven menu choices.
+- [x] Add a confirmed product display profile writer with `--confirm` and product boundary checking.
+- [x] Require the profile from menu `check/start`, direct workflow starts/gates, and `setup.index` passage.
+- [x] Make product authority and repository information read `ops/PRODUCT_PROFILE.json` instead of inferring names from documents.
+- [x] Make product profile handling producer-backed and regenerate the dashboard snapshot from `tools/dashboard-data`.
+- [x] Run targeted schema, product authority, scaffold, menu, lesson, lesson14, dashboard data, structure, AGENTS, build, and whitespace checks.
+- [ ] Resolve existing `tools/test_dashboard_control_center.sh` responsive/layout failures separately from this profile-data sync.
+
+## Implemented Product Repository Canonical Docs Only
+
+SYNC-ID: product_repository_canonical_docs_only
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,prompts/PROMPTS.md,prompts/PROMPTS_14_DAYS.md,lesson/LESSON_FLOW.tsv,lesson/LESSON_FLOW_14_DAYS.tsv,lesson/SYNC_GATES_14_DAYS.tsv,playbooks/AGENT_PLAYBOOK.md,playbooks/AGENT_PLAYBOOK_14_DAYS.md,templates/TEMPLATES.md,skills/task-tracker-docs/SKILL.md,skills/task-tracker-docs/references/product-docs.md,skills/worklog-doc-sync/SKILL.md,skills/worklog-doc-sync/references/worklog-sync.md,skills/lesson-sync-gate/SKILL.md,skills/lesson-sync-gate/references/sync-gates.md,skills/learning-progress-helpdesk/references/progress-helpdesk.md,tools/lib/product_repository_authority.sh,tools/product-scaffold-check,tools/product-improvement,tools/external-integration,tools/dashboard-data,tools/dashboard,tools/check_workflow_pair_sync.sh,tools/check_agents_skills.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh
+TESTS: tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh,tools/check_agents_skills.sh,tools/test_dashboard_data.sh,tools/test_lesson14.sh,tools/check_lesson_structure.sh,tools/check_lesson14_sync.sh
+
+Current task state:
+
+- [x] Review the root duplicate document issue with multiple subagents and integrate findings.
+- [x] Add a reusable forbidden root path policy for product repository Markdown documents.
+- [x] Make product authority block root duplicate product, workflow, and memory documents.
+- [x] Make product scaffold validation catch optional memory root duplicates as well as required docs/workflow duplicates.
+- [x] Remove root fallback from product improvement, external integration, dashboard data, CLI dashboard, and product workflow-pair sync.
+- [x] Update prompts, playbooks, lesson flows, sync gates, and skills to use canonical product paths.
+- [x] Update tests to reject root-only and canonical-plus-root duplicate product repository documents.
+- [x] Keep external repository remediation out of lesson-repository documents; record only reusable prevention policy, tools, prompts, and tests.
+- [x] Run targeted local verification for product authority, scaffold, product security, dashboard data, lesson14, structure, and skill checks.
+- [ ] Commit, push, PR CI, merge, and synchronize local/remote state for the current work.

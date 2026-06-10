@@ -45,23 +45,25 @@ DOC
 cat > "$product_repo/README.md" <<'DOC'
 # Sample Product
 DOC
-cat > "$product_repo/REQUIREMENTS.md" <<'DOC'
+mkdir -p "$product_repo/docs/product" "$product_repo/docs/workflow"
+
+cat > "$product_repo/docs/product/REQUIREMENTS.md" <<'DOC'
 # REQUIREMENTS.md
 DOC
-cat > "$product_repo/SPECIFICATION.md" <<'DOC'
+cat > "$product_repo/docs/product/SPECIFICATION.md" <<'DOC'
 # SPECIFICATION.md
 DOC
-cat > "$product_repo/IMPLEMENTATION_PLAN.md" <<'DOC'
+cat > "$product_repo/docs/product/IMPLEMENTATION_PLAN.md" <<'DOC'
 # IMPLEMENTATION_PLAN.md
 DOC
-cat > "$product_repo/TASK_TRACKER.md" <<'DOC'
+cat > "$product_repo/docs/workflow/TASK_TRACKER.md" <<'DOC'
 # TASK_TRACKER.md
 
 ## Current Status
 
 Ready.
 DOC
-cat > "$product_repo/HANDOFF.md" <<'DOC'
+cat > "$product_repo/docs/workflow/HANDOFF.md" <<'DOC'
 # HANDOFF.md
 
 ## Current State

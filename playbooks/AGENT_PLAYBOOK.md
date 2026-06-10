@@ -61,11 +61,11 @@ tools/lesson 現在地で現在項目を確認してから質問する
 6. learning/LESSON_STATE.tsv
 7. learning/LEARNING_HANDOFF.md
 8. learning/LEARNING_TASK_TRACKER.md
-9. HANDOFF.md
-10. TASK_TRACKER.md
-11. REQUIREMENTS.md
-12. SPECIFICATION.md
-13. IMPLEMENTATION_PLAN.md
+9. docs/workflow/HANDOFF.md
+10. docs/workflow/TASK_TRACKER.md
+11. docs/product/REQUIREMENTS.md
+12. docs/product/SPECIFICATION.md
+13. docs/product/IMPLEMENTATION_PLAN.md
 14. 今日進めるStep
 ```
 

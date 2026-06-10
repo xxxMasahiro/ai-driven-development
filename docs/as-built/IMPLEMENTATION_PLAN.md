@@ -2628,7 +2628,7 @@ Broader aggregate, full/no-cache, pre-commit, remote CI, and final gate checks r
 
 - If sync checks fail, fix the contract row and all five synchronized blocks before runtime implementation continues.
 - If product path checks become ambiguous, fail closed and report sanitized context rather than guessing.
-- If canonical `docs/product` paths and legacy root paths conflict, report the conflict as product authority `blocked` instead of choosing one silently.
+- If a root duplicate product document exists, report the conflict as product authority `blocked` instead of choosing one silently.
 - If evidence freshness conflicts with source state, mark the evidence stale or unknown instead of treating it as healthy.
 - If dashboard schema changes break existing consumers, preserve existing fields and add the new product authority fields additively.
 - If product repository evidence is absent, report `not_run` or `not_collected` rather than creating evidence inside `tools/dashboard-data`.
@@ -2752,7 +2752,7 @@ Failure recovery:
 Developer approval boundaries:
 
 - Approval is required before adding evidence writers, automatic Git/CI refresh, network calls, or product repository mutation.
-- Approval is required before removing legacy root document compatibility.
+- Approval is required before weakening canonical product document enforcement.
 
 ## Implemented Free Development Product Repository Scaffold Implementation Plan
 
@@ -2777,10 +2777,10 @@ Implemented order:
 
 3. Align Free Development, Product Improvement, and External Integration gates.
    - Use the shared product authority resolver.
-   - Keep root-level documents legacy-readable without making them the preferred new scaffold.
+   - Keep canonical product documents as the only accepted scaffold for product design and workflow documents.
 
 4. Add scaffold validation tests.
-   - Cover missing required scaffold entries, optional stack additions, canonical-vs-legacy resolution, and ambiguous entrypoint/source declarations.
+   - Cover missing required scaffold entries, optional stack additions, root duplicate blockers, and ambiguous entrypoint/source declarations.
    - Keep tests standalone-runnable and aggregate-runnable.
    - Record `tools/product-scaffold-check` and `tools/test_product_scaffold_check.sh` in the sync contract artifacts and tests after the runtime artifact exists.
 
@@ -2800,13 +2800,13 @@ Verification plan:
 
 Failure recovery:
 
-- If canonical and legacy product documents conflict, report a product-operation blocker instead of choosing silently.
+- If root duplicate product documents exist, report a product-operation blocker instead of choosing silently.
 - If source authority is ambiguous, fail scaffold validation with a required manifest correction.
 - If a repository is stack-specific, add policy or manifest rows rather than hard-coded tool branches.
 
 Developer approval boundaries:
 
-- Approval is required before deleting root legacy product documents or making CI mandatory for every Free Development repository.
+- Approval is required before weakening canonical document enforcement or making CI mandatory for every Free Development repository.
 - Approval is required before adding destructive repository cleanup, automatic push, merge, or remote mutation to scaffold workflows.
 
 ## Implemented Dashboard Control Center Selected Context Sync Implementation Plan
@@ -3027,7 +3027,7 @@ Failure recovery:
 Developer approval boundaries:
 
 - Approval is required before browser command execution, POST fetches, Git/GitHub/CI/API calls, live authoritative Git or CI polling, push, merge, cleanup, remote deletion, OAuth, token handling, webhook handling, evidence writing, or destructive operations.
-- Approval is required before changing STEP 1-7 behavior, STEP 1-14 behavior, direct `index.html` launch requirements, existing CI, pre-commit, Git hooks semantics, document routes, dashboard read-only ownership, or root legacy product document compatibility.
+- Approval is required before changing STEP 1-7 behavior, STEP 1-14 behavior, direct `index.html` launch requirements, existing CI, pre-commit, Git hooks semantics, document routes, dashboard read-only ownership, or canonical product document enforcement.
 - Approval is required before creating runtime pages for repository information, documents, settings, help, or changelog.
 - Approval is required before making screenshot equality an automated test oracle.
 
@@ -3067,7 +3067,7 @@ Failure recovery:
 Developer approval boundaries:
 
 - Visual implementation should stop for developer visual approval before broad checks and CI unless the workflow owner explicitly requests Git/CI closure.
-- Approval is required before changing other page designs, STEP 1-7, STEP 1-14, Git hooks, CI, pre-commit, read-only dashboard ownership, or root legacy compatibility.
+- Approval is required before changing other page designs, STEP 1-7, STEP 1-14, Git hooks, CI, pre-commit, read-only dashboard ownership, or canonical product document enforcement.
 
 ## Implemented Dashboard Control Center Visual Refinement Follow-up Implementation Plan
 
@@ -3109,3 +3109,78 @@ Failure recovery:
 - If responsive overflow returns, adjust layout constraints before changing content.
 - If localized fixed labels expose raw English controlled strings, add i18n mappings rather than rewriting producer-owned data.
 - If Git/CI closure fails, preserve the committed branch state and record the exact failing check before retrying.
+
+## Implemented Menu Product Display Profile Confirmation Implementation Plan
+
+SYNC-ID: menu_product_display_profile_confirmation
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/lesson_common.sh,tools/lib/product_repository_authority.sh,tools/product-profile,tools/menu,tools/lesson,tools/lesson14,tools/free-development,tools/product-improvement,tools/external-integration,tools/team-development,tools/product-scaffold-check,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_dashboard_data.sh,tools/check_lesson_structure.sh,tools/check_agents_skills.sh
+
+Implementation order completed:
+
+1. Added a menu product-profile policy TSV so recommendations and scope are data-backed rather than hard-coded branches.
+2. Added `tools/product-profile` with explicit `--confirm`, product repository boundary checking, safe JSON writing, and learner-confirmed display-name output.
+3. Added shared profile helpers to `tools/lib/lesson_common.sh` for readiness, required checks, menu scope, and localized display-name lookup.
+4. Wired profile prerequisites into `tools/menu`, direct workflow start/gate commands, and both `setup.index` lesson gates.
+5. Added `product_profile_valid` validation and `ops/PRODUCT_PROFILE.json` to the external product repository structure policy.
+6. Switched product authority summary from requirements/specification inference to canonical `ops/PRODUCT_PROFILE.json`.
+7. Updated the dashboard schema, data tests, UI locale fallback, and targeted fixtures.
+8. Kept product profile handling producer-backed and regenerated the local dashboard snapshot from `tools/dashboard-data`.
+
+Verification completed:
+
+```bash
+./tools/test_dashboard_schema.sh
+./tools/test_product_repository_authority.sh
+./tools/test_product_scaffold_check.sh
+./tools/test_menu_prerequisites.sh
+./tools/test_lesson.sh
+./tools/test_lesson14.sh
+./tools/test_dashboard_data.sh
+./tools/check_lesson_structure.sh
+./tools/check_agents_skills.sh
+npm run dashboard:build
+git diff --check
+```
+
+Known follow-up:
+
+- `tools/test_dashboard_control_center.sh` was attempted and still has existing responsive/layout expectation failures in the browser UI suite. The failure is tracked in handoff and was not promoted as passed verification for this sync ID.
+
+## Implemented Product Repository Canonical Docs Only Implementation Plan
+
+SYNC-ID: product_repository_canonical_docs_only
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,prompts/PROMPTS.md,prompts/PROMPTS_14_DAYS.md,lesson/LESSON_FLOW.tsv,lesson/LESSON_FLOW_14_DAYS.tsv,lesson/SYNC_GATES_14_DAYS.tsv,playbooks/AGENT_PLAYBOOK.md,playbooks/AGENT_PLAYBOOK_14_DAYS.md,templates/TEMPLATES.md,skills/task-tracker-docs/SKILL.md,skills/task-tracker-docs/references/product-docs.md,skills/worklog-doc-sync/SKILL.md,skills/worklog-doc-sync/references/worklog-sync.md,skills/lesson-sync-gate/SKILL.md,skills/lesson-sync-gate/references/sync-gates.md,skills/learning-progress-helpdesk/references/progress-helpdesk.md,tools/lib/product_repository_authority.sh,tools/product-scaffold-check,tools/product-improvement,tools/external-integration,tools/dashboard-data,tools/dashboard,tools/check_workflow_pair_sync.sh,tools/check_agents_skills.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh
+TESTS: tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh,tools/check_agents_skills.sh,tools/test_dashboard_data.sh,tools/test_lesson14.sh,tools/check_lesson_structure.sh,tools/check_lesson14_sync.sh
+
+Implementation order completed:
+
+1. Split forbidden root Markdown paths into `docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv` so the policy is reusable and not hard-coded per command.
+2. Updated product authority to validate the forbidden-root policy and block root duplicates before canonical readiness can be reported.
+3. Updated scaffold validation to evaluate optional rows for root duplicates while still requiring only context-required structure items.
+4. Removed root fallback from product improvement, external integration, dashboard data, CLI dashboard, and product workflow-pair checks.
+5. Canonicalized prompt, playbook, lesson-flow, sync-gate, and repo-local skill wording so agents are not guided to create or edit root product documents.
+6. Updated tests to assert root-only and canonical-plus-root-duplicate product documents block the workflow, including optional memory duplicates.
+7. Kept external repository remediation outside this lesson repository record; this implementation records only the reusable policy, tools, prompts, and tests.
+
+Verification completed:
+
+```bash
+./tools/test_product_repository_authority.sh
+./tools/test_product_scaffold_check.sh
+./tools/test_product_security.sh
+./tools/check_agents_skills.sh
+./tools/test_dashboard_data.sh
+./tools/test_lesson14.sh
+./tools/check_lesson_structure.sh
+./tools/check_lesson14_sync.sh
+```
+
+Failure recovery:
+
+- If a product repository has root duplicate Markdown files, move or merge the content into the canonical docs path first, then remove the root duplicate and regenerate its repository index.
+- If root and canonical content differ, stop before deletion and preserve both versions for human review.
+- If dashboard product document readiness reports missing, inspect canonical `docs/product` and `docs/workflow` paths rather than adding root fallback.
+- If skills or prompts regress to bare product document names, update the relevant guidance and `tools/check_agents_skills.sh` together.

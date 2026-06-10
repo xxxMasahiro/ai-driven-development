@@ -28,8 +28,8 @@ check_scope_docs() {
   product_root="$(lesson_product_repo_root)"
   missing=0
   for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md; do
-    if [[ ! -s "$product_root/docs/product/$file" && ! -s "$product_root/$file" ]]; then
-      printf 'missing external-integration scope document: docs/product/%s or %s\n' "$file" "$file" >&2
+    if [[ ! -s "$product_root/docs/product/$file" ]]; then
+      printf 'missing external-integration scope document: docs/product/%s\n' "$file" >&2
       missing=1
     fi
   done
@@ -43,16 +43,18 @@ case "$COMMAND" in
     printf 'Typical targets: calendar, task service, spreadsheet, documentation, API, or MCP-style resource.\n'
     "$LESSON_ROOT/tools/product-security" advise --context external-integration || true
     lesson_menu_print_readiness "External Integration"
+    lesson_product_profile_print_readiness 6 "Product name"
     ;;
   start|開始)
     lesson_menu_require_start_approval "External Integration" "${2:-}"
     lesson_menu_require_settings "External Integration"
     "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    lesson_product_profile_require 6 "External Integration"
     cat <<'PROMPT'
 External Integration start prompt:
 
 I want to extend my product by connecting it to an external tool.
-First inspect the product requirements, specification, implementation plan, TASK_TRACKER, and HANDOFF.
+First inspect docs/product/REQUIREMENTS.md, docs/product/SPECIFICATION.md, docs/product/IMPLEMENTATION_PLAN.md, docs/workflow/TASK_TRACKER.md, and docs/workflow/HANDOFF.md.
 Then ask me which external tool I want to connect, what information should move, and what should stay out of scope.
 Before implementation, collect and record the connected service, data sent, data received, write behavior, OAuth scopes, token storage, redirect URI, token refresh and revoke behavior, webhook signature handling, rate limits, sandbox or test-account usage, prohibited log output, and rollback or recovery approach.
 Record that approval in EXTERNAL_INTEGRATION_SECURITY.md before the gate is passed.
@@ -64,6 +66,7 @@ PROMPT
   gate|確認)
     lesson_menu_require_settings "External Integration"
     "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    lesson_product_profile_require 6 "External Integration"
     check_scope_docs
     "$LESSON_ROOT/tools/product-scaffold-check" check --context external-integration --product-type integration
     product_repository_authority_gate "$(lesson_product_repo_root)" external-integration integration

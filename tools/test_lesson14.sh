@@ -97,6 +97,11 @@ grep 'Workflow display language is required' /tmp/lesson14-language-required.out
 grep 'Product development language is required' /tmp/lesson14-language-required.out >/dev/null
 ./tools/lesson14 表示言語 ja | grep 'Workflow display language recorded: ja'
 ./tools/lesson14 開発言語 ja | grep 'Product development language recorded: ja'
+product_repo="$HOME/projects/task-tracker-repository"
+git -c init.defaultBranch=main init "$product_repo" >/dev/null
+git -C "$product_repo" config user.name "Lesson14 Test"
+git -C "$product_repo" config user.email "lesson14-test@example.com"
+./tools/product-profile set --menu 2 --accept-recommended --confirm >/dev/null
 ./tools/lesson14 通過 setup.index "STEP 1-14の目的と順番を確認した"
 ./tools/lesson14 現在地 | grep './tools/lesson14 開始 setup.github-login'
 ./tools/lesson14 復習 setup.index | grep 'Revisit allowed'
@@ -118,6 +123,7 @@ grep 'Product development language is required' /tmp/lesson14-language-required.
 
 ./tools/check_lesson14_structure.sh
 
+rm -rf "$product_repo"
 gate_product_missing="$work/gate-product-missing"
 fixture_copy_repo "$work/lesson" "$gate_product_missing"
 rm -rf "$gate_product_missing/.git"

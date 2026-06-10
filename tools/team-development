@@ -27,6 +27,7 @@ case "$COMMAND" in
     printf 'Team Development and Docker: optional advanced module\n'
     printf 'Guide: %s\n' "$GUIDE"
     lesson_menu_print_readiness "Applied Lesson"
+    lesson_product_profile_print_readiness 3 "Product name"
     if command -v docker >/dev/null 2>&1; then
       docker --version
     else
@@ -36,6 +37,7 @@ case "$COMMAND" in
   start|開始)
     lesson_menu_require_start_approval "Applied Lesson" "${2:-}"
     lesson_menu_require_settings "Applied Lesson"
+    lesson_product_profile_require 3 "Applied Lesson"
     printf 'Team Development and Docker start prompt:\n\n'
     sed -n '/^## Agent Prompt$/,/^## Sub-Agent Roles$/p' "$GUIDE" | sed '$d'
     ;;
@@ -43,6 +45,7 @@ case "$COMMAND" in
     lesson_menu_require_settings "Applied Lesson"
     [[ -f "$GUIDE" ]] || { printf 'missing: %s\n' "$GUIDE" >&2; exit 1; }
     "$LESSON_ROOT/tools/check_repository_boundary.sh" --product-required >/dev/null
+    lesson_product_profile_require 3 "Applied Lesson"
     "$LESSON_ROOT/tools/check_workflow_pair_sync.sh" --product
     "$LESSON_ROOT/tools/check_git_sync.sh" --product --required
     "$LESSON_ROOT/tools/check_ci_status.sh" --product --required

@@ -6,6 +6,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT/tools/lib/fixture_copy.sh"
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
+export HOME="$work/home"
+mkdir -p "$HOME/projects"
 
 fixture_copy_repo "$ROOT" "$work/lesson"
 cd "$work/lesson"
@@ -42,6 +44,11 @@ grep 'Product development language is required before passing setup.index' /tmp/
 
 ./tools/lesson 表示言語 ja | grep 'Workflow display language recorded: ja'
 ./tools/lesson 開発言語 ja | grep 'Product development language recorded: ja'
+product_repo="$HOME/projects/task-tracker-repository"
+git -c init.defaultBranch=main init "$product_repo" >/dev/null
+git -C "$product_repo" config user.name "Lesson Test"
+git -C "$product_repo" config user.email "lesson-test@example.com"
+./tools/product-profile set --menu 1 --accept-recommended --confirm >/dev/null
 ./tools/lesson 通過 setup.index "設定から体験開発へ進む順番を確認した" | grep 'Passed step'
 ./tools/lesson 現在地 | grep './tools/lesson 開始 setup.github-login'
 

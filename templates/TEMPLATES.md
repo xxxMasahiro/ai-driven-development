@@ -2,7 +2,7 @@
 
 このファイルは、エージェントがファイル案を作るときの雛形です。
 
-## REQUIREMENTS.md
+## docs/product/REQUIREMENTS.md
 
 ```text
 # REQUIREMENTS.md
@@ -22,7 +22,7 @@
 ## 未決定事項
 ```
 
-## SPECIFICATION.md
+## docs/product/SPECIFICATION.md
 
 ```text
 # SPECIFICATION.md
@@ -42,7 +42,7 @@
 ## 対象外の仕様
 ```
 
-## IMPLEMENTATION_PLAN.md
+## docs/product/IMPLEMENTATION_PLAN.md
 
 ```text
 # IMPLEMENTATION_PLAN.md

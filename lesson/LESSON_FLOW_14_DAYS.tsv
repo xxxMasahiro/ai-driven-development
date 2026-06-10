@@ -10,14 +10,14 @@
 009	day2.remote-sync	Step 2/14	remote、push、pull、fetchの役割を確認する	ローカルとリモート同期の理解
 010	day2.sync-gate	Step 2/14	Step 2/14同期ゲートを通過する	GitHub接続と学習記録の同期
 011	day3.product-repo	Step 3/14	成果物リポジトリを教材外に作る流れを確認する	成果物リポジトリ境界と別CLI起動の理解
-012	day3.memory-docs	Step 3/14	AGENT.mdと各メモリー文書の役割を確認する	メモリー文書の役割理解
+012	day3.memory-docs	Step 3/14	AGENT.mdとdocs/memory配下のメモリー文書の役割を確認する	メモリー文書の役割理解
 013	day3.initial-commit	Step 3/14	成果物リポジトリで初回commitを体験する	初回commit体験
 014	day3.sync-gate	Step 3/14	Step 3/14同期ゲートを通過する	成果物リポジトリ状態と学習記録の同期
-015	day4.requirements	Step 4/14	REQUIREMENTS.mdを作成する	要件初期案
-016	day4.specification	Step 4/14	SPECIFICATION.mdを作成する	仕様初期案
-017	day4.implementation-plan	Step 4/14	IMPLEMENTATION_PLAN.mdを作成する	実装計画初期案
+015	day4.requirements	Step 4/14	docs/product/REQUIREMENTS.mdを作成する	要件初期案
+016	day4.specification	Step 4/14	docs/product/SPECIFICATION.mdを作成する	仕様初期案
+017	day4.implementation-plan	Step 4/14	docs/product/IMPLEMENTATION_PLAN.mdを作成する	実装計画初期案
 018	day4.sync-gate	Step 4/14	Step 4/14同期ゲートを通過する	3文書の作成状態同期
-019	day5.initial-tracker-handoff	Step 5/14	TASK_TRACKER.mdとHANDOFF.mdへ初回作成を記録する	初回履歴記録
+019	day5.initial-tracker-handoff	Step 5/14	docs/workflow/TASK_TRACKER.mdとdocs/workflow/HANDOFF.mdへ初回作成を記録する	初回履歴記録
 020	day5.main-ci	Step 5/14	mainブランチのCIを作成して実行する	main CIの実行確認
 021	day5.remote-push	Step 5/14	commit、push、GitHub上の状態確認を体験する	ローカルとリモートの一致確認
 022	day5.sync-gate	Step 5/14	Step 5/14同期ゲートを通過する	3文書、履歴、GitHub状態の同期
@@ -29,9 +29,9 @@
 028	day7.validation	Step 7/14	空欄チェックと入力リセットを確認する	基本動作確認
 029	day7.unit-check	Step 7/14	小さな実装単体テストまたは手動確認を記録する	実装確認ログ
 030	day7.sync-gate	Step 7/14	Step 7/14同期ゲートを通過する	動作、履歴、文書の同期
-031	day8.handoff-stop	Step 8/14	HANDOFF.mdを使って中断記録を残す	中断記録
-032	day8.handoff-resume	Step 8/14	HANDOFF.mdを読んで再開する	再開体験
-033	day8.tracker-update	Step 8/14	TASK_TRACKER.mdで進行状態を更新する	作業進捗更新
+031	day8.handoff-stop	Step 8/14	docs/workflow/HANDOFF.mdを使って中断記録を残す	中断記録
+032	day8.handoff-resume	Step 8/14	docs/workflow/HANDOFF.mdを読んで再開する	再開体験
+033	day8.tracker-update	Step 8/14	docs/workflow/TASK_TRACKER.mdで進行状態を更新する	作業進捗更新
 034	day8.sync-gate	Step 8/14	Step 8/14同期ゲートを通過する	中断再開と学習記録の同期
 035	day9.work-branch	Step 9/14	作業ブランチを作成して変更を始める	作業ブランチ作成
 036	day9.pr-ci	Step 9/14	PR作成とPR CIを体験する	PR CI確認
@@ -53,7 +53,7 @@
 052	day13.skill-use	Step 13/14	作成したスキルを呼び出して使う	スキル利用確認
 053	day13.mcp-minimal	Step 13/14	最小MCP連携でタスク管理表を便利にする	MCP連携体験
 054	day13.sync-gate	Step 13/14	Step 13/14同期ゲートを通過する	スキル、MCP、文書の同期
-055	day14.final-sync	Step 14/14	3文書、TASK_TRACKER.md、HANDOFF.mdを最終同期する	全文書同期
+055	day14.final-sync	Step 14/14	3文書、docs/workflow/TASK_TRACKER.md、docs/workflow/HANDOFF.mdを最終同期する	全文書同期
 056	day14.release-readiness	Step 14/14	main CI、リモート同期、READMEを確認する	公開準備確認
 057	day14.retrospective	Step 14/14	学習ロードマップとヘルプデスクを見返してふりかえる	学習ふりかえり
 058	day14.complete	Step 14/14	STEP 1-14: 実践レッスンを完了する	完了判定と次の改善案

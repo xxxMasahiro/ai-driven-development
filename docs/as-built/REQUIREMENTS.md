@@ -1276,7 +1276,7 @@ Required outcomes:
 - Place product design documents under `docs/product/`, workflow documents under `docs/workflow/`, memory and recovery documents under `docs/memory/`, and operation declarations under `ops/`.
 - Keep root-level `AGENT.md`, `README.md`, selected entry files, and standard control directories discoverable.
 - Declare entrypoint, runtime source, test source, CI, security, dashboard, and integration evidence through manifests rather than fixed stack-specific branches.
-- Preserve root-level product documents as legacy-readable compatibility until a later approved migration changes all product gates together.
+- Block root-level duplicate product documents under the current `product_repository_canonical_docs_only` contract.
 - Let Free Development, Product Improvement, and External Integration share the same product repository authority model.
 - Ensure scaffold validation is standalone-runnable and aggregate-runnable.
 - Expose scaffold validation through `tools/product-scaffold-check` and `tools/test_product_scaffold_check.sh`, and keep those runtime artifacts recorded in the sync contract artifacts and tests.
@@ -1425,7 +1425,7 @@ Non-scope:
 - Do not redesign other pages except for non-breaking shared tokens or components needed to keep the mock family consistent.
 - Do not add browser command execution, POST actions, GitHub or CI polling, product-security execution, product-authority execution, evidence writing, push, merge, remote deletion, OAuth, token handling, destructive operations, or cleanup automation.
 - Do not create repository information, documents, settings, help, or changelog pages.
-- Do not weaken STEP 1-7, STEP 1-14, existing CI, existing checks, Git hooks, pre-commit, live snapshot sync, as-built synchronization, or root legacy product document compatibility.
+- Do not weaken STEP 1-7, STEP 1-14, existing CI, existing checks, Git hooks, pre-commit, live snapshot sync, as-built synchronization, or canonical product document enforcement.
 
 ## Implemented Dashboard Control Center Visual Refinement Follow-up Requirements
 
@@ -1454,3 +1454,55 @@ Non-scope:
 - Do not add browser command execution, POST actions, live Git/GitHub/CI polling, product-security execution, product-authority execution, evidence writing, push, merge, cleanup, remote deletion, OAuth, token handling, or destructive operations.
 - Do not create runtime pages for repository information, documents, settings, help, or changelog.
 - Do not make generated mock image equality an automated test oracle.
+
+## Implemented Menu Product Display Profile Confirmation Requirements
+
+SYNC-ID: menu_product_display_profile_confirmation
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/lesson_common.sh,tools/lib/product_repository_authority.sh,tools/product-profile,tools/menu,tools/lesson,tools/lesson14,tools/free-development,tools/product-improvement,tools/external-integration,tools/team-development,tools/product-scaffold-check,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_dashboard_data.sh,tools/check_lesson_structure.sh,tools/check_agents_skills.sh
+
+The seven progress-menu choices must confirm the learner-visible product name or work-target name before the workflow can proceed.
+The dashboard must display that name from a producer-owned profile, not from repository names, UI inference, or prose extraction.
+
+Required outcomes:
+
+- Store product display identity in a small confirmed profile rather than hard-coding `タスク管理表` or any other product name in React.
+- Use `docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv` for menu-specific scope and recommendation text.
+- Use external product repository `ops/PRODUCT_PROFILE.json` for menu items 1 through 6 and a lesson-repository learning profile for menu item 7.
+- Treat STEP 1-14's recommended name as `タスク管理表` only as a policy-backed recommendation that still requires confirmation.
+- Keep free development and product improvement name entry blank unless a confirmed profile already exists.
+- Keep fixed dashboard labels localized by environment while preserving producer-owned product names as profile data.
+- Validate the profile as data only; do not execute commands, read secrets, call APIs, poll GitHub, or write evidence from the dashboard.
+
+Non-scope:
+
+- Do not make the dashboard a profile editor.
+- Do not infer a confirmed product name from requirements, specification, implementation plan, repository path, branch name, or file tree.
+- Do not require menu 7 to use the external product repository.
+
+## Implemented Product Repository Canonical Docs Only Requirements
+
+SYNC-ID: product_repository_canonical_docs_only
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,prompts/PROMPTS.md,prompts/PROMPTS_14_DAYS.md,lesson/LESSON_FLOW.tsv,lesson/LESSON_FLOW_14_DAYS.tsv,lesson/SYNC_GATES_14_DAYS.tsv,playbooks/AGENT_PLAYBOOK.md,playbooks/AGENT_PLAYBOOK_14_DAYS.md,templates/TEMPLATES.md,skills/task-tracker-docs/SKILL.md,skills/task-tracker-docs/references/product-docs.md,skills/worklog-doc-sync/SKILL.md,skills/worklog-doc-sync/references/worklog-sync.md,skills/lesson-sync-gate/SKILL.md,skills/lesson-sync-gate/references/sync-gates.md,skills/learning-progress-helpdesk/references/progress-helpdesk.md,tools/lib/product_repository_authority.sh,tools/product-scaffold-check,tools/product-improvement,tools/external-integration,tools/dashboard-data,tools/dashboard,tools/check_workflow_pair_sync.sh,tools/check_agents_skills.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh
+TESTS: tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh,tools/check_agents_skills.sh,tools/test_dashboard_data.sh,tools/test_lesson14.sh,tools/check_lesson_structure.sh,tools/check_lesson14_sync.sh
+
+External product repositories must use canonical documentation paths for product, workflow, and memory documents.
+Root-level duplicate Markdown documents are not accepted as compatibility fallbacks because they hide drift, confuse the dashboard, and can cause agents to update the wrong file.
+
+Required outcomes:
+
+- Treat `docs/product/REQUIREMENTS.md`, `docs/product/SPECIFICATION.md`, and `docs/product/IMPLEMENTATION_PLAN.md` as the only product design document locations.
+- Treat `docs/workflow/TASK_TRACKER.md` and `docs/workflow/HANDOFF.md` as the only product workflow pair locations.
+- Treat product memory files as `docs/memory/*` documents when used, including developer, session, and failure memory.
+- Keep root `AGENT.md` and `README.md` as the standard root-level product entry files.
+- Expose forbidden root duplicate paths as a reusable TSV policy instead of hard-coded one-off branches.
+- Make authority, scaffold, dashboard data, workflow-pair sync, prompts, playbooks, and skills all point to the same canonical product paths.
+- Keep the dashboard and lesson flows read-only with respect to product documents; they may report blockers but must not repair product repositories automatically.
+
+Non-scope:
+
+- Do not delete or rewrite external product repository content unless the operation is explicitly part of product repository maintenance.
+- Do not relax repository boundary checks, approval requirements, security checks, Git/CI gates, or product profile validation.
+- Do not trade off existing STEP 1-7, STEP 1-14, dashboard read-only behavior, localization, or product authority evidence semantics.

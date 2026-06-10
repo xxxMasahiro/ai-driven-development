@@ -171,21 +171,21 @@ show_development() {
     printf '\nProduct security:\n'
     "$ROOT/tools/product-security" status --context product-improvement --repo "$PRODUCT_ROOT" || true
     printf '\nWorkflow documents:\n'
-    for file in REQUIREMENTS.md SPECIFICATION.md IMPLEMENTATION_PLAN.md TASK_TRACKER.md HANDOFF.md README.md RETROSPECTIVE.md; do
+    for file in docs/product/REQUIREMENTS.md docs/product/SPECIFICATION.md docs/product/IMPLEMENTATION_PLAN.md docs/workflow/TASK_TRACKER.md docs/workflow/HANDOFF.md README.md RETROSPECTIVE.md; do
       file_status "$PRODUCT_ROOT" "$file"
     done
     printf '\nPaired workflow state:\n'
-    if [[ -f "$PRODUCT_ROOT/TASK_TRACKER.md" && -f "$PRODUCT_ROOT/HANDOFF.md" ]]; then
+    if [[ -f "$PRODUCT_ROOT/docs/workflow/TASK_TRACKER.md" && -f "$PRODUCT_ROOT/docs/workflow/HANDOFF.md" ]]; then
       if "$ROOT/tools/check_workflow_pair_sync.sh" --repo "$PRODUCT_ROOT" >/dev/null 2>&1; then
         printf 'Workflow pair sync: synchronized\n'
       else
         printf 'Workflow pair sync: inconsistent\n'
       fi
-      printf 'Current objective: %s\n' "$(current_state_from_file "$PRODUCT_ROOT/TASK_TRACKER.md")"
-      printf 'TASK_TRACKER next action: %s\n' "$(next_action_from_file "$PRODUCT_ROOT/TASK_TRACKER.md")"
-      printf 'HANDOFF next action: %s\n' "$(next_action_from_file "$PRODUCT_ROOT/HANDOFF.md")"
+      printf 'Current objective: %s\n' "$(current_state_from_file "$PRODUCT_ROOT/docs/workflow/TASK_TRACKER.md")"
+      printf 'TASK_TRACKER next action: %s\n' "$(next_action_from_file "$PRODUCT_ROOT/docs/workflow/TASK_TRACKER.md")"
+      printf 'HANDOFF next action: %s\n' "$(next_action_from_file "$PRODUCT_ROOT/docs/workflow/HANDOFF.md")"
     else
-      printf 'TASK_TRACKER.md and HANDOFF.md are not both present.\n'
+      printf 'docs/workflow/TASK_TRACKER.md and docs/workflow/HANDOFF.md are not both present.\n'
     fi
     printf '\nCI status:\n'
     optional_ci_status
@@ -233,7 +233,7 @@ show_docs() {
   printf -- '- docs/workflow/GIT_HOOK_RECOMMENDATION_PATHS.tsv: changed files that recommend local full/no-cache verification\n'
   printf -- '- learning/GIT_HOOK_SETTINGS.tsv: current local Git hook mode setting\n'
   printf -- '- docs/memory/DEVELOPER_MEMORY.md: stable maintainer intent and follow-up requirements\n'
-  printf -- '- product-side FAILURE_MEMORY.md: failure and recovery records when a product repository uses one\n'
+  printf -- '- product-side docs/memory/FAILURE_MEMORY.md: failure and recovery records when a product repository uses one\n'
   printf -- '- skills/*/SKILL.md: reusable agent procedures, not learner homework\n'
   printf '\nPrompt help: ./tools/docs-tour all, ./tools/docs-tour rules, ./tools/docs-tour memory, ./tools/docs-tour workflow\n'
 }

@@ -52,6 +52,11 @@ async function expectCenteredSvg(locator, tolerance = 1) {
   expect(Math.max(...deltas)).toBeLessThanOrEqual(tolerance);
 }
 
+async function openMobileNavLink(page, target) {
+  await page.getByRole("button", { name: /^(Menu|メニュー)$/ }).click();
+  await page.getByRole("navigation", { name: "Dashboard categories" }).getByRole("link", { name: new RegExp(target) }).click();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.route("**/dashboard-control-center/index.html*", async (route) => {
     await route.fulfill({
@@ -122,8 +127,12 @@ test.describe("English dashboard control center", () => {
         return { top: Math.round(rect.top), height: Math.round(rect.height) };
       }),
     );
-    expect(new Set(overviewCards.map((card) => card.top)).size).toBe(1);
-    expect(Math.max(...overviewCards.map((card) => card.height)) - Math.min(...overviewCards.map((card) => card.height))).toBeLessThanOrEqual(3);
+    const rowTops = [...new Set(overviewCards.map((card) => card.top))];
+    expect(rowTops.length).toBeLessThanOrEqual(2);
+    for (const top of rowTops) {
+      const rowHeights = overviewCards.filter((card) => card.top === top).map((card) => card.height);
+      expect(Math.max(...rowHeights) - Math.min(...rowHeights)).toBeLessThanOrEqual(3);
+    }
 
     await navigation.getByRole("link", { name: /Lessons/ }).click();
     await expect(page.getByRole("heading", { name: "Lessons" })).toBeVisible();
@@ -208,7 +217,7 @@ test.describe("English dashboard control center", () => {
     expect(hasHorizontalOverflow).toBe(false);
 
     for (const target of ["Lessons", "Development Workflow", "Maintenance Sync", "Safety Actions"]) {
-      await page.getByRole("navigation", { name: "Dashboard categories" }).getByRole("link", { name: new RegExp(target) }).click();
+      await openMobileNavLink(page, target);
       await expect(page.getByLabel("Detail page decision summary")).toBeVisible();
       const hasDetailOverflow = await page.locator(".app-shell").evaluate((element) => element.scrollWidth > element.clientWidth);
       expect(hasDetailOverflow).toBe(false);

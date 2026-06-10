@@ -10,6 +10,10 @@ product_repository_authority_structure_file() {
   printf '%s\n' "${PRODUCT_REPOSITORY_STRUCTURE_FILE:-$LESSON_ROOT/docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv}"
 }
 
+product_repository_authority_forbidden_root_paths_file() {
+  printf '%s\n' "${PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS_FILE:-$LESSON_ROOT/docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv}"
+}
+
 product_repository_authority_evidence_schema_file() {
   printf '%s\n' "${PRODUCT_GATE_EVIDENCE_SCHEMA_FILE:-$LESSON_ROOT/docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv}"
 }
@@ -141,13 +145,34 @@ product_repository_authority_structure_rows() {
   ' "$file"
 }
 
+product_repository_authority_forbidden_root_path_rows() {
+  local file
+  file="$(product_repository_authority_forbidden_root_paths_file)"
+  awk -F '\t' '
+    /^[[:space:]]*$/ { next }
+    $1 ~ /^#/ { next }
+    {
+      if (NF != 4) {
+        printf "invalid product forbidden root path row: %s\n", $0 > "/dev/stderr"
+        invalid = 1
+        next
+      }
+      print
+    }
+    END { exit invalid ? 1 : 0 }
+  ' "$file"
+}
+
 product_repository_authority_validate_policy_files() {
-  local structure_file evidence_schema_file
+  local structure_file forbidden_root_paths_file evidence_schema_file
   structure_file="$(product_repository_authority_structure_file)"
+  forbidden_root_paths_file="$(product_repository_authority_forbidden_root_paths_file)"
   evidence_schema_file="$(product_repository_authority_evidence_schema_file)"
   [[ -f "$structure_file" ]] || { printf 'missing product repository structure policy: %s\n' "$structure_file" >&2; return 1; }
+  [[ -f "$forbidden_root_paths_file" ]] || { printf 'missing product forbidden root path policy: %s\n' "$forbidden_root_paths_file" >&2; return 1; }
   [[ -f "$evidence_schema_file" ]] || { printf 'missing product gate evidence schema: %s\n' "$evidence_schema_file" >&2; return 1; }
   product_repository_authority_structure_rows >/dev/null || return 1
+  product_repository_authority_forbidden_root_path_rows >/dev/null || return 1
   awk -F '\t' '
     /^[[:space:]]*$/ { next }
     $1 ~ /^#/ { next }
@@ -179,6 +204,70 @@ product_repository_authority_tsv_valid() {
   ' "$file"
 }
 
+product_repository_authority_product_profile_valid() {
+  local file="$1"
+  [[ -f "$file" && -s "$file" ]] || return 1
+  PRODUCT_PROFILE_FILE="$file" node <<'NODE' >/dev/null
+const fs = require("node:fs");
+
+const file = process.env.PRODUCT_PROFILE_FILE || "";
+
+function fail() {
+  process.exit(1);
+}
+
+function isObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value);
+}
+
+function hasControl(value) {
+  return /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(String(value ?? ""));
+}
+
+function safeText(value, max = 240) {
+  if (typeof value !== "string" || hasControl(value)) return "";
+  return value.replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+function safeRelativePath(value) {
+  if (typeof value !== "string" || !value || hasControl(value)) return false;
+  if (value.startsWith("/") || value.includes("\\") || value.includes("\0")) return false;
+  return !value.split("/").some((part) => part === ".." || part === "");
+}
+
+let data;
+try {
+  data = JSON.parse(fs.readFileSync(file, "utf8"));
+} catch {
+  fail();
+}
+
+if (!isObject(data)) fail();
+if (safeText(data.schema_version, 40) !== "1.0.0") fail();
+if (data.profile_kind && safeText(data.profile_kind, 80) !== "product_display_profile") fail();
+if (!isObject(data.display_name)) fail();
+
+const nameJa = safeText(data.display_name.ja);
+const nameEn = safeText(data.display_name.en);
+if (!nameJa && !nameEn) fail();
+
+if (data.description !== undefined) {
+  if (!isObject(data.description)) fail();
+  if (data.description.ja !== undefined && hasControl(data.description.ja)) fail();
+  if (data.description.en !== undefined && hasControl(data.description.en)) fail();
+}
+
+if (data.source_documents !== undefined) {
+  if (!Array.isArray(data.source_documents)) fail();
+  for (const item of data.source_documents) {
+    if (!safeRelativePath(item)) fail();
+  }
+}
+
+process.exit(0);
+NODE
+}
+
 product_repository_authority_path_valid() {
   local repo="$1"
   local relpath="$2"
@@ -190,8 +279,21 @@ product_repository_authority_path_valid() {
     file_nonempty) [[ -s "$path" ]] ;;
     path_exists) [[ -e "$path" ]] ;;
     tsv_valid) product_repository_authority_tsv_valid "$path" ;;
+    product_profile_valid) product_repository_authority_product_profile_valid "$path" ;;
     *) return 1 ;;
   esac
+}
+
+product_repository_authority_forbidden_root_duplicate_path() {
+  local canonical_path="$1"
+  local row root_path mapped_path source_id requirement
+  while IFS=$'\t' read -r root_path mapped_path source_id requirement; do
+    if [[ "$mapped_path" == "$canonical_path" ]]; then
+      printf '%s' "$root_path"
+      return 0
+    fi
+  done < <(product_repository_authority_forbidden_root_path_rows)
+  return 1
 }
 
 product_repository_authority_path_safe_relative() {
@@ -313,9 +415,18 @@ product_repository_authority_resolve_structure_path() {
   local canonical_path="$3"
   local legacy_paths="$4"
   local legacy_path
+  local root_duplicate_path=""
   local canonical_valid=0
   local legacy_valid=0
   local first_legacy=""
+
+  if [[ "$validation_rule" == file_* ]]; then
+    root_duplicate_path="$(product_repository_authority_forbidden_root_duplicate_path "$canonical_path" || true)"
+    if [[ -n "$root_duplicate_path" && -e "$repo/$root_duplicate_path" ]]; then
+      printf 'blocked\t%s\troot_duplicate\n' "$canonical_path"
+      return 0
+    fi
+  fi
 
   if product_repository_authority_path_valid "$repo" "$canonical_path" "$validation_rule"; then
     canonical_valid=1
@@ -351,6 +462,214 @@ product_repository_authority_resolve_structure_path() {
 product_repository_authority_evidence_index() {
   local repo="$1"
   printf '%s/.git/product-gate-evidence/index.tsv\n' "$repo"
+}
+
+product_repository_authority_repository_index_json() {
+  local repo="$1"
+  local index_file="$repo/ops/REPOSITORY_INDEX.json"
+  if [[ ! -f "$index_file" ]]; then
+    printf '{"status":"not_run","path":"ops/REPOSITORY_INDEX.json","schema_version":"unknown","root_name":"","source":"external_product_repository","default_expand_depth":0,"excludes":[],"roles":{},"files":[]}'
+    return
+  fi
+
+  PRODUCT_REPOSITORY_INDEX_FILE="$index_file" node <<'NODE'
+const fs = require("node:fs");
+const path = require("node:path");
+
+const file = process.env.PRODUCT_REPOSITORY_INDEX_FILE;
+const raw = fs.readFileSync(file, "utf8");
+const data = JSON.parse(raw);
+
+function fail(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+function safeText(value, fallback = "") {
+  const text = String(value ?? fallback)
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.slice(0, 240);
+}
+
+function safeRelativePath(value) {
+  const text = safeText(value);
+  if (!text || path.isAbsolute(text) || text.includes("\\") || text.split("/").includes("..")) {
+    return "";
+  }
+  return text;
+}
+
+function safeRoleId(value) {
+  const text = safeText(value);
+  return /^[a-z0-9_.-]+$/.test(text) ? text : "";
+}
+
+if (!data || typeof data !== "object" || Array.isArray(data)) {
+  fail("repository index must be an object");
+}
+if (!/^1\.[0-9]+\.[0-9]+$/.test(String(data.schema_version ?? ""))) {
+  fail("repository index schema_version must be 1.x.y");
+}
+
+const roles = {};
+const inputRoles = data.roles && typeof data.roles === "object" && !Array.isArray(data.roles) ? data.roles : {};
+for (const [roleId, role] of Object.entries(inputRoles)) {
+  const id = safeRoleId(roleId);
+  if (!id || !role || typeof role !== "object" || Array.isArray(role)) continue;
+  roles[id] = {
+    label: safeText(role.label, id),
+    description: safeText(role.description, ""),
+  };
+}
+
+const files = [];
+const seen = new Set();
+for (const item of Array.isArray(data.files) ? data.files : []) {
+  if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+  const filePath = safeRelativePath(item.path);
+  if (!filePath || seen.has(filePath)) continue;
+  const roleIds = Array.isArray(item.role_ids)
+    ? item.role_ids.map(safeRoleId).filter((roleId) => roleId && roles[roleId])
+    : [];
+  files.push({
+    path: filePath,
+    type: item.type === "directory" ? "directory" : "file",
+    tracked: item.tracked !== false,
+    description: safeText(item.description, ""),
+    role_ids: roleIds.length ? [...new Set(roleIds)] : ["repository_file"].filter((roleId) => roles[roleId]),
+  });
+  seen.add(filePath);
+}
+
+files.sort((left, right) => left.path.localeCompare(right.path));
+
+const summary = {
+  directories: files.filter((item) => item.type === "directory").length,
+  files: files.filter((item) => item.type === "file").length,
+  total: files.length,
+};
+
+const excludes = [];
+for (const item of Array.isArray(data.excludes) ? data.excludes : []) {
+  if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+  const pattern = safeText(item.pattern, "");
+  if (!pattern) continue;
+  excludes.push({
+    pattern,
+    reason: safeText(item.reason, ""),
+  });
+}
+
+const defaultExpandDepth = Number.isInteger(data.default_expand_depth)
+  ? Math.max(0, Math.min(3, data.default_expand_depth))
+  : 0;
+
+process.stdout.write(JSON.stringify({
+  status: "ready",
+  path: "ops/REPOSITORY_INDEX.json",
+  schema_version: data.schema_version,
+  root_name: safeText(data.root_name, ""),
+  source: safeText(data.source, "external_product_repository"),
+  default_expand_depth: defaultExpandDepth,
+  summary,
+  excludes,
+  roles,
+  files,
+}));
+NODE
+}
+
+product_repository_authority_product_summary_json() {
+  local repo="$1"
+  PRODUCT_REPOSITORY_ROOT="$repo" node <<'NODE'
+const fs = require("node:fs");
+const path = require("node:path");
+
+const repo = process.env.PRODUCT_REPOSITORY_ROOT || "";
+const profileRelativePath = "ops/PRODUCT_PROFILE.json";
+const profilePath = path.join(repo, profileRelativePath);
+
+function safeText(value, fallback = "") {
+  const text = String(value ?? fallback)
+    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return text.slice(0, 240);
+}
+
+function isObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value);
+}
+
+function safeRelativePath(value) {
+  const text = safeText(value, "");
+  if (!text || text.startsWith("/") || text.includes("\\") || text.includes("\0")) return "";
+  if (text.split("/").some((part) => part === ".." || part === "")) return "";
+  return text;
+}
+
+if (!fs.existsSync(profilePath)) {
+  process.stdout.write(JSON.stringify({
+    status: "missing",
+    name: "",
+    display_name: { ja: "", en: "" },
+    description: { ja: "", en: "" },
+    source_documents: [],
+    source_path: profileRelativePath,
+    source_field: "",
+  }));
+  process.exit(0);
+}
+
+let profile;
+try {
+  profile = JSON.parse(fs.readFileSync(profilePath, "utf8"));
+} catch {
+  process.stdout.write(JSON.stringify({
+    status: "failed",
+    name: "",
+    display_name: { ja: "", en: "" },
+    description: { ja: "", en: "" },
+    source_documents: [],
+    source_path: profileRelativePath,
+    source_field: "invalid_json",
+  }));
+  process.exit(0);
+}
+
+const displayName = isObject(profile.display_name) ? profile.display_name : {};
+const description = isObject(profile.description) ? profile.description : {};
+const nameJa = safeText(displayName.ja, "");
+const nameEn = safeText(displayName.en, "");
+const sourceDocuments = Array.isArray(profile.source_documents)
+  ? profile.source_documents.map(safeRelativePath).filter(Boolean).slice(0, 20)
+  : [];
+
+if (!nameJa && !nameEn) {
+  process.stdout.write(JSON.stringify({
+    status: "failed",
+    name: "",
+    display_name: { ja: "", en: "" },
+    description: { ja: safeText(description.ja, ""), en: safeText(description.en, "") },
+    source_documents: sourceDocuments,
+    source_path: profileRelativePath,
+    source_field: "display_name",
+  }));
+  process.exit(0);
+}
+
+process.stdout.write(JSON.stringify({
+  status: "ready",
+  name: nameJa || nameEn,
+  display_name: { ja: nameJa, en: nameEn },
+  description: { ja: safeText(description.ja, ""), en: safeText(description.en, "") },
+  source_documents: sourceDocuments,
+  source_path: profileRelativePath,
+  source_field: "display_name",
+}));
+NODE
 }
 
 product_repository_authority_validate_evidence_status() {
@@ -760,6 +1079,8 @@ product_repository_authority_json() {
   local authority_status="ready"
   local blocker_scope="none"
   local product_root_label
+  local repository_index_json
+  local product_summary_json
   local required_total=0
   local required_ready=0
   local optional_missing=()
@@ -773,6 +1094,8 @@ product_repository_authority_json() {
 
   product_name="$(basename "$repo")"
   product_root_label="$(product_repository_authority_safe_repo_label "$repo")"
+  repository_index_json="$(product_repository_authority_repository_index_json "$repo" 2>/dev/null || printf '{"status":"unknown","path":"ops/REPOSITORY_INDEX.json","schema_version":"unknown","root_name":"","source":"external_product_repository","default_expand_depth":0,"excludes":[],"roles":{},"files":[]}')"
+  product_summary_json="$(product_repository_authority_product_summary_json "$repo" 2>/dev/null || printf '{"status":"unknown","name":"","display_name":{"ja":"","en":""},"description":{"ja":"","en":""},"source_documents":[],"source_path":"ops/PRODUCT_PROFILE.json","source_field":""}')"
 
   if ! product_repository_authority_validate_policy_files >/dev/null 2>&1; then
     repo_status="unknown"
@@ -823,7 +1146,14 @@ product_repository_authority_json() {
       elif [[ "$resolved_status" == "blocked" ]]; then
         authority_status="blocked"
         conflicts+=("$source_id")
-        blockers+=("$(product_repository_authority_blocker_json "$source_id" "blocked" "Canonical and legacy product document paths conflict." "./tools/product-repository-authority status --json")")
+        case "$resolved_source" in
+          root_duplicate)
+            blockers+=("$(product_repository_authority_blocker_json "$source_id" "blocked" "Root-level duplicate product repository document is not allowed; keep the canonical docs path only." "./tools/product-scaffold-check check")")
+            ;;
+          *)
+            blockers+=("$(product_repository_authority_blocker_json "$source_id" "blocked" "Canonical and legacy product document paths conflict." "./tools/product-repository-authority status --json")")
+            ;;
+        esac
       elif [[ "$resolved_status" == "missing" && "$required_in_context" == "true" ]]; then
         [[ "$authority_status" == "blocked" ]] || authority_status="blocked"
         required_missing+=("$source_id")
@@ -920,7 +1250,11 @@ product_repository_authority_json() {
   product_repository_authority_json_string "$product_root_label"
   printf ',"blocker_scope":'
   product_repository_authority_json_string "$blocker_scope"
-  printf '},"document_paths":'
+  printf '},"product_summary":'
+  printf '%s' "$product_summary_json"
+  printf ',"repository_index":'
+  printf '%s' "$repository_index_json"
+  printf ',"document_paths":'
   product_repository_authority_json_raw_array "${document_path_items[@]}"
   printf ',"manifest_summary":{"required_total":%d,"required_ready":%d,"required_missing":' "$required_total" "$required_ready"
   product_repository_authority_json_array "${required_missing[@]}"

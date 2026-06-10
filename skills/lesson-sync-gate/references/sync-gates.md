@@ -35,16 +35,16 @@ Use `--clean-required` when a local commit is required but upstream sync is not 
 Initial creation flow:
 
 ```text
-REQUIREMENTS.md
-SPECIFICATION.md
-IMPLEMENTATION_PLAN.md
-then TASK_TRACKER.md and HANDOFF.md
+docs/product/REQUIREMENTS.md
+docs/product/SPECIFICATION.md
+docs/product/IMPLEMENTATION_PLAN.md
+then docs/workflow/TASK_TRACKER.md and docs/workflow/HANDOFF.md
 ```
 
 Change flow:
 
 ```text
-TASK_TRACKER.md and HANDOFF.md first
+docs/workflow/TASK_TRACKER.md and docs/workflow/HANDOFF.md first
 implementation next
-then REQUIREMENTS.md, SPECIFICATION.md, IMPLEMENTATION_PLAN.md
+then docs/product/REQUIREMENTS.md, docs/product/SPECIFICATION.md, docs/product/IMPLEMENTATION_PLAN.md
 ```

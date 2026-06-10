@@ -919,7 +919,7 @@ Restart context:
 
 - The current issue is not only a dashboard display issue. The repository needs a product authority read model so external product repositories can be operated with the same quality expectations as lesson-created `task-tracker-repository` without copying the lesson repository wholesale.
 - Product repository roots should stay readable: product design documents belong under `docs/product/`, product workflow documents under `docs/workflow/`, product memory under `docs/memory/`, and product operation declarations under `ops/`.
-- Existing root-level product documents remain legacy-readable. Do not remove or break the current root-level product document contract unless a later approved migration changes all product gates together.
+- Root-level duplicate product documents are now blocked by `product_repository_canonical_docs_only`; keep product docs under `docs/product`, `docs/workflow`, and `docs/memory`.
 - Product-side `AGENT.md` remains the product repository agent entry; lesson-side `AGENTS.MD` remains the lesson repository invariant source.
 - Dashboard must read product structure, manifests, and evidence rather than inferring state from fixed product-stack files.
 - `docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv` now records required mode, workflow contexts, product types, validation rule, dashboard visibility, canonical path, and legacy paths.
@@ -1063,7 +1063,7 @@ Restart context:
 
 - Free Development repositories need a clear source authority so the lesson and dashboard can distinguish runtime entrypoints, source files, tests, CI, security evidence, and dashboard-visible surfaces.
 - The scaffold should not copy the whole lesson repository.
-- Canonical product documents belong under `docs/product/` and `docs/workflow/`, with legacy root document compatibility preserved until a later approved migration changes all gates together.
+- Canonical product documents belong under `docs/product/`, `docs/workflow/`, and `docs/memory/`; root duplicate Markdown documents are blocked.
 
 Implemented state:
 
@@ -1071,7 +1071,7 @@ Implemented state:
 2. Manifest declarations identify entrypoint, runtime source, test source, CI, security, dashboard surfaces, and integrations.
 3. New manifest files must be added to the sync contract artifacts when created.
 4. Free Development, Product Improvement, and External Integration gate readers use shared product authority resolvers.
-5. Scaffold validation covers missing required paths, optional stack additions, ambiguous source authority, and canonical/legacy conflicts.
+5. Scaffold validation covers missing required paths, optional stack additions, ambiguous source authority, and root duplicate blockers.
 6. Scaffold validation is exposed through `tools/product-scaffold-check` and `tools/test_product_scaffold_check.sh`, with both runtime artifacts recorded in the sync contract artifacts and tests.
 7. Free-development guidance and targeted checks are required before preserving this sync ID as implemented.
 
@@ -1086,11 +1086,11 @@ Required checks:
 ./tools/check_as_built_docs.sh
 ```
 
-Stop and request developer approval before deleting legacy root product documents, making CI mandatory for every Free Development repository, or adding destructive repository automation.
+Stop and request developer approval before weakening canonical product document enforcement, making CI mandatory for every Free Development repository, or adding destructive repository automation.
 
 Recovery path:
 
-- If canonical and legacy documents conflict, report a product-operation blocker.
+- If root duplicate documents exist, report a product-operation blocker.
 - If source authority is ambiguous, fail scaffold validation and require manifest correction.
 
 SYNC-ID: free_development_product_repo_scaffold
@@ -1113,7 +1113,7 @@ Restart context:
 - `task-tracker-repository` remains the STEP 1-14 standard product repository. Free Development, Product Improvement, and External Integration must resolve repositories through context and policy data instead of fixed names.
 - `tools/dashboard-data` must remain read-only. It may read existing settings, manifests, and evidence; it must not create evidence, run checks, fetch remotes, call GitHub, run CI, mutate repositories, or make browser state authoritative.
 - Product authority evidence aggregation must be fixed before UI work depends on it. Multiple evidence rows must stay valid JSON, and `failed`, `blocked`, `stale`, and `not_run` must be represented in status and blockers.
-- Root-level product documents remain legacy-readable. Do not remove compatibility while aligning dashboard and gate resolution around canonical `docs/product/*` and `docs/workflow/*` paths.
+- Root-level product document fallback is superseded by `product_repository_canonical_docs_only`; keep dashboard and gate resolution around canonical `docs/product/*`, `docs/workflow/*`, and `docs/memory/*` paths.
 - Git management settings and Security checks are cross-cutting selected-context state, not primary menu items.
 - Partial Failures are true failed, blocked, or unknown current-context problems. Optional, cached, not-run, or manual-required items belong in manual follow-ups or evidence sections unless they block the current selected context.
 - The five `dashboard-control-center/mocks/mock-context-*.png` files are UI/UX references for hierarchy, icon direction, density, color identity, and intuitive comprehension. They are not pixel-perfect test oracles.
@@ -1125,7 +1125,7 @@ Implemented state:
 2. `tools/dashboard-data` / `tools/lib/dashboard_data.sh` implement producer-side context resolution.
 3. Git, CI, Security, and product status readers stay read-only; they may read existing evidence/settings/manifests but must not execute checks or refresh evidence.
 4. Evidence propagation comes from `product_authority_evidence_status_propagation`; the dashboard does not reimplement authority aggregation.
-5. Scaffold and canonical resolver behavior comes from `free_development_product_repo_scaffold`; legacy fallback remains supported.
+5. Scaffold and canonical resolver behavior comes from `free_development_product_repo_scaffold`; root fallback is superseded by `product_repository_canonical_docs_only`.
 6. Fixtures and targeted tests cover selected-context behavior.
 7. React components and styling consume producer-owned selected-context data.
 8. Full mock-source-of-truth page parity is implemented separately by `dashboard_control_center_context_mock_source_of_truth`.
@@ -1229,7 +1229,7 @@ Restart context:
 
 Important implementation constraints:
 
-- Preserve STEP 1-7, STEP 1-14, existing CI, existing checks, Git hooks, pre-commit, document routes, live snapshot sync, root legacy product document compatibility, and localization boundaries.
+- Preserve STEP 1-7, STEP 1-14, existing CI, existing checks, Git hooks, pre-commit, document routes, live snapshot sync, canonical product document enforcement, and localization boundaries.
 - Keep control-panel fixed labels in `i18n.js`; do not confuse UI locale with lesson display language or product development language.
 - Do not hard-code mock values, one product repository name, one language phrase, one stack, or one fixture result.
 - Do not create repository information, documents, settings, help, or changelog runtime pages until mock-backed requirements exist.
@@ -1256,7 +1256,7 @@ Verification handoff:
 
 Stop and ask for approval before:
 
-- Any browser command execution, POST fetch, Git/GitHub/CI/API call, live authoritative polling, push, merge, cleanup, remote deletion, OAuth, token handling, webhook handling, evidence writing, destructive operation, screenshot-equality oracle, root legacy compatibility removal, or existing-feature tradeoff.
+- Any browser command execution, POST fetch, Git/GitHub/CI/API call, live authoritative polling, push, merge, cleanup, remote deletion, OAuth, token handling, webhook handling, evidence writing, destructive operation, screenshot-equality oracle, canonical product document enforcement weakening, or existing-feature tradeoff.
 - Any change to STEP 1-14's official direct `index.html` launch path.
 
 Recovery path:
@@ -1306,3 +1306,58 @@ Restart context:
 - Minimal verification and Git/CI closure are the remaining active steps for this request.
 
 Stop and ask before adding browser command execution, POST actions, live Git/GitHub/CI polling, product-security execution, product-authority execution, evidence writing, push/merge automation inside the dashboard, destructive operations, runtime placeholder pages, or screenshot-equality test oracles.
+
+## Implemented Menu Product Display Profile Confirmation Handoff
+
+SYNC-ID: menu_product_display_profile_confirmation
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/MENU_PRODUCT_PROFILE_POLICY.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/DASHBOARD_DATA_SCHEMA.tsv,tools/lib/lesson_common.sh,tools/lib/product_repository_authority.sh,tools/product-profile,tools/menu,tools/lesson,tools/lesson14,tools/free-development,tools/product-improvement,tools/external-integration,tools/team-development,tools/product-scaffold-check,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_dashboard_schema.sh,tools/test_dashboard_data.sh
+TESTS: tools/test_dashboard_schema.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_menu_prerequisites.sh,tools/test_lesson.sh,tools/test_lesson14.sh,tools/test_dashboard_data.sh,tools/check_lesson_structure.sh,tools/check_agents_skills.sh
+
+Restart context:
+
+- All seven progress-menu choices now require a learner-confirmed product name or work-target name.
+- Menu items 1 through 6 use the external product repository profile at `ops/PRODUCT_PROFILE.json`.
+- Menu item 7 uses a lesson-repository learning profile and does not require the external product repository.
+- Product profile handling is producer-backed, and the dashboard snapshot is generated from `tools/dashboard-data`.
+
+Verification notes:
+
+- Passed targeted profile, menu, lesson, product authority, scaffold, schema, dashboard data, structure, AGENTS, build, and whitespace checks listed in this block.
+- `tools/test_dashboard_control_center.sh` was attempted but failed in existing browser UI layout expectations:
+  - Overview card top alignment expected one row but observed wrapping into two rows.
+  - Unsafe-text responsive test timed out waiting for the Lessons navigation link.
+- Treat those browser layout failures as a separate dashboard responsive/test-expectation follow-up, not as passed evidence for the profile-data contract.
+
+Safety notes:
+
+- The dashboard remains read-only and only displays the profile from the snapshot.
+- Do not infer product names from requirements/specification prose or repository paths.
+- Do not edit the external product repository without boundary confirmation and explicit approval.
+
+## Implemented Product Repository Canonical Docs Only Handoff
+
+SYNC-ID: product_repository_canonical_docs_only
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/PRODUCT_REPOSITORY_STRUCTURE.tsv,docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv,docs/workflow/PRODUCT_GATE_EVIDENCE_SCHEMA.tsv,prompts/PROMPTS.md,prompts/PROMPTS_14_DAYS.md,lesson/LESSON_FLOW.tsv,lesson/LESSON_FLOW_14_DAYS.tsv,lesson/SYNC_GATES_14_DAYS.tsv,playbooks/AGENT_PLAYBOOK.md,playbooks/AGENT_PLAYBOOK_14_DAYS.md,templates/TEMPLATES.md,skills/task-tracker-docs/SKILL.md,skills/task-tracker-docs/references/product-docs.md,skills/worklog-doc-sync/SKILL.md,skills/worklog-doc-sync/references/worklog-sync.md,skills/lesson-sync-gate/SKILL.md,skills/lesson-sync-gate/references/sync-gates.md,skills/learning-progress-helpdesk/references/progress-helpdesk.md,tools/lib/product_repository_authority.sh,tools/product-scaffold-check,tools/product-improvement,tools/external-integration,tools/dashboard-data,tools/dashboard,tools/check_workflow_pair_sync.sh,tools/check_agents_skills.sh,tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh
+TESTS: tools/test_product_repository_authority.sh,tools/test_product_scaffold_check.sh,tools/test_product_security.sh,tools/check_agents_skills.sh,tools/test_dashboard_data.sh,tools/test_lesson14.sh,tools/check_lesson_structure.sh,tools/check_lesson14_sync.sh
+
+Restart context:
+
+- Product repository docs now use canonical paths only: `docs/product/*`, `docs/workflow/*`, and `docs/memory/*`.
+- `docs/workflow/PRODUCT_REPOSITORY_FORBIDDEN_ROOT_PATHS.tsv` is the reusable policy for root Markdown paths that must not exist in product repositories.
+- Product authority and scaffold checks block root duplicates before reporting readiness.
+- `tools/check_workflow_pair_sync.sh --product` no longer falls back to root `TASK_TRACKER.md` or `HANDOFF.md`.
+- Prompts, lesson flows, sync gates, playbooks, and repo-local skills now point to canonical product paths.
+- This lesson repository records only reusable prevention policy, tools, prompts, and tests. External product repository cleanup state is not a lesson-repository source of truth.
+
+Verification notes:
+
+- Local targeted verification passed for product authority, scaffold, product security, AGENTS/skills, dashboard data, lesson14, lesson structure, and lesson14 sync.
+- Main CI is not part of the requested closure for this handoff. Complete PR CI, merge, and local/remote sync; do not wait for main CI unless a later request changes the workflow.
+
+Recovery notes:
+
+- If a product repository still has root duplicates, compare root and canonical contents before deleting. Never delete a differing root file without preserving the content for review.
+- If a product repository lacks canonical docs, create or move content into the canonical path rather than restoring root fallback.
+- If root duplicate blockers appear in dashboard data, fix the external repository structure; do not hide the blocker in React.

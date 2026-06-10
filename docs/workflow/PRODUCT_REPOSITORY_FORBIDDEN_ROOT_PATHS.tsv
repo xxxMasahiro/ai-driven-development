@@ -1,0 +1,9 @@
+# root_path	canonical_path	source_id	requirement
+REQUIREMENTS.md	docs/product/REQUIREMENTS.md	product_docs.requirements	Product requirements must live under docs/product only.
+SPECIFICATION.md	docs/product/SPECIFICATION.md	product_docs.specification	Product specification must live under docs/product only.
+IMPLEMENTATION_PLAN.md	docs/product/IMPLEMENTATION_PLAN.md	product_docs.implementation_plan	Product implementation plans must live under docs/product only.
+TASK_TRACKER.md	docs/workflow/TASK_TRACKER.md	product_workflow.task_tracker	Product task state must live under docs/workflow only.
+HANDOFF.md	docs/workflow/HANDOFF.md	product_workflow.handoff	Product handoff context must live under docs/workflow only.
+DEVELOPER_MEMORY.md	docs/memory/DEVELOPER_MEMORY.md	product_memory.developer_memory	Product developer memory must live under docs/memory only.
+SESSION_MEMORY.md	docs/memory/SESSION_MEMORY.md	product_memory.session_memory	Product session memory must live under docs/memory only.
+FAILURE_MEMORY.md	docs/memory/FAILURE_MEMORY.md	product_memory.failure_memory	Product failure memory must live under docs/memory only.

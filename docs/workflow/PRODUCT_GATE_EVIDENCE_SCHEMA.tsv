@@ -15,7 +15,7 @@ evidence	authority	implemented	enum	authoritative|manual_required|advisory|not_c
 evidence	source_artifacts	implemented	list	semicolon-separated-relative-path-or-command-ids	Each evidence item lists the policy, manifest, command, or file sources used to produce it.
 evidence	blocked_by	implemented	list	semicolon-separated-source-ids	Each evidence item lists blocking source ids when the status is blocked or unknown.
 evidence	next_command	implemented	command-preview	preview_only-text	Each evidence item may provide a read-only command preview for manual follow-up.
-resolver	canonical_priority	implemented	enum	canonical_first|legacy_when_canonical_missing|blocked_on_conflict	Product document resolution prefers canonical docs paths, reads legacy root paths when canonical files are missing, and blocks conflicting duplicate content.
+resolver	canonical_priority	implemented	enum	canonical_only|blocked_on_root_duplicate	Product document resolution uses canonical docs paths and blocks root-level duplicate product repository documents.
 resolver	legacy_paths_none	implemented	string	none	The `none` legacy_paths value is a sentinel that means no legacy path is accepted for that structure row.
 manifest	required_mode_values	implemented	enum	required|optional|contextual	Manifest and structure rows use fixed required-mode values.
 manifest	context_values	implemented	enum	all|free-development|product-improvement|external-integration|lesson-maintenance|custom	Manifest and structure contexts use fixed values, with `all` applying to every product workflow context.

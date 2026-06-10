@@ -202,6 +202,7 @@ menu_check_item() {
       exit 1
       ;;
   esac
+  lesson_product_profile_require "$item" "$(menu_item_name "$item")"
   menu_require_git_workflow_policy "$item"
   if [[ "$item" == "4" || "$item" == "5" || "$item" == "6" ]]; then
     "$LESSON_ROOT/tools/product-security" status --context "$(case "$item" in 4) printf 'free-development' ;; 5) printf 'product-improvement' ;; 6) printf 'external-integration' ;; esac)" >/dev/null
@@ -246,6 +247,7 @@ menu_readiness() {
         fi
         ;;
     esac
+    lesson_product_profile_print_readiness "$item" "Product name"
     menu_print_git_workflow_readiness "$item"
     if [[ "$item" == "4" || "$item" == "5" || "$item" == "6" ]]; then
       printf 'Product security: '

@@ -24,7 +24,7 @@ tools/helpdesk
 Keep development progress and learning progress separate:
 
 ```text
-TASK_TRACKER.md / HANDOFF.md: product work
+docs/workflow/TASK_TRACKER.md / docs/workflow/HANDOFF.md: product work
 LEARNING_*: learner progress
 HELP_DESK.md: questions and resolutions
 ```
