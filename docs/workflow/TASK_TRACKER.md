@@ -1425,3 +1425,24 @@ Active constraints:
 - Existing STEP 1-7, STEP 1-14, CI, checks, docs-tour, document routes, Maintenance Sync, Safety Confirmation, Repository Information, Git hooks, pre-commit, localization, and read-only dashboard behavior must remain intact.
 - The dashboard must not execute commands, write documents, refresh evidence, mutate repositories, call GitHub/CI, push, merge, clean up, or handle credentials.
 - Implementation must use existing settings, shared dashboard-data helpers, schema validation, fixtures, targeted tests, and repo-local workflow conventions rather than fixed values or one-off branches.
+
+## Implemented Agent Escalated Verification Policy
+
+SYNC-ID: agent_escalated_verification_policy
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
+TESTS: tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_agents_skills.sh
+
+Current task state:
+
+- [x] Add an AGENTS.MD invariant requiring first-attempt escalated execution for known sandbox-incompatible, non-destructive verification.
+- [x] Name Playwright/Chromium real-screen inspection, screenshot capture, browser launch, and local port observation as covered examples.
+- [x] Preserve approval boundaries for credentials, OAuth, dependency changes, repository mutation, push, merge, cleanup, delete, destructive operations, CI failure overrides, and gate weakening.
+- [x] Register the policy in the as-built sync contract.
+- [x] Synchronize the three as-built documents, task tracker, and handoff.
+
+Verification state:
+
+- [x] `tools/check_as_built_sync_contract.sh` passed.
+- [x] `tools/check_as_built_docs.sh` passed.
+- [x] `tools/check_agents_skills.sh` passed.

@@ -3250,3 +3250,32 @@ Developer approval boundaries:
 - Approval is required before browser command execution, POST fetches, live Git/GitHub/CI/API polling, evidence writing, document editing from the dashboard, merge, push, cleanup, remote deletion, OAuth, token handling, or destructive operations.
 - Approval is required before removing or weakening docs-tour, `tools/dashboard docs`, Maintenance Sync evidence, Safety Confirmation, Repository Information, STEP 1-7, STEP 1-14, existing CI, Git hooks, pre-commit, or existing document routes.
 - Approval is required before accepting schema-incompatible behavior or any existing-feature tradeoff.
+
+## Implemented Agent Escalated Verification Policy Implementation Plan
+
+SYNC-ID: agent_escalated_verification_policy
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
+TESTS: tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_agents_skills.sh
+
+Implementation completed:
+
+1. Added AGENTS.MD invariant rule 22 for first-attempt escalated execution of known sandbox-incompatible, non-destructive verification.
+2. Scoped the rule to Playwright/Chromium real-screen inspection, screenshot capture, browser launch, local port observation, and equivalent observation-only checks.
+3. Preserved the existing approval boundary for credentials, OAuth, external writes, dependency changes, repository mutation, push, merge, cleanup, delete, destructive operations, CI failure overrides, and gate weakening.
+4. Registered the policy in `AS_BUILT_SYNC_CONTRACT.tsv` so future synchronization checks treat the policy as an implemented contract.
+5. Synchronized requirements, specification, implementation plan, task tracker, and handoff so the rule is not only an AGENTS.MD one-off.
+
+Verification plan:
+
+```bash
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_agents_skills.sh
+```
+
+Future usage:
+
+- When visual design work requires Playwright evidence, launch the browser with the required execution scope immediately and capture the relevant viewport screenshots before making design conclusions.
+- If the escalated command itself fails, report the environment blocker and do not claim the page was visually verified.
+- Continue to ask before dangerous or credential-bearing operations; this policy only removes redundant confirmation for non-destructive observation commands that are already required by the active task.

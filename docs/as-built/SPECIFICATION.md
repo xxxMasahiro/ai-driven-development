@@ -1775,3 +1775,23 @@ Safety and compatibility contract:
 - Browser behavior remains GET/read-only and cannot execute Git, GitHub, CI, shell, product-security, product-authority, document generation, evidence writing, merge, push, cleanup, or external repository mutation.
 - Existing docs-tour, `tools/dashboard docs`, maintenance evidence, repository information, update history, STEP 1-7, STEP 1-14, Git hooks, pre-commit, and CI wiring remain intact.
 - If a new dashboard document test is later introduced, it must run as a standalone command and be callable from aggregate tests without depending on a single product stack or one exact phrase.
+
+## Implemented Agent Escalated Verification Policy Specification
+
+SYNC-ID: agent_escalated_verification_policy
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv
+TESTS: tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_agents_skills.sh
+
+Execution-scope contract:
+
+- A verification command is eligible for first-attempt escalated execution only when it is non-destructive, read-only or observation-only, and known to require permissions beyond the default sandbox in this environment.
+- Eligible examples include Playwright/Chromium browser launch for visual inspection, screenshot capture, browser page inspection, and local process or port observation needed to confirm a running dashboard.
+- The command remains bounded to the active task and must not add unrelated broad tests, external data collection, credential access, or repository mutation.
+- The agent records conclusions only after the escalated observation succeeds or after the failure itself is a meaningful environment blocker.
+
+Safety boundary:
+
+- This policy does not apply to authentication, OAuth, token or secret handling, dependency installation or updates, external service writes, product repository writes, evidence writes, push, merge, cleanup, delete, destructive Git operations, CI failure overrides, or gate weakening.
+- Existing AGENTS.MD rules for dangerous operations, security-first implementation, minimum necessary tests, repository boundaries, and no existing-feature tradeoff remain higher-priority boundaries.
+- Dashboard and browser pages remain read-only; escalated Playwright inspection is an external verification activity, not a dashboard runtime capability.
