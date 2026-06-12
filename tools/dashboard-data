@@ -1707,6 +1707,12 @@ latest_sync_id="$(dashboard_latest_sync_field 1 2>/dev/null || printf 'unknown')
 latest_sync_status="$(dashboard_latest_sync_field 2 2>/dev/null || printf 'unknown')"
 latest_sync_label="$(dashboard_latest_sync_field 3 2>/dev/null || printf 'Current documented work')"
 documents_product_name="$(dashboard_json_get_field "$product_authority_json" "product_summary.display_name.ja" 2>/dev/null || dashboard_json_get_field "$product_authority_json" "product_summary.name" 2>/dev/null || printf '%s' "$PRODUCT_NAME")"
+if [[ -z "$documents_product_name" ]]; then
+  documents_product_name="$PRODUCT_NAME"
+fi
+if [[ -z "$documents_product_name" ]]; then
+  documents_product_name="not_configured"
+fi
 IFS=$'\t' read -r task_done_count task_total_count < <(dashboard_task_tracker_progress "$latest_sync_id")
 if [[ "$(dashboard_context_product_repo_required "$SELECTED_MENU_ID")" == "true" ]]; then
   task_progress_value="Step 11/14 CI E2E連携完了"

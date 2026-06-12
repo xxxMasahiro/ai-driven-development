@@ -1101,6 +1101,27 @@ if (['step_1_7', 'lesson-repository-improvement'].includes(menuId)) {
 NODE
 done
 
+EMPTY_PRODUCT_NAME_CONFIG="$TMP_DIR/LESSON_CONFIG_EMPTY_PRODUCT_NAME.tsv"
+EMPTY_PRODUCT_NAME_JSON="$TMP_DIR/dashboard-data-empty-product-name.json"
+{
+  printf '# key\tvalue\n'
+  printf 'product_repo_name\t\n'
+} >"$EMPTY_PRODUCT_NAME_CONFIG"
+DASHBOARD_DATA_GENERATED_AT="2026-06-05T00:00:00Z" \
+  DASHBOARD_SELECTED_MENU_ID="free-development" \
+  DASHBOARD_LESSON14_CONFIG="$EMPTY_PRODUCT_NAME_CONFIG" \
+  LESSON_CONFIG="$EMPTY_PRODUCT_NAME_CONFIG" \
+  "$ROOT/tools/dashboard-data" >"$EMPTY_PRODUCT_NAME_JSON"
+node - "$EMPTY_PRODUCT_NAME_JSON" <<'NODE'
+const fs = require('fs');
+const data = JSON.parse(fs.readFileSync(process.argv[2], 'utf8'));
+const productName = data.settings?.items?.find((item) => item.id === 'product_name');
+if (!productName || typeof productName.current_value !== 'string' || productName.current_value.length === 0) {
+  console.error('product_name Settings row must not expose an empty current_value when product_repo_name is unset');
+  process.exit(1);
+}
+NODE
+
 INCONSISTENT_GIT_SETTINGS="$TMP_DIR/inconsistent-git-settings.tsv"
 INCONSISTENT_GIT_JSON="$TMP_DIR/dashboard-data-inconsistent-git.json"
 cat >"$INCONSISTENT_GIT_SETTINGS" <<'DOC'
