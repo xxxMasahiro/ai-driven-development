@@ -20,10 +20,18 @@ The owner-layer helpers are `tools/lib/repository_development_workflow.sh` and `
 ./tools/repository-development-workflow plan --phase implementation_plan
 ./tools/repository-development-workflow guidance --phase fast_loop
 ./tools/repository-development-workflow gate --phase release_gate
+./tools/repository-development-workflow detect
+./tools/repository-development-workflow plan-run --phase fast_loop --check-set required
+./tools/repository-development-workflow run --phase fast_loop --check-set required --execute --approved
+./tools/repository-development-workflow status --runs
+./tools/repository-development-workflow next --phase fast_loop
 ./tools/repository-development-workflow check
 ```
 
-The workflow command explains required and recommended checks. It does not run push, merge, remote sync, main CI waiting, deletion, or cleanup.
+The workflow command explains required and recommended checks.
+The Runner can dry-run every phase and can execute only policy-allowed non-destructive local checks for phases such as `fast_loop` and `mid_tests`.
+It records phase, check, command, result, repository HEAD, policy fingerprint, input fingerprint, and working-tree summary in the local ignored `.repository-development-runs/` directory.
+It does not run push, merge, remote sync, main CI waiting, deletion, cleanup, arbitrary shell, dashboard mutation, credential handling, or release-proof shortcuts.
 
 ## Ownership Boundaries
 
@@ -35,6 +43,8 @@ The workflow command explains required and recommended checks. It does not run p
 ## Release Proof
 
 Fast-loop checks can keep implementation moving, but they are not proof for release. Release proof must include the synchronized document checks, structure checks, aggregate checks, full hooks or equivalent same-run evidence, PR CI, and later main CI plus local/remote sync when that phase is explicitly approved.
+Runner records may be reused only for fast-loop or medium local decisions when HEAD, policy fingerprint, and input fingerprint match.
+They must not be reused as release proof.
 
 ## Approval Boundaries
 

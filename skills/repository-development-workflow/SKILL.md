@@ -22,14 +22,26 @@ Use this skill for this repository's own development. It supports `AGENTS.MD`; i
 4. For detailed steps, read `references/repository-development.md`.
 5. Use `./tools/repository-development-workflow guidance --phase <phase_id>` before selecting checks.
 6. Use `./tools/repository-development-workflow gate --phase <phase_id>` before moving to a stricter phase.
-7. If product documents are involved, route to `skills/worklog-doc-sync/SKILL.md`.
-8. If final lesson gates or STEP 1-14 synchronization are involved, route to `skills/lesson-sync-gate/SKILL.md`.
+7. Use the runner dry-run before local execution:
+
+```bash
+./tools/repository-development-workflow detect
+./tools/repository-development-workflow plan-run --phase fast_loop --check-set required
+./tools/repository-development-workflow run --phase fast_loop --check-set required --execute --approved
+./tools/repository-development-workflow status --runs
+./tools/repository-development-workflow next --phase fast_loop
+```
+
+8. If product documents are involved, route to `skills/worklog-doc-sync/SKILL.md`.
+9. If final lesson gates or STEP 1-14 synchronization are involved, route to `skills/lesson-sync-gate/SKILL.md`.
 
 ## Guardrails
 
 - Existing-feature tradeoffs are forbidden.
 - STEP 1-7, STEP 1-14, existing CI, existing checks, existing document routes, repo-local skills, and security gates remain authoritative.
 - Fast implementation loops do not replace release proof.
+- Runner records can support fast-loop and medium-test decisions only when fingerprints match; they are not release proof.
+- `plan-run` is the default safe path. `run --phase ... --execute` is limited to allowed non-destructive local checks and still needs `--approved` for approval-bound phases.
 - New checks must be standalone and aggregate-callable.
 - Destructive cleanup, push, merge, main CI waiting, and local/remote sync are approval-bound.
 - Do not add fixed one-off branches for one product stack, phrase, menu, or case.

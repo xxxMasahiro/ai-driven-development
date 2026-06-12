@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=tools/lib/repository_development_workflow.sh
 source "$ROOT/tools/lib/repository_development_workflow.sh"
+# shellcheck source=tools/lib/repository_development_runner.sh
+source "$ROOT/tools/lib/repository_development_runner.sh"
 
 missing=0
 
@@ -49,16 +51,20 @@ require_policy_row() {
 }
 
 repository_development_validate_policy || missing=1
+repository_development_runner_validate_policy || missing=1
 
 require_file "docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv"
+require_file "docs/workflow/REPOSITORY_DEVELOPMENT_RUNNER_POLICY.tsv"
 require_file "learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv"
 require_file "skills/repository-development-workflow/SKILL.md"
 require_file "skills/repository-development-workflow/references/repository-development.md"
 require_file "skills/repository-development-workflow/agents/openai.yaml"
 require_file "tools/lib/repository_development_workflow.sh"
+require_file "tools/lib/repository_development_runner.sh"
 require_executable "tools/repository-development-workflow"
 require_executable "tools/check_repository_development_workflow.sh"
 require_executable "tools/test_repository_development_workflow.sh"
+require_pattern ".gitignore" '^[.]repository-development-runs/' "ignored repository-development runner records"
 
 require_pattern "AGENTS.MD" '既存機能.*トレードオフ.*禁止' "no-tradeoff invariant"
 require_pattern "AGENTS.MD" 'STEP 1-7.*STEP 1-14.*既存CI.*既存チェック.*既存ドキュメント導線' "existing feature invariant scope"
@@ -72,19 +78,30 @@ require_pattern "skills/repository-development-workflow/SKILL.md" 'AGENTS\.MD' "
 require_pattern "skills/repository-development-workflow/SKILL.md" 'worklog-doc-sync' "worklog route"
 require_pattern "skills/repository-development-workflow/SKILL.md" 'lesson-sync-gate' "lesson sync route"
 require_pattern "skills/repository-development-workflow/SKILL.md" 'repository-development-workflow' "workflow CLI reference"
+require_pattern "skills/repository-development-workflow/SKILL.md" 'plan-run' "runner dry-run reference"
+require_pattern "skills/repository-development-workflow/SKILL.md" 'run --phase' "runner execution reference"
 require_pattern "skills/repository-development-workflow/references/repository-development.md" 'context_triage' "phase reference"
 require_pattern "skills/repository-development-workflow/references/repository-development.md" 'release_gate' "release phase reference"
 require_pattern "skills/repository-development-workflow/references/repository-development.md" 'explicit developer approval' "approval reference"
+require_pattern "skills/repository-development-workflow/references/repository-development.md" 'Runner' "runner reference"
 
 require_pattern "tools/repository-development-workflow" 'repository_development_validate_policy' "owner-layer validation"
+require_pattern "tools/repository-development-workflow" 'repository_development_runner_validate_policy' "runner policy validation"
+require_pattern "tools/repository-development-workflow" 'plan-run' "runner dry-run subcommand"
+require_pattern "tools/repository-development-workflow" 'status --runs' "runner records status"
+require_pattern "tools/lib/repository_development_runner.sh" 'runner destructive execution must remain false' "destructive runner policy guard"
+require_pattern "tools/lib/repository_development_runner.sh" 'Runner execution passed' "runner execution status"
 require_pattern "tools/test_repository_development_workflow.sh" 'REPOSITORY_DEVELOPMENT_WORKFLOW_FILE' "policy override regression"
+require_pattern "tools/test_repository_development_workflow.sh" 'REPOSITORY_DEVELOPMENT_RUNNER_POLICY_FILE' "runner policy override regression"
 
 require_policy_row "docs/workflow/GIT_HOOK_CHECKS.tsv" '^check_repository_development_workflow\t' "hook check row"
 require_policy_row "docs/workflow/GIT_HOOK_CHECKS.tsv" '^test_repository_development_workflow\t' "hook test row"
 require_policy_row "docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv" '^check_repository_development_workflow\t' "parallel group check row"
 require_policy_row "docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv" '^test_repository_development_workflow\t' "parallel group test row"
 require_policy_row "docs/workflow/TEST_PLAN_MANIFEST.tsv" '^docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv\t' "test-plan workflow policy row"
+require_policy_row "docs/workflow/TEST_PLAN_MANIFEST.tsv" '^docs/workflow/REPOSITORY_DEVELOPMENT_RUNNER_POLICY.tsv\t' "test-plan runner policy row"
 require_policy_row "docs/workflow/TEST_PLAN_MANIFEST.tsv" '^tools/lib/repository_development_workflow.sh\t' "test-plan helper row"
+require_policy_row "docs/workflow/TEST_PLAN_MANIFEST.tsv" '^tools/lib/repository_development_runner.sh\t' "test-plan runner helper row"
 require_policy_row "docs/workflow/TEST_PLAN_MANIFEST.tsv" '^tools/repository-development-workflow\t' "test-plan CLI row"
 require_policy_row "docs/workflow/TEST_PLAN_MANIFEST.tsv" '^tools/check_repository_development_workflow.sh\t' "test-plan check row"
 require_policy_row "docs/workflow/TEST_PLAN_MANIFEST.tsv" '^tools/test_repository_development_workflow.sh\t' "test-plan test row"

@@ -1751,3 +1751,31 @@ Non-scope:
 - This implementation does not execute push, merge, main CI waiting, local/remote synchronization, branch deletion, worktree deletion, remote deletion, product-repository deletion, or cleanup deletion; those remain approval-bound closure-phase actions.
 - The new workflow skill must not weaken AGENTS.MD, STEP 1-7, STEP 1-14, existing gates, Git hooks, pre-commit, CI, document routes, or existing repo-local skills.
 - The new workflow skill must not create a shortcut around developer approvals, security gates, evidence requirements, destructive-operation policy, or final-gate proof.
+
+## Repository Development Workflow Runner Requirements
+
+SYNC-ID: repository_development_workflow_runner
+STATUS: implemented
+ARTIFACTS: .gitignore,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_RUNNER_POLICY.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/repository-development-workflow/SKILL.md,skills/repository-development-workflow/references/repository-development.md,tools/lib/repository_development_workflow.sh,tools/lib/repository_development_runner.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,docs/as-built/IMPLEMENTATION_PLAN.md,docs/workflow/TASK_TRACKER.md,docs/workflow/HANDOFF.md
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_test_plan_coverage.sh,tools/test_test_plan.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_workflow_pair_sync.sh
+
+The repository development workflow runner must turn the existing policy-backed skill into an approval-bound execution controller for lesson-repository development without weakening AGENTS.MD, existing gates, or the current release-proof model.
+The runner is additive: it coordinates phase detection, check selection, execution records, reuse decisions, and stop conditions while existing commands, tests, CI, hooks, and repo-local skills remain authoritative.
+
+Required outcomes:
+
+- Detect or accept the active repository-development phase from the existing seven-phase model.
+- Produce a dry-run execution plan before running checks.
+- Execute non-destructive local checks for `fast_loop` and `mid_tests` when explicitly requested and allowed.
+- Record phase, command, commit, policy fingerprint, input fingerprint, result, and timestamp.
+- Reuse prior PASS records only when commit, relevant inputs, policy, and command identity still match.
+- Keep release proof strict; `release_gate` must not be satisfied by stale fast-loop records.
+- Keep merge, main CI waiting, local/remote sync, branch/worktree deletion, remote deletion, product-repository deletion, and cleanup execution approval-bound.
+- Make new runner validation callable directly and from aggregate checks.
+- Store runner policy in machine-readable workflow files and shared shell helpers rather than one-off branches.
+- Preserve STEP 1-7, STEP 1-14, existing CI, existing checks, existing document routes, repo-local skills, security gates, and document synchronization ownership boundaries.
+
+Non-scope:
+
+- The runner must not become a dashboard mutation route, browser command executor, CI bypass, approval bypass, destructive cleanup tool, or replacement for `worklog-doc-sync` or `lesson-sync-gate`.
+- The runner must not cache CI verification results as release proof.

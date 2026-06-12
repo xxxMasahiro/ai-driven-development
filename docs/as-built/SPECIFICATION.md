@@ -2089,3 +2089,49 @@ Approval contract:
 
 - Developer approval is required before future edits to AGENTS.MD, hooks, pre-commit, CI, final-gate coverage, push/merge/main CI handling, cleanup deletion, or accepting any existing-feature tradeoff.
 - If any planned check or workflow guidance conflicts with AGENTS.MD, existing CI, existing document routes, STEP 1-7, STEP 1-14, security gates, or repo-local skill ownership, implementation must stop and request developer direction.
+
+## Repository Development Workflow Runner Specification
+
+SYNC-ID: repository_development_workflow_runner
+STATUS: implemented
+ARTIFACTS: .gitignore,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_RUNNER_POLICY.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/repository-development-workflow/SKILL.md,skills/repository-development-workflow/references/repository-development.md,tools/lib/repository_development_workflow.sh,tools/lib/repository_development_runner.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,docs/as-built/IMPLEMENTATION_PLAN.md,docs/workflow/TASK_TRACKER.md,docs/workflow/HANDOFF.md
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_test_plan_coverage.sh,tools/test_test_plan.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_workflow_pair_sync.sh
+
+The runner extends the implemented repository development workflow skill from policy guidance to controlled execution.
+It must use the existing workflow TSV and owner-layer helper as source of truth and must add any runner-specific policy as data, not as hard-coded command branching.
+
+Runner command contract:
+
+- `detect` reports the inferred phase from current Git state and safely available local signals. Explicit `--phase` remains accepted by phase-specific commands.
+- `plan-run --phase <phase_id>` prints a non-destructive plan showing required inputs, allowed writes, recommended checks, required checks, approval boundaries, Git/CI expectations, and whether previous PASS records are reusable candidates.
+- `run --phase <phase_id> --execute` runs only checks allowed by that phase and current approval state. It must default to dry-run when execution is not explicitly requested.
+- `record` writes structured local execution records for checks that were actually executed or externally verified.
+- `next` explains whether the next stricter phase is blocked, allowed, or approval-bound.
+- `status --runs` shows recent runner records and reuse eligibility without treating them as release proof.
+
+Policy and record contract:
+
+- The runner must read check ids from existing workflow and Git hook/test-plan policy files rather than embedding command lists in the CLI.
+- A runner record must include at least phase id, check id, command, exit status, started and finished timestamps, repository HEAD, policy fingerprint, input fingerprint, working-tree summary, and result.
+- The default record location is local and non-authoritative for release: `.repository-development-runs/`.
+- Reuse eligibility must be conservative: matching HEAD, matching command identity, matching policy fingerprint, matching relevant input fingerprint, and prior successful status are required.
+- If the working tree contains unowned user changes or the runner cannot prove fingerprint equivalence, reuse is not allowed.
+
+Phase execution contract:
+
+- `context_triage`, `proposal`, and `implementation_plan` remain plan-first phases and must not perform runtime implementation.
+- `fast_loop` may run scoped local checks and record results after implementation approval, but it must not claim release readiness.
+- `mid_tests` may run the medium verification set for changed owner layers.
+- `release_gate` may orchestrate required local release proof and PR CI monitoring only with the required approval. It must not skip aggregate, full, pre-commit, or PR CI obligations based on fast-loop records.
+- `main_sync_cleanup` may plan or perform merge, main CI monitoring, local/remote sync, and cleanup only after explicit developer approval for that phase.
+
+Safety contract:
+
+- The runner must fail closed for malformed policy rows, missing check ids, missing approval state, stale records, mismatched fingerprints, missing required tests, or attempted destructive execution without approval.
+- It must not add dependencies, external services, browser mutation routes, credential handling, dashboard command execution, arbitrary shell execution, or CI bypass behavior.
+- Any future support for push, PR creation, merge, main CI waiting, local/remote sync, or cleanup execution must remain approval-bound and auditable.
+
+Verification contract:
+
+- Existing `tools/check_repository_development_workflow.sh` and `tools/test_repository_development_workflow.sh` must be extended to validate runner policy, dry-run behavior, execution gating, record schema, reuse rejection, release-gate strictness, and approval-bound closure behavior.
+- New runner checks, if split into separate commands, must be callable directly and through aggregate verification.

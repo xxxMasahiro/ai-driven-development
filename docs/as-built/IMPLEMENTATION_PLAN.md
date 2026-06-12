@@ -3756,3 +3756,94 @@ Developer approval boundaries:
 
 - Approval is required before editing AGENTS.MD, pre-commit, CI, final-gate coverage, branch/worktree deletion, remote deletion, product-repository deletion, push, merge, main CI waiting, local/remote sync, or any destructive operation.
 - Approval is required before weakening existing gates, removing required checks, changing STEP 1-7 or STEP 1-14 behavior, changing repo-local skill ownership, or accepting an existing-feature tradeoff.
+
+## Repository Development Workflow Runner Implementation Plan
+
+SYNC-ID: repository_development_workflow_runner
+STATUS: implemented
+ARTIFACTS: .gitignore,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_RUNNER_POLICY.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/repository-development-workflow/SKILL.md,skills/repository-development-workflow/references/repository-development.md,tools/lib/repository_development_workflow.sh,tools/lib/repository_development_runner.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,docs/as-built/IMPLEMENTATION_PLAN.md,docs/workflow/TASK_TRACKER.md,docs/workflow/HANDOFF.md
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_test_plan_coverage.sh,tools/test_test_plan.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_workflow_pair_sync.sh
+
+This implementation upgrades `repository-development-workflow` from guidance-only policy support to an approval-bound runner.
+Runtime runner files and command behavior are implemented for local non-destructive checks; push, merge, CI monitoring, main sync, and cleanup execution remain outside this implementation.
+
+Implemented change targets:
+
+1. Add runner policy data.
+   - Extend existing workflow policy only when the field belongs to every phase.
+   - Added `docs/workflow/REPOSITORY_DEVELOPMENT_RUNNER_POLICY.tsv` so runner-specific execution, reuse, approval, and release-proof policy does not overload the phase TSV.
+
+2. Add runner helper ownership.
+   - Added `tools/lib/repository_development_runner.sh` as the runner owner layer.
+   - Keep existing `tools/lib/repository_development_workflow.sh` as the phase-policy owner.
+   - Consume existing check ids from `docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv`, `docs/workflow/GIT_HOOK_CHECKS.tsv`, and test-plan policy rather than hard-coding command lists.
+
+3. Extend the CLI.
+   - Added `detect`, `plan-run`, `run`, `record`, `next`, and `status --runs` to `tools/repository-development-workflow`.
+   - Keep current `status`, `plan`, `check`, `gate`, `guidance`, and `list` behavior backward-compatible.
+   - Make dry-run the default for execution planning.
+
+4. Add local runner records.
+   - Uses `.repository-development-runs/` as a local ignored record directory.
+   - Record phase, check id, command, result, timestamps, HEAD, policy fingerprint, input fingerprint, and working-tree summary.
+   - Never store secrets, tokens, private messages, or raw untrusted external text in records.
+
+5. Implement conservative reuse.
+   - Permit reuse only for fast and mid-test phases when HEAD, command identity, policy fingerprint, input fingerprint, and previous PASS all match.
+   - Reject reuse on dirty unowned changes, unknown inputs, changed policy, changed command, missing record fields, or release-gate proof.
+
+6. Implement execution and approval gates.
+   - Allow non-destructive local checks for `fast_loop` and `mid_tests` after the relevant implementation approval.
+   - Keep `release_gate` and `main_sync_cleanup` approval-bound.
+   - Treat push, PR creation, PR CI monitoring, merge, main CI waiting, sync, and cleanup execution as explicit approval scopes.
+
+7. Extend validation.
+   - Updated `tools/check_repository_development_workflow.sh` for runner files, policy rows, no destructive guidance, and test-plan wiring.
+   - Updated `tools/test_repository_development_workflow.sh` for dry-run planning, check selection, record schema, reuse allow/reject cases, release-gate non-reuse, and approval-bound closure behavior.
+   - Kept runner regression coverage inside the existing standalone and aggregate-callable repository development workflow test.
+
+8. Update skill guidance.
+   - Extended `skills/repository-development-workflow/SKILL.md` and its reference to tell agents when to use `plan-run`, when to execute, when to stop, and when to request approval.
+   - Keep `worklog-doc-sync` and `lesson-sync-gate` ownership unchanged.
+
+9. Promote after implementation.
+   - Replaced the planned contract artifact/test list with runtime artifacts and required tests.
+   - Promoted `STATUS` to `implemented` after targeted runner tests and synchronization checks.
+
+Document synchronization policy:
+
+- Requirements define the user-visible capability and non-negotiable safety boundaries.
+- Specification defines command, record, phase, safety, and verification contracts.
+- This implementation plan defines implementation order, validation, recovery, approval boundaries, and promotion conditions.
+- Task tracker records current state and pending runtime work.
+- Handoff records restart context and next safe action.
+
+Verification:
+
+```bash
+bash -n tools/lib/repository_development_workflow.sh tools/lib/repository_development_runner.sh tools/repository-development-workflow tools/check_repository_development_workflow.sh tools/test_repository_development_workflow.sh
+./tools/check_repository_development_workflow.sh
+./tools/test_repository_development_workflow.sh
+./tools/check_test_plan_coverage.sh
+./tools/test_test_plan.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_workflow_pair_sync.sh
+./tools/test_git_hooks.sh
+./tools/test_git_hooks_parallel.sh
+./tools/check_ci_workflow_structure.sh
+./tools/test_lesson_repository.sh
+```
+
+Failure recovery:
+
+- If runner policy conflicts with existing phase policy, keep the phase policy authoritative and revise the runner policy.
+- If record reuse cannot be proven safe, disable reuse and run the check.
+- If the runner weakens release proof, remove the shortcut and restore existing aggregate/full/CI obligations.
+- If execution gating becomes ambiguous, default to dry-run and request developer approval.
+- If repeated failures, specification conflict, or existing-feature tradeoff appears, stop and request developer direction.
+
+Developer approval boundaries:
+
+- Approval is required before adding or changing Git/CI/pre-commit/final-gate behavior.
+- Approval is required before allowing the runner to perform push, PR creation, CI monitoring, merge, main CI waiting, local/remote sync, branch deletion, worktree deletion, remote deletion, product-repository deletion, cleanup execution, or any destructive operation.

@@ -1776,3 +1776,46 @@ Verification state:
 Next Step:
 
 - This implementation step is closed. Future PR push, PR CI, merge, main CI, local/remote sync, and cleanup remain separate approval-bound release or closure phases.
+
+## Repository Development Workflow Runner
+
+SYNC-ID: repository_development_workflow_runner
+STATUS: implemented
+ARTIFACTS: .gitignore,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_RUNNER_POLICY.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/repository-development-workflow/SKILL.md,skills/repository-development-workflow/references/repository-development.md,tools/lib/repository_development_workflow.sh,tools/lib/repository_development_runner.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,docs/as-built/IMPLEMENTATION_PLAN.md,docs/workflow/TASK_TRACKER.md,docs/workflow/HANDOFF.md
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_test_plan_coverage.sh,tools/test_test_plan.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_workflow_pair_sync.sh
+
+Current task state:
+
+- [x] Use `$repository-development-workflow` and select the `implementation_plan` phase.
+- [x] Confirm the current phase allows document synchronization only and requires developer approval before runtime implementation.
+- [x] Define the planned direction: an approval-bound runner for phase detection, dry-run planning, allowed local check execution, execution records, conservative PASS reuse, next-phase stop decisions, release proof, and main-sync cleanup boundaries.
+- [x] Keep the existing policy-backed skill implementation as the foundation rather than replacing it.
+- [x] Preserve AGENTS.MD as the highest-priority rule source.
+- [x] Keep fast-loop and mid-test convenience separate from release proof.
+- [x] Keep merge, main CI waiting, local/remote sync, branch/worktree deletion, remote deletion, product-repository deletion, and cleanup execution approval-bound.
+- [x] Synchronize this runner work across the requirements, specification, implementation plan, task tracker, handoff, and sync contract.
+- [x] Obtain developer approval before runtime implementation.
+- [x] Implement runner policy, helper, CLI subcommands, record schema, tests, and skill guidance after approval.
+- [x] Promote this sync ID to implemented after runtime artifacts and required verification pass.
+
+Planned implementation checklist:
+
+- [x] Add runner policy data without overloading the phase TSV.
+- [x] Add a runner owner-layer helper.
+- [x] Extend `tools/repository-development-workflow` with `detect`, `plan-run`, `run`, `record`, `next`, and `status --runs`.
+- [x] Add a local, ignored runner-record directory after approval.
+- [x] Add conservative fingerprint-based PASS reuse for fast and mid-test phases.
+- [x] Keep release gate strict and non-reusable from fast-loop records.
+- [x] Extend standalone and aggregate-capable runner tests.
+- [x] Update repo-local skill guidance.
+
+Active constraints:
+
+- No existing-feature tradeoff is allowed.
+- STEP 1-7, STEP 1-14, existing CI, existing checks, existing document routes, repo-local skills, security gates, Git hooks, pre-commit, and final-gate proof remain constraints.
+- The runner must use existing policy and check catalogs rather than hard-coded command lists.
+- Runtime implementation must stop if approval, release proof, security, or cleanup boundaries become ambiguous.
+
+Next Step:
+
+- Move to `mid_tests` only after reviewing the implemented diff and running any additional medium checks selected by the workflow contract.

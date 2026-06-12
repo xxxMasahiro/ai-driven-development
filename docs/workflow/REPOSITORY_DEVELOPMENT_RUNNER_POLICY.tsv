@@ -1,0 +1,8 @@
+# phase_id	order	execution_mode	executable_check_sets	record_required	reuse_allowed	approval_required	release_policy	destructive_execution	stop_policy
+context_triage	1	plan_only	none	false	false	false	no_release_proof	false	plan_first
+proposal	2	plan_only	none	false	false	false	no_release_proof	false	plan_first
+implementation_plan	3	plan_only	none	false	false	true	no_release_proof	false	docs_sync_only
+fast_loop	4	local_checks	recommended|required	true	true	true	no_release_proof	false	scoped_runtime_only
+mid_tests	5	local_checks	recommended|required	true	true	false	no_release_proof	false	medium_verification
+release_gate	6	plan_only	none	false	false	true	strict_release_proof	false	owner_release_gate_only
+main_sync_cleanup	7	plan_only	none	false	false	true	strict_main_sync_proof	false	approval_bound_cleanup_only

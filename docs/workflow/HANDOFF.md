@@ -1853,3 +1853,49 @@ Current verification state:
 - `tools/test_lesson_repository.sh`: passed after the approval-policy and `pre_commit_required` review fixes.
 - `tools/git-hooks run --mode full --no-cache`: passed after the final-gate gap coverage fix.
 - Read-only sub-agent review completed across implementation, wiring, and document synchronization; follow-up re-review found no unresolved release-blocking findings.
+
+## Repository Development Workflow Runner Handoff
+
+SYNC-ID: repository_development_workflow_runner
+STATUS: implemented
+ARTIFACTS: .gitignore,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_RUNNER_POLICY.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/repository-development-workflow/SKILL.md,skills/repository-development-workflow/references/repository-development.md,tools/lib/repository_development_workflow.sh,tools/lib/repository_development_runner.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,docs/as-built/IMPLEMENTATION_PLAN.md,docs/workflow/TASK_TRACKER.md,docs/workflow/HANDOFF.md
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_test_plan_coverage.sh,tools/test_test_plan.sh,tools/check_as_built_sync_contract.sh,tools/check_as_built_docs.sh,tools/check_workflow_pair_sync.sh
+
+Restart context:
+
+- This sync ID is implemented for local runner behavior.
+- The developer approved runtime implementation for the `repository-development-workflow` skill.
+- The runner converts the current policy-backed workflow into an approval-bound controller that can detect phases, plan checks, execute allowed non-destructive checks, record results, decide conservative reuse eligibility, and stop at approval or release gates.
+- The existing seven phases remain authoritative: `context_triage`, `proposal`, `implementation_plan`, `fast_loop`, `mid_tests`, `release_gate`, and `main_sync_cleanup`.
+- The existing `repository_development_workflow_skill` sync remains implemented and should be extended, not replaced.
+- `AGENTS.MD` remains the top-level invariant source, especially no existing-feature tradeoffs, security-first implementation, no hidden destructive operations, and workflow-contract-based test selection.
+
+Next safe action:
+
+- Review the implemented diff, then run any additional medium checks selected by `./tools/repository-development-workflow guidance --phase mid_tests`.
+- Do not treat runner records as release proof.
+- Keep release, PR CI, merge, main CI, local/remote sync, and cleanup in their explicit approval-bound phases.
+
+Stop and ask before:
+
+- Changing AGENTS.MD, pre-commit, CI, final-gate coverage, GitHub workflow behavior, or release proof requirements.
+- Allowing the runner to execute push, PR creation, CI monitoring, merge, main CI waiting, local/remote sync, branch deletion, worktree deletion, remote deletion, product-repository deletion, cleanup execution, arbitrary shell commands, credential handling, dashboard mutation, or any destructive operation.
+- Weakening STEP 1-7, STEP 1-14, existing checks, existing document routes, repo-local skills, security gates, or existing release proof.
+
+Verification for this sync:
+
+```bash
+./tools/check_repository_development_workflow.sh
+./tools/test_repository_development_workflow.sh
+./tools/check_test_plan_coverage.sh
+./tools/test_test_plan.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_workflow_pair_sync.sh
+```
+
+Recovery notes:
+
+- If sync checks fail, first make `SYNC-ID`, `STATUS`, `ARTIFACTS`, and `TESTS` match exactly across the five synchronized documents and the contract row.
+- If the runner cannot prove a previous PASS is reusable, run the check instead of reusing stale evidence.
+- If release proof can be skipped through runner records, treat that as a blocking safety regression.
