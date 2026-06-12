@@ -21,13 +21,13 @@ The required baseline memory above is preserved because repository checks enforc
 Previous dashboard and maintenance follow-ups have been cleared from this memory.
 Active follow-up items must be recorded only in structured sections below.
 
-## Active follow-up: lesson-repository-development workflow skill
+## Active follow-up: repository-development-workflow skill
 
 STATUS: implementation-plan-recorded.
 
-Purpose: create a repo-local skill and mechanical workflow support for lesson-repository development so agents can move from wall discussion to planning, document sync, implementation, focused verification, PR CI, merge/main CI, local/remote sync, and cleanup without weakening safety. This is not a replacement for AGENTS.MD; AGENTS.MD invariants remain higher priority.
+Purpose: create a repo-local skill and mechanical workflow support for repository development workflow so agents can move from wall discussion to planning, document sync, implementation, focused verification, PR CI, merge/main CI, local/remote sync, and cleanup without weakening safety. This is not a replacement for AGENTS.MD; AGENTS.MD invariants remain higher priority.
 
-Scope: lesson-repository development workflows only. Product repository document sync remains routed through `worklog-doc-sync`. Final lesson/gate closure remains integrated with `lesson-sync-gate`. The workflow must distinguish repo-dev phases from course names such as STEP 1-7 and STEP 1-14.
+Scope: repository development workflows only. Product repository document sync remains routed through `worklog-doc-sync`. Final lesson/gate closure remains integrated with `lesson-sync-gate`. The workflow must distinguish repo-dev phases from course names such as STEP 1-7 and STEP 1-14.
 
 Subagent review summary:
 - Ptolemy: add a policy-backed skill, not skill text alone; use TSV policy, shared helper, CLI, checks, aggregate tests, hooks, CI, and docs sync.
@@ -35,9 +35,9 @@ Subagent review summary:
 - Euclid: preserve Developer Memory baseline records, avoid contradictory active follow-up state, and keep worklog-doc-sync / lesson-sync-gate ownership boundaries intact.
 
 Implementation targets:
-- `skills/lesson-repository-development/SKILL.md`
-- `skills/lesson-repository-development/references/repository-development.md`
-- `skills/lesson-repository-development/agents/openai.yaml`
+- `skills/repository-development-workflow/SKILL.md`
+- `skills/repository-development-workflow/references/repository-development.md`
+- `skills/repository-development-workflow/agents/openai.yaml`
 - `docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv`
 - `learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv`
 - `tools/lib/repository_development_workflow.sh`
@@ -72,7 +72,7 @@ Repo-dev phase plan:
 
 Implementation order:
 1. Add `REPOSITORY_DEVELOPMENT_WORKFLOW.tsv` as the source of truth and validate its stable phase IDs, ordering, required checks, Git/CI requirements, approval requirements, and cleanup requirements.
-2. Add the `lesson-repository-development` skill with a concise `SKILL.md`, one reference file, and `agents/openai.yaml`.
+2. Add the `repository-development-workflow` skill with a concise `SKILL.md`, one reference file, and `agents/openai.yaml`.
 3. Add `tools/lib/repository_development_workflow.sh` and `tools/repository-development-workflow status|plan|check|gate|guidance|list`.
 4. Add standalone check and regression test scripts for malformed policy rows, missing wiring, weakened AGENTS invariants, missing PR/main CI requirements, and destructive cleanup attempts.
 5. Wire the new check/test into existing hook, manifest, aggregate, and CI surfaces without replacing existing checks.

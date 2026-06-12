@@ -1,9 +1,9 @@
 ---
-name: lesson-repository-development
+name: repository-development-workflow
 description: Guide policy-backed development inside this lesson repository. Use when turning developer wall discussion into proposals, implementation plans, document sync, implementation, focused verification, release gates, PR/main CI, local/remote sync, or approval-bound cleanup for the lesson repository itself.
 ---
 
-# Lesson Repository Development
+# Repository Development Workflow
 
 Use this skill for this repository's own development. It supports `AGENTS.MD`; it does not replace AGENTS.MD, `worklog-doc-sync`, or `lesson-sync-gate`.
 

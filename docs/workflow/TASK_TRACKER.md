@@ -1724,16 +1724,16 @@ Next Step:
 
 - This implementation step is closed. Continue future product workflow Git usage mode changes through a new synced task or explicit developer direction.
 
-## Implemented Lesson Repository Development Workflow Skill
+## Implemented Repository Development Workflow Workflow Skill
 
-SYNC-ID: lesson_repository_development_workflow_skill
+SYNC-ID: repository_development_workflow_skill
 STATUS: implemented
-ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/lesson-repository-development/SKILL.md,skills/lesson-repository-development/references/repository-development.md,skills/lesson-repository-development/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/repository-development-workflow/SKILL.md,skills/repository-development-workflow/references/repository-development.md,skills/repository-development-workflow/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh
 
 Current task state:
 
-- [x] Capture the developer-approved seven-phase lesson-repository development workflow in Developer Memory.
+- [x] Capture the developer-approved seven-phase repository development workflow in Developer Memory.
 - [x] Choose the additive direction: a policy-backed repo-local skill plus TSV owner policy, shared helper, CLI, standalone check, regression test, and aggregate/hook/CI wiring.
 - [x] Preserve AGENTS.MD as the highest-priority rule source, especially no existing-feature tradeoff, reuse of existing configuration/shared libraries/checks/repo-local skills, and standalone plus aggregate-capable checks.
 - [x] Record that the workflow separates fast implementation loops, medium verification, release proof, PR/main CI, local/remote sync, and cleanup confirmation.

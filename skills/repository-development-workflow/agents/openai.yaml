@@ -1,0 +1,4 @@
+interface:
+  display_name: "Repository Development Workflow"
+  short_description: "Plan, implement, verify, and close lesson repo changes."
+  default_prompt: "Use $repository-development-workflow to plan and verify a lesson repository change."

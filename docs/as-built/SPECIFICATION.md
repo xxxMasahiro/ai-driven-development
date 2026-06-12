@@ -2049,14 +2049,14 @@ Verification contract:
 - Required coverage includes `free-development`, `product-improvement`, and `external-integration` across `none`, `local`, `remote_sync`, and `ci`, with `ci` proving current strict behavior is preserved.
 - Dashboard tests cover Settings rows, workflow operation rows, command previews, schema validation, and representative localized labels without relying on one exact phrase or one product stack.
 
-## Implemented Lesson Repository Development Workflow Skill Specification
+## Implemented Repository Development Workflow Workflow Skill Specification
 
-SYNC-ID: lesson_repository_development_workflow_skill
+SYNC-ID: repository_development_workflow_skill
 STATUS: implemented
-ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/lesson-repository-development/SKILL.md,skills/lesson-repository-development/references/repository-development.md,skills/lesson-repository-development/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/repository-development-workflow/SKILL.md,skills/repository-development-workflow/references/repository-development.md,skills/repository-development-workflow/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh
 
-The lesson-repository development workflow is specified as a policy-backed repo-local skill with reusable mechanical checks. Skill text provides routing and operator guidance; policy TSV, shell helper, CLI, checks, hooks, aggregate tests, and CI provide enforcement.
+The repository development workflow is specified as a policy-backed repo-local skill with reusable mechanical checks. Skill text provides routing and operator guidance; policy TSV, shell helper, CLI, checks, hooks, aggregate tests, and CI provide enforcement.
 
 Implemented contract:
 
@@ -2065,8 +2065,8 @@ Implemented contract:
 - `tools/repository-development-workflow` exposes `status`, `plan`, `check`, `gate`, `guidance`, and `list` so agents can identify the current phase and the checks that are recommended or required.
 - `tools/check_repository_development_workflow.sh` fails closed for malformed policy rows, missing skill/tool/check wiring, missing PR/main CI requirements, weakened AGENTS invariants, missing aggregate wiring, and guidance that can directly execute destructive cleanup.
 - `tools/test_repository_development_workflow.sh` covers valid phase resolution, invalid rows, approval-bound phases, fast-loop versus release-gate separation, missing CI/sync requirements, and cleanup-plan safety.
-- `skills/lesson-repository-development/SKILL.md` stays concise and routes detailed protocol to `references/repository-development.md`.
-- `skills/lesson-repository-development/agents/openai.yaml` connects the skill to repo-local agent discovery without overriding AGENTS.MD.
+- `skills/repository-development-workflow/SKILL.md` stays concise and routes detailed protocol to `references/repository-development.md`.
+- `skills/repository-development-workflow/agents/openai.yaml` connects the skill to repo-local agent discovery without overriding AGENTS.MD.
 - Cleanup semantics are plan-only by default. Deleting branches, worktrees, product repositories, remote resources, or other developer state remains explicit-approval work.
 - Validation must distinguish recommended checks from required checks so local development can stay fast without changing release proof.
 

@@ -3694,20 +3694,20 @@ Developer approval boundaries:
 - Approval is required before adding dependencies, external services, browser mutation routes, writers beyond `tools/dashboard-settings`, evidence writers, Git/GitHub/CI execution from the dashboard, product repository mutation, push, merge, cleanup, deletion, OAuth, credentials, or destructive operations.
 - Approval is required before accepting unsupported product workflow modes beyond `none`, `local`, `remote_sync`, and `ci`.
 
-## Implemented Lesson Repository Development Workflow Skill Implementation Plan
+## Implemented Repository Development Workflow Workflow Skill Implementation Plan
 
-SYNC-ID: lesson_repository_development_workflow_skill
+SYNC-ID: repository_development_workflow_skill
 STATUS: implemented
-ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/lesson-repository-development/SKILL.md,skills/lesson-repository-development/references/repository-development.md,skills/lesson-repository-development/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/repository-development-workflow/SKILL.md,skills/repository-development-workflow/references/repository-development.md,skills/repository-development-workflow/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh
 
-This implemented plan records the runtime workflow support for lesson-repository development. The implementation is additive: AGENTS.MD remains the highest-priority rule source, the policy TSV is the owner layer for phase data, and release proof stays separate from fast implementation loops.
+This implemented plan records the runtime workflow support for repository development workflow. The implementation is additive: AGENTS.MD remains the highest-priority rule source, the policy TSV is the owner layer for phase data, and release proof stays separate from fast implementation loops.
 
 Implemented order:
 
 1. Added `docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv` with stable phase ids for `context_triage`, `proposal`, `implementation_plan`, `fast_loop`, `mid_tests`, `release_gate`, and `main_sync_cleanup`, including recommended checks, required checks, approvals, Git/CI expectations, cleanup behavior, and stop conditions.
 2. Added `learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv` so approval-bound workflow phases have explicit default state.
-3. Added `skills/lesson-repository-development/SKILL.md`, `skills/lesson-repository-development/references/repository-development.md`, and `skills/lesson-repository-development/agents/openai.yaml`, with concise skill routing and detailed reference guidance.
+3. Added `skills/repository-development-workflow/SKILL.md`, `skills/repository-development-workflow/references/repository-development.md`, and `skills/repository-development-workflow/agents/openai.yaml`, with concise skill routing and detailed reference guidance.
 4. Added `tools/lib/repository_development_workflow.sh` and `tools/repository-development-workflow` with `status`, `plan`, `check`, `gate`, `guidance`, and `list` commands backed by the TSV owner layer.
 5. Added `tools/check_repository_development_workflow.sh` and `tools/test_repository_development_workflow.sh` covering malformed policy rows, missing wiring, missing PR/main CI and local/remote sync requirements, weakened AGENTS invariants, fast-loop versus release-gate separation, and cleanup-plan safety.
 6. Wired the new check and test into `tools/check_agents_skills.sh`, `docs/workflow/GIT_HOOK_CHECKS.tsv`, `docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv`, `docs/workflow/TEST_PLAN_MANIFEST.tsv`, `docs/workflow/FINAL_GATE_COVERAGE.tsv`, `tools/test_lesson_repository.sh`, `tools/check_ci_workflow_structure.sh`, `.github/workflows/ci.yml`, and `.github/workflows/lesson14-ci.yml`.

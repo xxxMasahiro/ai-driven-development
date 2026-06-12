@@ -1795,16 +1795,16 @@ Next Step:
 
 - This implementation step is closed. Continue future product workflow Git usage mode changes through a new synced task or explicit developer direction.
 
-## Implemented Lesson Repository Development Workflow Skill Handoff
+## Implemented Repository Development Workflow Workflow Skill Handoff
 
-SYNC-ID: lesson_repository_development_workflow_skill
+SYNC-ID: repository_development_workflow_skill
 STATUS: implemented
-ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/lesson-repository-development/SKILL.md,skills/lesson-repository-development/references/repository-development.md,skills/lesson-repository-development/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/repository-development-workflow/SKILL.md,skills/repository-development-workflow/references/repository-development.md,skills/repository-development-workflow/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
 TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh
 
 Restart context:
 
-- This is an implemented state for the `lesson-repository-development` repo-local skill and mechanical workflow support.
+- This is an implemented state for the `repository-development-workflow` repo-local skill and mechanical workflow support.
 - The workflow helps agents move from wall discussion to proposal, implementation plan, document sync, implementation, focused verification, release gates, PR/main CI, local/remote sync, and cleanup planning without weakening AGENTS.MD.
 - The seven implemented phase ids are `context_triage`, `proposal`, `implementation_plan`, `fast_loop`, `mid_tests`, `release_gate`, and `main_sync_cleanup`.
 - The workflow is for this lesson repository's own development. It must not replace `worklog-doc-sync` for product-document synchronization or `lesson-sync-gate` for final lesson/gate closure.
@@ -1814,7 +1814,7 @@ Restart context:
 
 Next safe action:
 
-- Use `skills/lesson-repository-development/SKILL.md` and `./tools/repository-development-workflow status|plan|guidance|gate` for future lesson-repository development work.
+- Use `skills/repository-development-workflow/SKILL.md` and `./tools/repository-development-workflow status|plan|guidance|gate` for future repository development workflow work.
 - Treat PR CI, merge, main CI, local/remote sync, and cleanup as release or closure phases. Do not execute them from fast-loop guidance without explicit developer direction.
 - If a future change extends the workflow, start from `docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv` and `tools/lib/repository_development_workflow.sh` before changing skill text or hook/CI callers.
 

@@ -235,7 +235,7 @@ jobs:
           cache: npm
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5.0.5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-ms-playwright-${{ hashFiles('package-lock.json') }}
@@ -255,7 +255,7 @@ jobs:
         run: ./tools/test_dashboard_control_center.sh
 
       - name: Upload Playwright evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ci-evidence-playwright-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-evidence
@@ -282,7 +282,7 @@ jobs:
           cache: npm
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5.0.5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-ms-playwright-${{ hashFiles('package-lock.json') }}
@@ -290,7 +290,7 @@ jobs:
             ${{ runner.os }}-ms-playwright-
 
       - name: Download same-run evidence
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ci-evidence-playwright-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-evidence
@@ -309,7 +309,7 @@ jobs:
 
       - name: Upload lesson aggregate timing
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ci-timing-part-lesson-aggregate-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-timing
@@ -336,7 +336,7 @@ jobs:
           cache: npm
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5.0.5
         with:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-ms-playwright-${{ hashFiles('package-lock.json') }}
@@ -344,7 +344,7 @@ jobs:
             ${{ runner.os }}-ms-playwright-
 
       - name: Download same-run Playwright evidence
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ci-evidence-playwright-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-evidence
@@ -364,7 +364,7 @@ jobs:
 
       - name: Upload Git hook evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ci-evidence-git-hooks-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-evidence
@@ -374,7 +374,7 @@ jobs:
 
       - name: Upload Git hooks timing
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ci-timing-part-git-hooks-full-no-cache-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-timing
@@ -403,7 +403,7 @@ jobs:
           fi
 
       - name: Download Git hook evidence
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8.0.1
         with:
           name: ci-evidence-git-hooks-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-evidence
@@ -417,7 +417,7 @@ jobs:
 
       - name: Download CI timing parts
         if: always()
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8.0.1
         with:
           pattern: ci-timing-part-*-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-timing
@@ -425,7 +425,7 @@ jobs:
 
       - name: Upload CI timing report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ci-timing-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/ci-timing
