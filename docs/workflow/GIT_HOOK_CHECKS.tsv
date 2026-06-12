@@ -13,9 +13,11 @@ check_security_invariants	full|fast|minimal	./tools/check_security_invariants.sh
 check_workflow_pair_sync	full|fast|minimal	./tools/check_workflow_pair_sync.sh	Validate TASK_TRACKER and HANDOFF pair synchronization.
 check_review_protocol	full|fast	./tools/check_review_protocol.sh	Validate the sub-agent review protocol.
 check_developer_memory_requirements	full|fast|minimal	./tools/check_developer_memory_requirements.sh	Validate developer-memory requirements.
+check_repository_development_workflow	full|fast|minimal	./tools/check_repository_development_workflow.sh	Validate lesson-repository development workflow policy, skill, and wiring.
 test_docs_tour	full|fast	./tools/test_docs_tour.sh	Run documentation tour regression tests.
 test_as_built_sync_contract	full|fast	./tools/test_as_built_sync_contract.sh	Run sync-contract regression tests.
 test_test_plan	full|fast	./tools/test_test_plan.sh	Run observe-only test-plan regression tests.
+test_repository_development_workflow	full|fast	./tools/test_repository_development_workflow.sh	Run lesson-repository development workflow regression tests.
 test_security_invariants	full|fast	./tools/test_security_invariants.sh	Run Security guard invariant regression tests.
 test_git_workflow_policy	full|fast	./tools/test_git_workflow_policy.sh	Run Git workflow policy regression tests.
 test_git_hooks	full|fast	./tools/test_git_hooks.sh	Run Git hooks policy regression tests.

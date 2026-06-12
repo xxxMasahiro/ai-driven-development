@@ -148,6 +148,7 @@ STEP 1-14: 実践レッスン: index-14-days.md
 | 成果物リポジトリを削除したい | `docs/as-built/SPECIFICATION.md` の product repository cleanup、`docs/workflow/HANDOFF.md` | なし | `./tools/product-repository-cleanup status`、`./tools/product-repository-cleanup plan`、必要時のみ `local --confirm` または `remote --confirm` |
 | 外部連携へ発展させたい | `free-development/FREE_DEVELOPMENT_MODE.md`、`prompts/PROMPTS_14_DAYS.md` Step 13/14 | `skills/lesson14-facilitator/SKILL.md`、`skills/worklog-doc-sync/SKILL.md` | 自由開発または既存成果物の要件・仕様から連携設計 |
 | product-securityを確認したい | `docs/workflow/PRODUCT_SECURITY_POLICY.tsv`、`learning/context/WORKFLOW_CONTEXT_MAP.tsv` | なし | `./tools/product-security status`、`./tools/product-security advise`、`./tools/product-security check`、`./tools/product-security gate` |
+| 教材リポジトリ開発の提案・計画・実装を進めたい | `docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv`、`docs/memory/DEVELOPER_MEMORY.md` | `skills/lesson-repository-development/SKILL.md` | `./tools/repository-development-workflow status`、`./tools/check_repository_development_workflow.sh` |
 | 教材そのものを改善したい | `docs/memory/DEVELOPER_MEMORY.md`、`docs/workflow/TASK_TRACKER.md`、`docs/workflow/HANDOFF.md` | `skills/lesson-sync-gate/SKILL.md` | `./tools/dashboard all`、各種チェック |
 | `3. 応用レッスン` でチーム開発とDockerを学びたい | `advanced/TEAM_DEVELOPMENT_DOCKER.md` | `skills/lesson-sync-gate/SKILL.md`、`skills/worklog-doc-sync/SKILL.md` | `./tools/team-development start --confirm`、`./tools/team-development gate` |
 
@@ -158,6 +159,7 @@ skills/github-login-onboarding/SKILL.md
 skills/learning-progress-helpdesk/SKILL.md
 skills/lesson14-facilitator/SKILL.md
 skills/lesson-sync-gate/SKILL.md
+skills/lesson-repository-development/SKILL.md
 skills/task-tracker-docs/SKILL.md
 skills/worklog-doc-sync/SKILL.md
 ```

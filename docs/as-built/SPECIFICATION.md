@@ -2048,3 +2048,44 @@ Verification contract:
 - `tools/test_product_git_usage_modes.sh` covers the mode matrix, Settings writer path, non-Git workspace behavior, and strict default preservation, and is wired into `tools/test_lesson_repository.sh`.
 - Required coverage includes `free-development`, `product-improvement`, and `external-integration` across `none`, `local`, `remote_sync`, and `ci`, with `ci` proving current strict behavior is preserved.
 - Dashboard tests cover Settings rows, workflow operation rows, command previews, schema validation, and representative localized labels without relying on one exact phrase or one product stack.
+
+## Implemented Lesson Repository Development Workflow Skill Specification
+
+SYNC-ID: lesson_repository_development_workflow_skill
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/lesson-repository-development/SKILL.md,skills/lesson-repository-development/references/repository-development.md,skills/lesson-repository-development/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh
+
+The lesson-repository development workflow is specified as a policy-backed repo-local skill with reusable mechanical checks. Skill text provides routing and operator guidance; policy TSV, shell helper, CLI, checks, hooks, aggregate tests, and CI provide enforcement.
+
+Implemented contract:
+
+- `docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv` is the source of truth for phase id, order, purpose, required inputs, allowed writes, recommended checks, required checks, Git/CI expectations, approval requirements, cleanup behavior, and stop conditions.
+- `tools/lib/repository_development_workflow.sh` owns parsing and validation for the workflow policy. Skill text, hooks, aggregate tests, CI, and future commands must consume this owner layer rather than duplicating phase logic.
+- `tools/repository-development-workflow` exposes `status`, `plan`, `check`, `gate`, `guidance`, and `list` so agents can identify the current phase and the checks that are recommended or required.
+- `tools/check_repository_development_workflow.sh` fails closed for malformed policy rows, missing skill/tool/check wiring, missing PR/main CI requirements, weakened AGENTS invariants, missing aggregate wiring, and guidance that can directly execute destructive cleanup.
+- `tools/test_repository_development_workflow.sh` covers valid phase resolution, invalid rows, approval-bound phases, fast-loop versus release-gate separation, missing CI/sync requirements, and cleanup-plan safety.
+- `skills/lesson-repository-development/SKILL.md` stays concise and routes detailed protocol to `references/repository-development.md`.
+- `skills/lesson-repository-development/agents/openai.yaml` connects the skill to repo-local agent discovery without overriding AGENTS.MD.
+- Cleanup semantics are plan-only by default. Deleting branches, worktrees, product repositories, remote resources, or other developer state remains explicit-approval work.
+- Validation must distinguish recommended checks from required checks so local development can stay fast without changing release proof.
+
+Phase semantics:
+
+- `context_triage` gathers AGENTS.MD, routing, memory, dirty-worktree, branch, and relevant docs context before proposing changes.
+- `proposal` structures purpose, target scope, non-scope, existing-feature impact, documentation updates, tests, and risks.
+- `implementation_plan` uses read-only review, including sub-agent review when feasible, to produce change targets, order, sync policy, verification, recovery, and approval boundaries.
+- `fast_loop` permits focused implementation checks and path-scoped guidance while preserving required stop conditions.
+- `mid_tests` runs the medium verification set required by the changed areas before heavy release proof.
+- `release_gate` runs the required full evidence set for the change class, including sync/structure/aggregate/pre-commit/full checks and PR CI when applicable.
+- `main_sync_cleanup` covers approved merge, main CI, local/remote synchronization, and cleanup planning or execution only with the required approvals.
+
+Verification contract:
+
+- The standalone workflow check and regression test are wired into hook metadata, aggregate repository checks, CI workflow structure, final-gate coverage, and test-plan coverage.
+- Existing as-built, structure, workflow-pair, test-plan, AGENTS/skills, STEP 1-7, and STEP 1-14 checks remain part of closure verification.
+
+Approval contract:
+
+- Developer approval is required before future edits to AGENTS.MD, hooks, pre-commit, CI, final-gate coverage, push/merge/main CI handling, cleanup deletion, or accepting any existing-feature tradeoff.
+- If any planned check or workflow guidance conflicts with AGENTS.MD, existing CI, existing document routes, STEP 1-7, STEP 1-14, security gates, or repo-local skill ownership, implementation must stop and request developer direction.

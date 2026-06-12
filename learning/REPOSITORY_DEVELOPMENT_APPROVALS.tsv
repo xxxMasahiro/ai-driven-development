@@ -1,0 +1,8 @@
+# phase_id	approval_scope	required	default_state	description
+context_triage	read_repository_context	false	not_required	Read-only context gathering does not require a separate approval beyond the developer request.
+proposal	present_structured_proposal	false	not_required	Proposal writing remains read-only and stops before protected synchronization.
+implementation_plan	synchronize_planned_documents	true	not_granted	Developer approval is required before syncing planned requirements, specification, plan, tracker, and handoff.
+fast_loop	implement_runtime_changes	true	not_granted	Developer approval is required before runtime implementation, especially owner-layer, hook, CI, or skill changes.
+mid_tests	run_medium_verification	false	not_required	Focused and medium checks may run when required by the changed scope.
+release_gate	run_release_proof_and_pr_ci	true	not_granted	Heavy aggregate proof, PR CI, and merge preparation require the release-gate phase or explicit developer approval.
+main_sync_cleanup	merge_main_sync_and_cleanup	true	not_granted	Merge, main CI waiting, local/remote sync, and any cleanup execution require explicit developer approval.

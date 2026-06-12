@@ -12,9 +12,11 @@ as_built_evidence_run_sync_contract_check	hook	check_as_built_sync_contract	Aggr
 ./tools/check_workflow_pair_sync.sh	hook	check_workflow_pair_sync	Aggregate workflow pair sync coverage is provided by the matching Git hook row.
 ./tools/check_review_protocol.sh	hook	check_review_protocol	Aggregate review protocol coverage is provided by the matching Git hook row.
 ./tools/check_developer_memory_requirements.sh	hook	check_developer_memory_requirements	Aggregate developer-memory coverage is provided by the matching Git hook row.
+./tools/check_repository_development_workflow.sh	hook	check_repository_development_workflow	Aggregate repository development workflow coverage is provided by the matching Git hook row.
 ./tools/test_docs_tour.sh	hook	test_docs_tour	Aggregate documentation tour coverage is provided by the matching Git hook row.
 ./tools/test_as_built_sync_contract.sh	hook	test_as_built_sync_contract	Aggregate sync-contract regression coverage is provided by the matching Git hook row.
 ./tools/test_test_plan.sh	hook	test_test_plan	Aggregate test-plan regression coverage is provided by the matching Git hook row.
+./tools/test_repository_development_workflow.sh	hook	test_repository_development_workflow	Aggregate repository development workflow regression coverage is provided by the matching Git hook row.
 ./tools/test_security_invariants.sh	hook	test_security_invariants	Aggregate security invariant regression coverage is provided by the matching Git hook row.
 ./tools/test_git_workflow_policy.sh	hook	test_git_workflow_policy	Aggregate Git workflow policy coverage is provided by the matching Git hook row.
 ./tools/test_git_hooks.sh	hook	test_git_hooks	Aggregate Git hooks coverage is provided by the matching Git hook row.
@@ -37,6 +39,7 @@ as_built_evidence_run_sync_contract_check	hook	check_as_built_sync_contract	Aggr
 ./tools/dashboard all	gap	dashboard_all	Aggregate dashboard rendering coverage is provided by a final-gap command.
 ./tools/dashboard-data	gap	dashboard_data	Aggregate dashboard data rendering coverage is provided by a final-gap command.
 ./tools/as-built-sync status	gap	as_built_sync_status	Aggregate as-built sync status coverage is provided by a final-gap command.
+./tools/repository-development-workflow status	gap	repository_development_workflow_status	Aggregate repository development workflow status coverage is provided by a final-gap command.
 ./tools/illustrations list	gap	illustrations_list	Aggregate illustration list coverage is provided by a final-gap command.
 ./tools/git-hooks status	gap	git_hooks_status	Aggregate Git hooks status coverage is provided by a final-gap command.
 ./tools/resource-guard status	gap	resource_guard_status	Aggregate resource guard status coverage is provided by a final-gap command.

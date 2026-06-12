@@ -1723,3 +1723,31 @@ Non-scope:
 - Do not make Dashboard execute Git, CI, product-security, product-authority, product mutation, push, merge, cleanup, deletion, OAuth, external-service, or evidence-writing operations.
 - Do not make React the source of product workflow policy truth.
 - Do not reduce existing Settings editability, schema validation, same-origin JSON POST handling, `execFile`, atomic writes, snapshot output boundaries, CI, pre-commit, or aggregate-test coverage.
+
+## Implemented Lesson Repository Development Workflow Skill Requirements
+
+SYNC-ID: lesson_repository_development_workflow_skill
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/lesson-repository-development/SKILL.md,skills/lesson-repository-development/references/repository-development.md,skills/lesson-repository-development/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh
+
+Lesson-repository development requires a repo-local workflow skill and mechanical policy support so agents can move from developer wall discussion to proposal, implementation planning, document synchronization, implementation, focused verification, release gates, PR/main CI, local/remote synchronization, and cleanup planning without weakening AGENTS.MD or existing lesson behavior.
+
+Required outcomes:
+
+- Provide a repo-local `lesson-repository-development` skill for this repository's own development work; it must support AGENTS.MD rather than replace it.
+- Keep `worklog-doc-sync` as the product-document synchronization skill and `lesson-sync-gate` as the final lesson/gate closure skill. The new skill must route to them instead of absorbing their responsibilities.
+- Define stable machine-readable phase ids for `context_triage`, `proposal`, `implementation_plan`, `fast_loop`, `mid_tests`, `release_gate`, and `main_sync_cleanup`.
+- Separate implementation-time fast loops from release proof. Fast local checks may guide work, but release closure must still require the policy-defined sync, structure, aggregate, pre-commit/full, PR CI, main CI, local/remote sync, and cleanup confirmation.
+- Provide a policy-backed source of truth, shared validation layer, CLI guidance/gate commands, standalone check, and regression test, then wire them into hooks, aggregate tests, CI, final-gate coverage, and repo-local skill discovery.
+- Make all new checks callable directly and from aggregate checks.
+- Validate malformed workflow policy rows, missing wiring, weakened AGENTS invariants, missing PR/main CI requirements, and unsafe cleanup guidance.
+- Preserve STEP 1-7, STEP 1-14, existing CI, existing checks, existing document routes, repo-local skills, security gates, and document synchronization ownership boundaries.
+- Treat branch, worktree, product-repository, remote, and cleanup deletion as approval-bound operations. The workflow may propose cleanup plans, but must not execute destructive cleanup without explicit developer approval.
+- Avoid fixed one-off branching based on one product stack, one exact phrase, one menu, or one special case.
+
+Non-scope:
+
+- This implementation does not execute push, merge, main CI waiting, local/remote synchronization, branch deletion, worktree deletion, remote deletion, product-repository deletion, or cleanup deletion; those remain approval-bound closure-phase actions.
+- The new workflow skill must not weaken AGENTS.MD, STEP 1-7, STEP 1-14, existing gates, Git hooks, pre-commit, CI, document routes, or existing repo-local skills.
+- The new workflow skill must not create a shortcut around developer approvals, security gates, evidence requirements, destructive-operation policy, or final-gate proof.

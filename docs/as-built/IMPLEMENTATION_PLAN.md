@@ -3693,3 +3693,66 @@ Developer approval boundaries:
 - Approval is required before changing STEP 1-7, STEP 1-14, existing strict Git/CI completion gates, CI/pre-commit coverage, repo-local skill behavior, or product-security guarantees.
 - Approval is required before adding dependencies, external services, browser mutation routes, writers beyond `tools/dashboard-settings`, evidence writers, Git/GitHub/CI execution from the dashboard, product repository mutation, push, merge, cleanup, deletion, OAuth, credentials, or destructive operations.
 - Approval is required before accepting unsupported product workflow modes beyond `none`, `local`, `remote_sync`, and `ci`.
+
+## Implemented Lesson Repository Development Workflow Skill Implementation Plan
+
+SYNC-ID: lesson_repository_development_workflow_skill
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/lesson-repository-development/SKILL.md,skills/lesson-repository-development/references/repository-development.md,skills/lesson-repository-development/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh
+
+This implemented plan records the runtime workflow support for lesson-repository development. The implementation is additive: AGENTS.MD remains the highest-priority rule source, the policy TSV is the owner layer for phase data, and release proof stays separate from fast implementation loops.
+
+Implemented order:
+
+1. Added `docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv` with stable phase ids for `context_triage`, `proposal`, `implementation_plan`, `fast_loop`, `mid_tests`, `release_gate`, and `main_sync_cleanup`, including recommended checks, required checks, approvals, Git/CI expectations, cleanup behavior, and stop conditions.
+2. Added `learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv` so approval-bound workflow phases have explicit default state.
+3. Added `skills/lesson-repository-development/SKILL.md`, `skills/lesson-repository-development/references/repository-development.md`, and `skills/lesson-repository-development/agents/openai.yaml`, with concise skill routing and detailed reference guidance.
+4. Added `tools/lib/repository_development_workflow.sh` and `tools/repository-development-workflow` with `status`, `plan`, `check`, `gate`, `guidance`, and `list` commands backed by the TSV owner layer.
+5. Added `tools/check_repository_development_workflow.sh` and `tools/test_repository_development_workflow.sh` covering malformed policy rows, missing wiring, missing PR/main CI and local/remote sync requirements, weakened AGENTS invariants, fast-loop versus release-gate separation, and cleanup-plan safety.
+6. Wired the new check and test into `tools/check_agents_skills.sh`, `docs/workflow/GIT_HOOK_CHECKS.tsv`, `docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv`, `docs/workflow/TEST_PLAN_MANIFEST.tsv`, `docs/workflow/FINAL_GATE_COVERAGE.tsv`, `tools/test_lesson_repository.sh`, `tools/check_ci_workflow_structure.sh`, `.github/workflows/ci.yml`, and `.github/workflows/lesson14-ci.yml`.
+7. Added the minimal AGENTS.MD route needed for repository-local skill discovery while preserving the no-tradeoff invariant and existing repo-local skill routing.
+8. Promoted the sync ID from `planned` to `implemented` after the runtime implementation and focused checks were in place.
+
+Document synchronization policy:
+
+- Requirements record the capability, safety constraints, ownership boundaries, and non-scope.
+- Specification records the policy TSV contract, CLI behavior, validation semantics, phase behavior, verification contract, and approval boundaries.
+- This implementation plan records file order, wiring order, verification sequence, failure recovery, and promotion conditions.
+- Task tracker records current work state and pending closure tasks.
+- Handoff records restart context, next safe action, dirty-worktree cautions, and stop conditions.
+
+Verification sequence:
+
+```bash
+bash -n tools/lib/repository_development_workflow.sh tools/repository-development-workflow tools/check_repository_development_workflow.sh tools/test_repository_development_workflow.sh
+./tools/check_repository_development_workflow.sh
+./tools/test_repository_development_workflow.sh
+./tools/check_agents_skills.sh
+./tools/check_test_plan_coverage.sh
+./tools/test_test_plan.sh
+./tools/test_git_hooks.sh
+./tools/test_git_hooks_parallel.sh
+./tools/check_ci_workflow_structure.sh
+./tools/check_as_built_sync_contract.sh
+./tools/check_as_built_docs.sh
+./tools/check_workflow_pair_sync.sh
+./tools/check_lesson_structure.sh
+./tools/check_lesson14_structure.sh
+./tools/test_lesson_repository.sh
+```
+
+PR CI, merge, main CI, local/remote sync, and cleanup are closure-phase actions. They must not be forced during fast implementation loops unless the developer explicitly requests that phase.
+
+Failure recovery:
+
+- If policy TSV parsing disagrees between CLI, checks, hooks, aggregate, and CI, fix the shared owner layer before adjusting callers.
+- If the workflow recommends fewer required release checks than the existing gates, treat it as a blocker rather than a time optimization.
+- If cleanup guidance can delete state without explicit approval, remove the executable path and keep only an approval-bound cleanup plan.
+- If the new skill conflicts with `worklog-doc-sync`, `lesson-sync-gate`, AGENTS.MD, existing document routes, STEP 1-7, STEP 1-14, CI, or security gates, stop and request developer approval.
+- If the same failure repeats three times, or if a specification conflict or existing-feature tradeoff appears necessary, stop and report the blocker.
+
+Developer approval boundaries:
+
+- Approval is required before editing AGENTS.MD, pre-commit, CI, final-gate coverage, branch/worktree deletion, remote deletion, product-repository deletion, push, merge, main CI waiting, local/remote sync, or any destructive operation.
+- Approval is required before weakening existing gates, removing required checks, changing STEP 1-7 or STEP 1-14 behavior, changing repo-local skill ownership, or accepting an existing-feature tradeoff.

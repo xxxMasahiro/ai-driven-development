@@ -1723,3 +1723,56 @@ Verification state:
 Next Step:
 
 - This implementation step is closed. Continue future product workflow Git usage mode changes through a new synced task or explicit developer direction.
+
+## Implemented Lesson Repository Development Workflow Skill
+
+SYNC-ID: lesson_repository_development_workflow_skill
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/lesson-repository-development/SKILL.md,skills/lesson-repository-development/references/repository-development.md,skills/lesson-repository-development/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh
+
+Current task state:
+
+- [x] Capture the developer-approved seven-phase lesson-repository development workflow in Developer Memory.
+- [x] Choose the additive direction: a policy-backed repo-local skill plus TSV owner policy, shared helper, CLI, standalone check, regression test, and aggregate/hook/CI wiring.
+- [x] Preserve AGENTS.MD as the highest-priority rule source, especially no existing-feature tradeoff, reuse of existing configuration/shared libraries/checks/repo-local skills, and standalone plus aggregate-capable checks.
+- [x] Record that the workflow separates fast implementation loops, medium verification, release proof, PR/main CI, local/remote sync, and cleanup confirmation.
+- [x] Synchronize the planned requirements, specification, implementation plan, task tracker, handoff, and sync contract.
+- [x] Implement the policy TSV, approval TSV, skill files, shared helper, CLI, standalone check, regression test, and wiring after developer approval.
+- [x] Wire the standalone check and regression test into Git hook metadata, aggregate repository checks, CI workflow structure, final-gate coverage, and test-plan policy.
+- [x] Promote the sync ID from `planned` to `implemented` after implementation and focused local verification.
+- [x] Register `repository-development-workflow status` as an explicit final-gate gap command and coverage row after full/no-cache verification exposed the missing aggregate requirement.
+
+Active constraints:
+
+- No existing-feature tradeoff is allowed.
+- STEP 1-7, STEP 1-14, existing CI, existing checks, existing document routes, repo-local skills, security gates, Git hooks, pre-commit, and final-gate proof remain constraints.
+- `worklog-doc-sync` remains responsible for product-document synchronization; `lesson-sync-gate` remains responsible for final lesson/gate closure.
+- The new skill must guide phase selection and verification scope without bypassing approvals, release gates, or destructive-operation policy.
+
+Verification state:
+
+- [x] `bash -n tools/lib/repository_development_workflow.sh tools/repository-development-workflow tools/check_repository_development_workflow.sh tools/test_repository_development_workflow.sh tools/check_ci_workflow_structure.sh` passed.
+- [x] `tools/repository-development-workflow list` passed.
+- [x] `tools/repository-development-workflow gate --phase release_gate` passed and reports policy-valid-only rather than proof.
+- [x] `tools/check_repository_development_workflow.sh` passed.
+- [x] `tools/test_repository_development_workflow.sh` passed.
+- [x] `tools/check_agents_skills.sh` passed.
+- [x] `tools/check_test_plan_coverage.sh` passed.
+- [x] `tools/check_ci_workflow_structure.sh` passed.
+- [x] `tools/check_as_built_sync_contract.sh` passed after implemented metadata was recorded.
+- [x] `tools/check_as_built_docs.sh` passed after implemented metadata was recorded.
+- [x] `tools/check_workflow_pair_sync.sh` passed.
+- [x] `tools/check_lesson_structure.sh` passed.
+- [x] `tools/check_lesson14_structure.sh` passed.
+- [x] `tools/test_test_plan.sh` passed.
+- [x] `tools/test_git_hooks.sh` passed.
+- [x] `tools/test_git_hooks_parallel.sh` passed.
+- [x] `tools/test_ci_final_gate.sh` passed.
+- [x] `tools/test_lesson_repository.sh` passed after the approval-policy and `pre_commit_required` review fixes.
+- [x] `tools/git-hooks run --mode full --no-cache` passed after the final-gate gap coverage fix.
+- [x] Read-only sub-agent review completed across implementation, wiring, and document synchronization; follow-up re-review found no unresolved release-blocking findings.
+
+Next Step:
+
+- This implementation step is closed. Future PR push, PR CI, merge, main CI, local/remote sync, and cleanup remain separate approval-bound release or closure phases.

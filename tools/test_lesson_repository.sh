@@ -78,6 +78,8 @@ as_built_evidence_run_sync_contract_check
 WORKFLOW_PAIR_SINGLE_FILE_REASON="aggregate test may run while remediation documents are being edited together" ./tools/check_workflow_pair_sync.sh
 ./tools/check_review_protocol.sh
 ./tools/check_developer_memory_requirements.sh
+./tools/check_repository_development_workflow.sh
+./tools/repository-development-workflow status >/dev/null
 ./tools/menu >/dev/null
 ./tools/dashboard all >/dev/null
 ./tools/as-built-sync status >/dev/null
@@ -85,6 +87,7 @@ WORKFLOW_PAIR_SINGLE_FILE_REASON="aggregate test may run while remediation docum
 ./tools/test_docs_tour.sh
 ./tools/test_as_built_sync_contract.sh
 ./tools/test_test_plan.sh
+./tools/test_repository_development_workflow.sh
 ./tools/test_security_invariants.sh
 ./tools/test_git_workflow_policy.sh
 ./tools/git-hooks status >/dev/null

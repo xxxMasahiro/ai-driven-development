@@ -30,6 +30,7 @@ jobs:
           bash -n tools/lib/ci_timing.sh
           bash -n tools/lib/as_built_evidence.sh
           bash -n tools/lib/test_plan.sh
+          bash -n tools/lib/repository_development_workflow.sh
           bash -n tools/lib/fixture_copy.sh
           bash -n tools/lib/security_invariants.sh
           bash -n tools/lib/product_security.sh
@@ -52,11 +53,13 @@ jobs:
           bash -n tools/check_workflow_pair_sync.sh
           bash -n tools/check_review_protocol.sh
           bash -n tools/check_developer_memory_requirements.sh
+          bash -n tools/check_repository_development_workflow.sh
           bash -n tools/check_ci_workflow_structure.sh
           bash -n tools/test_lesson_playwright.sh
           bash -n tools/test_docs_tour.sh
           bash -n tools/test_as_built_sync_contract.sh
           bash -n tools/test_test_plan.sh
+          bash -n tools/test_repository_development_workflow.sh
           bash -n tools/test_security_invariants.sh
           bash -n tools/test_git_workflow_policy.sh
           bash -n tools/test_git_hooks.sh
@@ -101,6 +104,7 @@ jobs:
           bash -n tools/menu
           bash -n tools/as-built-sync
           bash -n tools/test-plan
+          bash -n tools/repository-development-workflow
           bash -n tools/git-workflow
           bash -n tools/git-hooks
           bash -n tools/resource-guard
@@ -130,6 +134,7 @@ jobs:
           ./tools/check_as_built_sync_contract.sh
           ./tools/check_test_plan_coverage.sh
           ./tools/check_security_invariants.sh
+          ./tools/check_repository_development_workflow.sh
 
       - name: Lesson14 structure and sync
         run: |
@@ -146,6 +151,7 @@ jobs:
         run: |
           ./tools/check_test_plan_coverage.sh
           ./tools/check_security_invariants.sh
+          ./tools/test_repository_development_workflow.sh
           ./tools/check_ci_workflow_structure.sh
           ./tools/test_ci_pipeline_acceleration.sh
           ./tools/test_ci_timing.sh

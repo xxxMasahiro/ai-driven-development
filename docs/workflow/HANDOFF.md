@@ -1794,3 +1794,62 @@ Recovery notes:
 Next Step:
 
 - This implementation step is closed. Continue future product workflow Git usage mode changes through a new synced task or explicit developer direction.
+
+## Implemented Lesson Repository Development Workflow Skill Handoff
+
+SYNC-ID: lesson_repository_development_workflow_skill
+STATUS: implemented
+ARTIFACTS: AGENTS.MD,docs/workflow/AS_BUILT_SYNC_CONTRACT.tsv,docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv,docs/workflow/GIT_HOOK_CHECKS.tsv,docs/workflow/GIT_HOOK_PARALLEL_GROUPS.tsv,docs/workflow/TEST_PLAN_MANIFEST.tsv,docs/workflow/FINAL_GATE_GAP_COMMANDS.tsv,docs/workflow/FINAL_GATE_COVERAGE.tsv,learning/REPOSITORY_DEVELOPMENT_APPROVALS.tsv,skills/lesson-repository-development/SKILL.md,skills/lesson-repository-development/references/repository-development.md,skills/lesson-repository-development/agents/openai.yaml,tools/lib/repository_development_workflow.sh,tools/repository-development-workflow,tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh,tools/check_agents_skills.sh,tools/test_lesson_repository.sh,tools/check_ci_workflow_structure.sh,.github/workflows/ci.yml,.github/workflows/lesson14-ci.yml
+TESTS: tools/check_repository_development_workflow.sh,tools/test_repository_development_workflow.sh
+
+Restart context:
+
+- This is an implemented state for the `lesson-repository-development` repo-local skill and mechanical workflow support.
+- The workflow helps agents move from wall discussion to proposal, implementation plan, document sync, implementation, focused verification, release gates, PR/main CI, local/remote sync, and cleanup planning without weakening AGENTS.MD.
+- The seven implemented phase ids are `context_triage`, `proposal`, `implementation_plan`, `fast_loop`, `mid_tests`, `release_gate`, and `main_sync_cleanup`.
+- The workflow is for this lesson repository's own development. It must not replace `worklog-doc-sync` for product-document synchronization or `lesson-sync-gate` for final lesson/gate closure.
+- Implemented artifacts include the workflow TSV, approval TSV, repo-local skill files, shared shell helper, CLI, standalone check, regression test, hook metadata, aggregate test wiring, CI structure wiring, and final-gate coverage wiring.
+- Final-gate gap wiring includes `repository_development_workflow_status` so aggregate coverage recognizes `./tools/repository-development-workflow status`.
+- The sync contract now lists the implemented runtime artifacts and the standalone check/test as required tests.
+
+Next safe action:
+
+- Use `skills/lesson-repository-development/SKILL.md` and `./tools/repository-development-workflow status|plan|guidance|gate` for future lesson-repository development work.
+- Treat PR CI, merge, main CI, local/remote sync, and cleanup as release or closure phases. Do not execute them from fast-loop guidance without explicit developer direction.
+- If a future change extends the workflow, start from `docs/workflow/REPOSITORY_DEVELOPMENT_WORKFLOW.tsv` and `tools/lib/repository_development_workflow.sh` before changing skill text or hook/CI callers.
+
+Stop and ask before:
+
+- Editing AGENTS.MD, pre-commit, CI, final-gate coverage, branch/worktree deletion, remote deletion, product-repository deletion, push, merge, main CI waiting, local/remote sync, or any destructive operation.
+- Weakening existing gates, removing required checks, changing STEP 1-7 or STEP 1-14 behavior, changing repo-local skill ownership, changing document synchronization ownership, or accepting any existing-feature tradeoff.
+- Treating fast-loop recommendations as release proof.
+
+Recovery notes:
+
+- If the sync contract fails, first verify that the `SYNC-ID`, `STATUS`, `ARTIFACTS`, and `TESTS` lines match exactly across all five required docs.
+- If an implemented artifact or test is listed but missing, restore the file or downgrade only through a new approved sync change; do not leave implemented metadata pointing at absent files.
+- If the future workflow suggests cleanup execution, convert it to an approval-bound cleanup plan unless explicit developer approval exists.
+- If repeated failures or a specification conflict appear, stop after the third repeated failure and request developer direction.
+
+Current verification state:
+
+- `bash -n tools/lib/repository_development_workflow.sh tools/repository-development-workflow tools/check_repository_development_workflow.sh tools/test_repository_development_workflow.sh tools/check_ci_workflow_structure.sh`: passed.
+- `tools/repository-development-workflow list`: passed.
+- `tools/repository-development-workflow gate --phase release_gate`: passed and reports policy-valid-only rather than proof.
+- `tools/check_repository_development_workflow.sh`: passed.
+- `tools/test_repository_development_workflow.sh`: passed.
+- `tools/check_agents_skills.sh`: passed.
+- `tools/check_test_plan_coverage.sh`: passed.
+- `tools/check_ci_workflow_structure.sh`: passed.
+- `tools/check_as_built_sync_contract.sh`: passed after implemented metadata was recorded.
+- `tools/check_as_built_docs.sh`: passed after implemented metadata was recorded.
+- `tools/check_workflow_pair_sync.sh`: passed.
+- `tools/check_lesson_structure.sh`: passed.
+- `tools/check_lesson14_structure.sh`: passed.
+- `tools/test_test_plan.sh`: passed.
+- `tools/test_git_hooks.sh`: passed.
+- `tools/test_git_hooks_parallel.sh`: passed.
+- `tools/test_ci_final_gate.sh`: passed.
+- `tools/test_lesson_repository.sh`: passed after the approval-policy and `pre_commit_required` review fixes.
+- `tools/git-hooks run --mode full --no-cache`: passed after the final-gate gap coverage fix.
+- Read-only sub-agent review completed across implementation, wiring, and document synchronization; follow-up re-review found no unresolved release-blocking findings.

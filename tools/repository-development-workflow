@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=tools/lib/lesson_common.sh
+source "$ROOT/tools/lib/lesson_common.sh"
+# shellcheck source=tools/lib/repository_development_workflow.sh
+source "$ROOT/tools/lib/repository_development_workflow.sh"
+
+usage() {
+  cat <<'USAGE'
+Usage:
+  ./tools/repository-development-workflow status [--phase <phase_id>]
+  ./tools/repository-development-workflow list
+  ./tools/repository-development-workflow plan --phase <phase_id>
+  ./tools/repository-development-workflow guidance --phase <phase_id>
+  ./tools/repository-development-workflow gate --phase <phase_id>
+  ./tools/repository-development-workflow check
+USAGE
+}
+
+phase="${REPOSITORY_DEVELOPMENT_PHASE:-context_triage}"
+cmd="${1:-status}"
+shift || true
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --phase)
+      [[ $# -ge 2 ]] || {
+        printf -- '--phase requires a value.\n' >&2
+        exit 1
+      }
+      phase="$2"
+      shift 2
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
+case "$cmd" in
+  status)
+    repository_development_validate_policy
+    printf 'Repository development workflow\n'
+    printf 'Policy file: %s\n' "$(repository_development_workflow_file)"
+    printf 'Approvals file: %s\n' "$(repository_development_approvals_file)"
+    printf 'Selected phase: %s\n' "$phase"
+    repository_development_print_phase "$phase"
+    ;;
+  list)
+    repository_development_validate_policy
+    repository_development_print_list
+    ;;
+  plan)
+    repository_development_validate_policy
+    repository_development_print_phase "$phase"
+    printf 'Plan status: policy-backed; follow document sync and approval boundaries before writing.\n'
+    ;;
+  guidance)
+    repository_development_validate_policy
+    repository_development_print_guidance "$phase"
+    ;;
+  gate)
+    repository_development_validate_policy
+    repository_development_print_phase "$phase"
+    printf 'Policy gate status: policy-valid only. This does not prove listed checks passed; execute listed checks through their owner commands before advancing.\n'
+    ;;
+  check)
+    repository_development_validate_policy
+    printf 'Repository development workflow check passed.\n'
+    ;;
+  help|--help|-h)
+    usage
+    ;;
+  *)
+    usage >&2
+    exit 1
+    ;;
+esac

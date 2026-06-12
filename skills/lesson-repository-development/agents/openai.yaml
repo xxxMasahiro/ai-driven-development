@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lesson Repository Development"
+  short_description: "Plan, implement, verify, and close lesson repo changes."
+  default_prompt: "Use $lesson-repository-development to plan and verify a lesson repository change."

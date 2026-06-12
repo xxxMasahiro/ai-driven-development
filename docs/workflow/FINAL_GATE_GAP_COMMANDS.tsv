@@ -3,6 +3,7 @@ menu_status	./tools/menu >/dev/null	Confirm the menu command still renders.
 dashboard_all	./tools/dashboard all >/dev/null	Confirm the dashboard command still renders every section.
 dashboard_data	./tools/dashboard-data >/dev/null	Confirm the dashboard data JSON command still renders.
 as_built_sync_status	./tools/as-built-sync status >/dev/null	Confirm the as-built sync status view remains available.
+repository_development_workflow_status	./tools/repository-development-workflow status >/dev/null	Confirm the repository development workflow status view remains available.
 illustrations_list	./tools/illustrations list >/dev/null	Confirm the illustration index remains readable.
 git_hooks_status	./tools/git-hooks status >/dev/null	Confirm the Git hooks status view remains available.
 resource_guard_status	./tools/resource-guard status >/dev/null	Confirm the resource guard status view remains available.
